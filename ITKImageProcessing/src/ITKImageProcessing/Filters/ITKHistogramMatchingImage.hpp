@@ -24,13 +24,12 @@ public:
   ITKHistogramMatchingImage& operator=(ITKHistogramMatchingImage&&) noexcept = delete;
 
   // Parameter Keys
+  static inline constexpr StringLiteral k_SelectedImageGeomPath_Key = "SelectedImageGeomPath";
+  static inline constexpr StringLiteral k_SelectedImageDataPath_Key = "InputImageDataPath";
+  static inline constexpr StringLiteral k_OutputIamgeDataPath_Key = "OutputImageDataPath";
   static inline constexpr StringLiteral k_NumberOfHistogramLevels_Key = "NumberOfHistogramLevels";
   static inline constexpr StringLiteral k_NumberOfMatchPoints_Key = "NumberOfMatchPoints";
   static inline constexpr StringLiteral k_ThresholdAtMeanIntensity_Key = "ThresholdAtMeanIntensity";
-  static inline constexpr StringLiteral k_SelectedCellArrayPath_Key = "SelectedCellArrayPath";
-  static inline constexpr StringLiteral k_ReferenceCellArrayPath_Key = "ReferenceCellArrayPath";
-  static inline constexpr StringLiteral k_NewCellArrayName_Key = "NewCellArrayName";
-  static inline constexpr StringLiteral k_SelectedImageGeomPath_Key = "SelectedImageGeomPath";
 
   /**
    * @brief Returns the name of the filter.

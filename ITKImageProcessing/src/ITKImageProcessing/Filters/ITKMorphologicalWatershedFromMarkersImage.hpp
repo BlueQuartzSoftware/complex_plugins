@@ -24,12 +24,11 @@ public:
   ITKMorphologicalWatershedFromMarkersImage& operator=(ITKMorphologicalWatershedFromMarkersImage&&) noexcept = delete;
 
   // Parameter Keys
+  static inline constexpr StringLiteral k_SelectedImageGeomPath_Key = "SelectedImageGeomPath";
+  static inline constexpr StringLiteral k_SelectedImageDataPath_Key = "InputImageDataPath";
+  static inline constexpr StringLiteral k_OutputIamgeDataPath_Key = "OutputImageDataPath";
   static inline constexpr StringLiteral k_MarkWatershedLine_Key = "MarkWatershedLine";
   static inline constexpr StringLiteral k_FullyConnected_Key = "FullyConnected";
-  static inline constexpr StringLiteral k_SelectedCellArrayPath_Key = "SelectedCellArrayPath";
-  static inline constexpr StringLiteral k_MarkerCellArrayPath_Key = "MarkerCellArrayPath";
-  static inline constexpr StringLiteral k_NewCellArrayName_Key = "NewCellArrayName";
-  static inline constexpr StringLiteral k_SelectedImageGeomPath_Key = "SelectedImageGeomPath";
 
   /**
    * @brief Returns the name of the filter.

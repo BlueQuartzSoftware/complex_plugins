@@ -1,25 +1,31 @@
 #include "ITKBinaryThinningImage.hpp"
 
+// This filter only works with certain kinds of data so we
+// disable the types that the filter will *NOT* compile against. The
+// Allowed PixelTypes as defined in SimpleITK is: IntegerPixelIDTypeList
+#define COMPLEX_ITK_ARRAY_HELPER_USE_float32 0
+#define COMPLEX_ITK_ARRAY_HELPER_USE_float64 0
+
+#include "ITKImageProcessing/Common/ITKArrayHelper.hpp"
+
 #include "complex/DataStructure/DataPath.hpp"
-#include "complex/Filter/Actions/EmptyAction.hpp"
 #include "complex/Parameters/ArrayCreationParameter.hpp"
 #include "complex/Parameters/ArraySelectionParameter.hpp"
 #include "complex/Parameters/GeometrySelectionParameter.hpp"
 
-#include "ITKImageProcessing/Common/ITKArrayHelper.hpp"
+#include <itkBinaryThinningImageFilter.h>
 
 using namespace complex;
 
-#include <itkBinaryThinningImageFilter.h>
-
 namespace
 {
-struct ITKBinaryThinningImageFilterCreationFunctor
+struct ITKBinaryThinningImageCreationFunctor
 {
+
   template <typename InputImageType, typename OutputImageType, unsigned int Dimension>
   auto operator()() const
   {
-    typedef itk::BinaryThinningImageFilter<InputImageType, OutputImageType> FilterType;
+    using FilterType = itk::BinaryThinningImageFilter<InputImageType, OutputImageType>;
     typename FilterType::Pointer filter = FilterType::New();
     return filter;
   }
@@ -49,13 +55,13 @@ Uuid ITKBinaryThinningImage::uuid() const
 //------------------------------------------------------------------------------
 std::string ITKBinaryThinningImage::humanName() const
 {
-  return "ITK::Binary Thinning Image Filter";
+  return "ITK::BinaryThinningImageFilter";
 }
 
 //------------------------------------------------------------------------------
 std::vector<std::string> ITKBinaryThinningImage::defaultTags() const
 {
-  return {"#ITK Image Processing", "#ITK BinaryMathematicalMorphology"};
+  return {"ITKImageProcessing", "ITKBinaryThinningImage"};
 }
 
 //------------------------------------------------------------------------------
@@ -64,8 +70,8 @@ Parameters ITKBinaryThinningImage::parameters() const
   Parameters params;
   // Create the parameter descriptors that are needed for this filter
   params.insert(std::make_unique<GeometrySelectionParameter>(k_SelectedImageGeomPath_Key, "Image Geometry", "", DataPath{}, GeometrySelectionParameter::AllowedTypes{DataObject::Type::ImageGeom}));
-  params.insert(std::make_unique<ArraySelectionParameter>(k_SelectedCellArrayPath_Key, "Attribute Array to filter", "", DataPath{}));
-  params.insert(std::make_unique<ArrayCreationParameter>(k_NewCellArrayName_Key, "Filtered Array", "", DataPath{}));
+  params.insert(std::make_unique<ArraySelectionParameter>(k_SelectedImageDataPath_Key, "Input Image", "", DataPath{}));
+  params.insert(std::make_unique<ArrayCreationParameter>(k_OutputIamgeDataPath_Key, "Output Image", "", DataPath{}));
 
   return params;
 }
@@ -89,8 +95,8 @@ IFilter::PreflightResult ITKBinaryThinningImage::preflightImpl(const DataStructu
    * do not need some of them remove them.
    */
   auto pImageGeomPath = filterArgs.value<DataPath>(k_SelectedImageGeomPath_Key);
-  auto pSelectedCellArrayPath = filterArgs.value<DataPath>(k_SelectedCellArrayPath_Key);
-  auto pOutputArrayPath = filterArgs.value<DataPath>(k_NewCellArrayName_Key);
+  auto pSelectedInputArray = filterArgs.value<DataPath>(k_SelectedImageDataPath_Key);
+  auto pOutputArrayPath = filterArgs.value<DataPath>(k_OutputIamgeDataPath_Key);
 
   // Declare the preflightResult variable that will be populated with the results
   // of the preflight. The PreflightResult type contains the output Actions and
@@ -108,11 +114,10 @@ IFilter::PreflightResult ITKBinaryThinningImage::preflightImpl(const DataStructu
   // store those actions.
   complex::Result<OutputActions> resultOutputActions;
 
-  resultOutputActions = ITK::DataCheck(dataStructure, pSelectedCellArrayPath, pImageGeomPath, pOutputArrayPath);
+  resultOutputActions = ITK::DataCheck(dataStructure, pSelectedInputArray, pImageGeomPath, pOutputArrayPath);
 
   // If the filter needs to pass back some updated values via a key:value string:string set of values
   // you can declare and update that string here.
-  // None found in this filter based on the filter parameters
 
   // If this filter makes changes to the DataStructure in the form of
   // creating/deleting/moving/renaming DataGroups, Geometries, DataArrays then you
@@ -129,7 +134,6 @@ IFilter::PreflightResult ITKBinaryThinningImage::preflightImpl(const DataStructu
 
   // Store the preflight updated value(s) into the preflightUpdatedValues vector using
   // the appropriate methods.
-  // None found based on the filter parameters
 
   // Return both the resultOutputActions and the preflightUpdatedValues via std::move()
   return {std::move(resultOutputActions), std::move(preflightUpdatedValues)};
@@ -142,17 +146,23 @@ Result<> ITKBinaryThinningImage::executeImpl(DataStructure& dataStructure, const
    * Extract the actual input values from the 'filterArgs' object
    ***************************************************************************/
   auto pImageGeomPath = filterArgs.value<DataPath>(k_SelectedImageGeomPath_Key);
-  auto pSelectedCellArrayPath = filterArgs.value<DataPath>(k_SelectedCellArrayPath_Key);
-  auto pOutputArrayPath = filterArgs.value<DataPath>(k_NewCellArrayName_Key);
+  auto pSelectedInputArray = filterArgs.value<DataPath>(k_SelectedImageDataPath_Key);
+  auto pOutputArrayPath = filterArgs.value<DataPath>(k_OutputIamgeDataPath_Key);
+
+  /****************************************************************************
+   * Create the functor object that will instantiate the correct itk filter
+   ***************************************************************************/
+  ::ITKBinaryThinningImageCreationFunctor itkFunctor{};
+
+  /****************************************************************************
+   * Associate the output image with the Image Geometry for Visualization
+   ***************************************************************************/
+  ImageGeom& imageGeom = dataStructure.getDataRefAs<ImageGeom>(pImageGeomPath);
+  imageGeom.getLinkedGeometryData().addCellData(pOutputArrayPath);
 
   /****************************************************************************
    * Write your algorithm implementation in this function
    ***************************************************************************/
-  ::ITKBinaryThinningImageFilterCreationFunctor itkFunctor;
-
-  ImageGeom& imageGeom = dataStructure.getDataRefAs<ImageGeom>(pImageGeomPath);
-  imageGeom.getLinkedGeometryData().addCellData(pOutputArrayPath);
-
-  return ITK::Execute(dataStructure, pSelectedCellArrayPath, pImageGeomPath, pOutputArrayPath, itkFunctor);
+  return ITK::Execute(dataStructure, pSelectedInputArray, pImageGeomPath, pOutputArrayPath, itkFunctor);
 }
 } // namespace complex

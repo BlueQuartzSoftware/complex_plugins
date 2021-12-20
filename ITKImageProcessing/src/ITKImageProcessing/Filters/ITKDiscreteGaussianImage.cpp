@@ -1,38 +1,42 @@
 #include "ITKDiscreteGaussianImage.hpp"
 
+// This filter only works with certain kinds of data so we
+// disable the types that the filter will *NOT* compile against. The
+// Allowed PixelTypes as defined in SimpleITK is: BasicPixelIDTypeList
+#define COMPLEX_ITK_ARRAY_HELPER_USE_uint64 0
+#define COMPLEX_ITK_ARRAY_HELPER_USE_int64 0
+
+#include "ITKImageProcessing/Common/ITKArrayHelper.hpp"
+
 #include "complex/DataStructure/DataPath.hpp"
-#include "complex/Filter/Actions/EmptyAction.hpp"
 #include "complex/Parameters/ArrayCreationParameter.hpp"
 #include "complex/Parameters/ArraySelectionParameter.hpp"
 #include "complex/Parameters/BoolParameter.hpp"
 #include "complex/Parameters/GeometrySelectionParameter.hpp"
 #include "complex/Parameters/NumberParameter.hpp"
-#include "complex/Parameters/VectorParameter.hpp"
-
-#include "ITKImageProcessing/Common/ITKArrayHelper.hpp"
-
-using namespace complex;
 
 #include <itkDiscreteGaussianImageFilter.h>
 
+using namespace complex;
+
 namespace
 {
-struct ITKDiscreteGaussianImageFilterCreationFunctor
+struct ITKDiscreteGaussianImageCreationFunctor
 {
-  VectorFloat32Parameter::ValueType m_Variance;
-  int32 m_MaximumKernelWidth;
-  VectorFloat32Parameter::ValueType m_MaximumError;
-  bool m_UseImageSpacing;
+  double pVariance;
+  unsigned int pMaximumKernelWidth;
+  double pMaximumError;
+  bool pUseImageSpacing;
+
   template <typename InputImageType, typename OutputImageType, unsigned int Dimension>
   auto operator()() const
   {
     using FilterType = itk::DiscreteGaussianImageFilter<InputImageType, OutputImageType>;
     typename FilterType::Pointer filter = FilterType::New();
-    filter->SetVariance(complex::ITK::CastVec3ToITK<complex::FloatVec3, typename FilterType::ArrayType, typename FilterType::ArrayType::ValueType>(m_Variance, FilterType::ArrayType::Dimension));
-    filter->SetMaximumKernelWidth(static_cast<unsigned int>(m_MaximumKernelWidth));
-    filter->SetMaximumError(
-        complex::ITK::CastVec3ToITK<complex::FloatVec3, typename FilterType::ArrayType, typename FilterType::ArrayType::ValueType>(m_MaximumError, FilterType::ArrayType::Dimension));
-    filter->SetUseImageSpacing(static_cast<bool>(m_UseImageSpacing));
+    filter->SetVariance(pVariance);
+    filter->SetMaximumKernelWidth(pMaximumKernelWidth);
+    filter->SetMaximumError(pMaximumError);
+    filter->SetUseImageSpacing(pUseImageSpacing);
     return filter;
   }
 };
@@ -61,13 +65,13 @@ Uuid ITKDiscreteGaussianImage::uuid() const
 //------------------------------------------------------------------------------
 std::string ITKDiscreteGaussianImage::humanName() const
 {
-  return "ITK::Discrete Gaussian Image Filter";
+  return "ITK::DiscreteGaussianImageFilter";
 }
 
 //------------------------------------------------------------------------------
 std::vector<std::string> ITKDiscreteGaussianImage::defaultTags() const
 {
-  return {"#ITK Image Processing", "#ITK Smoothing"};
+  return {"ITKImageProcessing", "ITKDiscreteGaussianImage"};
 }
 
 //------------------------------------------------------------------------------
@@ -75,13 +79,13 @@ Parameters ITKDiscreteGaussianImage::parameters() const
 {
   Parameters params;
   // Create the parameter descriptors that are needed for this filter
-  params.insert(std::make_unique<VectorFloat32Parameter>(k_Variance_Key, "Variance", "", std::vector<float32>(3), std::vector<std::string>(3)));
-  params.insert(std::make_unique<Int32Parameter>(k_MaximumKernelWidth_Key, "MaximumKernelWidth", "", 1234356));
-  params.insert(std::make_unique<VectorFloat32Parameter>(k_MaximumError_Key, "MaximumError", "", std::vector<float32>(3), std::vector<std::string>(3)));
-  params.insert(std::make_unique<BoolParameter>(k_UseImageSpacing_Key, "UseImageSpacing", "", false));
   params.insert(std::make_unique<GeometrySelectionParameter>(k_SelectedImageGeomPath_Key, "Image Geometry", "", DataPath{}, GeometrySelectionParameter::AllowedTypes{DataObject::Type::ImageGeom}));
-  params.insert(std::make_unique<ArraySelectionParameter>(k_SelectedCellArrayPath_Key, "Attribute Array to filter", "", DataPath{}));
-  params.insert(std::make_unique<ArrayCreationParameter>(k_NewCellArrayName_Key, "Filtered Array", "", DataPath{}));
+  params.insert(std::make_unique<ArraySelectionParameter>(k_SelectedImageDataPath_Key, "Input Image", "", DataPath{}));
+  params.insert(std::make_unique<ArrayCreationParameter>(k_OutputIamgeDataPath_Key, "Output Image", "", DataPath{}));
+  params.insert(std::make_unique<Float64Parameter>(k_Variance_Key, "Variance", "", std::vector<double>(3, 1.0)));
+  params.insert(std::make_unique<UInt32Parameter>(k_MaximumKernelWidth_Key, "MaximumKernelWidth", "", 32u));
+  params.insert(std::make_unique<Float64Parameter>(k_MaximumError_Key, "MaximumError", "", std::vector<double>(3, 0.01)));
+  params.insert(std::make_unique<BoolParameter>(k_UseImageSpacing_Key, "UseImageSpacing", "", true));
 
   return params;
 }
@@ -104,13 +108,13 @@ IFilter::PreflightResult ITKDiscreteGaussianImage::preflightImpl(const DataStruc
    * otherwise passed into the filter. These are here for your convenience. If you
    * do not need some of them remove them.
    */
-  auto pVariance = filterArgs.value<VectorFloat32Parameter::ValueType>(k_Variance_Key);
-  auto pMaximumKernelWidth = filterArgs.value<int32>(k_MaximumKernelWidth_Key);
-  auto pMaximumError = filterArgs.value<VectorFloat32Parameter::ValueType>(k_MaximumError_Key);
-  auto pUseImageSpacing = filterArgs.value<bool>(k_UseImageSpacing_Key);
   auto pImageGeomPath = filterArgs.value<DataPath>(k_SelectedImageGeomPath_Key);
-  auto pSelectedCellArrayPath = filterArgs.value<DataPath>(k_SelectedCellArrayPath_Key);
-  auto pOutputArrayPath = filterArgs.value<DataPath>(k_NewCellArrayName_Key);
+  auto pSelectedInputArray = filterArgs.value<DataPath>(k_SelectedImageDataPath_Key);
+  auto pOutputArrayPath = filterArgs.value<DataPath>(k_OutputIamgeDataPath_Key);
+  auto pVariance = filterArgs.value<double>(k_Variance_Key);
+  auto pMaximumKernelWidth = filterArgs.value<unsigned int>(k_MaximumKernelWidth_Key);
+  auto pMaximumError = filterArgs.value<double>(k_MaximumError_Key);
+  auto pUseImageSpacing = filterArgs.value<bool>(k_UseImageSpacing_Key);
 
   // Declare the preflightResult variable that will be populated with the results
   // of the preflight. The PreflightResult type contains the output Actions and
@@ -128,11 +132,10 @@ IFilter::PreflightResult ITKDiscreteGaussianImage::preflightImpl(const DataStruc
   // store those actions.
   complex::Result<OutputActions> resultOutputActions;
 
-  resultOutputActions = ITK::DataCheck(dataStructure, pSelectedCellArrayPath, pImageGeomPath, pOutputArrayPath);
+  resultOutputActions = ITK::DataCheck(dataStructure, pSelectedInputArray, pImageGeomPath, pOutputArrayPath);
 
   // If the filter needs to pass back some updated values via a key:value string:string set of values
   // you can declare and update that string here.
-  // None found in this filter based on the filter parameters
 
   // If this filter makes changes to the DataStructure in the form of
   // creating/deleting/moving/renaming DataGroups, Geometries, DataArrays then you
@@ -149,7 +152,6 @@ IFilter::PreflightResult ITKDiscreteGaussianImage::preflightImpl(const DataStruc
 
   // Store the preflight updated value(s) into the preflightUpdatedValues vector using
   // the appropriate methods.
-  // None found based on the filter parameters
 
   // Return both the resultOutputActions and the preflightUpdatedValues via std::move()
   return {std::move(resultOutputActions), std::move(preflightUpdatedValues)};
@@ -161,26 +163,32 @@ Result<> ITKDiscreteGaussianImage::executeImpl(DataStructure& dataStructure, con
   /****************************************************************************
    * Extract the actual input values from the 'filterArgs' object
    ***************************************************************************/
-  auto pVariance = filterArgs.value<VectorFloat32Parameter::ValueType>(k_Variance_Key);
-  auto pMaximumKernelWidth = filterArgs.value<int32>(k_MaximumKernelWidth_Key);
-  auto pMaximumError = filterArgs.value<VectorFloat32Parameter::ValueType>(k_MaximumError_Key);
-  auto pUseImageSpacing = filterArgs.value<bool>(k_UseImageSpacing_Key);
   auto pImageGeomPath = filterArgs.value<DataPath>(k_SelectedImageGeomPath_Key);
-  auto pSelectedCellArrayPath = filterArgs.value<DataPath>(k_SelectedCellArrayPath_Key);
-  auto pOutputArrayPath = filterArgs.value<DataPath>(k_NewCellArrayName_Key);
+  auto pSelectedInputArray = filterArgs.value<DataPath>(k_SelectedImageDataPath_Key);
+  auto pOutputArrayPath = filterArgs.value<DataPath>(k_OutputIamgeDataPath_Key);
+  auto pVariance = filterArgs.value<double>(k_Variance_Key);
+  auto pMaximumKernelWidth = filterArgs.value<unsigned int>(k_MaximumKernelWidth_Key);
+  auto pMaximumError = filterArgs.value<double>(k_MaximumError_Key);
+  auto pUseImageSpacing = filterArgs.value<bool>(k_UseImageSpacing_Key);
+
+  /****************************************************************************
+   * Create the functor object that will instantiate the correct itk filter
+   ***************************************************************************/
+  ::ITKDiscreteGaussianImageCreationFunctor itkFunctor{};
+  itkFunctor.pVariance = pVariance;
+  itkFunctor.pMaximumKernelWidth = pMaximumKernelWidth;
+  itkFunctor.pMaximumError = pMaximumError;
+  itkFunctor.pUseImageSpacing = pUseImageSpacing;
+
+  /****************************************************************************
+   * Associate the output image with the Image Geometry for Visualization
+   ***************************************************************************/
+  ImageGeom& imageGeom = dataStructure.getDataRefAs<ImageGeom>(pImageGeomPath);
+  imageGeom.getLinkedGeometryData().addCellData(pOutputArrayPath);
 
   /****************************************************************************
    * Write your algorithm implementation in this function
    ***************************************************************************/
-  ::ITKDiscreteGaussianImageFilterCreationFunctor itkFunctor;
-  itkFunctor.m_Variance = pVariance;
-  itkFunctor.m_MaximumKernelWidth = pMaximumKernelWidth;
-  itkFunctor.m_MaximumError = pMaximumError;
-  itkFunctor.m_UseImageSpacing = pUseImageSpacing;
-
-  ImageGeom& imageGeom = dataStructure.getDataRefAs<ImageGeom>(pImageGeomPath);
-  imageGeom.getLinkedGeometryData().addCellData(pOutputArrayPath);
-
-  return ITK::Execute(dataStructure, pSelectedCellArrayPath, pImageGeomPath, pOutputArrayPath, itkFunctor);
+  return ITK::Execute(dataStructure, pSelectedInputArray, pImageGeomPath, pOutputArrayPath, itkFunctor);
 }
 } // namespace complex

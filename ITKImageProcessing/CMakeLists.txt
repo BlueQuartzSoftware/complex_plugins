@@ -67,6 +67,34 @@ set(FilterList
   ITKValuedRegionalMaximaImage
   ITKValuedRegionalMinimaImage
   ITKWhiteTopHatImage
+
+  #-----------------------------------------------------------------------------
+  # These filters have a fixed output type of 'double'
+  #-----------------------------------------------------------------------------
+  ITKMinMaxCurvatureFlowImage
+  ITKGradientAnisotropicDiffusionImage
+  ITKCurvatureAnisotropicDiffusionImage
+  ITKApproximateSignedDistanceMapImage
+  ITKBinaryThresholdImage
+  ITKBoundedReciprocalImage
+  ITKConnectedComponentImage
+  ITKCurvatureFlowImage
+  ITKDanielssonDistanceMapImage
+  ITKDoubleThresholdImage
+  ITKGradientMagnitudeImage
+  ITKGradientMagnitudeRecursiveGaussianImage
+  ITKIsoContourDistanceImage
+  ITKLaplacianRecursiveGaussianImage
+  ITKMeanProjectionImage
+  ITKNormalizeImage
+  ITKNormalizeToConstantImage
+  ITKOtsuMultipleThresholdsImage
+  ITKRegionalMaximaImage
+  ITKRegionalMinimaImage
+  ITKStandardDeviationProjectionImage
+  ITKSumProjectionImage
+  ITKThresholdMaximumConnectedComponentsImage
+  ITKZeroCrossingImage
   )
 
 set(FilterList_Bak
@@ -106,35 +134,12 @@ set(Filters_Disabled
   # These filters have a fixed output type of 'double'
   #-----------------------------------------------------------------------------
   ITKRGBToLuminanceImage # Multiple Different Return types so auto has issues with that
-  ITKMinMaxCurvatureFlowImage
-  ITKGradientAnisotropicDiffusionImage
-  ITKCurvatureAnisotropicDiffusionImage
-  ITKApproximateSignedDistanceMapImage
-  ITKBinaryThresholdImage
-  ITKBoundedReciprocalImage
-  ITKConnectedComponentImage
-  ITKCurvatureFlowImage
-  ITKDanielssonDistanceMapImage
-  ITKDoubleThresholdImage
-  ITKGradientMagnitudeImage
-  ITKGradientMagnitudeRecursiveGaussianImage
-  ITKIsoContourDistanceImage
-  ITKLaplacianRecursiveGaussianImage # Link error due to missing enums (?)
-  ITKMeanProjectionImage
+  ITKVectorConnectedComponentImage
   ITKMorphologicalWatershedFromMarkersImage
-  ITKNormalizeImage
-  ITKNormalizeToConstantImage
-  ITKOtsuMultipleThresholdsImage
-  ITKRegionalMaximaImage
-  ITKRegionalMinimaImage
   ITKSignedDanielssonDistanceMapImage
   ITKSignedMaurerDistanceMapImage
   ITKSmoothingRecursiveGaussianImage
-  ITKStandardDeviationProjectionImage
-  ITKSumProjectionImage
-  ITKThresholdMaximumConnectedComponentsImage
-  ITKVectorConnectedComponentImage
-  ITKZeroCrossingImage
+
 
   #-----------------------------------------------------------------------------
   # These filters use the itk::InPlaceDream3DDataToImageFilter filter
@@ -199,4 +204,4 @@ target_include_directories(${PLUGIN_NAME} PUBLIC  ${ITK_INCLUDE_DIRS})
 #------------------------------------------------------------------------------
 # Add in the unit tests for the filters included in this plugin
 enable_testing()
-add_subdirectory(${${PLUGIN_NAME}_SOURCE_DIR}/test)
+#add_subdirectory(${${PLUGIN_NAME}_SOURCE_DIR}/test)

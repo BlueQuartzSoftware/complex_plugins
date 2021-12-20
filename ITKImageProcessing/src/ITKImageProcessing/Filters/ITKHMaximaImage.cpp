@@ -1,29 +1,35 @@
 #include "ITKHMaximaImage.hpp"
 
+// This filter only works with certain kinds of data so we
+// disable the types that the filter will *NOT* compile against. The
+// Allowed PixelTypes as defined in SimpleITK is: BasicPixelIDTypeList
+#define COMPLEX_ITK_ARRAY_HELPER_USE_uint64 0
+#define COMPLEX_ITK_ARRAY_HELPER_USE_int64 0
+
+#include "ITKImageProcessing/Common/ITKArrayHelper.hpp"
+
 #include "complex/DataStructure/DataPath.hpp"
-#include "complex/Filter/Actions/EmptyAction.hpp"
 #include "complex/Parameters/ArrayCreationParameter.hpp"
 #include "complex/Parameters/ArraySelectionParameter.hpp"
 #include "complex/Parameters/GeometrySelectionParameter.hpp"
 #include "complex/Parameters/NumberParameter.hpp"
 
-#include "ITKImageProcessing/Common/ITKArrayHelper.hpp"
+#include <itkHMaximaImageFilter.h>
 
 using namespace complex;
 
-#include <itkHMaximaImageFilter.h>
-
 namespace
 {
-struct ITKHMaximaImageFilterCreationFunctor
+struct ITKHMaximaImageCreationFunctor
 {
-  float64 m_Height;
+  double pHeight;
+
   template <typename InputImageType, typename OutputImageType, unsigned int Dimension>
   auto operator()() const
   {
-    typedef itk::HMaximaImageFilter<InputImageType, OutputImageType> FilterType;
+    using FilterType = itk::HMaximaImageFilter<InputImageType, OutputImageType>;
     typename FilterType::Pointer filter = FilterType::New();
-    filter->SetHeight(static_cast<double>(m_Height));
+    filter->SetHeight(pHeight);
     return filter;
   }
 };
@@ -52,13 +58,13 @@ Uuid ITKHMaximaImage::uuid() const
 //------------------------------------------------------------------------------
 std::string ITKHMaximaImage::humanName() const
 {
-  return "ITK::H Maxima Image Filter";
+  return "ITK::HMaximaImageFilter";
 }
 
 //------------------------------------------------------------------------------
 std::vector<std::string> ITKHMaximaImage::defaultTags() const
 {
-  return {"#ITK Image Processing", "#ITK BiasCorrection"};
+  return {"ITKImageProcessing", "ITKHMaximaImage"};
 }
 
 //------------------------------------------------------------------------------
@@ -66,10 +72,10 @@ Parameters ITKHMaximaImage::parameters() const
 {
   Parameters params;
   // Create the parameter descriptors that are needed for this filter
-  params.insert(std::make_unique<Float64Parameter>(k_Height_Key, "Height", "", 2.3456789));
   params.insert(std::make_unique<GeometrySelectionParameter>(k_SelectedImageGeomPath_Key, "Image Geometry", "", DataPath{}, GeometrySelectionParameter::AllowedTypes{DataObject::Type::ImageGeom}));
-  params.insert(std::make_unique<ArraySelectionParameter>(k_SelectedCellArrayPath_Key, "Attribute Array to filter", "", DataPath{}));
-  params.insert(std::make_unique<ArrayCreationParameter>(k_NewCellArrayName_Key, "Filtered Array", "", DataPath{}));
+  params.insert(std::make_unique<ArraySelectionParameter>(k_SelectedImageDataPath_Key, "Input Image", "", DataPath{}));
+  params.insert(std::make_unique<ArrayCreationParameter>(k_OutputIamgeDataPath_Key, "Output Image", "", DataPath{}));
+  params.insert(std::make_unique<Float64Parameter>(k_Height_Key, "Height", "", 2.0));
 
   return params;
 }
@@ -92,10 +98,10 @@ IFilter::PreflightResult ITKHMaximaImage::preflightImpl(const DataStructure& dat
    * otherwise passed into the filter. These are here for your convenience. If you
    * do not need some of them remove them.
    */
-  auto pHeight = filterArgs.value<float64>(k_Height_Key);
   auto pImageGeomPath = filterArgs.value<DataPath>(k_SelectedImageGeomPath_Key);
-  auto pSelectedCellArrayPath = filterArgs.value<DataPath>(k_SelectedCellArrayPath_Key);
-  auto pOutputArrayPath = filterArgs.value<DataPath>(k_NewCellArrayName_Key);
+  auto pSelectedInputArray = filterArgs.value<DataPath>(k_SelectedImageDataPath_Key);
+  auto pOutputArrayPath = filterArgs.value<DataPath>(k_OutputIamgeDataPath_Key);
+  auto pHeight = filterArgs.value<double>(k_Height_Key);
 
   // Declare the preflightResult variable that will be populated with the results
   // of the preflight. The PreflightResult type contains the output Actions and
@@ -113,11 +119,10 @@ IFilter::PreflightResult ITKHMaximaImage::preflightImpl(const DataStructure& dat
   // store those actions.
   complex::Result<OutputActions> resultOutputActions;
 
-  resultOutputActions = ITK::DataCheck(dataStructure, pSelectedCellArrayPath, pImageGeomPath, pOutputArrayPath);
+  resultOutputActions = ITK::DataCheck(dataStructure, pSelectedInputArray, pImageGeomPath, pOutputArrayPath);
 
   // If the filter needs to pass back some updated values via a key:value string:string set of values
   // you can declare and update that string here.
-  // None found in this filter based on the filter parameters
 
   // If this filter makes changes to the DataStructure in the form of
   // creating/deleting/moving/renaming DataGroups, Geometries, DataArrays then you
@@ -134,7 +139,6 @@ IFilter::PreflightResult ITKHMaximaImage::preflightImpl(const DataStructure& dat
 
   // Store the preflight updated value(s) into the preflightUpdatedValues vector using
   // the appropriate methods.
-  // None found based on the filter parameters
 
   // Return both the resultOutputActions and the preflightUpdatedValues via std::move()
   return {std::move(resultOutputActions), std::move(preflightUpdatedValues)};
@@ -146,20 +150,26 @@ Result<> ITKHMaximaImage::executeImpl(DataStructure& dataStructure, const Argume
   /****************************************************************************
    * Extract the actual input values from the 'filterArgs' object
    ***************************************************************************/
-  auto pHeight = filterArgs.value<float64>(k_Height_Key);
   auto pImageGeomPath = filterArgs.value<DataPath>(k_SelectedImageGeomPath_Key);
-  auto pSelectedCellArrayPath = filterArgs.value<DataPath>(k_SelectedCellArrayPath_Key);
-  auto pOutputArrayPath = filterArgs.value<DataPath>(k_NewCellArrayName_Key);
+  auto pSelectedInputArray = filterArgs.value<DataPath>(k_SelectedImageDataPath_Key);
+  auto pOutputArrayPath = filterArgs.value<DataPath>(k_OutputIamgeDataPath_Key);
+  auto pHeight = filterArgs.value<double>(k_Height_Key);
+
+  /****************************************************************************
+   * Create the functor object that will instantiate the correct itk filter
+   ***************************************************************************/
+  ::ITKHMaximaImageCreationFunctor itkFunctor{};
+  itkFunctor.pHeight = pHeight;
+
+  /****************************************************************************
+   * Associate the output image with the Image Geometry for Visualization
+   ***************************************************************************/
+  ImageGeom& imageGeom = dataStructure.getDataRefAs<ImageGeom>(pImageGeomPath);
+  imageGeom.getLinkedGeometryData().addCellData(pOutputArrayPath);
 
   /****************************************************************************
    * Write your algorithm implementation in this function
    ***************************************************************************/
-  ::ITKHMaximaImageFilterCreationFunctor itkFunctor;
-  itkFunctor.m_Height = pHeight;
-
-  ImageGeom& imageGeom = dataStructure.getDataRefAs<ImageGeom>(pImageGeomPath);
-  imageGeom.getLinkedGeometryData().addCellData(pOutputArrayPath);
-
-  return ITK::Execute(dataStructure, pSelectedCellArrayPath, pImageGeomPath, pOutputArrayPath, itkFunctor);
+  return ITK::Execute(dataStructure, pSelectedInputArray, pImageGeomPath, pOutputArrayPath, itkFunctor);
 }
 } // namespace complex

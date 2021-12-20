@@ -1,35 +1,41 @@
 #include "ITKThresholdMaximumConnectedComponentsImage.hpp"
 
+// This filter only works with certain kinds of data so we
+// disable the types that the filter will *NOT* compile against. The
+// Allowed PixelTypes as defined in SimpleITK is: ScalarPixelIDTypeList
+#define COMPLEX_ITK_ARRAY_HELPER_USE_uint64 0
+#define COMPLEX_ITK_ARRAY_HELPER_USE_int64 0
+
+#include "ITKImageProcessing/Common/ITKArrayHelper.hpp"
+
 #include "complex/DataStructure/DataPath.hpp"
-#include "complex/Filter/Actions/EmptyAction.hpp"
 #include "complex/Parameters/ArrayCreationParameter.hpp"
 #include "complex/Parameters/ArraySelectionParameter.hpp"
 #include "complex/Parameters/GeometrySelectionParameter.hpp"
 #include "complex/Parameters/NumberParameter.hpp"
 
-#include "ITKImageProcessing/Common/ITKArrayHelper.hpp"
+#include <itkThresholdMaximumConnectedComponentsImageFilter.h>
 
 using namespace complex;
 
-#include <itkThresholdMaximumConnectedComponentsImageFilter.h>
-
 namespace
 {
-struct ITKThresholdMaximumConnectedComponentsImageFilterCreationFunctor
+struct ITKThresholdMaximumConnectedComponentsImageCreationFunctor
 {
-  float64 m_MinimumObjectSizeInPixels;
-  float64 m_UpperBoundary;
-  int32 m_InsideValue;
-  int32 m_OutsideValue;
+  uint32_t pMinimumObjectSizeInPixels;
+  double pUpperBoundary;
+  uint8_t pInsideValue;
+  uint8_t pOutsideValue;
+
   template <typename InputImageType, typename OutputImageType, unsigned int Dimension>
   auto operator()() const
   {
-    typedef itk::ThresholdMaximumConnectedComponentsImageFilter<InputImageType, OutputImageType> FilterType;
+    using FilterType = itk::ThresholdMaximumConnectedComponentsImageFilter<InputImageType, OutputImageType>;
     typename FilterType::Pointer filter = FilterType::New();
-    filter->SetMinimumObjectSizeInPixels(static_cast<uint32_t>(m_MinimumObjectSizeInPixels));
-    filter->SetUpperBoundary(static_cast<typename InputImageType::PixelType>(std::min<double>(this->m_UpperBoundary, itk::NumericTraits<typename InputImageType::PixelType>::max())));
-    filter->SetInsideValue(static_cast<uint8_t>(m_InsideValue));
-    filter->SetOutsideValue(static_cast<uint8_t>(m_OutsideValue));
+    filter->SetMinimumObjectSizeInPixels(pMinimumObjectSizeInPixels);
+    filter->SetUpperBoundary(pUpperBoundary);
+    filter->SetInsideValue(pInsideValue);
+    filter->SetOutsideValue(pOutsideValue);
     return filter;
   }
 };
@@ -58,13 +64,13 @@ Uuid ITKThresholdMaximumConnectedComponentsImage::uuid() const
 //------------------------------------------------------------------------------
 std::string ITKThresholdMaximumConnectedComponentsImage::humanName() const
 {
-  return "ITK::Threshold Maximum Connected Components Image Filter";
+  return "ITK::ThresholdMaximumConnectedComponentsImageFilter";
 }
 
 //------------------------------------------------------------------------------
 std::vector<std::string> ITKThresholdMaximumConnectedComponentsImage::defaultTags() const
 {
-  return {"#ITK Image Processing", "#ITK SegmentationPostProcessing"};
+  return {"ITKImageProcessing", "ITKThresholdMaximumConnectedComponentsImage"};
 }
 
 //------------------------------------------------------------------------------
@@ -72,13 +78,13 @@ Parameters ITKThresholdMaximumConnectedComponentsImage::parameters() const
 {
   Parameters params;
   // Create the parameter descriptors that are needed for this filter
-  params.insert(std::make_unique<Float64Parameter>(k_MinimumObjectSizeInPixels_Key, "MinimumObjectSizeInPixels", "", 2.3456789));
-  params.insert(std::make_unique<Float64Parameter>(k_UpperBoundary_Key, "UpperBoundary", "", 2.3456789));
-  params.insert(std::make_unique<Int32Parameter>(k_InsideValue_Key, "InsideValue", "", 1234356));
-  params.insert(std::make_unique<Int32Parameter>(k_OutsideValue_Key, "OutsideValue", "", 1234356));
   params.insert(std::make_unique<GeometrySelectionParameter>(k_SelectedImageGeomPath_Key, "Image Geometry", "", DataPath{}, GeometrySelectionParameter::AllowedTypes{DataObject::Type::ImageGeom}));
-  params.insert(std::make_unique<ArraySelectionParameter>(k_SelectedCellArrayPath_Key, "Attribute Array to filter", "", DataPath{}));
-  params.insert(std::make_unique<ArrayCreationParameter>(k_NewCellArrayName_Key, "Filtered Array", "", DataPath{}));
+  params.insert(std::make_unique<ArraySelectionParameter>(k_SelectedImageDataPath_Key, "Input Image", "", DataPath{}));
+  params.insert(std::make_unique<ArrayCreationParameter>(k_OutputIamgeDataPath_Key, "Output Image", "", DataPath{}));
+  params.insert(std::make_unique<UInt32Parameter>(k_MinimumObjectSizeInPixels_Key, "MinimumObjectSizeInPixels", "", 0u));
+  params.insert(std::make_unique<Float64Parameter>(k_UpperBoundary_Key, "UpperBoundary", "", std::numeric_limits<double>::max()));
+  params.insert(std::make_unique<UInt8Parameter>(k_InsideValue_Key, "InsideValue", "", 1u));
+  params.insert(std::make_unique<UInt8Parameter>(k_OutsideValue_Key, "OutsideValue", "", 0u));
 
   return params;
 }
@@ -101,13 +107,13 @@ IFilter::PreflightResult ITKThresholdMaximumConnectedComponentsImage::preflightI
    * otherwise passed into the filter. These are here for your convenience. If you
    * do not need some of them remove them.
    */
-  auto pMinimumObjectSizeInPixels = filterArgs.value<float64>(k_MinimumObjectSizeInPixels_Key);
-  auto pUpperBoundary = filterArgs.value<float64>(k_UpperBoundary_Key);
-  auto pInsideValue = filterArgs.value<int32>(k_InsideValue_Key);
-  auto pOutsideValue = filterArgs.value<int32>(k_OutsideValue_Key);
   auto pImageGeomPath = filterArgs.value<DataPath>(k_SelectedImageGeomPath_Key);
-  auto pSelectedCellArrayPath = filterArgs.value<DataPath>(k_SelectedCellArrayPath_Key);
-  auto pOutputArrayPath = filterArgs.value<DataPath>(k_NewCellArrayName_Key);
+  auto pSelectedInputArray = filterArgs.value<DataPath>(k_SelectedImageDataPath_Key);
+  auto pOutputArrayPath = filterArgs.value<DataPath>(k_OutputIamgeDataPath_Key);
+  auto pMinimumObjectSizeInPixels = filterArgs.value<uint32_t>(k_MinimumObjectSizeInPixels_Key);
+  auto pUpperBoundary = filterArgs.value<double>(k_UpperBoundary_Key);
+  auto pInsideValue = filterArgs.value<uint8_t>(k_InsideValue_Key);
+  auto pOutsideValue = filterArgs.value<uint8_t>(k_OutsideValue_Key);
 
   // Declare the preflightResult variable that will be populated with the results
   // of the preflight. The PreflightResult type contains the output Actions and
@@ -125,11 +131,10 @@ IFilter::PreflightResult ITKThresholdMaximumConnectedComponentsImage::preflightI
   // store those actions.
   complex::Result<OutputActions> resultOutputActions;
 
-  resultOutputActions = ITK::DataCheck(dataStructure, pSelectedCellArrayPath, pImageGeomPath, pOutputArrayPath);
+  resultOutputActions = ITK::DataCheck(dataStructure, pSelectedInputArray, pImageGeomPath, pOutputArrayPath);
 
   // If the filter needs to pass back some updated values via a key:value string:string set of values
   // you can declare and update that string here.
-  // None found in this filter based on the filter parameters
 
   // If this filter makes changes to the DataStructure in the form of
   // creating/deleting/moving/renaming DataGroups, Geometries, DataArrays then you
@@ -146,7 +151,6 @@ IFilter::PreflightResult ITKThresholdMaximumConnectedComponentsImage::preflightI
 
   // Store the preflight updated value(s) into the preflightUpdatedValues vector using
   // the appropriate methods.
-  // None found based on the filter parameters
 
   // Return both the resultOutputActions and the preflightUpdatedValues via std::move()
   return {std::move(resultOutputActions), std::move(preflightUpdatedValues)};
@@ -159,26 +163,32 @@ Result<> ITKThresholdMaximumConnectedComponentsImage::executeImpl(DataStructure&
   /****************************************************************************
    * Extract the actual input values from the 'filterArgs' object
    ***************************************************************************/
-  auto pMinimumObjectSizeInPixels = filterArgs.value<float64>(k_MinimumObjectSizeInPixels_Key);
-  auto pUpperBoundary = filterArgs.value<float64>(k_UpperBoundary_Key);
-  auto pInsideValue = filterArgs.value<int32>(k_InsideValue_Key);
-  auto pOutsideValue = filterArgs.value<int32>(k_OutsideValue_Key);
   auto pImageGeomPath = filterArgs.value<DataPath>(k_SelectedImageGeomPath_Key);
-  auto pSelectedCellArrayPath = filterArgs.value<DataPath>(k_SelectedCellArrayPath_Key);
-  auto pOutputArrayPath = filterArgs.value<DataPath>(k_NewCellArrayName_Key);
+  auto pSelectedInputArray = filterArgs.value<DataPath>(k_SelectedImageDataPath_Key);
+  auto pOutputArrayPath = filterArgs.value<DataPath>(k_OutputIamgeDataPath_Key);
+  auto pMinimumObjectSizeInPixels = filterArgs.value<uint32_t>(k_MinimumObjectSizeInPixels_Key);
+  auto pUpperBoundary = filterArgs.value<double>(k_UpperBoundary_Key);
+  auto pInsideValue = filterArgs.value<uint8_t>(k_InsideValue_Key);
+  auto pOutsideValue = filterArgs.value<uint8_t>(k_OutsideValue_Key);
+
+  /****************************************************************************
+   * Create the functor object that will instantiate the correct itk filter
+   ***************************************************************************/
+  ::ITKThresholdMaximumConnectedComponentsImageCreationFunctor itkFunctor{};
+  itkFunctor.pMinimumObjectSizeInPixels = pMinimumObjectSizeInPixels;
+  itkFunctor.pUpperBoundary = pUpperBoundary;
+  itkFunctor.pInsideValue = pInsideValue;
+  itkFunctor.pOutsideValue = pOutsideValue;
+
+  /****************************************************************************
+   * Associate the output image with the Image Geometry for Visualization
+   ***************************************************************************/
+  ImageGeom& imageGeom = dataStructure.getDataRefAs<ImageGeom>(pImageGeomPath);
+  imageGeom.getLinkedGeometryData().addCellData(pOutputArrayPath);
 
   /****************************************************************************
    * Write your algorithm implementation in this function
    ***************************************************************************/
-  ::ITKThresholdMaximumConnectedComponentsImageFilterCreationFunctor itkFunctor;
-  itkFunctor.m_MinimumObjectSizeInPixels = pMinimumObjectSizeInPixels;
-  itkFunctor.m_UpperBoundary = pUpperBoundary;
-  itkFunctor.m_InsideValue = pInsideValue;
-  itkFunctor.m_OutsideValue = pOutsideValue;
-
-  ImageGeom& imageGeom = dataStructure.getDataRefAs<ImageGeom>(pImageGeomPath);
-  imageGeom.getLinkedGeometryData().addCellData(pOutputArrayPath);
-
-  return ITK::Execute(dataStructure, pSelectedCellArrayPath, pImageGeomPath, pOutputArrayPath, itkFunctor);
+  return ITK::Execute(dataStructure, pSelectedInputArray, pImageGeomPath, pOutputArrayPath, itkFunctor);
 }
 } // namespace complex

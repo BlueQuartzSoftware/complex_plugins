@@ -1,40 +1,48 @@
 #include "ITKGradientAnisotropicDiffusionImage.hpp"
 
+// This filter only works with certain kinds of data so we
+// disable the types that the filter will *NOT* compile against. The
+// Allowed PixelTypes as defined in SimpleITK is: RealPixelIDTypeList
+#define COMPLEX_ITK_ARRAY_HELPER_USE_int8 0
+#define COMPLEX_ITK_ARRAY_HELPER_USE_uint8 0
+#define COMPLEX_ITK_ARRAY_HELPER_USE_int16 0
+#define COMPLEX_ITK_ARRAY_HELPER_USE_uint16 0
+#define COMPLEX_ITK_ARRAY_HELPER_USE_int32 0
+#define COMPLEX_ITK_ARRAY_HELPER_USE_uint32 0
+#define COMPLEX_ITK_ARRAY_HELPER_USE_int64 0
+#define COMPLEX_ITK_ARRAY_HELPER_USE_uint64 0
+
+#include "ITKImageProcessing/Common/ITKArrayHelper.hpp"
+
 #include "complex/DataStructure/DataPath.hpp"
-#include "complex/Filter/Actions/EmptyAction.hpp"
 #include "complex/Parameters/ArrayCreationParameter.hpp"
 #include "complex/Parameters/ArraySelectionParameter.hpp"
 #include "complex/Parameters/GeometrySelectionParameter.hpp"
 #include "complex/Parameters/NumberParameter.hpp"
 
-#include "ITKImageProcessing/Common/ITKArrayHelper.hpp"
+#include <itkGradientAnisotropicDiffusionImageFilter.h>
 
 using namespace complex;
 
-#include <itkGradientAnisotropicDiffusionImageFilter.h>
-
 namespace
 {
-struct ITKGradientAnisotropicDiffusionImageFilterCreationFunctor
+struct ITKGradientAnisotropicDiffusionImageCreationFunctor
 {
-  float64 m_TimeStep;
-  float64 m_ConductanceParameter;
-  float64 m_ConductanceScalingUpdateInterval;
-  float64 m_NumberOfIterations;
+  double pTimeStep;
+  double pConductanceParameter;
+  unsigned int pConductanceScalingUpdateInterval;
+  uint32_t pNumberOfIterations;
+
   template <typename InputImageType, typename OutputImageType, unsigned int Dimension>
   auto operator()() const
   {
-    using InputPixelType = typename InputImageType::PixelType;
-    typedef typename itk::NumericTraits<InputPixelType>::RealType FloatPixelType;
-    typedef itk::Image<FloatPixelType, Dimension> FloatImageType;
-    typedef itk::GradientAnisotropicDiffusionImageFilter<FloatImageType, FloatImageType> FilterType;
-
+    using FilterType = itk::GradientAnisotropicDiffusionImageFilter<InputImageType, OutputImageType>;
     typename FilterType::Pointer filter = FilterType::New();
-    filter->SetTimeStep(static_cast<double>(m_TimeStep));
-    filter->SetConductanceParameter(static_cast<double>(m_ConductanceParameter));
-    filter->SetConductanceScalingUpdateInterval(static_cast<unsigned int>(m_ConductanceScalingUpdateInterval));
-    filter->SetNumberOfIterations(static_cast<uint32_t>(m_NumberOfIterations));
-    return filter; /*   this->ITKImageProcessingBase::filterCastToFloat<InputPixelType, OutputPixelType, Dimension, FilterType, FloatImageType>(filter); */
+    filter->SetTimeStep(pTimeStep);
+    filter->SetConductanceParameter(pConductanceParameter);
+    filter->SetConductanceScalingUpdateInterval(pConductanceScalingUpdateInterval);
+    filter->SetNumberOfIterations(pNumberOfIterations);
+    return filter;
   }
 };
 } // namespace
@@ -62,13 +70,13 @@ Uuid ITKGradientAnisotropicDiffusionImage::uuid() const
 //------------------------------------------------------------------------------
 std::string ITKGradientAnisotropicDiffusionImage::humanName() const
 {
-  return "ITK::Gradient Anisotropic Diffusion Image Filter";
+  return "ITK::GradientAnisotropicDiffusionImageFilter";
 }
 
 //------------------------------------------------------------------------------
 std::vector<std::string> ITKGradientAnisotropicDiffusionImage::defaultTags() const
 {
-  return {"#ITK Image Processing", "#ITK AnisotropicSmoothing"};
+  return {"ITKImageProcessing", "ITKGradientAnisotropicDiffusionImage"};
 }
 
 //------------------------------------------------------------------------------
@@ -76,13 +84,13 @@ Parameters ITKGradientAnisotropicDiffusionImage::parameters() const
 {
   Parameters params;
   // Create the parameter descriptors that are needed for this filter
-  params.insert(std::make_unique<Float64Parameter>(k_TimeStep_Key, "TimeStep", "", 2.3456789));
-  params.insert(std::make_unique<Float64Parameter>(k_ConductanceParameter_Key, "ConductanceParameter", "", 2.3456789));
-  params.insert(std::make_unique<Float64Parameter>(k_ConductanceScalingUpdateInterval_Key, "ConductanceScalingUpdateInterval", "", 2.3456789));
-  params.insert(std::make_unique<Float64Parameter>(k_NumberOfIterations_Key, "NumberOfIterations", "", 2.3456789));
   params.insert(std::make_unique<GeometrySelectionParameter>(k_SelectedImageGeomPath_Key, "Image Geometry", "", DataPath{}, GeometrySelectionParameter::AllowedTypes{DataObject::Type::ImageGeom}));
-  params.insert(std::make_unique<ArraySelectionParameter>(k_SelectedCellArrayPath_Key, "Attribute Array to filter", "", DataPath{}));
-  params.insert(std::make_unique<ArrayCreationParameter>(k_NewCellArrayName_Key, "Filtered Array", "", DataPath{}));
+  params.insert(std::make_unique<ArraySelectionParameter>(k_SelectedImageDataPath_Key, "Input Image", "", DataPath{}));
+  params.insert(std::make_unique<ArrayCreationParameter>(k_OutputIamgeDataPath_Key, "Output Image", "", DataPath{}));
+  params.insert(std::make_unique<Float64Parameter>(k_TimeStep_Key, "TimeStep", "", 0.125));
+  params.insert(std::make_unique<Float64Parameter>(k_ConductanceParameter_Key, "ConductanceParameter", "", 3));
+  params.insert(std::make_unique<UInt32Parameter>(k_ConductanceScalingUpdateInterval_Key, "ConductanceScalingUpdateInterval", "", 1u));
+  params.insert(std::make_unique<UInt32Parameter>(k_NumberOfIterations_Key, "NumberOfIterations", "", 5u));
 
   return params;
 }
@@ -105,13 +113,13 @@ IFilter::PreflightResult ITKGradientAnisotropicDiffusionImage::preflightImpl(con
    * otherwise passed into the filter. These are here for your convenience. If you
    * do not need some of them remove them.
    */
-  auto pTimeStep = filterArgs.value<float64>(k_TimeStep_Key);
-  auto pConductanceParameter = filterArgs.value<float64>(k_ConductanceParameter_Key);
-  auto pConductanceScalingUpdateInterval = filterArgs.value<float64>(k_ConductanceScalingUpdateInterval_Key);
-  auto pNumberOfIterations = filterArgs.value<float64>(k_NumberOfIterations_Key);
   auto pImageGeomPath = filterArgs.value<DataPath>(k_SelectedImageGeomPath_Key);
-  auto pSelectedCellArrayPath = filterArgs.value<DataPath>(k_SelectedCellArrayPath_Key);
-  auto pOutputArrayPath = filterArgs.value<DataPath>(k_NewCellArrayName_Key);
+  auto pSelectedInputArray = filterArgs.value<DataPath>(k_SelectedImageDataPath_Key);
+  auto pOutputArrayPath = filterArgs.value<DataPath>(k_OutputIamgeDataPath_Key);
+  auto pTimeStep = filterArgs.value<double>(k_TimeStep_Key);
+  auto pConductanceParameter = filterArgs.value<double>(k_ConductanceParameter_Key);
+  auto pConductanceScalingUpdateInterval = filterArgs.value<unsigned int>(k_ConductanceScalingUpdateInterval_Key);
+  auto pNumberOfIterations = filterArgs.value<uint32_t>(k_NumberOfIterations_Key);
 
   // Declare the preflightResult variable that will be populated with the results
   // of the preflight. The PreflightResult type contains the output Actions and
@@ -129,11 +137,10 @@ IFilter::PreflightResult ITKGradientAnisotropicDiffusionImage::preflightImpl(con
   // store those actions.
   complex::Result<OutputActions> resultOutputActions;
 
-  resultOutputActions = ITK::DataCheck(dataStructure, pSelectedCellArrayPath, pImageGeomPath, pOutputArrayPath);
+  resultOutputActions = ITK::DataCheck(dataStructure, pSelectedInputArray, pImageGeomPath, pOutputArrayPath);
 
   // If the filter needs to pass back some updated values via a key:value string:string set of values
   // you can declare and update that string here.
-  // None found in this filter based on the filter parameters
 
   // If this filter makes changes to the DataStructure in the form of
   // creating/deleting/moving/renaming DataGroups, Geometries, DataArrays then you
@@ -150,7 +157,6 @@ IFilter::PreflightResult ITKGradientAnisotropicDiffusionImage::preflightImpl(con
 
   // Store the preflight updated value(s) into the preflightUpdatedValues vector using
   // the appropriate methods.
-  // None found based on the filter parameters
 
   // Return both the resultOutputActions and the preflightUpdatedValues via std::move()
   return {std::move(resultOutputActions), std::move(preflightUpdatedValues)};
@@ -162,26 +168,32 @@ Result<> ITKGradientAnisotropicDiffusionImage::executeImpl(DataStructure& dataSt
   /****************************************************************************
    * Extract the actual input values from the 'filterArgs' object
    ***************************************************************************/
-  auto pTimeStep = filterArgs.value<float64>(k_TimeStep_Key);
-  auto pConductanceParameter = filterArgs.value<float64>(k_ConductanceParameter_Key);
-  auto pConductanceScalingUpdateInterval = filterArgs.value<float64>(k_ConductanceScalingUpdateInterval_Key);
-  auto pNumberOfIterations = filterArgs.value<float64>(k_NumberOfIterations_Key);
   auto pImageGeomPath = filterArgs.value<DataPath>(k_SelectedImageGeomPath_Key);
-  auto pSelectedCellArrayPath = filterArgs.value<DataPath>(k_SelectedCellArrayPath_Key);
-  auto pOutputArrayPath = filterArgs.value<DataPath>(k_NewCellArrayName_Key);
+  auto pSelectedInputArray = filterArgs.value<DataPath>(k_SelectedImageDataPath_Key);
+  auto pOutputArrayPath = filterArgs.value<DataPath>(k_OutputIamgeDataPath_Key);
+  auto pTimeStep = filterArgs.value<double>(k_TimeStep_Key);
+  auto pConductanceParameter = filterArgs.value<double>(k_ConductanceParameter_Key);
+  auto pConductanceScalingUpdateInterval = filterArgs.value<unsigned int>(k_ConductanceScalingUpdateInterval_Key);
+  auto pNumberOfIterations = filterArgs.value<uint32_t>(k_NumberOfIterations_Key);
+
+  /****************************************************************************
+   * Create the functor object that will instantiate the correct itk filter
+   ***************************************************************************/
+  ::ITKGradientAnisotropicDiffusionImageCreationFunctor itkFunctor{};
+  itkFunctor.pTimeStep = pTimeStep;
+  itkFunctor.pConductanceParameter = pConductanceParameter;
+  itkFunctor.pConductanceScalingUpdateInterval = pConductanceScalingUpdateInterval;
+  itkFunctor.pNumberOfIterations = pNumberOfIterations;
+
+  /****************************************************************************
+   * Associate the output image with the Image Geometry for Visualization
+   ***************************************************************************/
+  ImageGeom& imageGeom = dataStructure.getDataRefAs<ImageGeom>(pImageGeomPath);
+  imageGeom.getLinkedGeometryData().addCellData(pOutputArrayPath);
 
   /****************************************************************************
    * Write your algorithm implementation in this function
    ***************************************************************************/
-  ::ITKGradientAnisotropicDiffusionImageFilterCreationFunctor itkFunctor;
-  itkFunctor.m_TimeStep = pTimeStep;
-  itkFunctor.m_ConductanceParameter = pConductanceParameter;
-  itkFunctor.m_ConductanceScalingUpdateInterval = pConductanceScalingUpdateInterval;
-  itkFunctor.m_NumberOfIterations = pNumberOfIterations;
-
-  ImageGeom& imageGeom = dataStructure.getDataRefAs<ImageGeom>(pImageGeomPath);
-  imageGeom.getLinkedGeometryData().addCellData(pOutputArrayPath);
-
-  return ITK::Execute(dataStructure, pSelectedCellArrayPath, pImageGeomPath, pOutputArrayPath, itkFunctor);
+  return ITK::Execute(dataStructure, pSelectedInputArray, pImageGeomPath, pOutputArrayPath, itkFunctor);
 }
 } // namespace complex

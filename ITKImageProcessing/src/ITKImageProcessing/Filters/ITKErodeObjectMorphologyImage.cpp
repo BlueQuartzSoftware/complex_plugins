@@ -1,7 +1,14 @@
 #include "ITKErodeObjectMorphologyImage.hpp"
 
+// This filter only works with certain kinds of data so we
+// disable the types that the filter will *NOT* compile against. The
+// Allowed PixelTypes as defined in SimpleITK is: BasicPixelIDTypeList
+#define COMPLEX_ITK_ARRAY_HELPER_USE_uint64 0
+#define COMPLEX_ITK_ARRAY_HELPER_USE_int64 0
+
+#include "ITKImageProcessing/Common/ITKArrayHelper.hpp"
+
 #include "complex/DataStructure/DataPath.hpp"
-#include "complex/Filter/Actions/EmptyAction.hpp"
 #include "complex/Parameters/ArrayCreationParameter.hpp"
 #include "complex/Parameters/ArraySelectionParameter.hpp"
 #include "complex/Parameters/ChoicesParameter.hpp"
@@ -9,50 +16,28 @@
 #include "complex/Parameters/NumberParameter.hpp"
 #include "complex/Parameters/VectorParameter.hpp"
 
-#include "ITKImageProcessing/Common/ITKArrayHelper.hpp"
+#include <itkErodeObjectMorphologyImageFilter.h>
 
 using namespace complex;
 
-#include <itkErodeObjectMorphologyImageFilter.h>
-#include <itkFlatStructuringElement.h>
-
 namespace
 {
-struct ITKErodeObjectMorphologyImageFilterCreationFunctor
+struct ITKErodeObjectMorphologyImageCreationFunctor
 {
-  ChoicesParameter::ValueType m_KernelType;
-  float64 m_ObjectValue;
-  float64 m_BackgroundValue;
-  VectorFloat32Parameter::ValueType m_KernelRadius;
+  std::vector<uint32_t> pKernelRadius;
+  itk::simple::KernelEnum pKernelType;
+  double pObjectValue;
+  double pBackgroundValue;
+
   template <typename InputImageType, typename OutputImageType, unsigned int Dimension>
   auto operator()() const
   {
-    typedef itk::FlatStructuringElement<Dimension> StructuringElementType;
-    typedef typename StructuringElementType::RadiusType RadiusType;
-    RadiusType elementRadius = complex::ITK::CastVec3ToITK<complex::FloatVec3, RadiusType, typename RadiusType::SizeValueType>(m_KernelRadius, RadiusType::Dimension);
-    StructuringElementType structuringElement;
-    switch(m_KernelType)
-    {
-    case 0:
-      structuringElement = StructuringElementType::Annulus(elementRadius, false);
-      break;
-    case 1:
-      structuringElement = StructuringElementType::Ball(elementRadius, false);
-      break;
-    case 2:
-      structuringElement = StructuringElementType::Box(elementRadius);
-      break;
-    case 3:
-      structuringElement = StructuringElementType::Cross(elementRadius);
-      break;
-    default:
-      break;
-    }
-    typedef itk::ErodeObjectMorphologyImageFilter<InputImageType, OutputImageType, StructuringElementType> FilterType;
+    using FilterType = itk::ErodeObjectMorphologyImageFilter<InputImageType, OutputImageType, itk::FlatStructuringElement<InputImageType::ImageDimension>>;
     typename FilterType::Pointer filter = FilterType::New();
-    filter->SetObjectValue(static_cast<typename FilterType::PixelType>(m_ObjectValue));
-    filter->SetBackgroundValue(static_cast<double>(m_BackgroundValue));
-    filter->SetKernel(structuringElement);
+    auto kernel = itk::simple::CreateKernel<Dimension>(static_cast<itk::simple::KernelEnum>(pKernelType), pKernelRadius);
+    filter->SetKernel(kernel);
+    filter->SetObjectValue(pObjectValue);
+    filter->SetBackgroundValue(pBackgroundValue);
     return filter;
   }
 };
@@ -81,13 +66,13 @@ Uuid ITKErodeObjectMorphologyImage::uuid() const
 //------------------------------------------------------------------------------
 std::string ITKErodeObjectMorphologyImage::humanName() const
 {
-  return "ITK::Erode Object Morphology Image Filter";
+  return "ITK::ErodeObjectMorphologyImageFilter";
 }
 
 //------------------------------------------------------------------------------
 std::vector<std::string> ITKErodeObjectMorphologyImage::defaultTags() const
 {
-  return {"#ITK Image Processing", "#ITK BinaryMathematicalMorphology"};
+  return {"ITKImageProcessing", "ITKErodeObjectMorphologyImage"};
 }
 
 //------------------------------------------------------------------------------
@@ -95,13 +80,13 @@ Parameters ITKErodeObjectMorphologyImage::parameters() const
 {
   Parameters params;
   // Create the parameter descriptors that are needed for this filter
-  params.insert(std::make_unique<ChoicesParameter>(k_KernelType_Key, "Kernel Type", "", 0, ChoicesParameter::Choices{"Annulus", "Ball", "Box", "Cross"}));
-  params.insert(std::make_unique<Float64Parameter>(k_ObjectValue_Key, "ObjectValue", "", 2.3456789));
-  params.insert(std::make_unique<Float64Parameter>(k_BackgroundValue_Key, "BackgroundValue", "", 2.3456789));
-  params.insert(std::make_unique<VectorFloat32Parameter>(k_KernelRadius_Key, "KernelRadius", "", std::vector<float32>(3), std::vector<std::string>(3)));
   params.insert(std::make_unique<GeometrySelectionParameter>(k_SelectedImageGeomPath_Key, "Image Geometry", "", DataPath{}, GeometrySelectionParameter::AllowedTypes{DataObject::Type::ImageGeom}));
-  params.insert(std::make_unique<ArraySelectionParameter>(k_SelectedCellArrayPath_Key, "Attribute Array to filter", "", DataPath{}));
-  params.insert(std::make_unique<ArrayCreationParameter>(k_NewCellArrayName_Key, "Filtered Array", "", DataPath{}));
+  params.insert(std::make_unique<ArraySelectionParameter>(k_SelectedImageDataPath_Key, "Input Image", "", DataPath{}));
+  params.insert(std::make_unique<ArrayCreationParameter>(k_OutputIamgeDataPath_Key, "Output Image", "", DataPath{}));
+  params.insert(std::make_unique<VectorUInt32Parameter>(k_KernelRadius_Key, "KernelRadius", "", std::vector<uint32_t>(3), std::vector<std::string>(3)));
+  params.insert(std::make_unique<ChoicesParameter>(k_KernelType_Key, "Kernel Type", "", itk::simple::sitkBall, ChoicesParameter::Choices{"Annulus", "Ball", "Box", "Cross"}));
+  params.insert(std::make_unique<Float64Parameter>(k_ObjectValue_Key, "ObjectValue", "", 1));
+  params.insert(std::make_unique<Float64Parameter>(k_BackgroundValue_Key, "BackgroundValue", "", 0));
 
   return params;
 }
@@ -124,13 +109,13 @@ IFilter::PreflightResult ITKErodeObjectMorphologyImage::preflightImpl(const Data
    * otherwise passed into the filter. These are here for your convenience. If you
    * do not need some of them remove them.
    */
-  auto pKernelType = filterArgs.value<ChoicesParameter::ValueType>(k_KernelType_Key);
-  auto pObjectValue = filterArgs.value<float64>(k_ObjectValue_Key);
-  auto pBackgroundValue = filterArgs.value<float64>(k_BackgroundValue_Key);
-  auto pKernelRadius = filterArgs.value<VectorFloat32Parameter::ValueType>(k_KernelRadius_Key);
   auto pImageGeomPath = filterArgs.value<DataPath>(k_SelectedImageGeomPath_Key);
-  auto pSelectedCellArrayPath = filterArgs.value<DataPath>(k_SelectedCellArrayPath_Key);
-  auto pOutputArrayPath = filterArgs.value<DataPath>(k_NewCellArrayName_Key);
+  auto pSelectedInputArray = filterArgs.value<DataPath>(k_SelectedImageDataPath_Key);
+  auto pOutputArrayPath = filterArgs.value<DataPath>(k_OutputIamgeDataPath_Key);
+  auto pKernelRadius = filterArgs.value<VectorUInt32Parameter::ValueType>(k_KernelRadius_Key);
+  auto pKernelType = filterArgs.value<itk::simple::KernelEnum>(k_KernelType_Key);
+  auto pObjectValue = filterArgs.value<double>(k_ObjectValue_Key);
+  auto pBackgroundValue = filterArgs.value<double>(k_BackgroundValue_Key);
 
   // Declare the preflightResult variable that will be populated with the results
   // of the preflight. The PreflightResult type contains the output Actions and
@@ -148,11 +133,10 @@ IFilter::PreflightResult ITKErodeObjectMorphologyImage::preflightImpl(const Data
   // store those actions.
   complex::Result<OutputActions> resultOutputActions;
 
-  resultOutputActions = ITK::DataCheck(dataStructure, pSelectedCellArrayPath, pImageGeomPath, pOutputArrayPath);
+  resultOutputActions = ITK::DataCheck(dataStructure, pSelectedInputArray, pImageGeomPath, pOutputArrayPath);
 
   // If the filter needs to pass back some updated values via a key:value string:string set of values
   // you can declare and update that string here.
-  // None found in this filter based on the filter parameters
 
   // If this filter makes changes to the DataStructure in the form of
   // creating/deleting/moving/renaming DataGroups, Geometries, DataArrays then you
@@ -169,7 +153,6 @@ IFilter::PreflightResult ITKErodeObjectMorphologyImage::preflightImpl(const Data
 
   // Store the preflight updated value(s) into the preflightUpdatedValues vector using
   // the appropriate methods.
-  // None found based on the filter parameters
 
   // Return both the resultOutputActions and the preflightUpdatedValues via std::move()
   return {std::move(resultOutputActions), std::move(preflightUpdatedValues)};
@@ -181,25 +164,32 @@ Result<> ITKErodeObjectMorphologyImage::executeImpl(DataStructure& dataStructure
   /****************************************************************************
    * Extract the actual input values from the 'filterArgs' object
    ***************************************************************************/
-  auto pKernelType = filterArgs.value<ChoicesParameter::ValueType>(k_KernelType_Key);
-  auto pObjectValue = filterArgs.value<float64>(k_ObjectValue_Key);
-  auto pBackgroundValue = filterArgs.value<float64>(k_BackgroundValue_Key);
-  auto pKernelRadius = filterArgs.value<VectorFloat32Parameter::ValueType>(k_KernelRadius_Key);
   auto pImageGeomPath = filterArgs.value<DataPath>(k_SelectedImageGeomPath_Key);
-  auto pSelectedCellArrayPath = filterArgs.value<DataPath>(k_SelectedCellArrayPath_Key);
-  auto pOutputArrayPath = filterArgs.value<DataPath>(k_NewCellArrayName_Key);
+  auto pSelectedInputArray = filterArgs.value<DataPath>(k_SelectedImageDataPath_Key);
+  auto pOutputArrayPath = filterArgs.value<DataPath>(k_OutputIamgeDataPath_Key);
+  auto pKernelRadius = filterArgs.value<VectorUInt32Parameter::ValueType>(k_KernelRadius_Key);
+  auto pKernelType = filterArgs.value<itk::simple::KernelEnum>(k_KernelType_Key);
+  auto pObjectValue = filterArgs.value<double>(k_ObjectValue_Key);
+  auto pBackgroundValue = filterArgs.value<double>(k_BackgroundValue_Key);
+
+  /****************************************************************************
+   * Create the functor object that will instantiate the correct itk filter
+   ***************************************************************************/
+  ::ITKErodeObjectMorphologyImageCreationFunctor itkFunctor{};
+  itkFunctor.pKernelRadius = pKernelRadius;
+  itkFunctor.pKernelType = pKernelType;
+  itkFunctor.pObjectValue = pObjectValue;
+  itkFunctor.pBackgroundValue = pBackgroundValue;
+
+  /****************************************************************************
+   * Associate the output image with the Image Geometry for Visualization
+   ***************************************************************************/
+  ImageGeom& imageGeom = dataStructure.getDataRefAs<ImageGeom>(pImageGeomPath);
+  imageGeom.getLinkedGeometryData().addCellData(pOutputArrayPath);
 
   /****************************************************************************
    * Write your algorithm implementation in this function
    ***************************************************************************/
-  ::ITKErodeObjectMorphologyImageFilterCreationFunctor itkFunctor;
-  itkFunctor.m_ObjectValue = pObjectValue;
-  itkFunctor.m_BackgroundValue = pBackgroundValue;
-  itkFunctor.m_KernelRadius = pKernelRadius;
-
-  ImageGeom& imageGeom = dataStructure.getDataRefAs<ImageGeom>(pImageGeomPath);
-  imageGeom.getLinkedGeometryData().addCellData(pOutputArrayPath);
-
-  return ITK::Execute(dataStructure, pSelectedCellArrayPath, pImageGeomPath, pOutputArrayPath, itkFunctor);
+  return ITK::Execute(dataStructure, pSelectedInputArray, pImageGeomPath, pOutputArrayPath, itkFunctor);
 }
 } // namespace complex

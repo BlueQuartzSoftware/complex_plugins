@@ -1,36 +1,44 @@
 #include "ITKOtsuMultipleThresholdsImage.hpp"
 
+// This filter only works with certain kinds of data so we
+// disable the types that the filter will *NOT* compile against. The
+// Allowed PixelTypes as defined in SimpleITK is: BasicPixelIDTypeList
+#define COMPLEX_ITK_ARRAY_HELPER_USE_uint64 0
+#define COMPLEX_ITK_ARRAY_HELPER_USE_int64 0
+
+#include "ITKImageProcessing/Common/ITKArrayHelper.hpp"
+
 #include "complex/DataStructure/DataPath.hpp"
-#include "complex/Filter/Actions/EmptyAction.hpp"
 #include "complex/Parameters/ArrayCreationParameter.hpp"
 #include "complex/Parameters/ArraySelectionParameter.hpp"
 #include "complex/Parameters/BoolParameter.hpp"
 #include "complex/Parameters/GeometrySelectionParameter.hpp"
 #include "complex/Parameters/NumberParameter.hpp"
 
-#include "ITKImageProcessing/Common/ITKArrayHelper.hpp"
+#include <itkOtsuMultipleThresholdsImageFilter.h>
 
 using namespace complex;
 
-#include <itkOtsuMultipleThresholdsImageFilter.h>
-
 namespace
 {
-struct ITKOtsuMultipleThresholdsImageFilterCreationFunctor
+struct ITKOtsuMultipleThresholdsImageCreationFunctor
 {
-  int32 m_NumberOfThresholds;
-  int32 m_LabelOffset;
-  float64 m_NumberOfHistogramBins;
-  bool m_ValleyEmphasis;
+  uint8_t pNumberOfThresholds;
+  uint8_t pLabelOffset;
+  uint32_t pNumberOfHistogramBins;
+  bool pValleyEmphasis;
+  bool pReturnBinMidpoint;
+
   template <typename InputImageType, typename OutputImageType, unsigned int Dimension>
   auto operator()() const
   {
-    typedef itk::OtsuMultipleThresholdsImageFilter<InputImageType, OutputImageType> FilterType;
+    using FilterType = itk::OtsuMultipleThresholdsImageFilter<InputImageType, OutputImageType>;
     typename FilterType::Pointer filter = FilterType::New();
-    filter->SetNumberOfThresholds(static_cast<uint8_t>(m_NumberOfThresholds));
-    filter->SetLabelOffset(static_cast<uint8_t>(m_LabelOffset));
-    filter->SetNumberOfHistogramBins(static_cast<uint32_t>(m_NumberOfHistogramBins));
-    filter->SetValleyEmphasis(static_cast<bool>(m_ValleyEmphasis));
+    filter->SetNumberOfThresholds(pNumberOfThresholds);
+    filter->SetLabelOffset(pLabelOffset);
+    filter->SetNumberOfHistogramBins(pNumberOfHistogramBins);
+    filter->SetValleyEmphasis(pValleyEmphasis);
+    filter->SetReturnBinMidpoint(pReturnBinMidpoint);
     return filter;
   }
 };
@@ -59,13 +67,13 @@ Uuid ITKOtsuMultipleThresholdsImage::uuid() const
 //------------------------------------------------------------------------------
 std::string ITKOtsuMultipleThresholdsImage::humanName() const
 {
-  return "ITK::Otsu Multiple Thresholds Image Filter";
+  return "ITK::OtsuMultipleThresholdsImageFilter";
 }
 
 //------------------------------------------------------------------------------
 std::vector<std::string> ITKOtsuMultipleThresholdsImage::defaultTags() const
 {
-  return {"#ITK Image Processing", "#ITK Thresholding"};
+  return {"ITKImageProcessing", "ITKOtsuMultipleThresholdsImage"};
 }
 
 //------------------------------------------------------------------------------
@@ -73,13 +81,14 @@ Parameters ITKOtsuMultipleThresholdsImage::parameters() const
 {
   Parameters params;
   // Create the parameter descriptors that are needed for this filter
-  params.insert(std::make_unique<Int32Parameter>(k_NumberOfThresholds_Key, "NumberOfThresholds", "", 1234356));
-  params.insert(std::make_unique<Int32Parameter>(k_LabelOffset_Key, "LabelOffset", "", 1234356));
-  params.insert(std::make_unique<Float64Parameter>(k_NumberOfHistogramBins_Key, "NumberOfHistogramBins", "", 2.3456789));
-  params.insert(std::make_unique<BoolParameter>(k_ValleyEmphasis_Key, "ValleyEmphasis", "", false));
   params.insert(std::make_unique<GeometrySelectionParameter>(k_SelectedImageGeomPath_Key, "Image Geometry", "", DataPath{}, GeometrySelectionParameter::AllowedTypes{DataObject::Type::ImageGeom}));
-  params.insert(std::make_unique<ArraySelectionParameter>(k_SelectedCellArrayPath_Key, "Attribute Array to filter", "", DataPath{}));
-  params.insert(std::make_unique<ArrayCreationParameter>(k_NewCellArrayName_Key, "Filtered Array", "", DataPath{}));
+  params.insert(std::make_unique<ArraySelectionParameter>(k_SelectedImageDataPath_Key, "Input Image", "", DataPath{}));
+  params.insert(std::make_unique<ArrayCreationParameter>(k_OutputIamgeDataPath_Key, "Output Image", "", DataPath{}));
+  params.insert(std::make_unique<UInt8Parameter>(k_NumberOfThresholds_Key, "NumberOfThresholds", "", 1u));
+  params.insert(std::make_unique<UInt8Parameter>(k_LabelOffset_Key, "LabelOffset", "", 0u));
+  params.insert(std::make_unique<UInt32Parameter>(k_NumberOfHistogramBins_Key, "NumberOfHistogramBins", "", 128u));
+  params.insert(std::make_unique<BoolParameter>(k_ValleyEmphasis_Key, "ValleyEmphasis", "", false));
+  params.insert(std::make_unique<BoolParameter>(k_ReturnBinMidpoint_Key, "ReturnBinMidpoint", "", false));
 
   return params;
 }
@@ -102,13 +111,14 @@ IFilter::PreflightResult ITKOtsuMultipleThresholdsImage::preflightImpl(const Dat
    * otherwise passed into the filter. These are here for your convenience. If you
    * do not need some of them remove them.
    */
-  auto pNumberOfThresholds = filterArgs.value<int32>(k_NumberOfThresholds_Key);
-  auto pLabelOffset = filterArgs.value<int32>(k_LabelOffset_Key);
-  auto pNumberOfHistogramBins = filterArgs.value<float64>(k_NumberOfHistogramBins_Key);
-  auto pValleyEmphasis = filterArgs.value<bool>(k_ValleyEmphasis_Key);
   auto pImageGeomPath = filterArgs.value<DataPath>(k_SelectedImageGeomPath_Key);
-  auto pSelectedCellArrayPath = filterArgs.value<DataPath>(k_SelectedCellArrayPath_Key);
-  auto pOutputArrayPath = filterArgs.value<DataPath>(k_NewCellArrayName_Key);
+  auto pSelectedInputArray = filterArgs.value<DataPath>(k_SelectedImageDataPath_Key);
+  auto pOutputArrayPath = filterArgs.value<DataPath>(k_OutputIamgeDataPath_Key);
+  auto pNumberOfThresholds = filterArgs.value<uint8_t>(k_NumberOfThresholds_Key);
+  auto pLabelOffset = filterArgs.value<uint8_t>(k_LabelOffset_Key);
+  auto pNumberOfHistogramBins = filterArgs.value<uint32_t>(k_NumberOfHistogramBins_Key);
+  auto pValleyEmphasis = filterArgs.value<bool>(k_ValleyEmphasis_Key);
+  auto pReturnBinMidpoint = filterArgs.value<bool>(k_ReturnBinMidpoint_Key);
 
   // Declare the preflightResult variable that will be populated with the results
   // of the preflight. The PreflightResult type contains the output Actions and
@@ -126,11 +136,10 @@ IFilter::PreflightResult ITKOtsuMultipleThresholdsImage::preflightImpl(const Dat
   // store those actions.
   complex::Result<OutputActions> resultOutputActions;
 
-  resultOutputActions = ITK::DataCheck(dataStructure, pSelectedCellArrayPath, pImageGeomPath, pOutputArrayPath);
+  resultOutputActions = ITK::DataCheck(dataStructure, pSelectedInputArray, pImageGeomPath, pOutputArrayPath);
 
   // If the filter needs to pass back some updated values via a key:value string:string set of values
   // you can declare and update that string here.
-  // None found in this filter based on the filter parameters
 
   // If this filter makes changes to the DataStructure in the form of
   // creating/deleting/moving/renaming DataGroups, Geometries, DataArrays then you
@@ -147,7 +156,6 @@ IFilter::PreflightResult ITKOtsuMultipleThresholdsImage::preflightImpl(const Dat
 
   // Store the preflight updated value(s) into the preflightUpdatedValues vector using
   // the appropriate methods.
-  // None found based on the filter parameters
 
   // Return both the resultOutputActions and the preflightUpdatedValues via std::move()
   return {std::move(resultOutputActions), std::move(preflightUpdatedValues)};
@@ -159,26 +167,34 @@ Result<> ITKOtsuMultipleThresholdsImage::executeImpl(DataStructure& dataStructur
   /****************************************************************************
    * Extract the actual input values from the 'filterArgs' object
    ***************************************************************************/
-  auto pNumberOfThresholds = filterArgs.value<int32>(k_NumberOfThresholds_Key);
-  auto pLabelOffset = filterArgs.value<int32>(k_LabelOffset_Key);
-  auto pNumberOfHistogramBins = filterArgs.value<float64>(k_NumberOfHistogramBins_Key);
-  auto pValleyEmphasis = filterArgs.value<bool>(k_ValleyEmphasis_Key);
   auto pImageGeomPath = filterArgs.value<DataPath>(k_SelectedImageGeomPath_Key);
-  auto pSelectedCellArrayPath = filterArgs.value<DataPath>(k_SelectedCellArrayPath_Key);
-  auto pOutputArrayPath = filterArgs.value<DataPath>(k_NewCellArrayName_Key);
+  auto pSelectedInputArray = filterArgs.value<DataPath>(k_SelectedImageDataPath_Key);
+  auto pOutputArrayPath = filterArgs.value<DataPath>(k_OutputIamgeDataPath_Key);
+  auto pNumberOfThresholds = filterArgs.value<uint8_t>(k_NumberOfThresholds_Key);
+  auto pLabelOffset = filterArgs.value<uint8_t>(k_LabelOffset_Key);
+  auto pNumberOfHistogramBins = filterArgs.value<uint32_t>(k_NumberOfHistogramBins_Key);
+  auto pValleyEmphasis = filterArgs.value<bool>(k_ValleyEmphasis_Key);
+  auto pReturnBinMidpoint = filterArgs.value<bool>(k_ReturnBinMidpoint_Key);
+
+  /****************************************************************************
+   * Create the functor object that will instantiate the correct itk filter
+   ***************************************************************************/
+  ::ITKOtsuMultipleThresholdsImageCreationFunctor itkFunctor{};
+  itkFunctor.pNumberOfThresholds = pNumberOfThresholds;
+  itkFunctor.pLabelOffset = pLabelOffset;
+  itkFunctor.pNumberOfHistogramBins = pNumberOfHistogramBins;
+  itkFunctor.pValleyEmphasis = pValleyEmphasis;
+  itkFunctor.pReturnBinMidpoint = pReturnBinMidpoint;
+
+  /****************************************************************************
+   * Associate the output image with the Image Geometry for Visualization
+   ***************************************************************************/
+  ImageGeom& imageGeom = dataStructure.getDataRefAs<ImageGeom>(pImageGeomPath);
+  imageGeom.getLinkedGeometryData().addCellData(pOutputArrayPath);
 
   /****************************************************************************
    * Write your algorithm implementation in this function
    ***************************************************************************/
-  ::ITKOtsuMultipleThresholdsImageFilterCreationFunctor itkFunctor;
-  itkFunctor.m_NumberOfThresholds = pNumberOfThresholds;
-  itkFunctor.m_LabelOffset = pLabelOffset;
-  itkFunctor.m_NumberOfHistogramBins = pNumberOfHistogramBins;
-  itkFunctor.m_ValleyEmphasis = pValleyEmphasis;
-
-  ImageGeom& imageGeom = dataStructure.getDataRefAs<ImageGeom>(pImageGeomPath);
-  imageGeom.getLinkedGeometryData().addCellData(pOutputArrayPath);
-
-  return ITK::Execute(dataStructure, pSelectedCellArrayPath, pImageGeomPath, pOutputArrayPath, itkFunctor);
+  return ITK::Execute(dataStructure, pSelectedInputArray, pImageGeomPath, pOutputArrayPath, itkFunctor);
 }
 } // namespace complex

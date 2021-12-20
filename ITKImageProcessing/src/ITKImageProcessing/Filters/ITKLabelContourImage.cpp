@@ -1,32 +1,38 @@
 #include "ITKLabelContourImage.hpp"
 
+// This filter only works with certain kinds of data so we
+// disable the types that the filter will *NOT* compile against. The
+// Allowed PixelTypes as defined in SimpleITK is: IntegerPixelIDTypeList
+#define COMPLEX_ITK_ARRAY_HELPER_USE_float32 0
+#define COMPLEX_ITK_ARRAY_HELPER_USE_float64 0
+
+#include "ITKImageProcessing/Common/ITKArrayHelper.hpp"
+
 #include "complex/DataStructure/DataPath.hpp"
-#include "complex/Filter/Actions/EmptyAction.hpp"
 #include "complex/Parameters/ArrayCreationParameter.hpp"
 #include "complex/Parameters/ArraySelectionParameter.hpp"
 #include "complex/Parameters/BoolParameter.hpp"
 #include "complex/Parameters/GeometrySelectionParameter.hpp"
 #include "complex/Parameters/NumberParameter.hpp"
 
-#include "ITKImageProcessing/Common/ITKArrayHelper.hpp"
+#include <itkLabelContourImageFilter.h>
 
 using namespace complex;
 
-#include <itkLabelContourImageFilter.h>
-
 namespace
 {
-struct ITKLabelContourImageFilterCreationFunctor
+struct ITKLabelContourImageCreationFunctor
 {
-  bool m_FullyConnected;
-  float64 m_BackgroundValue;
+  bool pFullyConnected;
+  double pBackgroundValue;
+
   template <typename InputImageType, typename OutputImageType, unsigned int Dimension>
   auto operator()() const
   {
-    typedef itk::LabelContourImageFilter<InputImageType, OutputImageType> FilterType;
+    using FilterType = itk::LabelContourImageFilter<InputImageType, OutputImageType>;
     typename FilterType::Pointer filter = FilterType::New();
-    filter->SetFullyConnected(static_cast<bool>(m_FullyConnected));
-    filter->SetBackgroundValue(static_cast<double>(m_BackgroundValue));
+    filter->SetFullyConnected(pFullyConnected);
+    filter->SetBackgroundValue(pBackgroundValue);
     return filter;
   }
 };
@@ -55,13 +61,13 @@ Uuid ITKLabelContourImage::uuid() const
 //------------------------------------------------------------------------------
 std::string ITKLabelContourImage::humanName() const
 {
-  return "ITK::Label Contour Image Filter";
+  return "ITK::LabelContourImageFilter";
 }
 
 //------------------------------------------------------------------------------
 std::vector<std::string> ITKLabelContourImage::defaultTags() const
 {
-  return {"#ITK Image Processing", "#ITK ImageLabel"};
+  return {"ITKImageProcessing", "ITKLabelContourImage"};
 }
 
 //------------------------------------------------------------------------------
@@ -69,11 +75,11 @@ Parameters ITKLabelContourImage::parameters() const
 {
   Parameters params;
   // Create the parameter descriptors that are needed for this filter
-  params.insert(std::make_unique<BoolParameter>(k_FullyConnected_Key, "FullyConnected", "", false));
-  params.insert(std::make_unique<Float64Parameter>(k_BackgroundValue_Key, "BackgroundValue", "", 2.3456789));
   params.insert(std::make_unique<GeometrySelectionParameter>(k_SelectedImageGeomPath_Key, "Image Geometry", "", DataPath{}, GeometrySelectionParameter::AllowedTypes{DataObject::Type::ImageGeom}));
-  params.insert(std::make_unique<ArraySelectionParameter>(k_SelectedCellArrayPath_Key, "Attribute Array to filter", "", DataPath{}));
-  params.insert(std::make_unique<ArrayCreationParameter>(k_NewCellArrayName_Key, "Filtered Array", "", DataPath{}));
+  params.insert(std::make_unique<ArraySelectionParameter>(k_SelectedImageDataPath_Key, "Input Image", "", DataPath{}));
+  params.insert(std::make_unique<ArrayCreationParameter>(k_OutputIamgeDataPath_Key, "Output Image", "", DataPath{}));
+  params.insert(std::make_unique<BoolParameter>(k_FullyConnected_Key, "FullyConnected", "", false));
+  params.insert(std::make_unique<Float64Parameter>(k_BackgroundValue_Key, "BackgroundValue", "", 0));
 
   return params;
 }
@@ -96,11 +102,11 @@ IFilter::PreflightResult ITKLabelContourImage::preflightImpl(const DataStructure
    * otherwise passed into the filter. These are here for your convenience. If you
    * do not need some of them remove them.
    */
-  auto pFullyConnected = filterArgs.value<bool>(k_FullyConnected_Key);
-  auto pBackgroundValue = filterArgs.value<float64>(k_BackgroundValue_Key);
   auto pImageGeomPath = filterArgs.value<DataPath>(k_SelectedImageGeomPath_Key);
-  auto pSelectedCellArrayPath = filterArgs.value<DataPath>(k_SelectedCellArrayPath_Key);
-  auto pOutputArrayPath = filterArgs.value<DataPath>(k_NewCellArrayName_Key);
+  auto pSelectedInputArray = filterArgs.value<DataPath>(k_SelectedImageDataPath_Key);
+  auto pOutputArrayPath = filterArgs.value<DataPath>(k_OutputIamgeDataPath_Key);
+  auto pFullyConnected = filterArgs.value<bool>(k_FullyConnected_Key);
+  auto pBackgroundValue = filterArgs.value<double>(k_BackgroundValue_Key);
 
   // Declare the preflightResult variable that will be populated with the results
   // of the preflight. The PreflightResult type contains the output Actions and
@@ -118,11 +124,10 @@ IFilter::PreflightResult ITKLabelContourImage::preflightImpl(const DataStructure
   // store those actions.
   complex::Result<OutputActions> resultOutputActions;
 
-  resultOutputActions = ITK::DataCheck(dataStructure, pSelectedCellArrayPath, pImageGeomPath, pOutputArrayPath);
+  resultOutputActions = ITK::DataCheck(dataStructure, pSelectedInputArray, pImageGeomPath, pOutputArrayPath);
 
   // If the filter needs to pass back some updated values via a key:value string:string set of values
   // you can declare and update that string here.
-  // None found in this filter based on the filter parameters
 
   // If this filter makes changes to the DataStructure in the form of
   // creating/deleting/moving/renaming DataGroups, Geometries, DataArrays then you
@@ -139,7 +144,6 @@ IFilter::PreflightResult ITKLabelContourImage::preflightImpl(const DataStructure
 
   // Store the preflight updated value(s) into the preflightUpdatedValues vector using
   // the appropriate methods.
-  // None found based on the filter parameters
 
   // Return both the resultOutputActions and the preflightUpdatedValues via std::move()
   return {std::move(resultOutputActions), std::move(preflightUpdatedValues)};
@@ -151,22 +155,28 @@ Result<> ITKLabelContourImage::executeImpl(DataStructure& dataStructure, const A
   /****************************************************************************
    * Extract the actual input values from the 'filterArgs' object
    ***************************************************************************/
-  auto pFullyConnected = filterArgs.value<bool>(k_FullyConnected_Key);
-  auto pBackgroundValue = filterArgs.value<float64>(k_BackgroundValue_Key);
   auto pImageGeomPath = filterArgs.value<DataPath>(k_SelectedImageGeomPath_Key);
-  auto pSelectedCellArrayPath = filterArgs.value<DataPath>(k_SelectedCellArrayPath_Key);
-  auto pOutputArrayPath = filterArgs.value<DataPath>(k_NewCellArrayName_Key);
+  auto pSelectedInputArray = filterArgs.value<DataPath>(k_SelectedImageDataPath_Key);
+  auto pOutputArrayPath = filterArgs.value<DataPath>(k_OutputIamgeDataPath_Key);
+  auto pFullyConnected = filterArgs.value<bool>(k_FullyConnected_Key);
+  auto pBackgroundValue = filterArgs.value<double>(k_BackgroundValue_Key);
+
+  /****************************************************************************
+   * Create the functor object that will instantiate the correct itk filter
+   ***************************************************************************/
+  ::ITKLabelContourImageCreationFunctor itkFunctor{};
+  itkFunctor.pFullyConnected = pFullyConnected;
+  itkFunctor.pBackgroundValue = pBackgroundValue;
+
+  /****************************************************************************
+   * Associate the output image with the Image Geometry for Visualization
+   ***************************************************************************/
+  ImageGeom& imageGeom = dataStructure.getDataRefAs<ImageGeom>(pImageGeomPath);
+  imageGeom.getLinkedGeometryData().addCellData(pOutputArrayPath);
 
   /****************************************************************************
    * Write your algorithm implementation in this function
    ***************************************************************************/
-  ::ITKLabelContourImageFilterCreationFunctor itkFunctor;
-  itkFunctor.m_FullyConnected = pFullyConnected;
-  itkFunctor.m_BackgroundValue = pBackgroundValue;
-
-  ImageGeom& imageGeom = dataStructure.getDataRefAs<ImageGeom>(pImageGeomPath);
-  imageGeom.getLinkedGeometryData().addCellData(pOutputArrayPath);
-
-  return ITK::Execute(dataStructure, pSelectedCellArrayPath, pImageGeomPath, pOutputArrayPath, itkFunctor);
+  return ITK::Execute(dataStructure, pSelectedInputArray, pImageGeomPath, pOutputArrayPath, itkFunctor);
 }
 } // namespace complex

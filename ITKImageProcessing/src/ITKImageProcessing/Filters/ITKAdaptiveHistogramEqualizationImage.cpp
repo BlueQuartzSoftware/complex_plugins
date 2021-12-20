@@ -1,34 +1,39 @@
 #include "ITKAdaptiveHistogramEqualizationImage.hpp"
 
+// This filter only works with certain kinds of data so we
+// disable the types that the filter will *NOT* compile against. The
+// Allowed PixelTypes as defined in SimpleITK is: BasicPixelIDTypeList
+#define COMPLEX_ITK_ARRAY_HELPER_USE_uint64 0
+#define COMPLEX_ITK_ARRAY_HELPER_USE_int64 0
+
+#include "ITKImageProcessing/Common/ITKArrayHelper.hpp"
+
 #include "complex/DataStructure/DataPath.hpp"
-#include "complex/Filter/Actions/EmptyAction.hpp"
 #include "complex/Parameters/ArrayCreationParameter.hpp"
 #include "complex/Parameters/ArraySelectionParameter.hpp"
 #include "complex/Parameters/GeometrySelectionParameter.hpp"
 #include "complex/Parameters/NumberParameter.hpp"
-#include "complex/Parameters/VectorParameter.hpp"
-
-#include "ITKImageProcessing/Common/ITKArrayHelper.hpp"
-
-using namespace complex;
 
 #include <itkAdaptiveHistogramEqualizationImageFilter.h>
 
+using namespace complex;
+
 namespace
 {
-struct ITKAdaptiveHistogramEqualizationImageFilterCreationFunctor
+struct ITKAdaptiveHistogramEqualizationImageCreationFunctor
 {
-  VectorFloat32Parameter::ValueType m_Radius;
-  float32 m_Alpha;
-  float32 m_Beta;
+  unsigned int pRadius;
+  float pAlpha;
+  float pBeta;
+
   template <typename InputImageType, typename OutputImageType, unsigned int Dimension>
   auto operator()() const
   {
-    typedef itk::AdaptiveHistogramEqualizationImageFilter<InputImageType> FilterType;
+    using FilterType = itk::AdaptiveHistogramEqualizationImageFilter<InputImageType>;
     typename FilterType::Pointer filter = FilterType::New();
-    filter->SetRadius(complex::ITK::CastVec3ToITK<complex::FloatVec3, typename FilterType::RadiusType, typename FilterType::RadiusType::SizeValueType>(m_Radius, FilterType::RadiusType::Dimension));
-    filter->SetAlpha(static_cast<float>(m_Alpha));
-    filter->SetBeta(static_cast<float>(m_Beta));
+    filter->SetRadius(pRadius);
+    filter->SetAlpha(pAlpha);
+    filter->SetBeta(pBeta);
     return filter;
   }
 };
@@ -57,13 +62,13 @@ Uuid ITKAdaptiveHistogramEqualizationImage::uuid() const
 //------------------------------------------------------------------------------
 std::string ITKAdaptiveHistogramEqualizationImage::humanName() const
 {
-  return "ITK::Adaptive Histogram Equalization Image Filter";
+  return "ITK::AdaptiveHistogramEqualizationImageFilter";
 }
 
 //------------------------------------------------------------------------------
 std::vector<std::string> ITKAdaptiveHistogramEqualizationImage::defaultTags() const
 {
-  return {"#ITK Image Processing", "#ITK ImageStatistics"};
+  return {"ITKImageProcessing", "ITKAdaptiveHistogramEqualizationImage"};
 }
 
 //------------------------------------------------------------------------------
@@ -71,12 +76,12 @@ Parameters ITKAdaptiveHistogramEqualizationImage::parameters() const
 {
   Parameters params;
   // Create the parameter descriptors that are needed for this filter
-  params.insert(std::make_unique<VectorFloat32Parameter>(k_Radius_Key, "Radius", "", std::vector<float32>(3), std::vector<std::string>(3)));
-  params.insert(std::make_unique<Float32Parameter>(k_Alpha_Key, "Alpha", "", 1.23345f));
-  params.insert(std::make_unique<Float32Parameter>(k_Beta_Key, "Beta", "", 1.23345f));
   params.insert(std::make_unique<GeometrySelectionParameter>(k_SelectedImageGeomPath_Key, "Image Geometry", "", DataPath{}, GeometrySelectionParameter::AllowedTypes{DataObject::Type::ImageGeom}));
-  params.insert(std::make_unique<ArraySelectionParameter>(k_SelectedCellArrayPath_Key, "Attribute Array to filter", "", DataPath{}));
-  params.insert(std::make_unique<ArrayCreationParameter>(k_NewCellArrayName_Key, "Filtered Array", "", DataPath{}));
+  params.insert(std::make_unique<ArraySelectionParameter>(k_SelectedImageDataPath_Key, "Input Image", "", DataPath{}));
+  params.insert(std::make_unique<ArrayCreationParameter>(k_OutputIamgeDataPath_Key, "Output Image", "", DataPath{}));
+  params.insert(std::make_unique<UInt32Parameter>(k_Radius_Key, "Radius", "", std::vector<unsigned int>(3, 5)));
+  params.insert(std::make_unique<Float32Parameter>(k_Alpha_Key, "Alpha", "", 0.3f));
+  params.insert(std::make_unique<Float32Parameter>(k_Beta_Key, "Beta", "", 0.3f));
 
   return params;
 }
@@ -99,12 +104,12 @@ IFilter::PreflightResult ITKAdaptiveHistogramEqualizationImage::preflightImpl(co
    * otherwise passed into the filter. These are here for your convenience. If you
    * do not need some of them remove them.
    */
-  auto pRadius = filterArgs.value<VectorFloat32Parameter::ValueType>(k_Radius_Key);
-  auto pAlpha = filterArgs.value<float32>(k_Alpha_Key);
-  auto pBeta = filterArgs.value<float32>(k_Beta_Key);
   auto pImageGeomPath = filterArgs.value<DataPath>(k_SelectedImageGeomPath_Key);
-  auto pSelectedCellArrayPath = filterArgs.value<DataPath>(k_SelectedCellArrayPath_Key);
-  auto pOutputArrayPath = filterArgs.value<DataPath>(k_NewCellArrayName_Key);
+  auto pSelectedInputArray = filterArgs.value<DataPath>(k_SelectedImageDataPath_Key);
+  auto pOutputArrayPath = filterArgs.value<DataPath>(k_OutputIamgeDataPath_Key);
+  auto pRadius = filterArgs.value<unsigned int>(k_Radius_Key);
+  auto pAlpha = filterArgs.value<float>(k_Alpha_Key);
+  auto pBeta = filterArgs.value<float>(k_Beta_Key);
 
   // Declare the preflightResult variable that will be populated with the results
   // of the preflight. The PreflightResult type contains the output Actions and
@@ -122,11 +127,10 @@ IFilter::PreflightResult ITKAdaptiveHistogramEqualizationImage::preflightImpl(co
   // store those actions.
   complex::Result<OutputActions> resultOutputActions;
 
-  resultOutputActions = ITK::DataCheck(dataStructure, pSelectedCellArrayPath, pImageGeomPath, pOutputArrayPath);
+  resultOutputActions = ITK::DataCheck(dataStructure, pSelectedInputArray, pImageGeomPath, pOutputArrayPath);
 
   // If the filter needs to pass back some updated values via a key:value string:string set of values
   // you can declare and update that string here.
-  // None found in this filter based on the filter parameters
 
   // If this filter makes changes to the DataStructure in the form of
   // creating/deleting/moving/renaming DataGroups, Geometries, DataArrays then you
@@ -143,7 +147,6 @@ IFilter::PreflightResult ITKAdaptiveHistogramEqualizationImage::preflightImpl(co
 
   // Store the preflight updated value(s) into the preflightUpdatedValues vector using
   // the appropriate methods.
-  // None found based on the filter parameters
 
   // Return both the resultOutputActions and the preflightUpdatedValues via std::move()
   return {std::move(resultOutputActions), std::move(preflightUpdatedValues)};
@@ -155,24 +158,30 @@ Result<> ITKAdaptiveHistogramEqualizationImage::executeImpl(DataStructure& dataS
   /****************************************************************************
    * Extract the actual input values from the 'filterArgs' object
    ***************************************************************************/
-  auto pRadius = filterArgs.value<VectorFloat32Parameter::ValueType>(k_Radius_Key);
-  auto pAlpha = filterArgs.value<float32>(k_Alpha_Key);
-  auto pBeta = filterArgs.value<float32>(k_Beta_Key);
   auto pImageGeomPath = filterArgs.value<DataPath>(k_SelectedImageGeomPath_Key);
-  auto pSelectedCellArrayPath = filterArgs.value<DataPath>(k_SelectedCellArrayPath_Key);
-  auto pOutputArrayPath = filterArgs.value<DataPath>(k_NewCellArrayName_Key);
+  auto pSelectedInputArray = filterArgs.value<DataPath>(k_SelectedImageDataPath_Key);
+  auto pOutputArrayPath = filterArgs.value<DataPath>(k_OutputIamgeDataPath_Key);
+  auto pRadius = filterArgs.value<unsigned int>(k_Radius_Key);
+  auto pAlpha = filterArgs.value<float>(k_Alpha_Key);
+  auto pBeta = filterArgs.value<float>(k_Beta_Key);
+
+  /****************************************************************************
+   * Create the functor object that will instantiate the correct itk filter
+   ***************************************************************************/
+  ::ITKAdaptiveHistogramEqualizationImageCreationFunctor itkFunctor{};
+  itkFunctor.pRadius = pRadius;
+  itkFunctor.pAlpha = pAlpha;
+  itkFunctor.pBeta = pBeta;
+
+  /****************************************************************************
+   * Associate the output image with the Image Geometry for Visualization
+   ***************************************************************************/
+  ImageGeom& imageGeom = dataStructure.getDataRefAs<ImageGeom>(pImageGeomPath);
+  imageGeom.getLinkedGeometryData().addCellData(pOutputArrayPath);
 
   /****************************************************************************
    * Write your algorithm implementation in this function
    ***************************************************************************/
-  ::ITKAdaptiveHistogramEqualizationImageFilterCreationFunctor itkFunctor;
-  itkFunctor.m_Radius = pRadius;
-  itkFunctor.m_Alpha = pAlpha;
-  itkFunctor.m_Beta = pBeta;
-
-  ImageGeom& imageGeom = dataStructure.getDataRefAs<ImageGeom>(pImageGeomPath);
-  imageGeom.getLinkedGeometryData().addCellData(pOutputArrayPath);
-
-  return ITK::Execute(dataStructure, pSelectedCellArrayPath, pImageGeomPath, pOutputArrayPath, itkFunctor);
+  return ITK::Execute(dataStructure, pSelectedInputArray, pImageGeomPath, pOutputArrayPath, itkFunctor);
 }
 } // namespace complex

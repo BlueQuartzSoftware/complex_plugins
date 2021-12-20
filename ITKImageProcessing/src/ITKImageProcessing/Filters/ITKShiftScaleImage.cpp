@@ -1,31 +1,38 @@
 #include "ITKShiftScaleImage.hpp"
 
+// This filter only works with certain kinds of data so we
+// disable the types that the filter will *NOT* compile against. The
+// Allowed PixelTypes as defined in SimpleITK is: BasicPixelIDTypeList
+#define COMPLEX_ITK_ARRAY_HELPER_USE_uint64 0
+#define COMPLEX_ITK_ARRAY_HELPER_USE_int64 0
+
+#include "ITKImageProcessing/Common/ITKArrayHelper.hpp"
+
 #include "complex/DataStructure/DataPath.hpp"
-#include "complex/Filter/Actions/EmptyAction.hpp"
 #include "complex/Parameters/ArrayCreationParameter.hpp"
 #include "complex/Parameters/ArraySelectionParameter.hpp"
 #include "complex/Parameters/GeometrySelectionParameter.hpp"
 #include "complex/Parameters/NumberParameter.hpp"
 
-#include "ITKImageProcessing/Common/ITKArrayHelper.hpp"
+#include <itkShiftScaleImageFilter.h>
 
 using namespace complex;
 
-#include <itkShiftScaleImageFilter.h>
-
 namespace
 {
-struct ITKShiftScaleImageFilterCreationFunctor
+struct ITKShiftScaleImageCreationFunctor
 {
-  float64 m_Shift;
-  float64 m_Scale;
+  double pShift;
+  double pScale;
+  itk::simple::PixelIDValueEnum pOutputPixelType;
+
   template <typename InputImageType, typename OutputImageType, unsigned int Dimension>
   auto operator()() const
   {
-    typedef itk::ShiftScaleImageFilter<InputImageType, OutputImageType> FilterType;
+    using FilterType = itk::ShiftScaleImageFilter<InputImageType, OutputImageType>;
     typename FilterType::Pointer filter = FilterType::New();
-    filter->SetShift(static_cast<double>(m_Shift));
-    filter->SetScale(static_cast<double>(m_Scale));
+    filter->SetShift(pShift);
+    filter->SetScale(pScale);
     return filter;
   }
 };
@@ -54,13 +61,13 @@ Uuid ITKShiftScaleImage::uuid() const
 //------------------------------------------------------------------------------
 std::string ITKShiftScaleImage::humanName() const
 {
-  return "ITK::Shift Scale Image Filter";
+  return "ITK::ShiftScaleImageFilter";
 }
 
 //------------------------------------------------------------------------------
 std::vector<std::string> ITKShiftScaleImage::defaultTags() const
 {
-  return {"#ITK Image Processing", "#ITK IntensityTransformation"};
+  return {"ITKImageProcessing", "ITKShiftScaleImage"};
 }
 
 //------------------------------------------------------------------------------
@@ -68,11 +75,12 @@ Parameters ITKShiftScaleImage::parameters() const
 {
   Parameters params;
   // Create the parameter descriptors that are needed for this filter
-  params.insert(std::make_unique<Float64Parameter>(k_Shift_Key, "Shift", "", 2.3456789));
-  params.insert(std::make_unique<Float64Parameter>(k_Scale_Key, "Scale", "", 2.3456789));
   params.insert(std::make_unique<GeometrySelectionParameter>(k_SelectedImageGeomPath_Key, "Image Geometry", "", DataPath{}, GeometrySelectionParameter::AllowedTypes{DataObject::Type::ImageGeom}));
-  params.insert(std::make_unique<ArraySelectionParameter>(k_SelectedCellArrayPath_Key, "Attribute Array to filter", "", DataPath{}));
-  params.insert(std::make_unique<ArrayCreationParameter>(k_NewCellArrayName_Key, "Filtered Array", "", DataPath{}));
+  params.insert(std::make_unique<ArraySelectionParameter>(k_SelectedImageDataPath_Key, "Input Image", "", DataPath{}));
+  params.insert(std::make_unique<ArrayCreationParameter>(k_OutputIamgeDataPath_Key, "Output Image", "", DataPath{}));
+  params.insert(std::make_unique<Float64Parameter>(k_Shift_Key, "Shift", "", 0));
+  params.insert(std::make_unique<Float64Parameter>(k_Scale_Key, "Scale", "", 1.0));
+  params.insert(std::make_unique<UInt32Parameter>(k_OutputPixelType_Key, "OutputPixelType", "", itk::simple::sitkUnknown));
 
   return params;
 }
@@ -95,11 +103,12 @@ IFilter::PreflightResult ITKShiftScaleImage::preflightImpl(const DataStructure& 
    * otherwise passed into the filter. These are here for your convenience. If you
    * do not need some of them remove them.
    */
-  auto pShift = filterArgs.value<float64>(k_Shift_Key);
-  auto pScale = filterArgs.value<float64>(k_Scale_Key);
   auto pImageGeomPath = filterArgs.value<DataPath>(k_SelectedImageGeomPath_Key);
-  auto pSelectedCellArrayPath = filterArgs.value<DataPath>(k_SelectedCellArrayPath_Key);
-  auto pOutputArrayPath = filterArgs.value<DataPath>(k_NewCellArrayName_Key);
+  auto pSelectedInputArray = filterArgs.value<DataPath>(k_SelectedImageDataPath_Key);
+  auto pOutputArrayPath = filterArgs.value<DataPath>(k_OutputIamgeDataPath_Key);
+  auto pShift = filterArgs.value<double>(k_Shift_Key);
+  auto pScale = filterArgs.value<double>(k_Scale_Key);
+  auto pOutputPixelType = filterArgs.value<itk::simple::PixelIDValueEnum>(k_OutputPixelType_Key);
 
   // Declare the preflightResult variable that will be populated with the results
   // of the preflight. The PreflightResult type contains the output Actions and
@@ -117,11 +126,10 @@ IFilter::PreflightResult ITKShiftScaleImage::preflightImpl(const DataStructure& 
   // store those actions.
   complex::Result<OutputActions> resultOutputActions;
 
-  resultOutputActions = ITK::DataCheck(dataStructure, pSelectedCellArrayPath, pImageGeomPath, pOutputArrayPath);
+  resultOutputActions = ITK::DataCheck(dataStructure, pSelectedInputArray, pImageGeomPath, pOutputArrayPath);
 
   // If the filter needs to pass back some updated values via a key:value string:string set of values
   // you can declare and update that string here.
-  // None found in this filter based on the filter parameters
 
   // If this filter makes changes to the DataStructure in the form of
   // creating/deleting/moving/renaming DataGroups, Geometries, DataArrays then you
@@ -138,7 +146,6 @@ IFilter::PreflightResult ITKShiftScaleImage::preflightImpl(const DataStructure& 
 
   // Store the preflight updated value(s) into the preflightUpdatedValues vector using
   // the appropriate methods.
-  // None found based on the filter parameters
 
   // Return both the resultOutputActions and the preflightUpdatedValues via std::move()
   return {std::move(resultOutputActions), std::move(preflightUpdatedValues)};
@@ -150,22 +157,30 @@ Result<> ITKShiftScaleImage::executeImpl(DataStructure& dataStructure, const Arg
   /****************************************************************************
    * Extract the actual input values from the 'filterArgs' object
    ***************************************************************************/
-  auto pShift = filterArgs.value<float64>(k_Shift_Key);
-  auto pScale = filterArgs.value<float64>(k_Scale_Key);
   auto pImageGeomPath = filterArgs.value<DataPath>(k_SelectedImageGeomPath_Key);
-  auto pSelectedCellArrayPath = filterArgs.value<DataPath>(k_SelectedCellArrayPath_Key);
-  auto pOutputArrayPath = filterArgs.value<DataPath>(k_NewCellArrayName_Key);
+  auto pSelectedInputArray = filterArgs.value<DataPath>(k_SelectedImageDataPath_Key);
+  auto pOutputArrayPath = filterArgs.value<DataPath>(k_OutputIamgeDataPath_Key);
+  auto pShift = filterArgs.value<double>(k_Shift_Key);
+  auto pScale = filterArgs.value<double>(k_Scale_Key);
+  auto pOutputPixelType = filterArgs.value<itk::simple::PixelIDValueEnum>(k_OutputPixelType_Key);
+
+  /****************************************************************************
+   * Create the functor object that will instantiate the correct itk filter
+   ***************************************************************************/
+  ::ITKShiftScaleImageCreationFunctor itkFunctor{};
+  itkFunctor.pShift = pShift;
+  itkFunctor.pScale = pScale;
+  itkFunctor.pOutputPixelType = pOutputPixelType;
+
+  /****************************************************************************
+   * Associate the output image with the Image Geometry for Visualization
+   ***************************************************************************/
+  ImageGeom& imageGeom = dataStructure.getDataRefAs<ImageGeom>(pImageGeomPath);
+  imageGeom.getLinkedGeometryData().addCellData(pOutputArrayPath);
 
   /****************************************************************************
    * Write your algorithm implementation in this function
    ***************************************************************************/
-  ::ITKShiftScaleImageFilterCreationFunctor itkFunctor;
-  itkFunctor.m_Shift = pShift;
-  itkFunctor.m_Scale = pScale;
-
-  ImageGeom& imageGeom = dataStructure.getDataRefAs<ImageGeom>(pImageGeomPath);
-  imageGeom.getLinkedGeometryData().addCellData(pOutputArrayPath);
-
-  return ITK::Execute(dataStructure, pSelectedCellArrayPath, pImageGeomPath, pOutputArrayPath, itkFunctor);
+  return ITK::Execute(dataStructure, pSelectedInputArray, pImageGeomPath, pOutputArrayPath, itkFunctor);
 }
 } // namespace complex
