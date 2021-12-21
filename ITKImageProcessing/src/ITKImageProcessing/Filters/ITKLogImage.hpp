@@ -9,7 +9,12 @@ namespace complex
 {
 /**
  * @class ITKLogImage
- * @brief This filter will ....
+ * @brief Computes the log() of each pixel.
+ *
+ * 
+ *
+ * ITK Module: ITKImageIntensity
+ * ITK Group: ImageIntensity
  */
 class ITKIMAGEPROCESSING_EXPORT ITKLogImage : public IFilter
 {

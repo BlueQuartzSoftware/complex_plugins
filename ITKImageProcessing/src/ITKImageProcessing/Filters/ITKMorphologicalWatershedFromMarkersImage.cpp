@@ -1,18 +1,28 @@
 #include "ITKMorphologicalWatershedFromMarkersImage.hpp"
 
-// This filter only works with certain kinds of data so we
-// disable the types that the filter will *NOT* compile against. The
-// Allowed PixelTypes as defined in SimpleITK is: ScalarPixelIDTypeList
-#define COMPLEX_ITK_ARRAY_HELPER_USE_uint64 0
-#define COMPLEX_ITK_ARRAY_HELPER_USE_int64 0
+/**
+ * This filter has multiple Input images: 
+ *    Image of type: Image
+ *    MarkerImage of type: Image
+ */
+/**
+ * This filter only works with certain kinds of data. We
+ * enable the types that the filter will compile against. The 
+ * Allowed PixelTypes as defined in SimpleITK are: 
+ *   ScalarPixelIDTypeList
+ */
+#define ITK_SCALAR_PIXEL_ID_TYPE_LIST 1
 
 #include "ITKImageProcessing/Common/ITKArrayHelper.hpp"
+#include "ITKImageProcessing/Common/sitkCommon.hpp"
+
 
 #include "complex/DataStructure/DataPath.hpp"
 #include "complex/Parameters/ArrayCreationParameter.hpp"
 #include "complex/Parameters/ArraySelectionParameter.hpp"
-#include "complex/Parameters/BoolParameter.hpp"
 #include "complex/Parameters/GeometrySelectionParameter.hpp"
+#include "complex/Parameters/BoolParameter.hpp"
+#include "complex/Parameters/BoolParameter.hpp"
 
 #include <itkMorphologicalWatershedFromMarkersImageFilter.h>
 
@@ -66,7 +76,7 @@ std::string ITKMorphologicalWatershedFromMarkersImage::humanName() const
 //------------------------------------------------------------------------------
 std::vector<std::string> ITKMorphologicalWatershedFromMarkersImage::defaultTags() const
 {
-  return {"ITKImageProcessing", "ITKMorphologicalWatershedFromMarkersImage"};
+  return {"ITKImageProcessing", "ITKMorphologicalWatershedFromMarkersImage", "ITKWatersheds", "Watersheds"};
 }
 
 //------------------------------------------------------------------------------
@@ -77,6 +87,7 @@ Parameters ITKMorphologicalWatershedFromMarkersImage::parameters() const
   params.insert(std::make_unique<GeometrySelectionParameter>(k_SelectedImageGeomPath_Key, "Image Geometry", "", DataPath{}, GeometrySelectionParameter::AllowedTypes{DataObject::Type::ImageGeom}));
   params.insert(std::make_unique<ArraySelectionParameter>(k_SelectedImageDataPath_Key, "Input Image", "", DataPath{}));
   params.insert(std::make_unique<ArrayCreationParameter>(k_OutputIamgeDataPath_Key, "Output Image", "", DataPath{}));
+  params.insert(std::make_unique<ArraySelectionParameter>(k_MarkerImageDataPath_Key, "MarkerImage", "", DataPath{}));
   params.insert(std::make_unique<BoolParameter>(k_MarkWatershedLine_Key, "MarkWatershedLine", "", true));
   params.insert(std::make_unique<BoolParameter>(k_FullyConnected_Key, "FullyConnected", "", false));
 
@@ -104,6 +115,7 @@ IFilter::PreflightResult ITKMorphologicalWatershedFromMarkersImage::preflightImp
   auto pImageGeomPath = filterArgs.value<DataPath>(k_SelectedImageGeomPath_Key);
   auto pSelectedInputArray = filterArgs.value<DataPath>(k_SelectedImageDataPath_Key);
   auto pOutputArrayPath = filterArgs.value<DataPath>(k_OutputIamgeDataPath_Key);
+  auto pMarkerImage = filterArgs.value<DataPath>(k_MarkerImageDataPath_Key);
   auto pMarkWatershedLine = filterArgs.value<bool>(k_MarkWatershedLine_Key);
   auto pFullyConnected = filterArgs.value<bool>(k_FullyConnected_Key);
 
@@ -149,8 +161,7 @@ IFilter::PreflightResult ITKMorphologicalWatershedFromMarkersImage::preflightImp
 }
 
 //------------------------------------------------------------------------------
-Result<> ITKMorphologicalWatershedFromMarkersImage::executeImpl(DataStructure& dataStructure, const Arguments& filterArgs, const PipelineFilter* pipelineNode,
-                                                                const MessageHandler& messageHandler) const
+Result<> ITKMorphologicalWatershedFromMarkersImage::executeImpl(DataStructure& dataStructure, const Arguments& filterArgs, const PipelineFilter* pipelineNode, const MessageHandler& messageHandler) const
 {
   /****************************************************************************
    * Extract the actual input values from the 'filterArgs' object
@@ -158,6 +169,7 @@ Result<> ITKMorphologicalWatershedFromMarkersImage::executeImpl(DataStructure& d
   auto pImageGeomPath = filterArgs.value<DataPath>(k_SelectedImageGeomPath_Key);
   auto pSelectedInputArray = filterArgs.value<DataPath>(k_SelectedImageDataPath_Key);
   auto pOutputArrayPath = filterArgs.value<DataPath>(k_OutputIamgeDataPath_Key);
+  auto pMarkerImage = filterArgs.value<DataPath>(k_MarkerImageDataPath_Key);
   auto pMarkWatershedLine = filterArgs.value<bool>(k_MarkWatershedLine_Key);
   auto pFullyConnected = filterArgs.value<bool>(k_FullyConnected_Key);
 

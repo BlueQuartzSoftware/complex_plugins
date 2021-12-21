@@ -1,17 +1,24 @@
 #include "ITKAdaptiveHistogramEqualizationImage.hpp"
 
-// This filter only works with certain kinds of data so we
-// disable the types that the filter will *NOT* compile against. The
-// Allowed PixelTypes as defined in SimpleITK is: BasicPixelIDTypeList
-#define COMPLEX_ITK_ARRAY_HELPER_USE_uint64 0
-#define COMPLEX_ITK_ARRAY_HELPER_USE_int64 0
+/**
+ * This filter only works with certain kinds of data. We
+ * enable the types that the filter will compile against. The 
+ * Allowed PixelTypes as defined in SimpleITK are: 
+ *   BasicPixelIDTypeList
+ */
+#define ITK_BASIC_PIXEL_ID_TYPE_LIST 1
 
 #include "ITKImageProcessing/Common/ITKArrayHelper.hpp"
+#include "ITKImageProcessing/Common/sitkCommon.hpp"
+
 
 #include "complex/DataStructure/DataPath.hpp"
 #include "complex/Parameters/ArrayCreationParameter.hpp"
 #include "complex/Parameters/ArraySelectionParameter.hpp"
 #include "complex/Parameters/GeometrySelectionParameter.hpp"
+#include "complex/Parameters/NumberParameter.hpp"
+#include "complex/Parameters/VectorParameter.hpp"
+#include "complex/Parameters/NumberParameter.hpp"
 #include "complex/Parameters/NumberParameter.hpp"
 
 #include <itkAdaptiveHistogramEqualizationImageFilter.h>
@@ -68,7 +75,7 @@ std::string ITKAdaptiveHistogramEqualizationImage::humanName() const
 //------------------------------------------------------------------------------
 std::vector<std::string> ITKAdaptiveHistogramEqualizationImage::defaultTags() const
 {
-  return {"ITKImageProcessing", "ITKAdaptiveHistogramEqualizationImage"};
+  return {"ITKImageProcessing", "ITKAdaptiveHistogramEqualizationImage", "ITKImageStatistics", "ImageStatistics"};
 }
 
 //------------------------------------------------------------------------------
@@ -79,7 +86,7 @@ Parameters ITKAdaptiveHistogramEqualizationImage::parameters() const
   params.insert(std::make_unique<GeometrySelectionParameter>(k_SelectedImageGeomPath_Key, "Image Geometry", "", DataPath{}, GeometrySelectionParameter::AllowedTypes{DataObject::Type::ImageGeom}));
   params.insert(std::make_unique<ArraySelectionParameter>(k_SelectedImageDataPath_Key, "Input Image", "", DataPath{}));
   params.insert(std::make_unique<ArrayCreationParameter>(k_OutputIamgeDataPath_Key, "Output Image", "", DataPath{}));
-  params.insert(std::make_unique<UInt32Parameter>(k_Radius_Key, "Radius", "", std::vector<unsigned int>(3, 5)));
+  params.insert(std::make_unique<VectorUInt32Parameter>(k_Radius_Key, "Radius", "", std::vector<unsigned int>(3, 5), std::vector<std::string>(3)));
   params.insert(std::make_unique<Float32Parameter>(k_Alpha_Key, "Alpha", "", 0.3f));
   params.insert(std::make_unique<Float32Parameter>(k_Beta_Key, "Beta", "", 0.3f));
 

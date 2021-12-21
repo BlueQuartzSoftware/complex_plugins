@@ -9,7 +9,12 @@ namespace complex
 {
 /**
  * @class ITKAbsImage
- * @brief This filter will ....
+ * @brief Computes the absolute value of each pixel.
+ *
+ * itk::Math::abs() is used to perform the computation.
+ *
+ * ITK Module: ITKImageIntensity
+ * ITK Group: ImageIntensity
  */
 class ITKIMAGEPROCESSING_EXPORT ITKAbsImage : public IFilter
 {

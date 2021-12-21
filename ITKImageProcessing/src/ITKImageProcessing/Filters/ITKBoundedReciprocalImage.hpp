@@ -9,7 +9,12 @@ namespace complex
 {
 /**
  * @class ITKBoundedReciprocalImage
- * @brief This filter will ....
+ * @brief Computes 1/(1+x) for each pixel in the image.
+ *
+ * The filter expect both the input and output images to have the same number of dimensions, and both of a scalar image type.
+ *
+ * ITK Module: ITKImageIntensity
+ * ITK Group: ImageIntensity
  */
 class ITKIMAGEPROCESSING_EXPORT ITKBoundedReciprocalImage : public IFilter
 {

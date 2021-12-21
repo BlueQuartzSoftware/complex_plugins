@@ -9,7 +9,12 @@ namespace complex
 {
 /**
  * @class ITKVectorConnectedComponentImage
- * @brief This filter will ....
+ * @brief A connected components filter that labels the objects in a vector image. Two vectors are pointing similar directions if one minus their dot product is less than a threshold. Vectors that are 180 degrees out of phase are similar. Assumes that vectors are normalized.
+ *
+ * 
+ *
+ * ITK Module: ITKConnectedComponents
+ * ITK Group: ConnectedComponents
  */
 class ITKIMAGEPROCESSING_EXPORT ITKVectorConnectedComponentImage : public IFilter
 {

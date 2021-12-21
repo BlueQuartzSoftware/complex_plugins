@@ -9,7 +9,12 @@ namespace complex
 {
 /**
  * @class ITKGradientMagnitudeRecursiveGaussianImage
- * @brief This filter will ....
+ * @brief Computes the Magnitude of the Gradient of an image by convolution with the first derivative of a Gaussian.
+ *
+ * This filter is implemented using the recursive gaussian filters
+ *
+ * ITK Module: ITKImageGradient
+ * ITK Group: ImageGradient
  */
 class ITKIMAGEPROCESSING_EXPORT ITKGradientMagnitudeRecursiveGaussianImage : public IFilter
 {

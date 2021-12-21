@@ -9,7 +9,12 @@ namespace complex
 {
 /**
  * @class ITKLog10Image
- * @brief This filter will ....
+ * @brief Computes the log10 of each pixel.
+ *
+ * The computation is performed using std::log10(x).
+ *
+ * ITK Module: ITKImageIntensity
+ * ITK Group: ImageIntensity
  */
 class ITKIMAGEPROCESSING_EXPORT ITKLog10Image : public IFilter
 {

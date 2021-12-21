@@ -1,18 +1,38 @@
 #include "ITKSignedDanielssonDistanceMapImage.hpp"
 
-// This filter only works with certain kinds of data so we
-// disable the types that the filter will *NOT* compile against. The
-// Allowed PixelTypes as defined in SimpleITK is: IntegerPixelIDTypeList
-#define COMPLEX_ITK_ARRAY_HELPER_USE_float32 0
-#define COMPLEX_ITK_ARRAY_HELPER_USE_float64 0
+/**
+ * This filter can report a number of measurements: 
+ * @name VoronoiMap
+ * @type Image
+ * @description Get Voronoi Map This map shows for each pixel what object is closest to it. Each object should be labeled by a number (larger than 0), so the map has a value for each pixel corresponding to the label of the closest object.
+ *
+ * @name VectorDistanceMap
+ * @type Image
+ * @description Get Distance map image.  The distance map is shown as a gray value image depending on the pixel type of the output image. Regarding the source image, background should be dark (gray value = 0) and object should have a gray value larger than 0.  The minimal distance is calculated on the object frontier, and the output image gives for each pixel its minimal distance from the object (if there is more than one object the closest object is considered).
+ *
+ */
+/**
+ * This filter only works with certain kinds of data. We
+ * enable the types that the filter will compile against. The 
+ * Allowed PixelTypes as defined in SimpleITK are: 
+ *   IntegerPixelIDTypeList
+ * The filter defines the following output pixel types: 
+ *   float
+ */
+#define ITK_OUTPUT_PIXEL_TYPE float
+#define ITK_INTEGER_PIXEL_ID_TYPE_LIST 1
 
 #include "ITKImageProcessing/Common/ITKArrayHelper.hpp"
+#include "ITKImageProcessing/Common/sitkCommon.hpp"
+
 
 #include "complex/DataStructure/DataPath.hpp"
 #include "complex/Parameters/ArrayCreationParameter.hpp"
 #include "complex/Parameters/ArraySelectionParameter.hpp"
-#include "complex/Parameters/BoolParameter.hpp"
 #include "complex/Parameters/GeometrySelectionParameter.hpp"
+#include "complex/Parameters/BoolParameter.hpp"
+#include "complex/Parameters/BoolParameter.hpp"
+#include "complex/Parameters/BoolParameter.hpp"
 
 #include <itkSignedDanielssonDistanceMapImageFilter.h>
 
@@ -68,7 +88,7 @@ std::string ITKSignedDanielssonDistanceMapImage::humanName() const
 //------------------------------------------------------------------------------
 std::vector<std::string> ITKSignedDanielssonDistanceMapImage::defaultTags() const
 {
-  return {"ITKImageProcessing", "ITKSignedDanielssonDistanceMapImage"};
+  return {"ITKImageProcessing", "ITKSignedDanielssonDistanceMapImage", "ITKDistanceMap", "DistanceMap"};
 }
 
 //------------------------------------------------------------------------------

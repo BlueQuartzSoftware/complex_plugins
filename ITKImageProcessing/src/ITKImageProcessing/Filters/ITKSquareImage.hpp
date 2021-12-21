@@ -9,7 +9,12 @@ namespace complex
 {
 /**
  * @class ITKSquareImage
- * @brief This filter will ....
+ * @brief Computes the square of the intensity values pixel-wise.
+ *
+ * 
+ *
+ * ITK Module: ITKImageIntensity
+ * ITK Group: ImageIntensity
  */
 class ITKIMAGEPROCESSING_EXPORT ITKSquareImage : public IFilter
 {

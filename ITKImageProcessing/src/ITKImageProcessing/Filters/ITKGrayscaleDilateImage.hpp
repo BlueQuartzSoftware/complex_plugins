@@ -9,7 +9,16 @@ namespace complex
 {
 /**
  * @class ITKGrayscaleDilateImage
- * @brief This filter will ....
+ * @brief Grayscale dilation of an image.
+ *
+ * Dilate an image using grayscale morphology. Dilation takes the maximum of all the pixels identified by the structuring element.
+ * 
+ * The structuring element is assumed to be composed of binary values (zero or one). Only elements of the structuring element having values > 0 are candidates for affecting the center pixel.
+ * 
+ * @see MorphologyImageFilter , GrayscaleFunctionDilateImageFilter , BinaryDilateImageFilter
+ *
+ * ITK Module: ITKMathematicalMorphology
+ * ITK Group: MathematicalMorphology
  */
 class ITKIMAGEPROCESSING_EXPORT ITKGrayscaleDilateImage : public IFilter
 {

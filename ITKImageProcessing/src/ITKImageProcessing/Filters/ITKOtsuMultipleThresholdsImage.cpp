@@ -1,19 +1,36 @@
 #include "ITKOtsuMultipleThresholdsImage.hpp"
 
-// This filter only works with certain kinds of data so we
-// disable the types that the filter will *NOT* compile against. The
-// Allowed PixelTypes as defined in SimpleITK is: BasicPixelIDTypeList
-#define COMPLEX_ITK_ARRAY_HELPER_USE_uint64 0
-#define COMPLEX_ITK_ARRAY_HELPER_USE_int64 0
+/**
+ * This filter can report a number of measurements: 
+ * @name Thresholds
+ * @type std::vector<double>
+ * @description Get the computed threshold.
+ *
+ */
+/**
+ * This filter only works with certain kinds of data. We
+ * enable the types that the filter will compile against. The 
+ * Allowed PixelTypes as defined in SimpleITK are: 
+ *   BasicPixelIDTypeList
+ * The filter defines the following output pixel types: 
+ *   uint8_t
+ */
+#define ITK_OUTPUT_PIXEL_TYPE uint8_t
+#define ITK_BASIC_PIXEL_ID_TYPE_LIST 1
 
 #include "ITKImageProcessing/Common/ITKArrayHelper.hpp"
+#include "ITKImageProcessing/Common/sitkCommon.hpp"
+
 
 #include "complex/DataStructure/DataPath.hpp"
 #include "complex/Parameters/ArrayCreationParameter.hpp"
 #include "complex/Parameters/ArraySelectionParameter.hpp"
-#include "complex/Parameters/BoolParameter.hpp"
 #include "complex/Parameters/GeometrySelectionParameter.hpp"
 #include "complex/Parameters/NumberParameter.hpp"
+#include "complex/Parameters/NumberParameter.hpp"
+#include "complex/Parameters/NumberParameter.hpp"
+#include "complex/Parameters/BoolParameter.hpp"
+#include "complex/Parameters/BoolParameter.hpp"
 
 #include <itkOtsuMultipleThresholdsImageFilter.h>
 
@@ -73,7 +90,7 @@ std::string ITKOtsuMultipleThresholdsImage::humanName() const
 //------------------------------------------------------------------------------
 std::vector<std::string> ITKOtsuMultipleThresholdsImage::defaultTags() const
 {
-  return {"ITKImageProcessing", "ITKOtsuMultipleThresholdsImage"};
+  return {"ITKImageProcessing", "ITKOtsuMultipleThresholdsImage", "ITKThresholding", "Thresholding"};
 }
 
 //------------------------------------------------------------------------------

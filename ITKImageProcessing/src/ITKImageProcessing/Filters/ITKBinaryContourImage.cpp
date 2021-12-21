@@ -1,18 +1,23 @@
 #include "ITKBinaryContourImage.hpp"
 
-// This filter only works with certain kinds of data so we
-// disable the types that the filter will *NOT* compile against. The
-// Allowed PixelTypes as defined in SimpleITK is: IntegerPixelIDTypeList
-#define COMPLEX_ITK_ARRAY_HELPER_USE_float32 0
-#define COMPLEX_ITK_ARRAY_HELPER_USE_float64 0
+/**
+ * This filter only works with certain kinds of data. We
+ * enable the types that the filter will compile against. The 
+ * Allowed PixelTypes as defined in SimpleITK are: 
+ *   IntegerPixelIDTypeList
+ */
+#define ITK_INTEGER_PIXEL_ID_TYPE_LIST 1
 
 #include "ITKImageProcessing/Common/ITKArrayHelper.hpp"
+#include "ITKImageProcessing/Common/sitkCommon.hpp"
+
 
 #include "complex/DataStructure/DataPath.hpp"
 #include "complex/Parameters/ArrayCreationParameter.hpp"
 #include "complex/Parameters/ArraySelectionParameter.hpp"
-#include "complex/Parameters/BoolParameter.hpp"
 #include "complex/Parameters/GeometrySelectionParameter.hpp"
+#include "complex/Parameters/BoolParameter.hpp"
+#include "complex/Parameters/NumberParameter.hpp"
 #include "complex/Parameters/NumberParameter.hpp"
 
 #include <itkBinaryContourImageFilter.h>
@@ -69,7 +74,7 @@ std::string ITKBinaryContourImage::humanName() const
 //------------------------------------------------------------------------------
 std::vector<std::string> ITKBinaryContourImage::defaultTags() const
 {
-  return {"ITKImageProcessing", "ITKBinaryContourImage"};
+  return {"ITKImageProcessing", "ITKBinaryContourImage", "ITKImageLabel", "ImageLabel"};
 }
 
 //------------------------------------------------------------------------------

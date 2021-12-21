@@ -1,18 +1,37 @@
 #include "ITKConnectedComponentImage.hpp"
 
-// This filter only works with certain kinds of data so we
-// disable the types that the filter will *NOT* compile against. The
-// Allowed PixelTypes as defined in SimpleITK is: IntegerPixelIDTypeList
-#define COMPLEX_ITK_ARRAY_HELPER_USE_float32 0
-#define COMPLEX_ITK_ARRAY_HELPER_USE_float64 0
+/**
+ * This filter has multiple Input images: 
+ *    Image of type: Image
+ *    [OPTIONAL] MaskImage of type: Image
+ */
+/**
+ * This filter can report a number of measurements: 
+ * @name ObjectCount
+ * @type uint32_t
+ * @description 
+ *
+ */
+/**
+ * This filter only works with certain kinds of data. We
+ * enable the types that the filter will compile against. The 
+ * Allowed PixelTypes as defined in SimpleITK are: 
+ *   IntegerPixelIDTypeList
+ * The filter defines the following output pixel types: 
+ *   uint32_t
+ */
+#define ITK_OUTPUT_PIXEL_TYPE uint32_t
+#define ITK_INTEGER_PIXEL_ID_TYPE_LIST 1
 
 #include "ITKImageProcessing/Common/ITKArrayHelper.hpp"
+#include "ITKImageProcessing/Common/sitkCommon.hpp"
+
 
 #include "complex/DataStructure/DataPath.hpp"
 #include "complex/Parameters/ArrayCreationParameter.hpp"
 #include "complex/Parameters/ArraySelectionParameter.hpp"
-#include "complex/Parameters/BoolParameter.hpp"
 #include "complex/Parameters/GeometrySelectionParameter.hpp"
+#include "complex/Parameters/BoolParameter.hpp"
 
 #include <itkConnectedComponentImageFilter.h>
 
@@ -27,7 +46,7 @@ struct ITKConnectedComponentImageCreationFunctor
   template <typename InputImageType, typename OutputImageType, unsigned int Dimension>
   auto operator()() const
   {
-    using FilterType = itk::ConnectedComponentImageFilter<InputImageType, OutputImageType, itk::Image<uint8_t, InputImageType::ImageDimension>>;
+    using FilterType = itk::ConnectedComponentImageFilter<InputImageType, OutputImageType, itk::Image<uint8_t, InputImageType::ImageDimension> >;
     typename FilterType::Pointer filter = FilterType::New();
     filter->SetFullyConnected(pFullyConnected);
     return filter;
@@ -64,7 +83,7 @@ std::string ITKConnectedComponentImage::humanName() const
 //------------------------------------------------------------------------------
 std::vector<std::string> ITKConnectedComponentImage::defaultTags() const
 {
-  return {"ITKImageProcessing", "ITKConnectedComponentImage"};
+  return {"ITKImageProcessing", "ITKConnectedComponentImage", "ITKConnectedComponents", "ConnectedComponents"};
 }
 
 //------------------------------------------------------------------------------
@@ -75,6 +94,7 @@ Parameters ITKConnectedComponentImage::parameters() const
   params.insert(std::make_unique<GeometrySelectionParameter>(k_SelectedImageGeomPath_Key, "Image Geometry", "", DataPath{}, GeometrySelectionParameter::AllowedTypes{DataObject::Type::ImageGeom}));
   params.insert(std::make_unique<ArraySelectionParameter>(k_SelectedImageDataPath_Key, "Input Image", "", DataPath{}));
   params.insert(std::make_unique<ArrayCreationParameter>(k_OutputIamgeDataPath_Key, "Output Image", "", DataPath{}));
+  params.insert(std::make_unique<ArraySelectionParameter>(k_MaskImageDataPath_Key, "MaskImage", "", DataPath{}));
   params.insert(std::make_unique<BoolParameter>(k_FullyConnected_Key, "FullyConnected", "", false));
 
   return params;
@@ -101,6 +121,7 @@ IFilter::PreflightResult ITKConnectedComponentImage::preflightImpl(const DataStr
   auto pImageGeomPath = filterArgs.value<DataPath>(k_SelectedImageGeomPath_Key);
   auto pSelectedInputArray = filterArgs.value<DataPath>(k_SelectedImageDataPath_Key);
   auto pOutputArrayPath = filterArgs.value<DataPath>(k_OutputIamgeDataPath_Key);
+  auto pMaskImage = filterArgs.value<DataPath>(k_MaskImageDataPath_Key);
   auto pFullyConnected = filterArgs.value<bool>(k_FullyConnected_Key);
 
   // Declare the preflightResult variable that will be populated with the results
@@ -153,6 +174,7 @@ Result<> ITKConnectedComponentImage::executeImpl(DataStructure& dataStructure, c
   auto pImageGeomPath = filterArgs.value<DataPath>(k_SelectedImageGeomPath_Key);
   auto pSelectedInputArray = filterArgs.value<DataPath>(k_SelectedImageDataPath_Key);
   auto pOutputArrayPath = filterArgs.value<DataPath>(k_OutputIamgeDataPath_Key);
+  auto pMaskImage = filterArgs.value<DataPath>(k_MaskImageDataPath_Key);
   auto pFullyConnected = filterArgs.value<bool>(k_FullyConnected_Key);
 
   /****************************************************************************

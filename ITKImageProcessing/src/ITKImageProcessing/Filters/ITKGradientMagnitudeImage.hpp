@@ -9,7 +9,18 @@ namespace complex
 {
 /**
  * @class ITKGradientMagnitudeImage
- * @brief This filter will ....
+ * @brief Computes the gradient magnitude of an image region at each pixel.
+ *
+ * @see Image 
+ * 
+ * @see Neighborhood 
+ * 
+ * @see NeighborhoodOperator 
+ * 
+ * @see NeighborhoodIterator
+ *
+ * ITK Module: ITKImageGradient
+ * ITK Group: ImageGradient
  */
 class ITKIMAGEPROCESSING_EXPORT ITKGradientMagnitudeImage : public IFilter
 {

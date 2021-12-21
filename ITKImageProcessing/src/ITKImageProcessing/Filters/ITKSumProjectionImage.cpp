@@ -1,12 +1,21 @@
 #include "ITKSumProjectionImage.hpp"
 
-// This filter only works with certain kinds of data so we
-// disable the types that the filter will *NOT* compile against. The
-// Allowed PixelTypes as defined in SimpleITK is: BasicPixelIDTypeList
-#define COMPLEX_ITK_ARRAY_HELPER_USE_uint64 0
-#define COMPLEX_ITK_ARRAY_HELPER_USE_int64 0
+/**
+ * This filter only works with certain kinds of data. We
+ * enable the types that the filter will compile against. The 
+ * Allowed PixelTypes as defined in SimpleITK are: 
+ *   BasicPixelIDTypeList
+ * In addition the following VectorPixelTypes are allowed: 
+ *   VectorPixelIDTypeList
+ * The filter defines the following output pixel types: 
+ *   typename itk::NumericTraits<typename InputImageType::PixelType>::RealType
+ */
+#define ITK_OUTPUT_PIXEL_TYPE double
+#define ITK_BASIC_PIXEL_ID_TYPE_LIST 1
 
 #include "ITKImageProcessing/Common/ITKArrayHelper.hpp"
+#include "ITKImageProcessing/Common/sitkCommon.hpp"
+
 
 #include "complex/DataStructure/DataPath.hpp"
 #include "complex/Parameters/ArrayCreationParameter.hpp"
@@ -64,7 +73,7 @@ std::string ITKSumProjectionImage::humanName() const
 //------------------------------------------------------------------------------
 std::vector<std::string> ITKSumProjectionImage::defaultTags() const
 {
-  return {"ITKImageProcessing", "ITKSumProjectionImage"};
+  return {"ITKImageProcessing", "ITKSumProjectionImage", "ITKImageStatistics", "ImageStatistics"};
 }
 
 //------------------------------------------------------------------------------

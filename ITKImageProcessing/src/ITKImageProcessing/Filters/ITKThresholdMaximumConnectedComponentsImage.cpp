@@ -1,17 +1,27 @@
 #include "ITKThresholdMaximumConnectedComponentsImage.hpp"
 
-// This filter only works with certain kinds of data so we
-// disable the types that the filter will *NOT* compile against. The
-// Allowed PixelTypes as defined in SimpleITK is: ScalarPixelIDTypeList
-#define COMPLEX_ITK_ARRAY_HELPER_USE_uint64 0
-#define COMPLEX_ITK_ARRAY_HELPER_USE_int64 0
+/**
+ * This filter only works with certain kinds of data. We
+ * enable the types that the filter will compile against. The 
+ * Allowed PixelTypes as defined in SimpleITK are: 
+ *   ScalarPixelIDTypeList
+ * The filter defines the following output pixel types: 
+ *   uint8_t
+ */
+#define ITK_OUTPUT_PIXEL_TYPE uint8_t
+#define ITK_SCALAR_PIXEL_ID_TYPE_LIST 1
 
 #include "ITKImageProcessing/Common/ITKArrayHelper.hpp"
+#include "ITKImageProcessing/Common/sitkCommon.hpp"
+
 
 #include "complex/DataStructure/DataPath.hpp"
 #include "complex/Parameters/ArrayCreationParameter.hpp"
 #include "complex/Parameters/ArraySelectionParameter.hpp"
 #include "complex/Parameters/GeometrySelectionParameter.hpp"
+#include "complex/Parameters/NumberParameter.hpp"
+#include "complex/Parameters/NumberParameter.hpp"
+#include "complex/Parameters/NumberParameter.hpp"
 #include "complex/Parameters/NumberParameter.hpp"
 
 #include <itkThresholdMaximumConnectedComponentsImageFilter.h>
@@ -70,7 +80,7 @@ std::string ITKThresholdMaximumConnectedComponentsImage::humanName() const
 //------------------------------------------------------------------------------
 std::vector<std::string> ITKThresholdMaximumConnectedComponentsImage::defaultTags() const
 {
-  return {"ITKImageProcessing", "ITKThresholdMaximumConnectedComponentsImage"};
+  return {"ITKImageProcessing", "ITKThresholdMaximumConnectedComponentsImage", "ITKConnectedComponents", "ConnectedComponents"};
 }
 
 //------------------------------------------------------------------------------
@@ -157,8 +167,7 @@ IFilter::PreflightResult ITKThresholdMaximumConnectedComponentsImage::preflightI
 }
 
 //------------------------------------------------------------------------------
-Result<> ITKThresholdMaximumConnectedComponentsImage::executeImpl(DataStructure& dataStructure, const Arguments& filterArgs, const PipelineFilter* pipelineNode,
-                                                                  const MessageHandler& messageHandler) const
+Result<> ITKThresholdMaximumConnectedComponentsImage::executeImpl(DataStructure& dataStructure, const Arguments& filterArgs, const PipelineFilter* pipelineNode, const MessageHandler& messageHandler) const
 {
   /****************************************************************************
    * Extract the actual input values from the 'filterArgs' object

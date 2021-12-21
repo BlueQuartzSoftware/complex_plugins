@@ -9,7 +9,22 @@ namespace complex
 {
 /**
  * @class ITKHConvexImage
- * @brief This filter will ....
+ * @brief Identify local maxima whose height above the baseline is greater than h.
+ *
+ * HConvexImageFilter extract local maxima that are more than h intensity units above the (local) background. This has the effect of extracting objects that are brighter than background by at least h intensity units.
+ * 
+ * This filter uses the HMaximaImageFilter .
+ * 
+ * Geodesic morphology and the H-Convex algorithm is described in Chapter 6 of Pierre Soille's book "Morphological Image Analysis:
+ * Principles and Applications", Second Edition, Springer, 2003.
+ * 
+ * @see GrayscaleGeodesicDilateImageFilter , HMinimaImageFilter 
+ * 
+ * 
+ * @see MorphologyImageFilter , GrayscaleDilateImageFilter , GrayscaleFunctionDilateImageFilter , BinaryDilateImageFilter
+ *
+ * ITK Module: ITKMathematicalMorphology
+ * ITK Group: MathematicalMorphology
  */
 class ITKIMAGEPROCESSING_EXPORT ITKHConvexImage : public IFilter
 {

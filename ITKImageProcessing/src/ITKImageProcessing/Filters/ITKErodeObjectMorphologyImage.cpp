@@ -1,20 +1,25 @@
 #include "ITKErodeObjectMorphologyImage.hpp"
 
-// This filter only works with certain kinds of data so we
-// disable the types that the filter will *NOT* compile against. The
-// Allowed PixelTypes as defined in SimpleITK is: BasicPixelIDTypeList
-#define COMPLEX_ITK_ARRAY_HELPER_USE_uint64 0
-#define COMPLEX_ITK_ARRAY_HELPER_USE_int64 0
+/**
+ * This filter only works with certain kinds of data. We
+ * enable the types that the filter will compile against. The 
+ * Allowed PixelTypes as defined in SimpleITK are: 
+ *   BasicPixelIDTypeList
+ */
+#define ITK_BASIC_PIXEL_ID_TYPE_LIST 1
 
 #include "ITKImageProcessing/Common/ITKArrayHelper.hpp"
+#include "ITKImageProcessing/Common/sitkCommon.hpp"
+
 
 #include "complex/DataStructure/DataPath.hpp"
 #include "complex/Parameters/ArrayCreationParameter.hpp"
 #include "complex/Parameters/ArraySelectionParameter.hpp"
-#include "complex/Parameters/ChoicesParameter.hpp"
 #include "complex/Parameters/GeometrySelectionParameter.hpp"
-#include "complex/Parameters/NumberParameter.hpp"
 #include "complex/Parameters/VectorParameter.hpp"
+#include "complex/Parameters/ChoicesParameter.hpp"
+#include "complex/Parameters/NumberParameter.hpp"
+#include "complex/Parameters/NumberParameter.hpp"
 
 #include <itkErodeObjectMorphologyImageFilter.h>
 
@@ -32,9 +37,9 @@ struct ITKErodeObjectMorphologyImageCreationFunctor
   template <typename InputImageType, typename OutputImageType, unsigned int Dimension>
   auto operator()() const
   {
-    using FilterType = itk::ErodeObjectMorphologyImageFilter<InputImageType, OutputImageType, itk::FlatStructuringElement<InputImageType::ImageDimension>>;
+    using FilterType = itk::ErodeObjectMorphologyImageFilter<InputImageType, OutputImageType, itk::FlatStructuringElement< InputImageType::ImageDimension > >;
     typename FilterType::Pointer filter = FilterType::New();
-    auto kernel = itk::simple::CreateKernel<Dimension>(static_cast<itk::simple::KernelEnum>(pKernelType), pKernelRadius);
+    auto kernel = itk::simple::CreateKernel<Dimension>( static_cast<itk::simple::KernelEnum>(pKernelType), pKernelRadius);
     filter->SetKernel(kernel);
     filter->SetObjectValue(pObjectValue);
     filter->SetBackgroundValue(pBackgroundValue);
@@ -72,7 +77,7 @@ std::string ITKErodeObjectMorphologyImage::humanName() const
 //------------------------------------------------------------------------------
 std::vector<std::string> ITKErodeObjectMorphologyImage::defaultTags() const
 {
-  return {"ITKImageProcessing", "ITKErodeObjectMorphologyImage"};
+  return {"ITKImageProcessing", "ITKErodeObjectMorphologyImage", "ITKBinaryMathematicalMorphology", "BinaryMathematicalMorphology"};
 }
 
 //------------------------------------------------------------------------------
@@ -113,7 +118,7 @@ IFilter::PreflightResult ITKErodeObjectMorphologyImage::preflightImpl(const Data
   auto pSelectedInputArray = filterArgs.value<DataPath>(k_SelectedImageDataPath_Key);
   auto pOutputArrayPath = filterArgs.value<DataPath>(k_OutputIamgeDataPath_Key);
   auto pKernelRadius = filterArgs.value<VectorUInt32Parameter::ValueType>(k_KernelRadius_Key);
-  auto pKernelType = filterArgs.value<itk::simple::KernelEnum>(k_KernelType_Key);
+  auto pKernelType = static_cast<itk::simple::KernelEnum>(filterArgs.value<uint64>(k_KernelType_Key));
   auto pObjectValue = filterArgs.value<double>(k_ObjectValue_Key);
   auto pBackgroundValue = filterArgs.value<double>(k_BackgroundValue_Key);
 
@@ -168,7 +173,7 @@ Result<> ITKErodeObjectMorphologyImage::executeImpl(DataStructure& dataStructure
   auto pSelectedInputArray = filterArgs.value<DataPath>(k_SelectedImageDataPath_Key);
   auto pOutputArrayPath = filterArgs.value<DataPath>(k_OutputIamgeDataPath_Key);
   auto pKernelRadius = filterArgs.value<VectorUInt32Parameter::ValueType>(k_KernelRadius_Key);
-  auto pKernelType = filterArgs.value<itk::simple::KernelEnum>(k_KernelType_Key);
+  auto pKernelType = static_cast<itk::simple::KernelEnum>(filterArgs.value<uint64>(k_KernelType_Key));
   auto pObjectValue = filterArgs.value<double>(k_ObjectValue_Key);
   auto pBackgroundValue = filterArgs.value<double>(k_BackgroundValue_Key);
 

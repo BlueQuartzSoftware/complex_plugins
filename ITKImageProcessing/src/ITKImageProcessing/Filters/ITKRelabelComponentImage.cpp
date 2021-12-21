@@ -1,19 +1,42 @@
 #include "ITKRelabelComponentImage.hpp"
 
-// This filter only works with certain kinds of data so we
-// disable the types that the filter will *NOT* compile against. The
-// Allowed PixelTypes as defined in SimpleITK is: IntegerPixelIDTypeList
-#define COMPLEX_ITK_ARRAY_HELPER_USE_float32 0
-#define COMPLEX_ITK_ARRAY_HELPER_USE_float64 0
+/**
+ * This filter can report a number of measurements: 
+ * @name NumberOfObjects
+ * @type uint32_t
+ * @description Get the number of objects in the image. This information is only valid after the filter has executed.
+ *
+ * @name OriginalNumberOfObjects
+ * @type uint32_t
+ * @description Get the original number of objects in the image before small objects were discarded. This information is only valid after the filter has executed. If the caller has not specified a minimum object size, OriginalNumberOfObjects is the same as NumberOfObjects.
+ *
+ * @name SizeOfObjectsInPhysicalUnits
+ * @type std::vector<float>
+ * @description Get the size of each object in physical space (in units of pixel size). This information is only valid after the filter has executed. Size of the background is not calculated. Size of object #1 is GetSizeOfObjectsInPhysicalUnits() [0]. Size of object #2 is GetSizeOfObjectsInPhysicalUnits() [1]. Etc.
+ *
+ * @name SizeOfObjectsInPixels
+ * @type std::vector<uint64_t>
+ * @description Get the size of each object in pixels. This information is only valid after the filter has executed. Size of the background is not calculated. Size of object #1 is GetSizeOfObjectsInPixels() [0]. Size of object #2 is GetSizeOfObjectsInPixels() [1]. Etc.
+ *
+ */
+/**
+ * This filter only works with certain kinds of data. We
+ * enable the types that the filter will compile against. The 
+ * Allowed PixelTypes as defined in SimpleITK are: 
+ *   IntegerPixelIDTypeList
+ */
+#define ITK_INTEGER_PIXEL_ID_TYPE_LIST 1
 
 #include "ITKImageProcessing/Common/ITKArrayHelper.hpp"
+#include "ITKImageProcessing/Common/sitkCommon.hpp"
+
 
 #include "complex/DataStructure/DataPath.hpp"
 #include "complex/Parameters/ArrayCreationParameter.hpp"
 #include "complex/Parameters/ArraySelectionParameter.hpp"
-#include "complex/Parameters/BoolParameter.hpp"
 #include "complex/Parameters/GeometrySelectionParameter.hpp"
 #include "complex/Parameters/NumberParameter.hpp"
+#include "complex/Parameters/BoolParameter.hpp"
 
 #include <itkRelabelComponentImageFilter.h>
 
@@ -67,7 +90,7 @@ std::string ITKRelabelComponentImage::humanName() const
 //------------------------------------------------------------------------------
 std::vector<std::string> ITKRelabelComponentImage::defaultTags() const
 {
-  return {"ITKImageProcessing", "ITKRelabelComponentImage"};
+  return {"ITKImageProcessing", "ITKRelabelComponentImage", "ITKConnectedComponents", "ConnectedComponents"};
 }
 
 //------------------------------------------------------------------------------

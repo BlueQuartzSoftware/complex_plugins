@@ -366,5 +366,18 @@ Result<> CompareImages(DataStructure& ds, const DataPath& baselineGeometryPath, 
   }
 }
 
+void RemoveFiles(fs::path& dirPath, const std::string& filePattern)
+{
+  for(auto& p : fs::directory_iterator(dirPath))
+  {
+    std::string file_name = p.path().filename();
+    if(file_name.find(filePattern) == 0)
+    {
+      // std::cout << "Removing: " << file_name  <<std::endl;
+      fs::remove(p.path());
+    }
+  }
+}
+
 } // namespace ITKTestBase
 } // namespace complex

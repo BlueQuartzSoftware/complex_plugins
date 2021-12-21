@@ -61,6 +61,39 @@ set(${PLUGIN_NAME}UnitTest_SRCS
   ITKValuedRegionalMaximaImageTest.cpp
   ITKValuedRegionalMinimaImageTest.cpp
   ITKWhiteTopHatImageTest.cpp
+
+  #-----------------------------------------------------------------------------
+  # These filters have a fixed output type
+  #-----------------------------------------------------------------------------
+  ITKGradientAnisotropicDiffusionImageTest.cpp
+  ITKCurvatureAnisotropicDiffusionImageTest.cpp
+  ITKApproximateSignedDistanceMapImageTest.cpp
+  ITKBinaryThresholdImageTest.cpp
+  ITKBoundedReciprocalImageTest.cpp
+  ITKConnectedComponentImageTest.cpp
+  ITKCurvatureFlowImageTest.cpp
+  ITKDanielssonDistanceMapImageTest.cpp
+  ITKDoubleThresholdImageTest.cpp
+  ITKGradientMagnitudeImageTest.cpp
+  ITKGradientMagnitudeRecursiveGaussianImageTest.cpp
+  ITKIsoContourDistanceImageTest.cpp
+  ITKLaplacianRecursiveGaussianImageTest.cpp # Link error due to missing enums (?)
+  ITKMeanProjectionImageTest.cpp
+  ITKMinMaxCurvatureFlowImageTest.cpp
+  ITKMorphologicalWatershedFromMarkersImageTest.cpp
+  ITKNormalizeImageTest.cpp
+  ITKNormalizeToConstantImageTest.cpp
+  ITKOtsuMultipleThresholdsImageTest.cpp
+  ITKRegionalMaximaImageTest.cpp
+  ITKRegionalMinimaImageTest.cpp
+  ITKSignedDanielssonDistanceMapImageTest.cpp
+  ITKSignedMaurerDistanceMapImageTest.cpp
+  ITKSmoothingRecursiveGaussianImageTest.cpp
+  ITKStandardDeviationProjectionImageTest.cpp
+  ITKSumProjectionImageTest.cpp
+  ITKThresholdMaximumConnectedComponentsImageTest.cpp
+  ITKZeroCrossingImageTest.cpp
+
   )
 
 
@@ -93,40 +126,12 @@ set(${PLUGIN_NAME}UnitTest_SRCS_Disabled
   ITKPCMTileRegistrationTest.cpp
   ITKProxTVImageTest.cpp
   ITKStitchMontageTest.cpp # MISSING 1 or more Parameter Implementations
+  ITKRGBToLuminanceImageTest.cpp # Multiple Different Return types so auto has issues with that
 
   #-----------------------------------------------------------------------------
-  # These filters have a fixed output type of 'double'
+  # These filters have a fixed output type
   #-----------------------------------------------------------------------------
-  ITKRGBToLuminanceImageTest.cpp # Multiple Different Return types so auto has issues with that
-  ITKMinMaxCurvatureFlowImageTest.cpp
-  ITKGradientAnisotropicDiffusionImageTest.cpp
-  ITKCurvatureAnisotropicDiffusionImageTest.cpp
-  ITKApproximateSignedDistanceMapImageTest.cpp
-  ITKBinaryThresholdImageTest.cpp
-  ITKBoundedReciprocalImageTest.cpp
-  ITKConnectedComponentImageTest.cpp
-  ITKCurvatureFlowImageTest.cpp
-  ITKDanielssonDistanceMapImageTest.cpp
-  ITKDoubleThresholdImageTest.cpp
-  ITKGradientMagnitudeImageTest.cpp
-  ITKGradientMagnitudeRecursiveGaussianImageTest.cpp
-  ITKIsoContourDistanceImageTest.cpp
-  ITKLaplacianRecursiveGaussianImageTest.cpp # Link error due to missing enums (?)
-  ITKMeanProjectionImageTest.cpp
-  ITKMorphologicalWatershedFromMarkersImageTest.cpp
-  ITKNormalizeImageTest.cpp
-  ITKNormalizeToConstantImageTest.cpp
-  ITKOtsuMultipleThresholdsImageTest.cpp
-  ITKRegionalMaximaImageTest.cpp
-  ITKRegionalMinimaImageTest.cpp
-  ITKSignedDanielssonDistanceMapImageTest.cpp
-  ITKSignedMaurerDistanceMapImageTest.cpp
-  ITKSmoothingRecursiveGaussianImageTest.cpp
-  ITKStandardDeviationProjectionImageTest.cpp
-  ITKSumProjectionImageTest.cpp
-  ITKThresholdMaximumConnectedComponentsImageTest.cpp
   ITKVectorConnectedComponentImageTest.cpp
-  ITKZeroCrossingImageTest.cpp
 
   #-----------------------------------------------------------------------------
   # These filters use the itk::InPlaceDream3DDataToImageFilter filter

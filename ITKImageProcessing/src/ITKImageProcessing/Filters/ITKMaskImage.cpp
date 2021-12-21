@@ -1,17 +1,27 @@
 #include "ITKMaskImage.hpp"
 
-// This filter only works with certain kinds of data so we
-// disable the types that the filter will *NOT* compile against. The
-// Allowed PixelTypes as defined in SimpleITK is: NonLabelPixelIDTypeList
-#define COMPLEX_ITK_ARRAY_HELPER_USE_uint64 0
-#define COMPLEX_ITK_ARRAY_HELPER_USE_int64 0
+/**
+ * This filter has multiple Input images: 
+ *    Image of type: Image
+ *    MaskImage of type: Image
+ */
+/**
+ * This filter only works with certain kinds of data. We
+ * enable the types that the filter will compile against. The 
+ * Allowed PixelTypes as defined in SimpleITK are: 
+ *   NonLabelPixelIDTypeList
+ */
+#define ITK_NON_LABEL_PIXEL_ID_TYPE_LIST 1
 
 #include "ITKImageProcessing/Common/ITKArrayHelper.hpp"
+#include "ITKImageProcessing/Common/sitkCommon.hpp"
+
 
 #include "complex/DataStructure/DataPath.hpp"
 #include "complex/Parameters/ArrayCreationParameter.hpp"
 #include "complex/Parameters/ArraySelectionParameter.hpp"
 #include "complex/Parameters/GeometrySelectionParameter.hpp"
+#include "complex/Parameters/NumberParameter.hpp"
 #include "complex/Parameters/NumberParameter.hpp"
 
 #include <itkMaskImageFilter.h>
@@ -66,7 +76,7 @@ std::string ITKMaskImage::humanName() const
 //------------------------------------------------------------------------------
 std::vector<std::string> ITKMaskImage::defaultTags() const
 {
-  return {"ITKImageProcessing", "ITKMaskImage"};
+  return {"ITKImageProcessing", "ITKMaskImage", "ITKImageIntensity", "ImageIntensity"};
 }
 
 //------------------------------------------------------------------------------
@@ -77,6 +87,7 @@ Parameters ITKMaskImage::parameters() const
   params.insert(std::make_unique<GeometrySelectionParameter>(k_SelectedImageGeomPath_Key, "Image Geometry", "", DataPath{}, GeometrySelectionParameter::AllowedTypes{DataObject::Type::ImageGeom}));
   params.insert(std::make_unique<ArraySelectionParameter>(k_SelectedImageDataPath_Key, "Input Image", "", DataPath{}));
   params.insert(std::make_unique<ArrayCreationParameter>(k_OutputIamgeDataPath_Key, "Output Image", "", DataPath{}));
+  params.insert(std::make_unique<ArraySelectionParameter>(k_MaskImageDataPath_Key, "MaskImage", "", DataPath{}));
   params.insert(std::make_unique<Float64Parameter>(k_OutsideValue_Key, "OutsideValue", "", 0));
   params.insert(std::make_unique<Float64Parameter>(k_MaskingValue_Key, "MaskingValue", "", 0));
 
@@ -104,6 +115,7 @@ IFilter::PreflightResult ITKMaskImage::preflightImpl(const DataStructure& dataSt
   auto pImageGeomPath = filterArgs.value<DataPath>(k_SelectedImageGeomPath_Key);
   auto pSelectedInputArray = filterArgs.value<DataPath>(k_SelectedImageDataPath_Key);
   auto pOutputArrayPath = filterArgs.value<DataPath>(k_OutputIamgeDataPath_Key);
+  auto pMaskImage = filterArgs.value<DataPath>(k_MaskImageDataPath_Key);
   auto pOutsideValue = filterArgs.value<double>(k_OutsideValue_Key);
   auto pMaskingValue = filterArgs.value<double>(k_MaskingValue_Key);
 
@@ -157,6 +169,7 @@ Result<> ITKMaskImage::executeImpl(DataStructure& dataStructure, const Arguments
   auto pImageGeomPath = filterArgs.value<DataPath>(k_SelectedImageGeomPath_Key);
   auto pSelectedInputArray = filterArgs.value<DataPath>(k_SelectedImageDataPath_Key);
   auto pOutputArrayPath = filterArgs.value<DataPath>(k_OutputIamgeDataPath_Key);
+  auto pMaskImage = filterArgs.value<DataPath>(k_MaskImageDataPath_Key);
   auto pOutsideValue = filterArgs.value<double>(k_OutsideValue_Key);
   auto pMaskingValue = filterArgs.value<double>(k_MaskingValue_Key);
 

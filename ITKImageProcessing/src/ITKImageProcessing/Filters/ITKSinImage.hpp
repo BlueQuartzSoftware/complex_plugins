@@ -9,7 +9,12 @@ namespace complex
 {
 /**
  * @class ITKSinImage
- * @brief This filter will ....
+ * @brief Computes the sine of each pixel.
+ *
+ * The computations are performed using std::sin(x).
+ *
+ * ITK Module: ITKImageIntensity
+ * ITK Group: ImageIntensity
  */
 class ITKIMAGEPROCESSING_EXPORT ITKSinImage : public IFilter
 {

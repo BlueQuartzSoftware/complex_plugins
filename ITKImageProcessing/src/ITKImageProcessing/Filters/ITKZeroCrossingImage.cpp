@@ -1,19 +1,25 @@
 #include "ITKZeroCrossingImage.hpp"
 
-// This filter only works with certain kinds of data so we
-// disable the types that the filter will *NOT* compile against. The
-// Allowed PixelTypes as defined in SimpleITK is: SignedPixelIDTypeList
-#define COMPLEX_ITK_ARRAY_HELPER_USE_uint8 0
-#define COMPLEX_ITK_ARRAY_HELPER_USE_uint16 0
-#define COMPLEX_ITK_ARRAY_HELPER_USE_uint32 0
-#define COMPLEX_ITK_ARRAY_HELPER_USE_uint64 0
+/**
+ * This filter only works with certain kinds of data. We
+ * enable the types that the filter will compile against. The 
+ * Allowed PixelTypes as defined in SimpleITK are: 
+ *   SignedPixelIDTypeList
+ * The filter defines the following output pixel types: 
+ *   uint8_t
+ */
+#define ITK_OUTPUT_PIXEL_TYPE uint8_t
+#define ITK_SIGNED_PIXEL_ID_TYPE_LIST 1
 
 #include "ITKImageProcessing/Common/ITKArrayHelper.hpp"
+#include "ITKImageProcessing/Common/sitkCommon.hpp"
+
 
 #include "complex/DataStructure/DataPath.hpp"
 #include "complex/Parameters/ArrayCreationParameter.hpp"
 #include "complex/Parameters/ArraySelectionParameter.hpp"
 #include "complex/Parameters/GeometrySelectionParameter.hpp"
+#include "complex/Parameters/NumberParameter.hpp"
 #include "complex/Parameters/NumberParameter.hpp"
 
 #include <itkZeroCrossingImageFilter.h>
@@ -68,7 +74,7 @@ std::string ITKZeroCrossingImage::humanName() const
 //------------------------------------------------------------------------------
 std::vector<std::string> ITKZeroCrossingImage::defaultTags() const
 {
-  return {"ITKImageProcessing", "ITKZeroCrossingImage"};
+  return {"ITKImageProcessing", "ITKZeroCrossingImage", "ITKImageFeature", "ImageFeature"};
 }
 
 //------------------------------------------------------------------------------

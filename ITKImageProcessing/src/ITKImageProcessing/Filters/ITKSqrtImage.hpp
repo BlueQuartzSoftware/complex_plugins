@@ -9,7 +9,12 @@ namespace complex
 {
 /**
  * @class ITKSqrtImage
- * @brief This filter will ....
+ * @brief Computes the square root of each pixel.
+ *
+ * The computations are performed using std::sqrt(x).
+ *
+ * ITK Module: ITKImageIntensity
+ * ITK Group: ImageIntensity
  */
 class ITKIMAGEPROCESSING_EXPORT ITKSqrtImage : public IFilter
 {

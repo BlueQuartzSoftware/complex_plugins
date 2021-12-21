@@ -9,7 +9,12 @@ namespace complex
 {
 /**
  * @class ITKLaplacianRecursiveGaussianImage
- * @brief This filter will ....
+ * @brief Computes the Laplacian of Gaussian (LoG) of an image.
+ *
+ * Computes the Laplacian of Gaussian (LoG) of an image by convolution with the second derivative of a Gaussian. This filter is implemented using the recursive gaussian filters.
+ *
+ * ITK Module: ITKImageFeature
+ * ITK Group: ImageFeature
  */
 class ITKIMAGEPROCESSING_EXPORT ITKLaplacianRecursiveGaussianImage : public IFilter
 {

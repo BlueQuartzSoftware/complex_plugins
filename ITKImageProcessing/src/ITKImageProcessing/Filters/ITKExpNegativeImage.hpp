@@ -9,7 +9,12 @@ namespace complex
 {
 /**
  * @class ITKExpNegativeImage
- * @brief This filter will ....
+ * @brief Computes the function exp(-K.x) for each input pixel.
+ *
+ * Every output pixel is equal to std::exp(-K.x ). where x is the intensity of the homologous input pixel, and K is a user-provided constant.
+ *
+ * ITK Module: ITKImageIntensity
+ * ITK Group: ImageIntensity
  */
 class ITKIMAGEPROCESSING_EXPORT ITKExpNegativeImage : public IFilter
 {

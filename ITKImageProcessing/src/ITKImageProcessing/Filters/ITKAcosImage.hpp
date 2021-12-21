@@ -9,7 +9,31 @@ namespace complex
 {
 /**
  * @class ITKAcosImage
- * @brief This filter will ....
+ * @brief Computes the inverse cosine of each pixel.
+ *
+ * This filter is templated over the pixel type of the input image and the pixel type of the output image.
+ * 
+ * The filter walks over all the pixels in the input image, and for each pixel does do the following:
+ * 
+ * 
+ * 
+ * @li cast the pixel value to double , 
+ * 
+ * 
+ * @li apply the std::acos() function to the double value 
+ * 
+ * 
+ * @li cast the double value resulting from std::acos() to the pixel type of the output image 
+ * 
+ * 
+ * @li store the casted value into the output image.
+ * 
+ * 
+ * 
+ * The filter expects both images to have the same dimension (e.g. both 2D, or both 3D, or both ND).
+ *
+ * ITK Module: ITKImageIntensity
+ * ITK Group: ImageIntensity
  */
 class ITKIMAGEPROCESSING_EXPORT ITKAcosImage : public IFilter
 {

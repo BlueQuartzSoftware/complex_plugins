@@ -1,20 +1,33 @@
 #include "ITKPatchBasedDenoisingImage.hpp"
 
-// This filter only works with certain kinds of data so we
-// disable the types that the filter will *NOT* compile against. The
-// Allowed PixelTypes as defined in SimpleITK is: BasicPixelIDTypeList
-#define COMPLEX_ITK_ARRAY_HELPER_USE_uint64 0
-#define COMPLEX_ITK_ARRAY_HELPER_USE_int64 0
+/**
+ * This filter only works with certain kinds of data. We
+ * enable the types that the filter will compile against. The 
+ * Allowed PixelTypes as defined in SimpleITK are: 
+ *   BasicPixelIDTypeList
+ */
+#define ITK_BASIC_PIXEL_ID_TYPE_LIST 1
 
 #include "ITKImageProcessing/Common/ITKArrayHelper.hpp"
+#include "ITKImageProcessing/Common/sitkCommon.hpp"
+
 
 #include "complex/DataStructure/DataPath.hpp"
 #include "complex/Parameters/ArrayCreationParameter.hpp"
 #include "complex/Parameters/ArraySelectionParameter.hpp"
 #include "complex/Parameters/GeometrySelectionParameter.hpp"
 #include "complex/Parameters/NumberParameter.hpp"
-#error NoiseModel = filterArgs.value<typename FilterType::NoiseModelType>(k_NoiseModel_Key);
+#include "complex/Parameters/NumberParameter.hpp"
+#include "complex/Parameters/NumberParameter.hpp"
+#include "complex/Parameters/NumberParameter.hpp"
+#include "complex/Parameters/NumberParameter.hpp"
+  #error NoiseModel = filterArgs.value<typename FilterType::NoiseModelType>(k_NoiseModel_Key);
+#include "complex/Parameters/NumberParameter.hpp"
+#include "complex/Parameters/NumberParameter.hpp"
 #include "complex/Parameters/BoolParameter.hpp"
+#include "complex/Parameters/BoolParameter.hpp"
+#include "complex/Parameters/NumberParameter.hpp"
+#include "complex/Parameters/NumberParameter.hpp"
 #include "complex/Parameters/NumberParameter.hpp"
 
 #include <itkPatchBasedDenoisingImageFilter.h>
@@ -30,7 +43,7 @@ struct ITKPatchBasedDenoisingImageCreationFunctor
   uint32_t pNumberOfIterations;
   uint32_t pNumberOfSamplePatches;
   double pSampleVariance;
-#error typename FilterType::NoiseModelType pNoiseModel;
+  #error typename FilterType::NoiseModelType pNoiseModel;
   double pNoiseSigma;
   double pNoiseModelFidelityWeight;
   bool pAlwaysTreatComponentsAsEuclidean;
@@ -91,7 +104,7 @@ std::string ITKPatchBasedDenoisingImage::humanName() const
 //------------------------------------------------------------------------------
 std::vector<std::string> ITKPatchBasedDenoisingImage::defaultTags() const
 {
-  return {"ITKImageProcessing", "ITKPatchBasedDenoisingImage"};
+  return {"ITKImageProcessing", "ITKPatchBasedDenoisingImage", "ITKDenoising", "Denoising"};
 }
 
 //------------------------------------------------------------------------------
@@ -145,7 +158,7 @@ IFilter::PreflightResult ITKPatchBasedDenoisingImage::preflightImpl(const DataSt
   auto pNumberOfIterations = filterArgs.value<uint32_t>(k_NumberOfIterations_Key);
   auto pNumberOfSamplePatches = filterArgs.value<uint32_t>(k_NumberOfSamplePatches_Key);
   auto pSampleVariance = filterArgs.value<double>(k_SampleVariance_Key);
-#error NoiseModel = filterArgs.value<typename FilterType::NoiseModelType>(k_NoiseModel_Key);
+  #error NoiseModel = filterArgs.value<typename FilterType::NoiseModelType>(k_NoiseModel_Key);
   auto pNoiseSigma = filterArgs.value<double>(k_NoiseSigma_Key);
   auto pNoiseModelFidelityWeight = filterArgs.value<double>(k_NoiseModelFidelityWeight_Key);
   auto pAlwaysTreatComponentsAsEuclidean = filterArgs.value<bool>(k_AlwaysTreatComponentsAsEuclidean_Key);
@@ -209,7 +222,7 @@ Result<> ITKPatchBasedDenoisingImage::executeImpl(DataStructure& dataStructure, 
   auto pNumberOfIterations = filterArgs.value<uint32_t>(k_NumberOfIterations_Key);
   auto pNumberOfSamplePatches = filterArgs.value<uint32_t>(k_NumberOfSamplePatches_Key);
   auto pSampleVariance = filterArgs.value<double>(k_SampleVariance_Key);
-#error NoiseModel = filterArgs.value<typename FilterType::NoiseModelType>(k_NoiseModel_Key);
+  #error NoiseModel = filterArgs.value<typename FilterType::NoiseModelType>(k_NoiseModel_Key);
   auto pNoiseSigma = filterArgs.value<double>(k_NoiseSigma_Key);
   auto pNoiseModelFidelityWeight = filterArgs.value<double>(k_NoiseModelFidelityWeight_Key);
   auto pAlwaysTreatComponentsAsEuclidean = filterArgs.value<bool>(k_AlwaysTreatComponentsAsEuclidean_Key);

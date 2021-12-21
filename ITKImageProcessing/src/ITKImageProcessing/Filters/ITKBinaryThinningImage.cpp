@@ -1,12 +1,16 @@
 #include "ITKBinaryThinningImage.hpp"
 
-// This filter only works with certain kinds of data so we
-// disable the types that the filter will *NOT* compile against. The
-// Allowed PixelTypes as defined in SimpleITK is: IntegerPixelIDTypeList
-#define COMPLEX_ITK_ARRAY_HELPER_USE_float32 0
-#define COMPLEX_ITK_ARRAY_HELPER_USE_float64 0
+/**
+ * This filter only works with certain kinds of data. We
+ * enable the types that the filter will compile against. The 
+ * Allowed PixelTypes as defined in SimpleITK are: 
+ *   IntegerPixelIDTypeList
+ */
+#define ITK_INTEGER_PIXEL_ID_TYPE_LIST 1
 
 #include "ITKImageProcessing/Common/ITKArrayHelper.hpp"
+#include "ITKImageProcessing/Common/sitkCommon.hpp"
+
 
 #include "complex/DataStructure/DataPath.hpp"
 #include "complex/Parameters/ArrayCreationParameter.hpp"
@@ -61,7 +65,7 @@ std::string ITKBinaryThinningImage::humanName() const
 //------------------------------------------------------------------------------
 std::vector<std::string> ITKBinaryThinningImage::defaultTags() const
 {
-  return {"ITKImageProcessing", "ITKBinaryThinningImage"};
+  return {"ITKImageProcessing", "ITKBinaryThinningImage", "ITKBinaryMathematicalMorphology", "BinaryMathematicalMorphology"};
 }
 
 //------------------------------------------------------------------------------

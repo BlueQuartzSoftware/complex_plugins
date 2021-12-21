@@ -9,7 +9,16 @@ namespace complex
 {
 /**
  * @class ITKPatchBasedDenoisingImage
- * @brief This filter will ....
+ * @brief Derived class implementing a specific patch-based denoising algorithm, as detailed below.
+ *
+ * This class is derived from the base class PatchBasedDenoisingBaseImageFilter; please refer to the documentation of the base class first. This class implements a denoising filter that uses iterative non-local, or semi-local, weighted averaging of image patches for image denoising. The intensity at each pixel 'p' gets updated as a weighted average of intensities of a chosen subset of pixels from the image.
+ * 
+ * This class implements the denoising algorithm using a Gaussian kernel function for nonparametric density estimation. The class implements a scheme to automatically estimated the kernel bandwidth parameter (namely, sigma) using leave-one-out cross validation. It implements schemes for random sampling of patches non-locally (from the entire image) as well as semi-locally (from the spatial proximity of the pixel being denoised at the specific point in time). It implements a specific scheme for defining patch weights (mask) as described in Awate and Whitaker 2005 IEEE CVPR and 2006 IEEE TPAMI.
+ * 
+ * @see PatchBasedDenoisingBaseImageFilter
+ *
+ * ITK Module: ITKDenoising
+ * ITK Group: Denoising
  */
 class ITKIMAGEPROCESSING_EXPORT ITKPatchBasedDenoisingImage : public IFilter
 {

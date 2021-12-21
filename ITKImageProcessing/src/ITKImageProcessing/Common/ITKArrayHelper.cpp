@@ -1,3 +1,4 @@
+#define ITK_BASIC_PIXEL_ID_TYPE_LIST 1
 #include "ITKImageProcessing/Common/ITKArrayHelper.hpp"
 
 using namespace complex;

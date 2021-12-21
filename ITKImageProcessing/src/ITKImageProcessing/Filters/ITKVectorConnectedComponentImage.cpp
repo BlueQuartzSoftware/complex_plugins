@@ -1,26 +1,26 @@
 #include "ITKVectorConnectedComponentImage.hpp"
 
-// This filter only works with certain kinds of data so we
-// disable the types that the filter will *NOT* compile against. The
-// Allowed PixelTypes as defined in SimpleITK is: RealVectorPixelIDTypeList
-#define COMPLEX_ITK_ARRAY_HELPER_USE_int8 0
-#define COMPLEX_ITK_ARRAY_HELPER_USE_uint8 0
-#define COMPLEX_ITK_ARRAY_HELPER_USE_int16 0
-#define COMPLEX_ITK_ARRAY_HELPER_USE_uint16 0
-#define COMPLEX_ITK_ARRAY_HELPER_USE_int32 0
-#define COMPLEX_ITK_ARRAY_HELPER_USE_uint32 0
-#define COMPLEX_ITK_ARRAY_HELPER_USE_int64 0
-#define COMPLEX_ITK_ARRAY_HELPER_USE_uint64 0
-#define COMPLEX_ITK_ARRAY_HELPER_USE_Vector 1
+/**
+ * This filter only works with certain kinds of data. We
+ * enable the types that the filter will compile against. The 
+ * Allowed PixelTypes as defined in SimpleITK are: 
+ *   RealVectorPixelIDTypeList
+ * The filter defines the following output pixel types: 
+ *   uint32_t
+ */
+#define ITK_OUTPUT_PIXEL_TYPE uint32_t
+#define ITK_REAL_VECTOR_PIXEL_ID_TYPE_LIST 1
 
 #include "ITKImageProcessing/Common/ITKArrayHelper.hpp"
+#include "ITKImageProcessing/Common/sitkCommon.hpp"
+
 
 #include "complex/DataStructure/DataPath.hpp"
 #include "complex/Parameters/ArrayCreationParameter.hpp"
 #include "complex/Parameters/ArraySelectionParameter.hpp"
-#include "complex/Parameters/BoolParameter.hpp"
 #include "complex/Parameters/GeometrySelectionParameter.hpp"
 #include "complex/Parameters/NumberParameter.hpp"
+#include "complex/Parameters/BoolParameter.hpp"
 
 #include <itkVectorConnectedComponentImageFilter.h>
 
@@ -36,7 +36,7 @@ struct ITKVectorConnectedComponentImageCreationFunctor
   template <typename InputImageType, typename OutputImageType, unsigned int Dimension>
   auto operator()() const
   {
-    using FilterType = itk::VectorConnectedComponentImageFilter<InputImageType, OutputImageType, itk::Image<uint8_t, InputImageType::ImageDimension>>;
+    using FilterType = itk::VectorConnectedComponentImageFilter<InputImageType, OutputImageType, itk::Image<uint8_t, InputImageType::ImageDimension> >;
     typename FilterType::Pointer filter = FilterType::New();
     filter->SetDistanceThreshold(pDistanceThreshold);
     filter->SetFullyConnected(pFullyConnected);
@@ -74,7 +74,7 @@ std::string ITKVectorConnectedComponentImage::humanName() const
 //------------------------------------------------------------------------------
 std::vector<std::string> ITKVectorConnectedComponentImage::defaultTags() const
 {
-  return {"ITKImageProcessing", "ITKVectorConnectedComponentImage"};
+  return {"ITKImageProcessing", "ITKVectorConnectedComponentImage", "ITKConnectedComponents", "ConnectedComponents"};
 }
 
 //------------------------------------------------------------------------------

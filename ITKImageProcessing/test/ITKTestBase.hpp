@@ -1,6 +1,5 @@
 #pragma once
 
-#include "ITKImageProcessing/Common/ITKArrayHelper.hpp"
 #include "ITKImageProcessing/Filters/ITKImageReader.hpp"
 
 #include "complex/Common/Result.hpp"
@@ -35,6 +34,8 @@ int32_t WriteImage(DataStructure& ds, const fs::path& filePath, const DataPath& 
 Result<> CompareImages(DataStructure& ds, const DataPath& baselineGeometryPath, const DataPath& baselineDataPath, const DataPath& inputGeometryPath, const DataPath& outputDataPath, double tolerance);
 
 std::string ComputeMd5Hash(DataStructure& ds, const DataPath& outputDataPath);
+
+void RemoveFiles(fs::path& dirPath, const std::string& filePattern);
 
 } // namespace ITKTestBase
 } // namespace complex

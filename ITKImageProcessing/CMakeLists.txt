@@ -69,7 +69,7 @@ set(FilterList
   ITKWhiteTopHatImage
 
   #-----------------------------------------------------------------------------
-  # These filters have a fixed output type of 'double'
+  # These filters have a fixed output type
   #-----------------------------------------------------------------------------
   ITKMinMaxCurvatureFlowImage
   ITKGradientAnisotropicDiffusionImage
@@ -95,9 +95,12 @@ set(FilterList
   ITKSumProjectionImage
   ITKThresholdMaximumConnectedComponentsImage
   ITKZeroCrossingImage
-  )
 
-set(FilterList_Bak
+  ITKMorphologicalWatershedFromMarkersImage
+  ITKSignedDanielssonDistanceMapImage
+  ITKSignedMaurerDistanceMapImage
+  ITKSmoothingRecursiveGaussianImage
+
 
   )
 
@@ -129,16 +132,12 @@ set(Filters_Disabled
   ITKPCMTileRegistration
   ITKProxTVImage
   ITKStitchMontage # MISSING 1 or more Parameter Implementations
+  ITKRGBToLuminanceImage # Multiple Different Return types so auto has issues with that
 
   #-----------------------------------------------------------------------------
-  # These filters have a fixed output type of 'double'
+  # These filters have a fixed output type
   #-----------------------------------------------------------------------------
-  ITKRGBToLuminanceImage # Multiple Different Return types so auto has issues with that
-  ITKVectorConnectedComponentImage
-  ITKMorphologicalWatershedFromMarkersImage
-  ITKSignedDanielssonDistanceMapImage
-  ITKSignedMaurerDistanceMapImage
-  ITKSmoothingRecursiveGaussianImage
+  ITKVectorConnectedComponentImage # Vector Input, uint32_t output
 
 
   #-----------------------------------------------------------------------------
@@ -204,4 +203,4 @@ target_include_directories(${PLUGIN_NAME} PUBLIC  ${ITK_INCLUDE_DIRS})
 #------------------------------------------------------------------------------
 # Add in the unit tests for the filters included in this plugin
 enable_testing()
-#add_subdirectory(${${PLUGIN_NAME}_SOURCE_DIR}/test)
+add_subdirectory(${${PLUGIN_NAME}_SOURCE_DIR}/test)

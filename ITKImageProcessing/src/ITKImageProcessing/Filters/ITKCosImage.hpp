@@ -9,7 +9,31 @@ namespace complex
 {
 /**
  * @class ITKCosImage
- * @brief This filter will ....
+ * @brief Computes the cosine of each pixel.
+ *
+ * This filter is templated over the pixel type of the input image and the pixel type of the output image.
+ * 
+ * The filter walks over all of the pixels in the input image, and for each pixel does the following:
+ * 
+ * 
+ * 
+ * @li cast the pixel value to double , 
+ * 
+ * 
+ * @li apply the std::cos() function to the double value, 
+ * 
+ * 
+ * @li cast the double value resulting from std::cos() to the pixel type of the output image, 
+ * 
+ * 
+ * @li store the cast value into the output image.
+ * 
+ * 
+ * 
+ * The filter expects both images to have the same dimension (e.g. both 2D, or both 3D, or both ND)
+ *
+ * ITK Module: ITKImageIntensity
+ * ITK Group: ImageIntensity
  */
 class ITKIMAGEPROCESSING_EXPORT ITKCosImage : public IFilter
 {

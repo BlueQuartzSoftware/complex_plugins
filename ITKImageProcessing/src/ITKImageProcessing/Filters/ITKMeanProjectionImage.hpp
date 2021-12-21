@@ -9,7 +9,35 @@ namespace complex
 {
 /**
  * @class ITKMeanProjectionImage
- * @brief This filter will ....
+ * @brief Mean projection.
+ *
+ * This class was contributed to the Insight Journal by Gaetan Lehmann. The original paper can be found at https://hdl.handle.net/1926/164 
+ * 
+ * @author Gaetan Lehmann. Biologie du Developpement et de la Reproduction, INRA de Jouy-en-Josas, France.
+ * 
+ * 
+ * @see ProjectionImageFilter 
+ * 
+ * 
+ * @see MedianProjectionImageFilter 
+ * 
+ * 
+ * @see MinimumProjectionImageFilter 
+ * 
+ * 
+ * @see StandardDeviationProjectionImageFilter 
+ * 
+ * 
+ * @see SumProjectionImageFilter 
+ * 
+ * 
+ * @see BinaryProjectionImageFilter 
+ * 
+ * 
+ * @see MaximumProjectionImageFilter
+ *
+ * ITK Module: ITKImageStatistics
+ * ITK Group: ImageStatistics
  */
 class ITKIMAGEPROCESSING_EXPORT ITKMeanProjectionImage : public IFilter
 {

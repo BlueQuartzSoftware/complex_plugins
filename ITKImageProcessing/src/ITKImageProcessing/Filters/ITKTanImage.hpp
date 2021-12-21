@@ -9,7 +9,12 @@ namespace complex
 {
 /**
  * @class ITKTanImage
- * @brief This filter will ....
+ * @brief Computes the tangent of each input pixel.
+ *
+ * The computations are performed using std::tan(x).
+ *
+ * ITK Module: ITKImageIntensity
+ * ITK Group: ImageIntensity
  */
 class ITKIMAGEPROCESSING_EXPORT ITKTanImage : public IFilter
 {

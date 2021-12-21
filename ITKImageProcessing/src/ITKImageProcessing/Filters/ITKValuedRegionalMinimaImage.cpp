@@ -1,18 +1,29 @@
 #include "ITKValuedRegionalMinimaImage.hpp"
 
-// This filter only works with certain kinds of data so we
-// disable the types that the filter will *NOT* compile against. The
-// Allowed PixelTypes as defined in SimpleITK is: ScalarPixelIDTypeList
-#define COMPLEX_ITK_ARRAY_HELPER_USE_uint64 0
-#define COMPLEX_ITK_ARRAY_HELPER_USE_int64 0
+/**
+ * This filter can report a number of measurements: 
+ * @name Flat
+ * @type bool
+ * @description 
+ *
+ */
+/**
+ * This filter only works with certain kinds of data. We
+ * enable the types that the filter will compile against. The 
+ * Allowed PixelTypes as defined in SimpleITK are: 
+ *   ScalarPixelIDTypeList
+ */
+#define ITK_SCALAR_PIXEL_ID_TYPE_LIST 1
 
 #include "ITKImageProcessing/Common/ITKArrayHelper.hpp"
+#include "ITKImageProcessing/Common/sitkCommon.hpp"
+
 
 #include "complex/DataStructure/DataPath.hpp"
 #include "complex/Parameters/ArrayCreationParameter.hpp"
 #include "complex/Parameters/ArraySelectionParameter.hpp"
-#include "complex/Parameters/BoolParameter.hpp"
 #include "complex/Parameters/GeometrySelectionParameter.hpp"
+#include "complex/Parameters/BoolParameter.hpp"
 
 #include <itkValuedRegionalMinimaImageFilter.h>
 
@@ -64,7 +75,7 @@ std::string ITKValuedRegionalMinimaImage::humanName() const
 //------------------------------------------------------------------------------
 std::vector<std::string> ITKValuedRegionalMinimaImage::defaultTags() const
 {
-  return {"ITKImageProcessing", "ITKValuedRegionalMinimaImage"};
+  return {"ITKImageProcessing", "ITKValuedRegionalMinimaImage", "ITKMathematicalMorphology", "MathematicalMorphology"};
 }
 
 //------------------------------------------------------------------------------

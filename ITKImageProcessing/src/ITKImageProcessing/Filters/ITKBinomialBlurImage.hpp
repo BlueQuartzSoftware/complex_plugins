@@ -9,7 +9,12 @@ namespace complex
 {
 /**
  * @class ITKBinomialBlurImage
- * @brief This filter will ....
+ * @brief Performs a separable blur on each dimension of an image.
+ *
+ * The binomial blur consists of a nearest neighbor average along each image dimension. The net result after n-iterations approaches convolution with a gaussian.
+ *
+ * ITK Module: ITKSmoothing
+ * ITK Group: Smoothing
  */
 class ITKIMAGEPROCESSING_EXPORT ITKBinomialBlurImage : public IFilter
 {

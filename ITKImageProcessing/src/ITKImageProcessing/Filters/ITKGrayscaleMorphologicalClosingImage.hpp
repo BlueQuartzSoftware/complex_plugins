@@ -9,7 +9,16 @@ namespace complex
 {
 /**
  * @class ITKGrayscaleMorphologicalClosingImage
- * @brief This filter will ....
+ * @brief gray scale dilation of an image
+ *
+ * Erode an image using grayscale morphology. Dilation takes the maximum of all the pixels identified by the structuring element.
+ * 
+ * The structuring element is assumed to be composed of binary values (zero or one). Only elements of the structuring element having values > 0 are candidates for affecting the center pixel.
+ * 
+ * @see MorphologyImageFilter , GrayscaleFunctionErodeImageFilter , BinaryErodeImageFilter
+ *
+ * ITK Module: ITKMathematicalMorphology
+ * ITK Group: MathematicalMorphology
  */
 class ITKIMAGEPROCESSING_EXPORT ITKGrayscaleMorphologicalClosingImage : public IFilter
 {

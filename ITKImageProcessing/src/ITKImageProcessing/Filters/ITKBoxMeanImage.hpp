@@ -9,7 +9,14 @@ namespace complex
 {
 /**
  * @class ITKBoxMeanImage
- * @brief This filter will ....
+ * @brief Implements a fast rectangular mean filter using the accumulator approach.
+ *
+ * This code was contributed in the Insight Journal paper: "Efficient implementation of kernel filtering" by Beare R., Lehmann G https://hdl.handle.net/1926/555 http://www.insight-journal.org/browse/publication/160 
+ * 
+ * @author Richard Beare
+ *
+ * ITK Module: ITKSmoothing
+ * ITK Group: Smoothing
  */
 class ITKIMAGEPROCESSING_EXPORT ITKBoxMeanImage : public IFilter
 {

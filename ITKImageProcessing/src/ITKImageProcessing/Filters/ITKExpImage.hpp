@@ -9,7 +9,12 @@ namespace complex
 {
 /**
  * @class ITKExpImage
- * @brief This filter will ....
+ * @brief Computes the exponential function of each pixel.
+ *
+ * The computation is performed using std::exp(x).
+ *
+ * ITK Module: ITKImageIntensity
+ * ITK Group: ImageIntensity
  */
 class ITKIMAGEPROCESSING_EXPORT ITKExpImage : public IFilter
 {

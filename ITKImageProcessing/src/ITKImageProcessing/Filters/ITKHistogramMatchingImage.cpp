@@ -1,19 +1,29 @@
 #include "ITKHistogramMatchingImage.hpp"
 
-// This filter only works with certain kinds of data so we
-// disable the types that the filter will *NOT* compile against. The
-// Allowed PixelTypes as defined in SimpleITK is: BasicPixelIDTypeList
-#define COMPLEX_ITK_ARRAY_HELPER_USE_uint64 0
-#define COMPLEX_ITK_ARRAY_HELPER_USE_int64 0
+/**
+ * This filter has multiple Input images: 
+ *    Image of type: Image
+ *    ReferenceImage of type: Image
+ */
+/**
+ * This filter only works with certain kinds of data. We
+ * enable the types that the filter will compile against. The 
+ * Allowed PixelTypes as defined in SimpleITK are: 
+ *   BasicPixelIDTypeList
+ */
+#define ITK_BASIC_PIXEL_ID_TYPE_LIST 1
 
 #include "ITKImageProcessing/Common/ITKArrayHelper.hpp"
+#include "ITKImageProcessing/Common/sitkCommon.hpp"
+
 
 #include "complex/DataStructure/DataPath.hpp"
 #include "complex/Parameters/ArrayCreationParameter.hpp"
 #include "complex/Parameters/ArraySelectionParameter.hpp"
-#include "complex/Parameters/BoolParameter.hpp"
 #include "complex/Parameters/GeometrySelectionParameter.hpp"
 #include "complex/Parameters/NumberParameter.hpp"
+#include "complex/Parameters/NumberParameter.hpp"
+#include "complex/Parameters/BoolParameter.hpp"
 
 #include <itkHistogramMatchingImageFilter.h>
 
@@ -69,7 +79,7 @@ std::string ITKHistogramMatchingImage::humanName() const
 //------------------------------------------------------------------------------
 std::vector<std::string> ITKHistogramMatchingImage::defaultTags() const
 {
-  return {"ITKImageProcessing", "ITKHistogramMatchingImage"};
+  return {"ITKImageProcessing", "ITKHistogramMatchingImage", "ITKImageIntensity", "ImageIntensity"};
 }
 
 //------------------------------------------------------------------------------
@@ -80,6 +90,7 @@ Parameters ITKHistogramMatchingImage::parameters() const
   params.insert(std::make_unique<GeometrySelectionParameter>(k_SelectedImageGeomPath_Key, "Image Geometry", "", DataPath{}, GeometrySelectionParameter::AllowedTypes{DataObject::Type::ImageGeom}));
   params.insert(std::make_unique<ArraySelectionParameter>(k_SelectedImageDataPath_Key, "Input Image", "", DataPath{}));
   params.insert(std::make_unique<ArrayCreationParameter>(k_OutputIamgeDataPath_Key, "Output Image", "", DataPath{}));
+  params.insert(std::make_unique<ArraySelectionParameter>(k_ReferenceImageDataPath_Key, "ReferenceImage", "", DataPath{}));
   params.insert(std::make_unique<UInt32Parameter>(k_NumberOfHistogramLevels_Key, "NumberOfHistogramLevels", "", 256u));
   params.insert(std::make_unique<UInt32Parameter>(k_NumberOfMatchPoints_Key, "NumberOfMatchPoints", "", 1u));
   params.insert(std::make_unique<BoolParameter>(k_ThresholdAtMeanIntensity_Key, "ThresholdAtMeanIntensity", "", true));
@@ -108,6 +119,7 @@ IFilter::PreflightResult ITKHistogramMatchingImage::preflightImpl(const DataStru
   auto pImageGeomPath = filterArgs.value<DataPath>(k_SelectedImageGeomPath_Key);
   auto pSelectedInputArray = filterArgs.value<DataPath>(k_SelectedImageDataPath_Key);
   auto pOutputArrayPath = filterArgs.value<DataPath>(k_OutputIamgeDataPath_Key);
+  auto pReferenceImage = filterArgs.value<DataPath>(k_ReferenceImageDataPath_Key);
   auto pNumberOfHistogramLevels = filterArgs.value<uint32_t>(k_NumberOfHistogramLevels_Key);
   auto pNumberOfMatchPoints = filterArgs.value<uint32_t>(k_NumberOfMatchPoints_Key);
   auto pThresholdAtMeanIntensity = filterArgs.value<bool>(k_ThresholdAtMeanIntensity_Key);
@@ -162,6 +174,7 @@ Result<> ITKHistogramMatchingImage::executeImpl(DataStructure& dataStructure, co
   auto pImageGeomPath = filterArgs.value<DataPath>(k_SelectedImageGeomPath_Key);
   auto pSelectedInputArray = filterArgs.value<DataPath>(k_SelectedImageDataPath_Key);
   auto pOutputArrayPath = filterArgs.value<DataPath>(k_OutputIamgeDataPath_Key);
+  auto pReferenceImage = filterArgs.value<DataPath>(k_ReferenceImageDataPath_Key);
   auto pNumberOfHistogramLevels = filterArgs.value<uint32_t>(k_NumberOfHistogramLevels_Key);
   auto pNumberOfMatchPoints = filterArgs.value<uint32_t>(k_NumberOfMatchPoints_Key);
   auto pThresholdAtMeanIntensity = filterArgs.value<bool>(k_ThresholdAtMeanIntensity_Key);
