@@ -10,6 +10,7 @@
  */
 #define ITK_OUTPUT_PIXEL_TYPE uint32_t
 #define ITK_REAL_VECTOR_PIXEL_ID_TYPE_LIST 1
+#define COMPLEX_ITK_ARRAY_HELPER_USE_Vector 0
 
 #include "ITKImageProcessing/Common/ITKArrayHelper.hpp"
 #include "ITKImageProcessing/Common/sitkCommon.hpp"

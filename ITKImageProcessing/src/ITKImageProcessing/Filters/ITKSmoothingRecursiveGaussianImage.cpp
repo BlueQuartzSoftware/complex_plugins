@@ -8,7 +8,7 @@
  */
 #define COMPLEX_ITK_ARRAY_HELPER_USE_int64 0
 #define COMPLEX_ITK_ARRAY_HELPER_USE_uint64 0
-#define COMPLEX_ITK_ARRAY_HELPER_USE_Vector 1
+#define COMPLEX_ITK_ARRAY_HELPER_USE_Vector 0
 
 #include "ITKImageProcessing/Common/ITKArrayHelper.hpp"
 #include "ITKImageProcessing/Common/sitkCommon.hpp"

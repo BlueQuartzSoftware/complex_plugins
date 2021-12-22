@@ -17,6 +17,7 @@
  */
 #define ITK_OUTPUT_PIXEL_TYPE uint8_t
 #define ITK_BASIC_PIXEL_ID_TYPE_LIST 1
+#define COMPLEX_ITK_ARRAY_HELPER_USE_Scalar 1
 
 #include "ITKImageProcessing/Common/ITKArrayHelper.hpp"
 #include "ITKImageProcessing/Common/sitkCommon.hpp"
