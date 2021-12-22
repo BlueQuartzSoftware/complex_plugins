@@ -370,7 +370,7 @@ void RemoveFiles(fs::path& dirPath, const std::string& filePattern)
 {
   for(auto& p : fs::directory_iterator(dirPath))
   {
-    std::string file_name = p.path().filename();
+    std::string file_name = p.path().filename().string();
     if(file_name.find(filePattern) == 0)
     {
       // std::cout << "Removing: " << file_name  <<std::endl;
