@@ -4,6 +4,11 @@ set(${PLUGIN_NAME}UnitTest_SRCS
   ITKImageReaderTest.cpp
   ITKImageWriterTest.cpp
   ITKAbsImageTest.cpp
+
+  ITKApproximateSignedDistanceMapImageTest.cpp
+
+  )
+set (others
   ITKAcosImageTest.cpp
   ITKAsinImageTest.cpp
   ITKAtanImageTest.cpp
@@ -67,7 +72,6 @@ set(${PLUGIN_NAME}UnitTest_SRCS
   #-----------------------------------------------------------------------------
   ITKGradientAnisotropicDiffusionImageTest.cpp
   ITKCurvatureAnisotropicDiffusionImageTest.cpp
-  ITKApproximateSignedDistanceMapImageTest.cpp
   ITKBinaryThresholdImageTest.cpp
   ITKBoundedReciprocalImageTest.cpp
   ITKConnectedComponentImageTest.cpp

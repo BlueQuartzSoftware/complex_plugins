@@ -10,6 +10,11 @@ set(FilterList
   ITKImageReader
   ITKImageWriter
   ITKAbsImage
+
+  ITKApproximateSignedDistanceMapImage
+
+  )
+set(Others
   ITKAcosImage
   ITKAsinImage
   ITKAtanImage
@@ -74,7 +79,6 @@ set(FilterList
   ITKMinMaxCurvatureFlowImage
   ITKGradientAnisotropicDiffusionImage
   ITKCurvatureAnisotropicDiffusionImage
-  ITKApproximateSignedDistanceMapImage
   ITKBinaryThresholdImage
   ITKBoundedReciprocalImage
   ITKConnectedComponentImage

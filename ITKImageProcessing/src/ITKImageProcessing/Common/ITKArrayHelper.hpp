@@ -168,7 +168,10 @@
 #define COMPLEX_ITK_ARRAY_HELPER_USE_RGB_RGBA 0
 #endif
 
-#if defined(ITK_OUTPUT_PIXEL_TYPE)
+#define XSTR(x) STR(x)
+#define STR(x) #x
+
+#ifdef ITK_OUTPUT_PIXEL_TYPE
 #define OUT_UINT8_TYPE ITK_OUTPUT_PIXEL_TYPE
 #define OUT_INT8_TYPE ITK_OUTPUT_PIXEL_TYPE
 #define OUT_UINT16_TYPE ITK_OUTPUT_PIXEL_TYPE
@@ -180,6 +183,7 @@
 #define OUT_FLOAT_TYPE ITK_OUTPUT_PIXEL_TYPE
 #define OUT_DOUBLE_TYPE ITK_OUTPUT_PIXEL_TYPE
 #else
+#define ITK_OUTPUT_PIXEL_TYPE "ITK_OUTPUT_PIXEL_TYPE NOT DEFINED"
 #define OUT_UINT8_TYPE uint8_t
 #define OUT_INT8_TYPE int8_t
 #define OUT_UINT16_TYPE uint16_t
@@ -472,7 +476,11 @@ struct ITKFilterFunctor
       writer->Update();
     }
 #endif
-    auto& typedOutputDataStore = dynamic_cast<DataStore<ITK::UnderlyingType_t<OutputT>>&>(outputDataStore);
+
+    using ITKPixelType = ITK::UnderlyingType_t<OutputT>;
+    ITKPixelType itkPixelType;
+    using DataStoreType = DataStore<ITKPixelType>;
+    auto& typedOutputDataStore = dynamic_cast<DataStoreType&>(outputDataStore);
     auto imageDataStore = ITK::ConvertImageToDataStore(*outputImage);
     typedOutputDataStore = std::move(imageDataStore);
     return {};
@@ -483,6 +491,11 @@ struct ITKFilterFunctor
 template <template <class, class, uint32> class FunctorT, class ResultT = void, class... ArgsT>
 Result<ResultT> ArraySwitchFunc(const IDataStore& dataStore, const ImageGeom& imageGeom, int32 errorCode, ArgsT&&... args)
 {
+
+  std::string itk_output_pixel_type = XSTR(ITK_OUTPUT_PIXEL_TYPE);
+  std::string out_uint8_type = XSTR(OUT_UINT8_TYPE);
+  std::cout << "   ArraySwitchFunc::itk_output_pixel_type: " << itk_output_pixel_type << std::endl;
+  std::cout << "   ArraySwitchFunc::out_uint8_type: " << out_uint8_type << std::endl;
   DataType type = dataStore.getDataType();
 
   switch(type)
@@ -545,11 +558,16 @@ Result<ResultT> ArraySwitchFunc(const IDataStore& dataStore, const ImageGeom& im
 
 inline Result<OutputActions> DataCheck(const DataStructure& dataStructure, const DataPath& inputArrayPath, const DataPath& imageGeomPath, const DataPath& outputArrayPath)
 {
-  const auto& imageGeom = dataStructure.getDataRefAs<ImageGeom>(imageGeomPath);
-  const auto& dataArray = dataStructure.getDataRefAs<IDataArray>(inputArrayPath);
-  const auto& dataStore = dataArray.getIDataStoreRef();
 
-  return ArraySwitchFunc<detail::DataCheckImplFunctor, OutputActions>(dataStore, imageGeom, -1, dataStructure, inputArrayPath, imageGeomPath, outputArrayPath);
+  const auto& imageGeom = dataStructure.getDataRefAs<ImageGeom>(imageGeomPath);
+  const auto& inputArray = dataStructure.getDataRefAs<IDataArray>(inputArrayPath);
+  const auto& inputDataStore = inputArray.getIDataStoreRef();
+  std::cout << "======== PREFLIGHT ============" << std::endl;
+  std::string itk_output_pixel_type = XSTR(ITK_OUTPUT_PIXEL_TYPE);
+  std::string out_uint8_type = XSTR(OUT_UINT8_TYPE);
+  std::cout << "   DataCheck::itk_output_pixel_type: " << itk_output_pixel_type << std::endl;
+  std::cout << "   DataCheck::out_uint8_type: " << out_uint8_type << std::endl;
+  return ArraySwitchFunc<detail::DataCheckImplFunctor, OutputActions>(inputDataStore, imageGeom, -1, dataStructure, inputArrayPath, imageGeomPath, outputArrayPath);
 }
 
 template <class FilterCreationFunctorT>
@@ -560,7 +578,11 @@ Result<> Execute(DataStructure& dataStructure, const DataPath& inputArrayPath, c
   auto& outputArray = dataStructure.getDataRefAs<IDataArray>(outputArrayPath);
   auto& inputDataStore = inputArray.getIDataStoreRef();
   auto& outputDataStore = outputArray.getIDataStoreRef();
-
+  std::cout << "======== EXECUTE ============" << std::endl;
+  std::string itk_output_pixel_type = XSTR(ITK_OUTPUT_PIXEL_TYPE);
+  std::string out_uint8_type = XSTR(OUT_UINT8_TYPE);
+  std::cout << "   Execute::itk_output_pixel_type: " << itk_output_pixel_type << std::endl;
+  std::cout << "   Execute::out_uint8_type: " << out_uint8_type << std::endl;
   try
   {
     return ArraySwitchFunc<detail::ITKFilterFunctor>(inputDataStore, imageGeom, -1, inputDataStore, imageGeom, outputDataStore, filterCreationFunctor);
