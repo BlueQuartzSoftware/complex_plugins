@@ -168,34 +168,6 @@
 #define COMPLEX_ITK_ARRAY_HELPER_USE_RGB_RGBA 0
 #endif
 
-#define XSTR(x) STR(x)
-#define STR(x) #x
-
-#ifdef ITK_OUTPUT_PIXEL_TYPE
-#define OUT_UINT8_TYPE ITK_OUTPUT_PIXEL_TYPE
-#define OUT_INT8_TYPE ITK_OUTPUT_PIXEL_TYPE
-#define OUT_UINT16_TYPE ITK_OUTPUT_PIXEL_TYPE
-#define OUT_INT16_TYPE ITK_OUTPUT_PIXEL_TYPE
-#define OUT_UINT32_TYPE ITK_OUTPUT_PIXEL_TYPE
-#define OUT_INT32_TYPE ITK_OUTPUT_PIXEL_TYPE
-#define OUT_UINT64_TYPE ITK_OUTPUT_PIXEL_TYPE
-#define OUT_INT64_TYPE ITK_OUTPUT_PIXEL_TYPE
-#define OUT_FLOAT_TYPE ITK_OUTPUT_PIXEL_TYPE
-#define OUT_DOUBLE_TYPE ITK_OUTPUT_PIXEL_TYPE
-#else
-#define ITK_OUTPUT_PIXEL_TYPE "ITK_OUTPUT_PIXEL_TYPE NOT DEFINED"
-#define OUT_UINT8_TYPE uint8_t
-#define OUT_INT8_TYPE int8_t
-#define OUT_UINT16_TYPE uint16_t
-#define OUT_INT16_TYPE int16_t
-#define OUT_UINT32_TYPE uint32_t
-#define OUT_INT32_TYPE int32_t
-#define OUT_UINT64_TYPE uint64_t
-#define OUT_INT64_TYPE int64_t
-#define OUT_FLOAT_TYPE float
-#define OUT_DOUBLE_TYPE double
-#endif
-
 /*
  * The original implementation seemed to short circuit to vector if both were activated, but it's
  * unknown if that was the intended behavior.
@@ -458,24 +430,6 @@ struct ITKFilterFunctor
 
     typename OutputImageType::Pointer outputImage = filter->GetOutput();
     outputImage->DisconnectPipeline();
-#if 0
-    {
-      using FileWriterType = itk::ImageFileWriter<InputImageType>;
-      auto writer = FileWriterType::New();
-      writer->SetInput(inputImage);
-      writer->SetFileName("/tmp/input_image.tiff");
-      writer->UseCompressionOff();
-      writer->Update();
-    }
-    {
-      using FileWriterType = itk::ImageFileWriter<OutputImageType>;
-      auto writer = FileWriterType::New();
-      writer->SetInput(outputImage);
-      writer->SetFileName("/tmp/output_image.tiff");
-      writer->UseCompressionOff();
-      writer->Update();
-    }
-#endif
 
     using ITKPixelType = ITK::UnderlyingType_t<OutputT>;
     ITKPixelType itkPixelType;
@@ -486,68 +440,66 @@ struct ITKFilterFunctor
     return {};
   }
 };
+
+template <class OutputT, class DefaultOutputT>
+using TrueOutputT = std::conditional_t<std::is_same_v<OutputT, void>, DefaultOutputT, OutputT>;
 } // namespace detail
 
-template <template <class, class, uint32> class FunctorT, class ResultT = void, class... ArgsT>
+template <template <class, class, uint32> class FunctorT, class ResultT = void, class OutputT = void, class... ArgsT>
 Result<ResultT> ArraySwitchFunc(const IDataStore& dataStore, const ImageGeom& imageGeom, int32 errorCode, ArgsT&&... args)
 {
-
-  std::string itk_output_pixel_type = XSTR(ITK_OUTPUT_PIXEL_TYPE);
-  std::string out_uint8_type = XSTR(OUT_UINT8_TYPE);
-  std::cout << "   ArraySwitchFunc::itk_output_pixel_type: " << itk_output_pixel_type << std::endl;
-  std::cout << "   ArraySwitchFunc::out_uint8_type: " << out_uint8_type << std::endl;
   DataType type = dataStore.getDataType();
 
   switch(type)
   {
 #if COMPLEX_ITK_ARRAY_HELPER_USE_int8 == 1
   case DataType::int8: {
-    return detail::ArraySwitchFuncDimsImpl<int8, OUT_INT8_TYPE, ResultT, FunctorT>(dataStore, imageGeom, errorCode, args...);
+    return detail::ArraySwitchFuncDimsImpl<int8, detail::TrueOutputT<OutputT, int8>, ResultT, FunctorT>(dataStore, imageGeom, errorCode, args...);
   }
 #endif
 #if COMPLEX_ITK_ARRAY_HELPER_USE_uint8 == 1
   case DataType::uint8: {
-    return detail::ArraySwitchFuncDimsImpl<uint8, OUT_UINT8_TYPE, ResultT, FunctorT>(dataStore, imageGeom, errorCode, args...);
+    return detail::ArraySwitchFuncDimsImpl<uint8, detail::TrueOutputT<OutputT, uint8>, ResultT, FunctorT>(dataStore, imageGeom, errorCode, args...);
   }
 #endif
 #if COMPLEX_ITK_ARRAY_HELPER_USE_int16 == 1
   case DataType::int16: {
-    return detail::ArraySwitchFuncDimsImpl<int16, OUT_INT16_TYPE, ResultT, FunctorT>(dataStore, imageGeom, errorCode, args...);
+    return detail::ArraySwitchFuncDimsImpl<int16, detail::TrueOutputT<OutputT, int16>, ResultT, FunctorT>(dataStore, imageGeom, errorCode, args...);
   }
 #endif
 #if COMPLEX_ITK_ARRAY_HELPER_USE_uint16 == 1
   case DataType::uint16: {
-    return detail::ArraySwitchFuncDimsImpl<uint16, OUT_UINT16_TYPE, ResultT, FunctorT>(dataStore, imageGeom, errorCode, args...);
+    return detail::ArraySwitchFuncDimsImpl<uint16, detail::TrueOutputT<OutputT, uint16>, ResultT, FunctorT>(dataStore, imageGeom, errorCode, args...);
   }
 #endif
 #if COMPLEX_ITK_ARRAY_HELPER_USE_int32 == 1
   case DataType::int32: {
-    return detail::ArraySwitchFuncDimsImpl<int32, OUT_INT32_TYPE, ResultT, FunctorT>(dataStore, imageGeom, errorCode, args...);
+    return detail::ArraySwitchFuncDimsImpl<int32, detail::TrueOutputT<OutputT, int32>, ResultT, FunctorT>(dataStore, imageGeom, errorCode, args...);
   }
 #endif
 #if COMPLEX_ITK_ARRAY_HELPER_USE_uint32 == 1
   case DataType::uint32: {
-    return detail::ArraySwitchFuncDimsImpl<uint32, OUT_UINT32_TYPE, ResultT, FunctorT>(dataStore, imageGeom, errorCode, args...);
+    return detail::ArraySwitchFuncDimsImpl<uint32, detail::TrueOutputT<OutputT, uint32>, ResultT, FunctorT>(dataStore, imageGeom, errorCode, args...);
   }
 #endif
 #if COMPLEX_ITK_ARRAY_HELPER_USE_int64 == 1
   case DataType::int64: {
-    return detail::ArraySwitchFuncDimsImpl<int64, OUT_INT64_TYPE, ResultT, FunctorT>(dataStore, imageGeom, errorCode, args...);
+    return detail::ArraySwitchFuncDimsImpl<int64, detail::TrueOutputT<OutputT, int64>, ResultT, FunctorT>(dataStore, imageGeom, errorCode, args...);
   }
 #endif
 #if COMPLEX_ITK_ARRAY_HELPER_USE_uint64 == 1
   case DataType::uint64: {
-    return detail::ArraySwitchFuncDimsImpl<uint64, OUT_UINT64_TYPE, ResultT, FunctorT>(dataStore, imageGeom, errorCode, args...);
+    return detail::ArraySwitchFuncDimsImpl<uint64, detail::TrueOutputT<OutputT, uint64>, ResultT, FunctorT>(dataStore, imageGeom, errorCode, args...);
   }
 #endif
 #if COMPLEX_ITK_ARRAY_HELPER_USE_float32 == 1
   case DataType::float32: {
-    return detail::ArraySwitchFuncDimsImpl<float32, OUT_FLOAT_TYPE, ResultT, FunctorT>(dataStore, imageGeom, errorCode, args...);
+    return detail::ArraySwitchFuncDimsImpl<float32, detail::TrueOutputT<OutputT, float32>, ResultT, FunctorT>(dataStore, imageGeom, errorCode, args...);
   }
 #endif
 #if COMPLEX_ITK_ARRAY_HELPER_USE_float64 == 1
   case DataType::float64: {
-    return detail::ArraySwitchFuncDimsImpl<float64, OUT_DOUBLE_TYPE, ResultT, FunctorT>(dataStore, imageGeom, errorCode, args...);
+    return detail::ArraySwitchFuncDimsImpl<float64, detail::TrueOutputT<OutputT, float64>, ResultT, FunctorT>(dataStore, imageGeom, errorCode, args...);
   }
 #endif
   default: {
@@ -556,21 +508,17 @@ Result<ResultT> ArraySwitchFunc(const IDataStore& dataStore, const ImageGeom& im
   }
 }
 
-inline Result<OutputActions> DataCheck(const DataStructure& dataStructure, const DataPath& inputArrayPath, const DataPath& imageGeomPath, const DataPath& outputArrayPath)
+template <class OutputT = void>
+Result<OutputActions> DataCheck(const DataStructure& dataStructure, const DataPath& inputArrayPath, const DataPath& imageGeomPath, const DataPath& outputArrayPath)
 {
-
   const auto& imageGeom = dataStructure.getDataRefAs<ImageGeom>(imageGeomPath);
   const auto& inputArray = dataStructure.getDataRefAs<IDataArray>(inputArrayPath);
   const auto& inputDataStore = inputArray.getIDataStoreRef();
-  std::cout << "======== PREFLIGHT ============" << std::endl;
-  std::string itk_output_pixel_type = XSTR(ITK_OUTPUT_PIXEL_TYPE);
-  std::string out_uint8_type = XSTR(OUT_UINT8_TYPE);
-  std::cout << "   DataCheck::itk_output_pixel_type: " << itk_output_pixel_type << std::endl;
-  std::cout << "   DataCheck::out_uint8_type: " << out_uint8_type << std::endl;
-  return ArraySwitchFunc<detail::DataCheckImplFunctor, OutputActions>(inputDataStore, imageGeom, -1, dataStructure, inputArrayPath, imageGeomPath, outputArrayPath);
+
+  return ArraySwitchFunc<detail::DataCheckImplFunctor, OutputActions, OutputT>(inputDataStore, imageGeom, -1, dataStructure, inputArrayPath, imageGeomPath, outputArrayPath);
 }
 
-template <class FilterCreationFunctorT>
+template <class FilterCreationFunctorT, class OutputT = void>
 Result<> Execute(DataStructure& dataStructure, const DataPath& inputArrayPath, const DataPath& imageGeomPath, const DataPath& outputArrayPath, FilterCreationFunctorT filterCreationFunctor)
 {
   const auto& imageGeom = dataStructure.getDataRefAs<ImageGeom>(imageGeomPath);
@@ -578,14 +526,10 @@ Result<> Execute(DataStructure& dataStructure, const DataPath& inputArrayPath, c
   auto& outputArray = dataStructure.getDataRefAs<IDataArray>(outputArrayPath);
   auto& inputDataStore = inputArray.getIDataStoreRef();
   auto& outputDataStore = outputArray.getIDataStoreRef();
-  std::cout << "======== EXECUTE ============" << std::endl;
-  std::string itk_output_pixel_type = XSTR(ITK_OUTPUT_PIXEL_TYPE);
-  std::string out_uint8_type = XSTR(OUT_UINT8_TYPE);
-  std::cout << "   Execute::itk_output_pixel_type: " << itk_output_pixel_type << std::endl;
-  std::cout << "   Execute::out_uint8_type: " << out_uint8_type << std::endl;
+
   try
   {
-    return ArraySwitchFunc<detail::ITKFilterFunctor>(inputDataStore, imageGeom, -1, inputDataStore, imageGeom, outputDataStore, filterCreationFunctor);
+    return ArraySwitchFunc<detail::ITKFilterFunctor, void, OutputT>(inputDataStore, imageGeom, -1, inputDataStore, imageGeom, outputDataStore, filterCreationFunctor);
   } catch(const itk::ExceptionObject& exception)
   {
     return MakeErrorResult(-222, exception.GetDescription());

@@ -2,25 +2,22 @@
 
 /**
  * This filter only works with certain kinds of data. We
- * enable the types that the filter will compile against. The 
- * Allowed PixelTypes as defined in SimpleITK are: 
+ * enable the types that the filter will compile against. The
+ * Allowed PixelTypes as defined in SimpleITK are:
  *   IntegerPixelIDTypeList
- * The filter defines the following output pixel types: 
+ * The filter defines the following output pixel types:
  *   float
  */
-#define ITK_OUTPUT_PIXEL_TYPE float
 #define ITK_INTEGER_PIXEL_ID_TYPE_LIST 1
 #define COMPLEX_ITK_ARRAY_HELPER_USE_Scalar 1
 
 #include "ITKImageProcessing/Common/ITKArrayHelper.hpp"
 #include "ITKImageProcessing/Common/sitkCommon.hpp"
 
-
 #include "complex/DataStructure/DataPath.hpp"
 #include "complex/Parameters/ArrayCreationParameter.hpp"
 #include "complex/Parameters/ArraySelectionParameter.hpp"
 #include "complex/Parameters/GeometrySelectionParameter.hpp"
-#include "complex/Parameters/NumberParameter.hpp"
 #include "complex/Parameters/NumberParameter.hpp"
 
 #include <itkApproximateSignedDistanceMapImageFilter.h>
@@ -29,12 +26,14 @@ using namespace complex;
 
 namespace
 {
+using FilterOutputType = float32;
+
 struct ITKApproximateSignedDistanceMapImageCreationFunctor
 {
-  double pInsideValue;
-  double pOutsideValue;
+  double pInsideValue = 0.0;
+  double pOutsideValue = 0.0;
 
-  template <typename InputImageType, typename OutputImageType, unsigned int Dimension>
+  template <class InputImageType, class OutputImageType, uint32 Dimension>
   auto operator()() const
   {
     using FilterType = itk::ApproximateSignedDistanceMapImageFilter<InputImageType, OutputImageType>;
@@ -113,8 +112,8 @@ IFilter::PreflightResult ITKApproximateSignedDistanceMapImage::preflightImpl(con
   auto pImageGeomPath = filterArgs.value<DataPath>(k_SelectedImageGeomPath_Key);
   auto pSelectedInputArray = filterArgs.value<DataPath>(k_SelectedImageDataPath_Key);
   auto pOutputArrayPath = filterArgs.value<DataPath>(k_OutputIamgeDataPath_Key);
-  auto pInsideValue = filterArgs.value<double>(k_InsideValue_Key);
-  auto pOutsideValue = filterArgs.value<double>(k_OutsideValue_Key);
+  auto pInsideValue = filterArgs.value<float64>(k_InsideValue_Key);
+  auto pOutsideValue = filterArgs.value<float64>(k_OutsideValue_Key);
 
   // Declare the preflightResult variable that will be populated with the results
   // of the preflight. The PreflightResult type contains the output Actions and
@@ -132,7 +131,7 @@ IFilter::PreflightResult ITKApproximateSignedDistanceMapImage::preflightImpl(con
   // store those actions.
   complex::Result<OutputActions> resultOutputActions;
 
-  resultOutputActions = ITK::DataCheck(dataStructure, pSelectedInputArray, pImageGeomPath, pOutputArrayPath);
+  resultOutputActions = ITK::DataCheck<FilterOutputType>(dataStructure, pSelectedInputArray, pImageGeomPath, pOutputArrayPath);
 
   // If the filter needs to pass back some updated values via a key:value string:string set of values
   // you can declare and update that string here.
@@ -166,15 +165,13 @@ Result<> ITKApproximateSignedDistanceMapImage::executeImpl(DataStructure& dataSt
   auto pImageGeomPath = filterArgs.value<DataPath>(k_SelectedImageGeomPath_Key);
   auto pSelectedInputArray = filterArgs.value<DataPath>(k_SelectedImageDataPath_Key);
   auto pOutputArrayPath = filterArgs.value<DataPath>(k_OutputIamgeDataPath_Key);
-  auto pInsideValue = filterArgs.value<double>(k_InsideValue_Key);
-  auto pOutsideValue = filterArgs.value<double>(k_OutsideValue_Key);
+  auto pInsideValue = filterArgs.value<float64>(k_InsideValue_Key);
+  auto pOutsideValue = filterArgs.value<float64>(k_OutsideValue_Key);
 
   /****************************************************************************
    * Create the functor object that will instantiate the correct itk filter
    ***************************************************************************/
-  ::ITKApproximateSignedDistanceMapImageCreationFunctor itkFunctor{};
-  itkFunctor.pInsideValue = pInsideValue;
-  itkFunctor.pOutsideValue = pOutsideValue;
+  ::ITKApproximateSignedDistanceMapImageCreationFunctor itkFunctor{pInsideValue, pOutsideValue};
 
   /****************************************************************************
    * Associate the output image with the Image Geometry for Visualization
@@ -185,6 +182,6 @@ Result<> ITKApproximateSignedDistanceMapImage::executeImpl(DataStructure& dataSt
   /****************************************************************************
    * Write your algorithm implementation in this function
    ***************************************************************************/
-  return ITK::Execute(dataStructure, pSelectedInputArray, pImageGeomPath, pOutputArrayPath, itkFunctor);
+  return ITK::Execute<ITKApproximateSignedDistanceMapImageCreationFunctor, FilterOutputType>(dataStructure, pSelectedInputArray, pImageGeomPath, pOutputArrayPath, itkFunctor);
 }
 } // namespace complex
