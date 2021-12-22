@@ -295,6 +295,11 @@ DataStore<UnderlyingType_t<PixelT>> ConvertImageToDataStore(itk::Image<PixelT, D
   typename ImageType::SizeType imageSize = image.GetLargestPossibleRegion().GetSize();
   std::vector<usize> tDims(imageSize.rbegin(), imageSize.rend());
   std::vector<usize> cDims = GetComponentDimensions<PixelT>();
+  // Reverse the order of the dimensions
+  if(tDims.size() == 2 && Dimension == 2)
+  {
+    tDims = {1, imageSize[1], imageSize[0]};
+  }
   typename ImageType::PixelContainer* pixelContainer = image.GetPixelContainer();
   // ITK use the global new allocator
   auto* bufferPtr = pixelContainer->GetBufferPointer();
