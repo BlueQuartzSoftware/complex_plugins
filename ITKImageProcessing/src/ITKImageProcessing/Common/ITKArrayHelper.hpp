@@ -467,10 +467,9 @@ struct ITKFilterFunctor
       writer->Update();
     }
 #endif
-    auto& typedOutputDataStore = dynamic_cast<DataStore<ITK::UnderlyingType_t<OutputT>>&>(inputDataStore);
+    auto& typedOutputDataStore = dynamic_cast<DataStore<ITK::UnderlyingType_t<OutputT>>&>(outputDataStore);
     auto imageDataStore = ITK::ConvertImageToDataStore(*outputImage);
     typedOutputDataStore = std::move(imageDataStore);
-
     return {};
   }
 };
