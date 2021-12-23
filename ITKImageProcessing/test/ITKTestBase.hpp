@@ -12,6 +12,9 @@
 #include <filesystem>
 #include <memory>
 #include <string>
+#include <ostream>
+#include <iostream>
+#include <cstdio>
 
 namespace fs = std::filesystem;
 
@@ -36,6 +39,20 @@ Result<> CompareImages(DataStructure& ds, const DataPath& baselineGeometryPath, 
 std::string ComputeMd5Hash(DataStructure& ds, const DataPath& outputDataPath);
 
 void RemoveFiles(fs::path& dirPath, const std::string& filePattern);
+
+template<typename T>
+void WriteDataSetAsBinary(const fs::path& absolutePath, const DataStore<T>& dataStore)
+{
+  std::cout << "Writing Binary File: " << absolutePath.string() << std::endl;
+  FILE* file = fopen(absolutePath.c_str(), "wb");
+
+  size_t numElements = dataStore.getSize();
+
+  size_t numWritten = fwrite(dataStore.data(),sizeof(T), numElements, file);
+
+  fclose(file);
+
+}
 
 } // namespace ITKTestBase
 } // namespace complex

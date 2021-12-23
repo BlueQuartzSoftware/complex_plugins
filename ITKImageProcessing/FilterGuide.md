@@ -16,6 +16,13 @@ Fair number of the filters pass the unit test. Still left to figure out are:
 * DataTypes of OutputImage and Baseline image do not match so comparison isn't possible
 * A few filters still have 'bad cast' exceptions
 
+## Filters that need to be run as 'double' ##
+
+* ITKCurvatureAnisotropicDiffusionImage
+* ITKCurvatureFlowImage
+* ITKGradientAnisotropicDiffusionImage
+* ITKMinMaxCurvatureFlowImage
+* ITKPatchBasedDenoisingImage
 
 ## ITK 'Projection' Filters ##
 
