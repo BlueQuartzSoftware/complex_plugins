@@ -11,13 +11,15 @@ namespace complex
  * @class ITKErodeObjectMorphologyImage
  * @brief Erosion of an object in an image.
  *
- * Erosion of an image using binary morphology. Pixel values matching the object value are considered the "object" and all other pixels are "background". This is useful in processing mask images containing only one object.
- * 
- * If the pixel covered by the center of the kernel has the pixel value ObjectValue and the pixel is adjacent to a non-object valued pixel, then the kernel is centered on the object-value pixel and neighboring pixels covered by the kernel are assigned the background value. The structuring element is assumed to be composed of binary values (zero or one).
- * 
- * @see ObjectMorphologyImageFilter , BinaryFunctionErodeImageFilter 
- * 
- * 
+ * Erosion of an image using binary morphology. Pixel values matching the object value are considered the "object" and all other pixels are "background". This is useful in processing mask images
+ * containing only one object.
+ *
+ * If the pixel covered by the center of the kernel has the pixel value ObjectValue and the pixel is adjacent to a non-object valued pixel, then the kernel is centered on the object-value pixel and
+ * neighboring pixels covered by the kernel are assigned the background value. The structuring element is assumed to be composed of binary values (zero or one).
+ *
+ * @see ObjectMorphologyImageFilter , BinaryFunctionErodeImageFilter
+ *
+ *
  * @see BinaryErodeImageFilter
  *
  * ITK Module: ITKBinaryMathematicalMorphology

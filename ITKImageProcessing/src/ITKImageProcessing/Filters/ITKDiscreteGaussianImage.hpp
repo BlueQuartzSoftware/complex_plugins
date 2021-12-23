@@ -11,24 +11,26 @@ namespace complex
  * @class ITKDiscreteGaussianImage
  * @brief Blurs an image by separable convolution with discrete gaussian kernels. This filter performs Gaussian blurring by separable convolution of an image and a discrete Gaussian operator (kernel).
  *
- * The Gaussian operator used here was described by Tony Lindeberg (Discrete Scale-Space Theory and the Scale-Space Primal Sketch. Dissertation. Royal Institute of Technology, Stockholm, Sweden. May 1991.) The Gaussian kernel used here was designed so that smoothing and derivative operations commute after discretization.
- * 
- * The variance or standard deviation (sigma) will be evaluated as pixel units if SetUseImageSpacing is off (false) or as physical units if SetUseImageSpacing is on (true, default). The variance can be set independently in each dimension.
- * 
+ * The Gaussian operator used here was described by Tony Lindeberg (Discrete Scale-Space Theory and the Scale-Space Primal Sketch. Dissertation. Royal Institute of Technology, Stockholm, Sweden. May
+ * 1991.) The Gaussian kernel used here was designed so that smoothing and derivative operations commute after discretization.
+ *
+ * The variance or standard deviation (sigma) will be evaluated as pixel units if SetUseImageSpacing is off (false) or as physical units if SetUseImageSpacing is on (true, default). The variance can
+ * be set independently in each dimension.
+ *
  * When the Gaussian kernel is small, this filter tends to run faster than itk::RecursiveGaussianImageFilter .
- * 
- * @see GaussianOperator 
- * 
- * 
- * @see Image 
- * 
- * 
- * @see Neighborhood 
- * 
- * 
- * @see NeighborhoodOperator 
- * 
- * 
+ *
+ * @see GaussianOperator
+ *
+ *
+ * @see Image
+ *
+ *
+ * @see Neighborhood
+ *
+ *
+ * @see NeighborhoodOperator
+ *
+ *
  * @see RecursiveGaussianImageFilter
  *
  * ITK Module: ITKSmoothing

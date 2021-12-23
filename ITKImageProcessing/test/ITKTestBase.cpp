@@ -304,19 +304,19 @@ Result<> CompareImages(DataStructure& ds, const DataPath& baselineGeometryPath, 
   // Make sure the data types are the same
   if(baseLineDataType != outputDataType)
   {
-    return MakeErrorResult(-14, fmt::format("DataTypes do not match. Output:{} Baseline:{}", outputDataType, baseLineDataType));
+    return MakeErrorResult(-14, fmt::format("DataTypes do not match. Output: {} Baseline: {}", outputDataType, baseLineDataType));
   }
   // Make sure the geometry dimensions are the same
   if(baselineDims != outputDims)
   {
-    return MakeErrorResult(-15, fmt::format("Image Dimensions do not match. Output:{} Baseline:{}", fmt::join(outputDims, ", "), fmt::join(baselineDims, ", ")));
+    return MakeErrorResult(-15, fmt::format("Image Dimensions do not match. Output: {} Baseline: {}", fmt::join(outputDims, ", "), fmt::join(baselineDims, ", ")));
   }
   // Make sure the tuple shape is the same
   ShapeType baselineTupleShape = baselineDataArray->getIDataStore()->getTupleShape();
   ShapeType outputTupleShape = outputDataArray->getIDataStore()->getTupleShape();
   if(baselineTupleShape != outputTupleShape)
   {
-    return MakeErrorResult(-16, fmt::format("Tuple Shape does not Match. Output:{} Baseline:{}", fmt::join(outputTupleShape, ", "), fmt::join(baselineTupleShape, ", ")));
+    return MakeErrorResult(-16, fmt::format("Tuple Shape does not Match. Output: {} Baseline: {}", fmt::join(outputTupleShape, ", "), fmt::join(baselineTupleShape, ", ")));
   }
 
   // Make sure the component shape is the same
@@ -324,7 +324,7 @@ Result<> CompareImages(DataStructure& ds, const DataPath& baselineGeometryPath, 
   ShapeType outputComponentShape = outputDataArray->getIDataStore()->getComponentShape();
   if(baselineComponentShape != outputComponentShape)
   {
-    return MakeErrorResult(-18, fmt::format("Component Shape does not Match. Output:{} Baseline:{}", fmt::join(outputComponentShape, ", "), fmt::join(baselineComponentShape, ", ")));
+    return MakeErrorResult(-18, fmt::format("Component Shape does not Match. Output: {} Baseline: {}", fmt::join(outputComponentShape, ", "), fmt::join(baselineComponentShape, ", ")));
   }
 
   switch(outputDataType)

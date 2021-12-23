@@ -11,29 +11,29 @@ namespace complex
  * @class ITKMaximumProjectionImage
  * @brief Maximum projection.
  *
- * This class was contributed to the insight journal by Gaetan Lehmann. The original paper can be found at https://hdl.handle.net/1926/164 
- * 
+ * This class was contributed to the insight journal by Gaetan Lehmann. The original paper can be found at https://hdl.handle.net/1926/164
+ *
  * @author Gaetan Lehmann. Biologie du Developpement et de la reproduction, inra de jouy-en-josas, France.
- * 
- * 
- * @see ProjectionImageFilter 
- * 
- * 
- * @see MedianProjectionImageFilter 
- * 
- * 
- * @see MeanProjectionImageFilter 
- * 
- * 
- * @see MinimumProjectionImageFilter 
- * 
- * 
- * @see StandardDeviationProjectionImageFilter 
- * 
- * 
- * @see SumProjectionImageFilter 
- * 
- * 
+ *
+ *
+ * @see ProjectionImageFilter
+ *
+ *
+ * @see MedianProjectionImageFilter
+ *
+ *
+ * @see MeanProjectionImageFilter
+ *
+ *
+ * @see MinimumProjectionImageFilter
+ *
+ *
+ * @see StandardDeviationProjectionImageFilter
+ *
+ *
+ * @see SumProjectionImageFilter
+ *
+ *
  * @see BinaryProjectionImageFilter
  *
  * ITK Module: ITKImageStatistics

@@ -12,41 +12,42 @@ namespace complex
  * @brief This filter computes the distance map of the input image as an approximation with pixel accuracy to the Euclidean distance.
  *
  * TInputImage
- * 
- * Input Image Type 
- * 
- * 
- * 
- * 
+ *
+ * Input Image Type
+ *
+ *
+ *
+ *
  * TOutputImage
- * 
- * Output Image Type 
- * 
- * 
- * 
- * 
+ *
+ * Output Image Type
+ *
+ *
+ *
+ *
  * TVoronoiImage
- * 
+ *
  * Voronoi Image Type. Note the default value is TInputImage.
- * 
- * 
- * 
+ *
+ *
+ *
  * The input is assumed to contain numeric codes defining objects. The filter will produce as output the following images:
- * 
- * 
- * 
- * @li A Voronoi partition using the same numeric codes as the input. 
- * 
- * 
- * @li A distance map with the approximation to the euclidean distance. from a particular pixel to the nearest object to this pixel in the input image. 
- * 
- * 
- * @li A vector map containing the component of the vector relating the current pixel with the closest point of the closest object to this pixel. Given that the components of the distance are computed in "pixels", the vector is represented by an itk::Offset . That is, physical coordinates are not used.
- * 
- * 
- * 
+ *
+ *
+ *
+ * @li A Voronoi partition using the same numeric codes as the input.
+ *
+ *
+ * @li A distance map with the approximation to the euclidean distance. from a particular pixel to the nearest object to this pixel in the input image.
+ *
+ *
+ * @li A vector map containing the component of the vector relating the current pixel with the closest point of the closest object to this pixel. Given that the components of the distance are computed
+ * in "pixels", the vector is represented by an itk::Offset . That is, physical coordinates are not used.
+ *
+ *
+ *
  * This filter is N-dimensional and known to be efficient in computational time. The algorithm is the N-dimensional version of the 4SED algorithm given for two dimensions in:
- * 
+ *
  * Danielsson, Per-Erik. Euclidean Distance Mapping. Computer Graphics and Image Processing 14, 227-248 (1980).
  *
  * ITK Module: ITKDistanceMap

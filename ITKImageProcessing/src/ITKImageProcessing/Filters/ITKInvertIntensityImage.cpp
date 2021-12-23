@@ -2,10 +2,10 @@
 
 /**
  * This filter only works with certain kinds of data. We
- * enable the types that the filter will compile against. The 
- * Allowed PixelTypes as defined in SimpleITK are: 
+ * enable the types that the filter will compile against. The
+ * Allowed PixelTypes as defined in SimpleITK are:
  *   BasicPixelIDTypeList
- * In addition the following VectorPixelTypes are allowed: 
+ * In addition the following VectorPixelTypes are allowed:
  *   VectorPixelIDTypeList
  */
 #define ITK_BASIC_PIXEL_ID_TYPE_LIST 1
@@ -13,7 +13,6 @@
 
 #include "ITKImageProcessing/Common/ITKArrayHelper.hpp"
 #include "ITKImageProcessing/Common/sitkCommon.hpp"
-
 
 #include "complex/DataStructure/DataPath.hpp"
 #include "complex/Parameters/ArrayCreationParameter.hpp"
@@ -29,9 +28,9 @@ namespace
 {
 struct ITKInvertIntensityImageCreationFunctor
 {
-  double pMaximum;
+  double pMaximum = 255;
 
-  template <typename InputImageType, typename OutputImageType, unsigned int Dimension>
+  template <class InputImageType, class OutputImageType, uint32 Dimension>
   auto operator()() const
   {
     using FilterType = itk::InvertIntensityImageFilter<InputImageType, OutputImageType>;
@@ -108,7 +107,7 @@ IFilter::PreflightResult ITKInvertIntensityImage::preflightImpl(const DataStruct
   auto pImageGeomPath = filterArgs.value<DataPath>(k_SelectedImageGeomPath_Key);
   auto pSelectedInputArray = filterArgs.value<DataPath>(k_SelectedImageDataPath_Key);
   auto pOutputArrayPath = filterArgs.value<DataPath>(k_OutputIamgeDataPath_Key);
-  auto pMaximum = filterArgs.value<double>(k_Maximum_Key);
+  auto pMaximum = filterArgs.value<float64>(k_Maximum_Key);
 
   // Declare the preflightResult variable that will be populated with the results
   // of the preflight. The PreflightResult type contains the output Actions and
@@ -124,9 +123,7 @@ IFilter::PreflightResult ITKInvertIntensityImage::preflightImpl(const DataStruct
   // If your filter is making structural changes to the DataStructure then the filter
   // is going to create OutputActions subclasses that need to be returned. This will
   // store those actions.
-  complex::Result<OutputActions> resultOutputActions;
-
-  resultOutputActions = ITK::DataCheck(dataStructure, pSelectedInputArray, pImageGeomPath, pOutputArrayPath);
+  complex::Result<OutputActions> resultOutputActions = ITK::DataCheck(dataStructure, pSelectedInputArray, pImageGeomPath, pOutputArrayPath);
 
   // If the filter needs to pass back some updated values via a key:value string:string set of values
   // you can declare and update that string here.
@@ -160,13 +157,12 @@ Result<> ITKInvertIntensityImage::executeImpl(DataStructure& dataStructure, cons
   auto pImageGeomPath = filterArgs.value<DataPath>(k_SelectedImageGeomPath_Key);
   auto pSelectedInputArray = filterArgs.value<DataPath>(k_SelectedImageDataPath_Key);
   auto pOutputArrayPath = filterArgs.value<DataPath>(k_OutputIamgeDataPath_Key);
-  auto pMaximum = filterArgs.value<double>(k_Maximum_Key);
+  auto pMaximum = filterArgs.value<float64>(k_Maximum_Key);
 
   /****************************************************************************
    * Create the functor object that will instantiate the correct itk filter
    ***************************************************************************/
-  ::ITKInvertIntensityImageCreationFunctor itkFunctor{};
-  itkFunctor.pMaximum = pMaximum;
+  ::ITKInvertIntensityImageCreationFunctor itkFunctor = {pMaximum};
 
   /****************************************************************************
    * Associate the output image with the Image Geometry for Visualization

@@ -2,8 +2,8 @@
 
 /**
  * This filter only works with certain kinds of data. We
- * enable the types that the filter will compile against. The 
- * Allowed PixelTypes as defined in SimpleITK are: 
+ * enable the types that the filter will compile against. The
+ * Allowed PixelTypes as defined in SimpleITK are:
  *   typelist::Append<BasicPixelIDTypeList, VectorPixelIDTypeList>::Type
  */
 #define COMPLEX_ITK_ARRAY_HELPER_USE_int64 0
@@ -13,14 +13,13 @@
 #include "ITKImageProcessing/Common/ITKArrayHelper.hpp"
 #include "ITKImageProcessing/Common/sitkCommon.hpp"
 
-
 #include "complex/DataStructure/DataPath.hpp"
 #include "complex/Parameters/ArrayCreationParameter.hpp"
 #include "complex/Parameters/ArraySelectionParameter.hpp"
+#include "complex/Parameters/BoolParameter.hpp"
 #include "complex/Parameters/GeometrySelectionParameter.hpp"
 #include "complex/Parameters/NumberParameter.hpp"
 #include "complex/Parameters/VectorParameter.hpp"
-#include "complex/Parameters/BoolParameter.hpp"
 
 #include <itkSmoothingRecursiveGaussianImageFilter.h>
 
@@ -30,10 +29,10 @@ namespace
 {
 struct ITKSmoothingRecursiveGaussianImageCreationFunctor
 {
-  double pSigma;
-  bool pNormalizeAcrossScale;
+  double pSigma = 0.0;
+  bool pNormalizeAcrossScale = false;
 
-  template <typename InputImageType, typename OutputImageType, unsigned int Dimension>
+  template <class InputImageType, class OutputImageType, uint32 Dimension>
   auto operator()() const
   {
     using FilterType = itk::SmoothingRecursiveGaussianImageFilter<InputImageType, OutputImageType>;
@@ -85,7 +84,7 @@ Parameters ITKSmoothingRecursiveGaussianImage::parameters() const
   params.insert(std::make_unique<GeometrySelectionParameter>(k_SelectedImageGeomPath_Key, "Image Geometry", "", DataPath{}, GeometrySelectionParameter::AllowedTypes{DataObject::Type::ImageGeom}));
   params.insert(std::make_unique<ArraySelectionParameter>(k_SelectedImageDataPath_Key, "Input Image", "", DataPath{}));
   params.insert(std::make_unique<ArrayCreationParameter>(k_OutputIamgeDataPath_Key, "Output Image", "", DataPath{}));
-  params.insert(std::make_unique<VectorFloat64Parameter>(k_Sigma_Key, "Sigma", "", std::vector<double>(3,1.0), std::vector<std::string>(3)));
+  params.insert(std::make_unique<VectorFloat64Parameter>(k_Sigma_Key, "Sigma", "", std::vector<double>(3, 1.0), std::vector<std::string>(3)));
   params.insert(std::make_unique<BoolParameter>(k_NormalizeAcrossScale_Key, "NormalizeAcrossScale", "", false));
 
   return params;
@@ -112,7 +111,7 @@ IFilter::PreflightResult ITKSmoothingRecursiveGaussianImage::preflightImpl(const
   auto pImageGeomPath = filterArgs.value<DataPath>(k_SelectedImageGeomPath_Key);
   auto pSelectedInputArray = filterArgs.value<DataPath>(k_SelectedImageDataPath_Key);
   auto pOutputArrayPath = filterArgs.value<DataPath>(k_OutputIamgeDataPath_Key);
-  auto pSigma = filterArgs.value<double>(k_Sigma_Key);
+  auto pSigma = filterArgs.value<float64>(k_Sigma_Key);
   auto pNormalizeAcrossScale = filterArgs.value<bool>(k_NormalizeAcrossScale_Key);
 
   // Declare the preflightResult variable that will be populated with the results
@@ -129,9 +128,7 @@ IFilter::PreflightResult ITKSmoothingRecursiveGaussianImage::preflightImpl(const
   // If your filter is making structural changes to the DataStructure then the filter
   // is going to create OutputActions subclasses that need to be returned. This will
   // store those actions.
-  complex::Result<OutputActions> resultOutputActions;
-
-  resultOutputActions = ITK::DataCheck(dataStructure, pSelectedInputArray, pImageGeomPath, pOutputArrayPath);
+  complex::Result<OutputActions> resultOutputActions = ITK::DataCheck(dataStructure, pSelectedInputArray, pImageGeomPath, pOutputArrayPath);
 
   // If the filter needs to pass back some updated values via a key:value string:string set of values
   // you can declare and update that string here.
@@ -165,15 +162,13 @@ Result<> ITKSmoothingRecursiveGaussianImage::executeImpl(DataStructure& dataStru
   auto pImageGeomPath = filterArgs.value<DataPath>(k_SelectedImageGeomPath_Key);
   auto pSelectedInputArray = filterArgs.value<DataPath>(k_SelectedImageDataPath_Key);
   auto pOutputArrayPath = filterArgs.value<DataPath>(k_OutputIamgeDataPath_Key);
-  auto pSigma = filterArgs.value<double>(k_Sigma_Key);
+  auto pSigma = filterArgs.value<float64>(k_Sigma_Key);
   auto pNormalizeAcrossScale = filterArgs.value<bool>(k_NormalizeAcrossScale_Key);
 
   /****************************************************************************
    * Create the functor object that will instantiate the correct itk filter
    ***************************************************************************/
-  ::ITKSmoothingRecursiveGaussianImageCreationFunctor itkFunctor{};
-  itkFunctor.pSigma = pSigma;
-  itkFunctor.pNormalizeAcrossScale = pNormalizeAcrossScale;
+  ::ITKSmoothingRecursiveGaussianImageCreationFunctor itkFunctor = {pSigma, pNormalizeAcrossScale};
 
   /****************************************************************************
    * Associate the output image with the Image Geometry for Visualization

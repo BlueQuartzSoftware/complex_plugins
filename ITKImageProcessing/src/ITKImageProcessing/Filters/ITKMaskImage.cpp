@@ -1,14 +1,14 @@
 #include "ITKMaskImage.hpp"
 
 /**
- * This filter has multiple Input images: 
+ * This filter has multiple Input images:
  *    Image of type: Image
  *    MaskImage of type: Image
  */
 /**
  * This filter only works with certain kinds of data. We
- * enable the types that the filter will compile against. The 
- * Allowed PixelTypes as defined in SimpleITK are: 
+ * enable the types that the filter will compile against. The
+ * Allowed PixelTypes as defined in SimpleITK are:
  *   NonLabelPixelIDTypeList
  */
 #define ITK_NON_LABEL_PIXEL_ID_TYPE_LIST 1
@@ -17,12 +17,10 @@
 #include "ITKImageProcessing/Common/ITKArrayHelper.hpp"
 #include "ITKImageProcessing/Common/sitkCommon.hpp"
 
-
 #include "complex/DataStructure/DataPath.hpp"
 #include "complex/Parameters/ArrayCreationParameter.hpp"
 #include "complex/Parameters/ArraySelectionParameter.hpp"
 #include "complex/Parameters/GeometrySelectionParameter.hpp"
-#include "complex/Parameters/NumberParameter.hpp"
 #include "complex/Parameters/NumberParameter.hpp"
 
 #include <itkMaskImageFilter.h>
@@ -33,10 +31,10 @@ namespace
 {
 struct ITKMaskImageCreationFunctor
 {
-  double pOutsideValue;
-  double pMaskingValue;
+  double pOutsideValue = 0;
+  double pMaskingValue = 0;
 
-  template <typename InputImageType, typename OutputImageType, unsigned int Dimension>
+  template <class InputImageType, class OutputImageType, uint32 Dimension>
   auto operator()() const
   {
     using FilterType = itk::MaskImageFilter<InputImageType, OutputImageType>;
@@ -117,8 +115,8 @@ IFilter::PreflightResult ITKMaskImage::preflightImpl(const DataStructure& dataSt
   auto pSelectedInputArray = filterArgs.value<DataPath>(k_SelectedImageDataPath_Key);
   auto pOutputArrayPath = filterArgs.value<DataPath>(k_OutputIamgeDataPath_Key);
   auto pMaskImage = filterArgs.value<DataPath>(k_MaskImageDataPath_Key);
-  auto pOutsideValue = filterArgs.value<double>(k_OutsideValue_Key);
-  auto pMaskingValue = filterArgs.value<double>(k_MaskingValue_Key);
+  auto pOutsideValue = filterArgs.value<float64>(k_OutsideValue_Key);
+  auto pMaskingValue = filterArgs.value<float64>(k_MaskingValue_Key);
 
   // Declare the preflightResult variable that will be populated with the results
   // of the preflight. The PreflightResult type contains the output Actions and
@@ -134,9 +132,7 @@ IFilter::PreflightResult ITKMaskImage::preflightImpl(const DataStructure& dataSt
   // If your filter is making structural changes to the DataStructure then the filter
   // is going to create OutputActions subclasses that need to be returned. This will
   // store those actions.
-  complex::Result<OutputActions> resultOutputActions;
-
-  resultOutputActions = ITK::DataCheck(dataStructure, pSelectedInputArray, pImageGeomPath, pOutputArrayPath);
+  complex::Result<OutputActions> resultOutputActions = ITK::DataCheck(dataStructure, pSelectedInputArray, pImageGeomPath, pOutputArrayPath);
 
   // If the filter needs to pass back some updated values via a key:value string:string set of values
   // you can declare and update that string here.
@@ -171,15 +167,13 @@ Result<> ITKMaskImage::executeImpl(DataStructure& dataStructure, const Arguments
   auto pSelectedInputArray = filterArgs.value<DataPath>(k_SelectedImageDataPath_Key);
   auto pOutputArrayPath = filterArgs.value<DataPath>(k_OutputIamgeDataPath_Key);
   auto pMaskImage = filterArgs.value<DataPath>(k_MaskImageDataPath_Key);
-  auto pOutsideValue = filterArgs.value<double>(k_OutsideValue_Key);
-  auto pMaskingValue = filterArgs.value<double>(k_MaskingValue_Key);
+  auto pOutsideValue = filterArgs.value<float64>(k_OutsideValue_Key);
+  auto pMaskingValue = filterArgs.value<float64>(k_MaskingValue_Key);
 
   /****************************************************************************
    * Create the functor object that will instantiate the correct itk filter
    ***************************************************************************/
-  ::ITKMaskImageCreationFunctor itkFunctor{};
-  itkFunctor.pOutsideValue = pOutsideValue;
-  itkFunctor.pMaskingValue = pMaskingValue;
+  ::ITKMaskImageCreationFunctor itkFunctor = {pOutsideValue, pMaskingValue};
 
   /****************************************************************************
    * Associate the output image with the Image Geometry for Visualization

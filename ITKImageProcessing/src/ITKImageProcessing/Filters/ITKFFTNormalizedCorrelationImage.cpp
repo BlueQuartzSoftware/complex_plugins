@@ -2,19 +2,17 @@
 
 /**
  * This filter only works with certain kinds of data. We
- * enable the types that the filter will compile against. The 
- * Allowed PixelTypes as defined in SimpleITK are: 
+ * enable the types that the filter will compile against. The
+ * Allowed PixelTypes as defined in SimpleITK are:
  *   BasicPixelIDTypeList
- * The filter defines the following output pixel types: 
+ * The filter defines the following output pixel types:
  *   typename itk::NumericTraits<typename InputImageType::PixelType>::RealType
  */
-#define ITK_OUTPUT_PIXEL_TYPE double
 #define ITK_BASIC_PIXEL_ID_TYPE_LIST 1
 #define COMPLEX_ITK_ARRAY_HELPER_USE_Scalar 1
 
 #include "ITKImageProcessing/Common/ITKArrayHelper.hpp"
 #include "ITKImageProcessing/Common/sitkCommon.hpp"
-
 
 #include "complex/DataStructure/DataPath.hpp"
 #include "complex/Parameters/ArrayCreationParameter.hpp"
@@ -28,11 +26,16 @@ using namespace complex;
 
 namespace
 {
+/**
+ * This filter uses a fixed output type.
+ */
+using FilterOutputType = float64;
+
 struct ITKFFTNormalizedCorrelationImageCreationFunctor
 {
-  uint64_t pRequiredNumberOfOverlappingPixels;
+  uint64_t pRequiredNumberOfOverlappingPixels = 0u;
 
-  template <typename InputImageType, typename OutputImageType, unsigned int Dimension>
+  template <class InputImageType, class OutputImageType, uint32 Dimension>
   auto operator()() const
   {
     using FilterType = itk::FFTNormalizedCorrelationImageFilter<InputImageType, OutputImageType>;
@@ -125,9 +128,7 @@ IFilter::PreflightResult ITKFFTNormalizedCorrelationImage::preflightImpl(const D
   // If your filter is making structural changes to the DataStructure then the filter
   // is going to create OutputActions subclasses that need to be returned. This will
   // store those actions.
-  complex::Result<OutputActions> resultOutputActions;
-
-  resultOutputActions = ITK::DataCheck(dataStructure, pSelectedInputArray, pImageGeomPath, pOutputArrayPath);
+  complex::Result<OutputActions> resultOutputActions = ITK::DataCheck<FilterOutputType>(dataStructure, pSelectedInputArray, pImageGeomPath, pOutputArrayPath);
 
   // If the filter needs to pass back some updated values via a key:value string:string set of values
   // you can declare and update that string here.
@@ -166,8 +167,7 @@ Result<> ITKFFTNormalizedCorrelationImage::executeImpl(DataStructure& dataStruct
   /****************************************************************************
    * Create the functor object that will instantiate the correct itk filter
    ***************************************************************************/
-  ::ITKFFTNormalizedCorrelationImageCreationFunctor itkFunctor{};
-  itkFunctor.pRequiredNumberOfOverlappingPixels = pRequiredNumberOfOverlappingPixels;
+  ::ITKFFTNormalizedCorrelationImageCreationFunctor itkFunctor = {pRequiredNumberOfOverlappingPixels};
 
   /****************************************************************************
    * Associate the output image with the Image Geometry for Visualization
@@ -178,6 +178,6 @@ Result<> ITKFFTNormalizedCorrelationImage::executeImpl(DataStructure& dataStruct
   /****************************************************************************
    * Write your algorithm implementation in this function
    ***************************************************************************/
-  return ITK::Execute(dataStructure, pSelectedInputArray, pImageGeomPath, pOutputArrayPath, itkFunctor);
+  return ITK::Execute<ITKFFTNormalizedCorrelationImageCreationFunctor, FilterOutputType>(dataStructure, pSelectedInputArray, pImageGeomPath, pOutputArrayPath, itkFunctor);
 }
 } // namespace complex

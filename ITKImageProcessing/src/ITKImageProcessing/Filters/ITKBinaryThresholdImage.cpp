@@ -2,27 +2,22 @@
 
 /**
  * This filter only works with certain kinds of data. We
- * enable the types that the filter will compile against. The 
- * Allowed PixelTypes as defined in SimpleITK are: 
+ * enable the types that the filter will compile against. The
+ * Allowed PixelTypes as defined in SimpleITK are:
  *   BasicPixelIDTypeList
- * The filter defines the following output pixel types: 
+ * The filter defines the following output pixel types:
  *   uint8_t
  */
-#define ITK_OUTPUT_PIXEL_TYPE uint8_t
 #define ITK_BASIC_PIXEL_ID_TYPE_LIST 1
 #define COMPLEX_ITK_ARRAY_HELPER_USE_Scalar 1
 
 #include "ITKImageProcessing/Common/ITKArrayHelper.hpp"
 #include "ITKImageProcessing/Common/sitkCommon.hpp"
 
-
 #include "complex/DataStructure/DataPath.hpp"
 #include "complex/Parameters/ArrayCreationParameter.hpp"
 #include "complex/Parameters/ArraySelectionParameter.hpp"
 #include "complex/Parameters/GeometrySelectionParameter.hpp"
-#include "complex/Parameters/NumberParameter.hpp"
-#include "complex/Parameters/NumberParameter.hpp"
-#include "complex/Parameters/NumberParameter.hpp"
 #include "complex/Parameters/NumberParameter.hpp"
 
 #include <itkBinaryThresholdImageFilter.h>
@@ -31,14 +26,19 @@ using namespace complex;
 
 namespace
 {
+/**
+ * This filter uses a fixed output type.
+ */
+using FilterOutputType = uint8_t;
+
 struct ITKBinaryThresholdImageCreationFunctor
 {
-  double pLowerThreshold;
-  double pUpperThreshold;
-  uint8_t pInsideValue;
-  uint8_t pOutsideValue;
+  float64 pLowerThreshold = 0.0;
+  float64 pUpperThreshold = 255.0;
+  uint8_t pInsideValue = 1u;
+  uint8_t pOutsideValue = 0u;
 
-  template <typename InputImageType, typename OutputImageType, unsigned int Dimension>
+  template <class InputImageType, class OutputImageType, uint32 Dimension>
   auto operator()() const
   {
     using FilterType = itk::BinaryThresholdImageFilter<InputImageType, OutputImageType>;
@@ -121,8 +121,8 @@ IFilter::PreflightResult ITKBinaryThresholdImage::preflightImpl(const DataStruct
   auto pImageGeomPath = filterArgs.value<DataPath>(k_SelectedImageGeomPath_Key);
   auto pSelectedInputArray = filterArgs.value<DataPath>(k_SelectedImageDataPath_Key);
   auto pOutputArrayPath = filterArgs.value<DataPath>(k_OutputIamgeDataPath_Key);
-  auto pLowerThreshold = filterArgs.value<double>(k_LowerThreshold_Key);
-  auto pUpperThreshold = filterArgs.value<double>(k_UpperThreshold_Key);
+  auto pLowerThreshold = filterArgs.value<float64>(k_LowerThreshold_Key);
+  auto pUpperThreshold = filterArgs.value<float64>(k_UpperThreshold_Key);
   auto pInsideValue = filterArgs.value<uint8_t>(k_InsideValue_Key);
   auto pOutsideValue = filterArgs.value<uint8_t>(k_OutsideValue_Key);
 
@@ -140,9 +140,7 @@ IFilter::PreflightResult ITKBinaryThresholdImage::preflightImpl(const DataStruct
   // If your filter is making structural changes to the DataStructure then the filter
   // is going to create OutputActions subclasses that need to be returned. This will
   // store those actions.
-  complex::Result<OutputActions> resultOutputActions;
-
-  resultOutputActions = ITK::DataCheck(dataStructure, pSelectedInputArray, pImageGeomPath, pOutputArrayPath);
+  complex::Result<OutputActions> resultOutputActions = ITK::DataCheck<FilterOutputType>(dataStructure, pSelectedInputArray, pImageGeomPath, pOutputArrayPath);
 
   // If the filter needs to pass back some updated values via a key:value string:string set of values
   // you can declare and update that string here.
@@ -176,19 +174,15 @@ Result<> ITKBinaryThresholdImage::executeImpl(DataStructure& dataStructure, cons
   auto pImageGeomPath = filterArgs.value<DataPath>(k_SelectedImageGeomPath_Key);
   auto pSelectedInputArray = filterArgs.value<DataPath>(k_SelectedImageDataPath_Key);
   auto pOutputArrayPath = filterArgs.value<DataPath>(k_OutputIamgeDataPath_Key);
-  auto pLowerThreshold = filterArgs.value<double>(k_LowerThreshold_Key);
-  auto pUpperThreshold = filterArgs.value<double>(k_UpperThreshold_Key);
+  auto pLowerThreshold = filterArgs.value<float64>(k_LowerThreshold_Key);
+  auto pUpperThreshold = filterArgs.value<float64>(k_UpperThreshold_Key);
   auto pInsideValue = filterArgs.value<uint8_t>(k_InsideValue_Key);
   auto pOutsideValue = filterArgs.value<uint8_t>(k_OutsideValue_Key);
 
   /****************************************************************************
    * Create the functor object that will instantiate the correct itk filter
    ***************************************************************************/
-  ::ITKBinaryThresholdImageCreationFunctor itkFunctor{};
-  itkFunctor.pLowerThreshold = pLowerThreshold;
-  itkFunctor.pUpperThreshold = pUpperThreshold;
-  itkFunctor.pInsideValue = pInsideValue;
-  itkFunctor.pOutsideValue = pOutsideValue;
+  ::ITKBinaryThresholdImageCreationFunctor itkFunctor = {pLowerThreshold, pUpperThreshold, pInsideValue, pOutsideValue};
 
   /****************************************************************************
    * Associate the output image with the Image Geometry for Visualization
@@ -199,6 +193,6 @@ Result<> ITKBinaryThresholdImage::executeImpl(DataStructure& dataStructure, cons
   /****************************************************************************
    * Write your algorithm implementation in this function
    ***************************************************************************/
-  return ITK::Execute(dataStructure, pSelectedInputArray, pImageGeomPath, pOutputArrayPath, itkFunctor);
+  return ITK::Execute<ITKBinaryThresholdImageCreationFunctor, FilterOutputType>(dataStructure, pSelectedInputArray, pImageGeomPath, pOutputArrayPath, itkFunctor);
 }
 } // namespace complex

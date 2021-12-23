@@ -2,8 +2,8 @@
 
 /**
  * This filter only works with certain kinds of data. We
- * enable the types that the filter will compile against. The 
- * Allowed PixelTypes as defined in SimpleITK are: 
+ * enable the types that the filter will compile against. The
+ * Allowed PixelTypes as defined in SimpleITK are:
  *   BasicPixelIDTypeList
  */
 #define ITK_BASIC_PIXEL_ID_TYPE_LIST 1
@@ -12,17 +12,13 @@
 #include "ITKImageProcessing/Common/ITKArrayHelper.hpp"
 #include "ITKImageProcessing/Common/sitkCommon.hpp"
 
-
 #include "complex/DataStructure/DataPath.hpp"
 #include "complex/Parameters/ArrayCreationParameter.hpp"
 #include "complex/Parameters/ArraySelectionParameter.hpp"
+#include "complex/Parameters/BoolParameter.hpp"
 #include "complex/Parameters/GeometrySelectionParameter.hpp"
 #include "complex/Parameters/NumberParameter.hpp"
 #include "complex/Parameters/VectorParameter.hpp"
-#include "complex/Parameters/NumberParameter.hpp"
-#include "complex/Parameters/NumberParameter.hpp"
-#include "complex/Parameters/VectorParameter.hpp"
-#include "complex/Parameters/BoolParameter.hpp"
 
 #include <itkDiscreteGaussianImageFilter.h>
 
@@ -32,12 +28,12 @@ namespace
 {
 struct ITKDiscreteGaussianImageCreationFunctor
 {
-  double pVariance;
-  unsigned int pMaximumKernelWidth;
-  double pMaximumError;
-  bool pUseImageSpacing;
+  double pVariance = 0.0;
+  unsigned int pMaximumKernelWidth = 32u;
+  double pMaximumError = 0.0;
+  bool pUseImageSpacing = true;
 
-  template <typename InputImageType, typename OutputImageType, unsigned int Dimension>
+  template <class InputImageType, class OutputImageType, uint32 Dimension>
   auto operator()() const
   {
     using FilterType = itk::DiscreteGaussianImageFilter<InputImageType, OutputImageType>;
@@ -91,7 +87,7 @@ Parameters ITKDiscreteGaussianImage::parameters() const
   params.insert(std::make_unique<GeometrySelectionParameter>(k_SelectedImageGeomPath_Key, "Image Geometry", "", DataPath{}, GeometrySelectionParameter::AllowedTypes{DataObject::Type::ImageGeom}));
   params.insert(std::make_unique<ArraySelectionParameter>(k_SelectedImageDataPath_Key, "Input Image", "", DataPath{}));
   params.insert(std::make_unique<ArrayCreationParameter>(k_OutputIamgeDataPath_Key, "Output Image", "", DataPath{}));
-  params.insert(std::make_unique<VectorFloat64Parameter>(k_Variance_Key, "Variance", "", std::vector<double>(3,1.0), std::vector<std::string>(3)));
+  params.insert(std::make_unique<VectorFloat64Parameter>(k_Variance_Key, "Variance", "", std::vector<double>(3, 1.0), std::vector<std::string>(3)));
   params.insert(std::make_unique<UInt32Parameter>(k_MaximumKernelWidth_Key, "MaximumKernelWidth", "", 32u));
   params.insert(std::make_unique<VectorFloat64Parameter>(k_MaximumError_Key, "MaximumError", "", std::vector<double>(3, 0.01), std::vector<std::string>(3)));
   params.insert(std::make_unique<BoolParameter>(k_UseImageSpacing_Key, "UseImageSpacing", "", true));
@@ -120,9 +116,9 @@ IFilter::PreflightResult ITKDiscreteGaussianImage::preflightImpl(const DataStruc
   auto pImageGeomPath = filterArgs.value<DataPath>(k_SelectedImageGeomPath_Key);
   auto pSelectedInputArray = filterArgs.value<DataPath>(k_SelectedImageDataPath_Key);
   auto pOutputArrayPath = filterArgs.value<DataPath>(k_OutputIamgeDataPath_Key);
-  auto pVariance = filterArgs.value<double>(k_Variance_Key);
+  auto pVariance = filterArgs.value<float64>(k_Variance_Key);
   auto pMaximumKernelWidth = filterArgs.value<unsigned int>(k_MaximumKernelWidth_Key);
-  auto pMaximumError = filterArgs.value<double>(k_MaximumError_Key);
+  auto pMaximumError = filterArgs.value<float64>(k_MaximumError_Key);
   auto pUseImageSpacing = filterArgs.value<bool>(k_UseImageSpacing_Key);
 
   // Declare the preflightResult variable that will be populated with the results
@@ -139,9 +135,7 @@ IFilter::PreflightResult ITKDiscreteGaussianImage::preflightImpl(const DataStruc
   // If your filter is making structural changes to the DataStructure then the filter
   // is going to create OutputActions subclasses that need to be returned. This will
   // store those actions.
-  complex::Result<OutputActions> resultOutputActions;
-
-  resultOutputActions = ITK::DataCheck(dataStructure, pSelectedInputArray, pImageGeomPath, pOutputArrayPath);
+  complex::Result<OutputActions> resultOutputActions = ITK::DataCheck(dataStructure, pSelectedInputArray, pImageGeomPath, pOutputArrayPath);
 
   // If the filter needs to pass back some updated values via a key:value string:string set of values
   // you can declare and update that string here.
@@ -175,19 +169,15 @@ Result<> ITKDiscreteGaussianImage::executeImpl(DataStructure& dataStructure, con
   auto pImageGeomPath = filterArgs.value<DataPath>(k_SelectedImageGeomPath_Key);
   auto pSelectedInputArray = filterArgs.value<DataPath>(k_SelectedImageDataPath_Key);
   auto pOutputArrayPath = filterArgs.value<DataPath>(k_OutputIamgeDataPath_Key);
-  auto pVariance = filterArgs.value<double>(k_Variance_Key);
+  auto pVariance = filterArgs.value<float64>(k_Variance_Key);
   auto pMaximumKernelWidth = filterArgs.value<unsigned int>(k_MaximumKernelWidth_Key);
-  auto pMaximumError = filterArgs.value<double>(k_MaximumError_Key);
+  auto pMaximumError = filterArgs.value<float64>(k_MaximumError_Key);
   auto pUseImageSpacing = filterArgs.value<bool>(k_UseImageSpacing_Key);
 
   /****************************************************************************
    * Create the functor object that will instantiate the correct itk filter
    ***************************************************************************/
-  ::ITKDiscreteGaussianImageCreationFunctor itkFunctor{};
-  itkFunctor.pVariance = pVariance;
-  itkFunctor.pMaximumKernelWidth = pMaximumKernelWidth;
-  itkFunctor.pMaximumError = pMaximumError;
-  itkFunctor.pUseImageSpacing = pUseImageSpacing;
+  ::ITKDiscreteGaussianImageCreationFunctor itkFunctor = {pVariance, pMaximumKernelWidth, pMaximumError, pUseImageSpacing};
 
   /****************************************************************************
    * Associate the output image with the Image Geometry for Visualization

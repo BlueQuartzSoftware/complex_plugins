@@ -4,11 +4,6 @@ set(${PLUGIN_NAME}UnitTest_SRCS
   ITKImageReaderTest.cpp
   ITKImageWriterTest.cpp
   ITKAbsImageTest.cpp
-
-  ITKApproximateSignedDistanceMapImageTest.cpp
-
-  )
-set (others
   ITKAcosImageTest.cpp
   ITKAsinImageTest.cpp
   ITKAtanImageTest.cpp
@@ -70,6 +65,7 @@ set (others
   #-----------------------------------------------------------------------------
   # These filters have a fixed output type
   #-----------------------------------------------------------------------------
+  ITKApproximateSignedDistanceMapImageTest.cpp
   ITKGradientAnisotropicDiffusionImageTest.cpp
   ITKCurvatureAnisotropicDiffusionImageTest.cpp
   ITKBinaryThresholdImageTest.cpp
@@ -97,20 +93,19 @@ set (others
   ITKSumProjectionImageTest.cpp
   ITKThresholdMaximumConnectedComponentsImageTest.cpp
   ITKZeroCrossingImageTest.cpp
-
-  )
-
-
-set(${PLUGIN_NAME}UnitTest_SRCS_Disabled
   #-----------------------------------------------------------------------------
-  # These tests are disabled because there are parameters from the old version
-  # that do not appear in the JSON when generating.
+  # There are parameters from the old version that do not appear in the JSON when generating.
   #-----------------------------------------------------------------------------
   ITKRescaleIntensityImageTest.cpp
   ITKBoxMeanImageTest.cpp
   ITKAdaptiveHistogramEqualizationImageTest.cpp
   ITKMedianImageTest.cpp
   ITKDiscreteGaussianImageTest.cpp
+  )
+
+
+set(${PLUGIN_NAME}UnitTest_SRCS_Disabled
+
 
   #-----------------------------------------------------------------------------
   # These filters are custom written filters by BQ and do not conform to the

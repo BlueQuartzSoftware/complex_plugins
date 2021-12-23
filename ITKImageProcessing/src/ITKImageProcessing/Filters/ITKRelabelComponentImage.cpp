@@ -1,28 +1,31 @@
 #include "ITKRelabelComponentImage.hpp"
 
 /**
- * This filter can report a number of measurements: 
+ * This filter can report a number of measurements:
  * @name NumberOfObjects
  * @type uint32_t
  * @description Get the number of objects in the image. This information is only valid after the filter has executed.
  *
  * @name OriginalNumberOfObjects
  * @type uint32_t
- * @description Get the original number of objects in the image before small objects were discarded. This information is only valid after the filter has executed. If the caller has not specified a minimum object size, OriginalNumberOfObjects is the same as NumberOfObjects.
+ * @description Get the original number of objects in the image before small objects were discarded. This information is only valid after the filter has executed. If the caller has not specified a
+ * minimum object size, OriginalNumberOfObjects is the same as NumberOfObjects.
  *
  * @name SizeOfObjectsInPhysicalUnits
  * @type std::vector<float>
- * @description Get the size of each object in physical space (in units of pixel size). This information is only valid after the filter has executed. Size of the background is not calculated. Size of object #1 is GetSizeOfObjectsInPhysicalUnits() [0]. Size of object #2 is GetSizeOfObjectsInPhysicalUnits() [1]. Etc.
+ * @description Get the size of each object in physical space (in units of pixel size). This information is only valid after the filter has executed. Size of the background is not calculated. Size of
+ * object #1 is GetSizeOfObjectsInPhysicalUnits() [0]. Size of object #2 is GetSizeOfObjectsInPhysicalUnits() [1]. Etc.
  *
  * @name SizeOfObjectsInPixels
  * @type std::vector<uint64_t>
- * @description Get the size of each object in pixels. This information is only valid after the filter has executed. Size of the background is not calculated. Size of object #1 is GetSizeOfObjectsInPixels() [0]. Size of object #2 is GetSizeOfObjectsInPixels() [1]. Etc.
+ * @description Get the size of each object in pixels. This information is only valid after the filter has executed. Size of the background is not calculated. Size of object #1 is
+ * GetSizeOfObjectsInPixels() [0]. Size of object #2 is GetSizeOfObjectsInPixels() [1]. Etc.
  *
  */
 /**
  * This filter only works with certain kinds of data. We
- * enable the types that the filter will compile against. The 
- * Allowed PixelTypes as defined in SimpleITK are: 
+ * enable the types that the filter will compile against. The
+ * Allowed PixelTypes as defined in SimpleITK are:
  *   IntegerPixelIDTypeList
  */
 #define ITK_INTEGER_PIXEL_ID_TYPE_LIST 1
@@ -31,13 +34,12 @@
 #include "ITKImageProcessing/Common/ITKArrayHelper.hpp"
 #include "ITKImageProcessing/Common/sitkCommon.hpp"
 
-
 #include "complex/DataStructure/DataPath.hpp"
 #include "complex/Parameters/ArrayCreationParameter.hpp"
 #include "complex/Parameters/ArraySelectionParameter.hpp"
+#include "complex/Parameters/BoolParameter.hpp"
 #include "complex/Parameters/GeometrySelectionParameter.hpp"
 #include "complex/Parameters/NumberParameter.hpp"
-#include "complex/Parameters/BoolParameter.hpp"
 
 #include <itkRelabelComponentImageFilter.h>
 
@@ -47,10 +49,10 @@ namespace
 {
 struct ITKRelabelComponentImageCreationFunctor
 {
-  uint64_t pMinimumObjectSize;
-  bool pSortByObjectSize;
+  uint64_t pMinimumObjectSize = 0u;
+  bool pSortByObjectSize = true;
 
-  template <typename InputImageType, typename OutputImageType, unsigned int Dimension>
+  template <class InputImageType, class OutputImageType, uint32 Dimension>
   auto operator()() const
   {
     using FilterType = itk::RelabelComponentImageFilter<InputImageType, OutputImageType>;
@@ -146,9 +148,7 @@ IFilter::PreflightResult ITKRelabelComponentImage::preflightImpl(const DataStruc
   // If your filter is making structural changes to the DataStructure then the filter
   // is going to create OutputActions subclasses that need to be returned. This will
   // store those actions.
-  complex::Result<OutputActions> resultOutputActions;
-
-  resultOutputActions = ITK::DataCheck(dataStructure, pSelectedInputArray, pImageGeomPath, pOutputArrayPath);
+  complex::Result<OutputActions> resultOutputActions = ITK::DataCheck(dataStructure, pSelectedInputArray, pImageGeomPath, pOutputArrayPath);
 
   // If the filter needs to pass back some updated values via a key:value string:string set of values
   // you can declare and update that string here.
@@ -188,9 +188,7 @@ Result<> ITKRelabelComponentImage::executeImpl(DataStructure& dataStructure, con
   /****************************************************************************
    * Create the functor object that will instantiate the correct itk filter
    ***************************************************************************/
-  ::ITKRelabelComponentImageCreationFunctor itkFunctor{};
-  itkFunctor.pMinimumObjectSize = pMinimumObjectSize;
-  itkFunctor.pSortByObjectSize = pSortByObjectSize;
+  ::ITKRelabelComponentImageCreationFunctor itkFunctor = {pMinimumObjectSize, pSortByObjectSize};
 
   /****************************************************************************
    * Associate the output image with the Image Geometry for Visualization

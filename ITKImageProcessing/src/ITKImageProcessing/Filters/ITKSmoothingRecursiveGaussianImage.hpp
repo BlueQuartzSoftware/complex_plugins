@@ -12,7 +12,7 @@ namespace complex
  * @brief Computes the smoothing of an image by convolution with the Gaussian kernels implemented as IIR filters.
  *
  * This filter is implemented using the recursive gaussian filters. For multi-component images, the filter works on each component independently.
- * 
+ *
  * For this filter to be able to run in-place the input and output image types need to be the same and/or the same type as the RealImageType.
  *
  * ITK Module: ITKSmoothing

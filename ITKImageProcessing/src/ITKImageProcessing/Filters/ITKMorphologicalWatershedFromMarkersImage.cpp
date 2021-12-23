@@ -1,14 +1,14 @@
 #include "ITKMorphologicalWatershedFromMarkersImage.hpp"
 
 /**
- * This filter has multiple Input images: 
+ * This filter has multiple Input images:
  *    Image of type: Image
  *    MarkerImage of type: Image
  */
 /**
  * This filter only works with certain kinds of data. We
- * enable the types that the filter will compile against. The 
- * Allowed PixelTypes as defined in SimpleITK are: 
+ * enable the types that the filter will compile against. The
+ * Allowed PixelTypes as defined in SimpleITK are:
  *   ScalarPixelIDTypeList
  */
 #define ITK_SCALAR_PIXEL_ID_TYPE_LIST 1
@@ -17,13 +17,11 @@
 #include "ITKImageProcessing/Common/ITKArrayHelper.hpp"
 #include "ITKImageProcessing/Common/sitkCommon.hpp"
 
-
 #include "complex/DataStructure/DataPath.hpp"
 #include "complex/Parameters/ArrayCreationParameter.hpp"
 #include "complex/Parameters/ArraySelectionParameter.hpp"
+#include "complex/Parameters/BoolParameter.hpp"
 #include "complex/Parameters/GeometrySelectionParameter.hpp"
-#include "complex/Parameters/BoolParameter.hpp"
-#include "complex/Parameters/BoolParameter.hpp"
 
 #include <itkMorphologicalWatershedFromMarkersImageFilter.h>
 
@@ -33,10 +31,10 @@ namespace
 {
 struct ITKMorphologicalWatershedFromMarkersImageCreationFunctor
 {
-  bool pMarkWatershedLine;
-  bool pFullyConnected;
+  bool pMarkWatershedLine = true;
+  bool pFullyConnected = false;
 
-  template <typename InputImageType, typename OutputImageType, unsigned int Dimension>
+  template <class InputImageType, class OutputImageType, uint32 Dimension>
   auto operator()() const
   {
     using FilterType = itk::MorphologicalWatershedFromMarkersImageFilter<InputImageType, InputImageType>;
@@ -134,9 +132,7 @@ IFilter::PreflightResult ITKMorphologicalWatershedFromMarkersImage::preflightImp
   // If your filter is making structural changes to the DataStructure then the filter
   // is going to create OutputActions subclasses that need to be returned. This will
   // store those actions.
-  complex::Result<OutputActions> resultOutputActions;
-
-  resultOutputActions = ITK::DataCheck(dataStructure, pSelectedInputArray, pImageGeomPath, pOutputArrayPath);
+  complex::Result<OutputActions> resultOutputActions = ITK::DataCheck(dataStructure, pSelectedInputArray, pImageGeomPath, pOutputArrayPath);
 
   // If the filter needs to pass back some updated values via a key:value string:string set of values
   // you can declare and update that string here.
@@ -162,7 +158,8 @@ IFilter::PreflightResult ITKMorphologicalWatershedFromMarkersImage::preflightImp
 }
 
 //------------------------------------------------------------------------------
-Result<> ITKMorphologicalWatershedFromMarkersImage::executeImpl(DataStructure& dataStructure, const Arguments& filterArgs, const PipelineFilter* pipelineNode, const MessageHandler& messageHandler) const
+Result<> ITKMorphologicalWatershedFromMarkersImage::executeImpl(DataStructure& dataStructure, const Arguments& filterArgs, const PipelineFilter* pipelineNode,
+                                                                const MessageHandler& messageHandler) const
 {
   /****************************************************************************
    * Extract the actual input values from the 'filterArgs' object
@@ -177,9 +174,7 @@ Result<> ITKMorphologicalWatershedFromMarkersImage::executeImpl(DataStructure& d
   /****************************************************************************
    * Create the functor object that will instantiate the correct itk filter
    ***************************************************************************/
-  ::ITKMorphologicalWatershedFromMarkersImageCreationFunctor itkFunctor{};
-  itkFunctor.pMarkWatershedLine = pMarkWatershedLine;
-  itkFunctor.pFullyConnected = pFullyConnected;
+  ::ITKMorphologicalWatershedFromMarkersImageCreationFunctor itkFunctor = {pMarkWatershedLine, pFullyConnected};
 
   /****************************************************************************
    * Associate the output image with the Image Geometry for Visualization

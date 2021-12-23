@@ -9,12 +9,15 @@ namespace complex
 {
 /**
  * @class ITKIntensityWindowingImage
- * @brief Applies a linear transformation to the intensity levels of the input Image that are inside a user-defined interval. Values below this interval are mapped to a constant. Values over the interval are mapped to another constant.
+ * @brief Applies a linear transformation to the intensity levels of the input Image that are inside a user-defined interval. Values below this interval are mapped to a constant. Values over the
+ * interval are mapped to another constant.
  *
- * IntensityWindowingImageFilter applies pixel-wise a linear transformation to the intensity values of input image pixels. The linear transformation is defined by the user in terms of the minimum and maximum values that the output image should have and the lower and upper limits of the intensity window of the input image. This operation is very common in visualization, and can also be applied as a convenient preprocessing operation for image segmentation.
- * 
+ * IntensityWindowingImageFilter applies pixel-wise a linear transformation to the intensity values of input image pixels. The linear transformation is defined by the user in terms of the minimum and
+ * maximum values that the output image should have and the lower and upper limits of the intensity window of the input image. This operation is very common in visualization, and can also be applied
+ * as a convenient preprocessing operation for image segmentation.
+ *
  * All computations are performed in the precision of the input pixel's RealType. Before assigning the computed value to the output pixel.
- * 
+ *
  * @see RescaleIntensityImageFilter
  *
  * ITK Module: ITKImageIntensity

@@ -12,18 +12,18 @@ namespace complex
  * @brief Produce a binary image where foreground is the regional minima of the input image.
  *
  * Regional minima are flat zones surrounded by pixels of greater value.
- * 
+ *
  * If the input image is constant, the entire image can be considered as a minima or not. The SetFlatIsMinima() method let the user choose which behavior to use.
- * 
- * This class was contributed to the Insight Journal by @author Gaetan Lehmann. Biologie du Developpement et de la Reproduction, INRA de Jouy-en-Josas, France. https://hdl.handle.net/1926/153 
- * 
- * 
- * @see RegionalMaximaImageFilter 
- * 
- * 
- * @see ValuedRegionalMinimaImageFilter 
- * 
- * 
+ *
+ * This class was contributed to the Insight Journal by @author Gaetan Lehmann. Biologie du Developpement et de la Reproduction, INRA de Jouy-en-Josas, France. https://hdl.handle.net/1926/153
+ *
+ *
+ * @see RegionalMaximaImageFilter
+ *
+ *
+ * @see ValuedRegionalMinimaImageFilter
+ *
+ *
  * @see HConcaveImageFilter
  *
  * ITK Module: ITKMathematicalMorphology

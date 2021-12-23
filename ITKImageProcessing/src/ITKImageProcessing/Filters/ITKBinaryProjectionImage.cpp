@@ -2,8 +2,8 @@
 
 /**
  * This filter only works with certain kinds of data. We
- * enable the types that the filter will compile against. The 
- * Allowed PixelTypes as defined in SimpleITK are: 
+ * enable the types that the filter will compile against. The
+ * Allowed PixelTypes as defined in SimpleITK are:
  *   BasicPixelIDTypeList
  */
 #define ITK_BASIC_PIXEL_ID_TYPE_LIST 1
@@ -12,13 +12,10 @@
 #include "ITKImageProcessing/Common/ITKArrayHelper.hpp"
 #include "ITKImageProcessing/Common/sitkCommon.hpp"
 
-
 #include "complex/DataStructure/DataPath.hpp"
 #include "complex/Parameters/ArrayCreationParameter.hpp"
 #include "complex/Parameters/ArraySelectionParameter.hpp"
 #include "complex/Parameters/GeometrySelectionParameter.hpp"
-#include "complex/Parameters/NumberParameter.hpp"
-#include "complex/Parameters/NumberParameter.hpp"
 #include "complex/Parameters/NumberParameter.hpp"
 
 #include <itkBinaryProjectionImageFilter.h>
@@ -29,11 +26,11 @@ namespace
 {
 struct ITKBinaryProjectionImageCreationFunctor
 {
-  unsigned int pProjectionDimension;
-  double pForegroundValue;
-  double pBackgroundValue;
+  unsigned int pProjectionDimension = 0u;
+  float64 pForegroundValue = 1.0;
+  float64 pBackgroundValue = 0.0;
 
-  template <typename InputImageType, typename OutputImageType, unsigned int Dimension>
+  template <class InputImageType, class OutputImageType, uint32 Dimension>
   auto operator()() const
   {
     using FilterType = itk::BinaryProjectionImageFilter<InputImageType, OutputImageType>;
@@ -115,8 +112,8 @@ IFilter::PreflightResult ITKBinaryProjectionImage::preflightImpl(const DataStruc
   auto pSelectedInputArray = filterArgs.value<DataPath>(k_SelectedImageDataPath_Key);
   auto pOutputArrayPath = filterArgs.value<DataPath>(k_OutputIamgeDataPath_Key);
   auto pProjectionDimension = filterArgs.value<unsigned int>(k_ProjectionDimension_Key);
-  auto pForegroundValue = filterArgs.value<double>(k_ForegroundValue_Key);
-  auto pBackgroundValue = filterArgs.value<double>(k_BackgroundValue_Key);
+  auto pForegroundValue = filterArgs.value<float64>(k_ForegroundValue_Key);
+  auto pBackgroundValue = filterArgs.value<float64>(k_BackgroundValue_Key);
 
   // Declare the preflightResult variable that will be populated with the results
   // of the preflight. The PreflightResult type contains the output Actions and
@@ -132,9 +129,7 @@ IFilter::PreflightResult ITKBinaryProjectionImage::preflightImpl(const DataStruc
   // If your filter is making structural changes to the DataStructure then the filter
   // is going to create OutputActions subclasses that need to be returned. This will
   // store those actions.
-  complex::Result<OutputActions> resultOutputActions;
-
-  resultOutputActions = ITK::DataCheck(dataStructure, pSelectedInputArray, pImageGeomPath, pOutputArrayPath);
+  complex::Result<OutputActions> resultOutputActions = ITK::DataCheck(dataStructure, pSelectedInputArray, pImageGeomPath, pOutputArrayPath);
 
   // If the filter needs to pass back some updated values via a key:value string:string set of values
   // you can declare and update that string here.
@@ -169,22 +164,13 @@ Result<> ITKBinaryProjectionImage::executeImpl(DataStructure& dataStructure, con
   auto pSelectedInputArray = filterArgs.value<DataPath>(k_SelectedImageDataPath_Key);
   auto pOutputArrayPath = filterArgs.value<DataPath>(k_OutputIamgeDataPath_Key);
   auto pProjectionDimension = filterArgs.value<unsigned int>(k_ProjectionDimension_Key);
-  auto pForegroundValue = filterArgs.value<double>(k_ForegroundValue_Key);
-  auto pBackgroundValue = filterArgs.value<double>(k_BackgroundValue_Key);
+  auto pForegroundValue = filterArgs.value<float64>(k_ForegroundValue_Key);
+  auto pBackgroundValue = filterArgs.value<float64>(k_BackgroundValue_Key);
 
   /****************************************************************************
    * Create the functor object that will instantiate the correct itk filter
    ***************************************************************************/
-  ::ITKBinaryProjectionImageCreationFunctor itkFunctor{};
-  itkFunctor.pProjectionDimension = pProjectionDimension;
-  itkFunctor.pForegroundValue = pForegroundValue;
-  itkFunctor.pBackgroundValue = pBackgroundValue;
-
-  /****************************************************************************
-   * Associate the output image with the Image Geometry for Visualization
-   ***************************************************************************/
-  ImageGeom& imageGeom = dataStructure.getDataRefAs<ImageGeom>(pImageGeomPath);
-  imageGeom.getLinkedGeometryData().addCellData(pOutputArrayPath);
+  ::ITKBinaryProjectionImageCreationFunctor itkFunctor = {pProjectionDimension, pForegroundValue, pBackgroundValue};
 
   /****************************************************************************
    * Write your algorithm implementation in this function

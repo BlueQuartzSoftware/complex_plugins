@@ -2,8 +2,8 @@
 
 /**
  * This filter only works with certain kinds of data. We
- * enable the types that the filter will compile against. The 
- * Allowed PixelTypes as defined in SimpleITK are: 
+ * enable the types that the filter will compile against. The
+ * Allowed PixelTypes as defined in SimpleITK are:
  *   BasicPixelIDTypeList
  */
 #define ITK_BASIC_PIXEL_ID_TYPE_LIST 1
@@ -12,23 +12,13 @@
 #include "ITKImageProcessing/Common/ITKArrayHelper.hpp"
 #include "ITKImageProcessing/Common/sitkCommon.hpp"
 
-
 #include "complex/DataStructure/DataPath.hpp"
 #include "complex/Parameters/ArrayCreationParameter.hpp"
 #include "complex/Parameters/ArraySelectionParameter.hpp"
 #include "complex/Parameters/GeometrySelectionParameter.hpp"
 #include "complex/Parameters/NumberParameter.hpp"
-#include "complex/Parameters/NumberParameter.hpp"
-#include "complex/Parameters/NumberParameter.hpp"
-#include "complex/Parameters/NumberParameter.hpp"
-#include "complex/Parameters/NumberParameter.hpp"
-  #error NoiseModel = filterArgs.value<typename FilterType::NoiseModelType>(k_NoiseModel_Key);
-#include "complex/Parameters/NumberParameter.hpp"
-#include "complex/Parameters/NumberParameter.hpp"
+#error NoiseModel = filterArgs.value<typename FilterType::NoiseModelType>(k_NoiseModel_Key);
 #include "complex/Parameters/BoolParameter.hpp"
-#include "complex/Parameters/BoolParameter.hpp"
-#include "complex/Parameters/NumberParameter.hpp"
-#include "complex/Parameters/NumberParameter.hpp"
 #include "complex/Parameters/NumberParameter.hpp"
 
 #include <itkPatchBasedDenoisingImageFilter.h>
@@ -39,21 +29,21 @@ namespace
 {
 struct ITKPatchBasedDenoisingImageCreationFunctor
 {
-  double pKernelBandwidthSigma;
-  uint32_t pPatchRadius;
-  uint32_t pNumberOfIterations;
-  uint32_t pNumberOfSamplePatches;
-  double pSampleVariance;
-  #error typename FilterType::NoiseModelType pNoiseModel;
-  double pNoiseSigma;
-  double pNoiseModelFidelityWeight;
-  bool pAlwaysTreatComponentsAsEuclidean;
-  bool pKernelBandwidthEstimation;
-  double pKernelBandwidthMultiplicationFactor;
-  uint32_t pKernelBandwidthUpdateFrequency;
-  double pKernelBandwidthFractionPixelsForEstimation;
+  float64 pKernelBandwidthSigma = 400.0;
+  uint32_t pPatchRadius = 4u;
+  uint32_t pNumberOfIterations = 1u;
+  uint32_t pNumberOfSamplePatches = 200u;
+  float64 pSampleVariance = 400.0;
+#error typename FilterType::NoiseModelType pNoiseModel;
+  float64 pNoiseSigma = 0.0;
+  float64 pNoiseModelFidelityWeight = 0.0;
+  bool pAlwaysTreatComponentsAsEuclidean = false;
+  bool pKernelBandwidthEstimation = false;
+  float64 pKernelBandwidthMultiplicationFactor = 1.0;
+  uint32_t pKernelBandwidthUpdateFrequency = 3u;
+  float64 pKernelBandwidthFractionPixelsForEstimation = 0.2;
 
-  template <typename InputImageType, typename OutputImageType, unsigned int Dimension>
+  template <class InputImageType, class OutputImageType, uint32 Dimension>
   auto operator()() const
   {
     using FilterType = itk::PatchBasedDenoisingImageFilter<InputImageType, OutputImageType>;
@@ -154,19 +144,19 @@ IFilter::PreflightResult ITKPatchBasedDenoisingImage::preflightImpl(const DataSt
   auto pImageGeomPath = filterArgs.value<DataPath>(k_SelectedImageGeomPath_Key);
   auto pSelectedInputArray = filterArgs.value<DataPath>(k_SelectedImageDataPath_Key);
   auto pOutputArrayPath = filterArgs.value<DataPath>(k_OutputIamgeDataPath_Key);
-  auto pKernelBandwidthSigma = filterArgs.value<double>(k_KernelBandwidthSigma_Key);
+  auto pKernelBandwidthSigma = filterArgs.value<float64>(k_KernelBandwidthSigma_Key);
   auto pPatchRadius = filterArgs.value<uint32_t>(k_PatchRadius_Key);
   auto pNumberOfIterations = filterArgs.value<uint32_t>(k_NumberOfIterations_Key);
   auto pNumberOfSamplePatches = filterArgs.value<uint32_t>(k_NumberOfSamplePatches_Key);
-  auto pSampleVariance = filterArgs.value<double>(k_SampleVariance_Key);
-  #error NoiseModel = filterArgs.value<typename FilterType::NoiseModelType>(k_NoiseModel_Key);
-  auto pNoiseSigma = filterArgs.value<double>(k_NoiseSigma_Key);
-  auto pNoiseModelFidelityWeight = filterArgs.value<double>(k_NoiseModelFidelityWeight_Key);
+  auto pSampleVariance = filterArgs.value<float64>(k_SampleVariance_Key);
+#error NoiseModel = filterArgs.value<typename FilterType::NoiseModelType>(k_NoiseModel_Key);
+  auto pNoiseSigma = filterArgs.value<float64>(k_NoiseSigma_Key);
+  auto pNoiseModelFidelityWeight = filterArgs.value<float64>(k_NoiseModelFidelityWeight_Key);
   auto pAlwaysTreatComponentsAsEuclidean = filterArgs.value<bool>(k_AlwaysTreatComponentsAsEuclidean_Key);
   auto pKernelBandwidthEstimation = filterArgs.value<bool>(k_KernelBandwidthEstimation_Key);
-  auto pKernelBandwidthMultiplicationFactor = filterArgs.value<double>(k_KernelBandwidthMultiplicationFactor_Key);
+  auto pKernelBandwidthMultiplicationFactor = filterArgs.value<float64>(k_KernelBandwidthMultiplicationFactor_Key);
   auto pKernelBandwidthUpdateFrequency = filterArgs.value<uint32_t>(k_KernelBandwidthUpdateFrequency_Key);
-  auto pKernelBandwidthFractionPixelsForEstimation = filterArgs.value<double>(k_KernelBandwidthFractionPixelsForEstimation_Key);
+  auto pKernelBandwidthFractionPixelsForEstimation = filterArgs.value<float64>(k_KernelBandwidthFractionPixelsForEstimation_Key);
 
   // Declare the preflightResult variable that will be populated with the results
   // of the preflight. The PreflightResult type contains the output Actions and
@@ -182,9 +172,7 @@ IFilter::PreflightResult ITKPatchBasedDenoisingImage::preflightImpl(const DataSt
   // If your filter is making structural changes to the DataStructure then the filter
   // is going to create OutputActions subclasses that need to be returned. This will
   // store those actions.
-  complex::Result<OutputActions> resultOutputActions;
-
-  resultOutputActions = ITK::DataCheck(dataStructure, pSelectedInputArray, pImageGeomPath, pOutputArrayPath);
+  complex::Result<OutputActions> resultOutputActions = ITK::DataCheck(dataStructure, pSelectedInputArray, pImageGeomPath, pOutputArrayPath);
 
   // If the filter needs to pass back some updated values via a key:value string:string set of values
   // you can declare and update that string here.
@@ -218,37 +206,36 @@ Result<> ITKPatchBasedDenoisingImage::executeImpl(DataStructure& dataStructure, 
   auto pImageGeomPath = filterArgs.value<DataPath>(k_SelectedImageGeomPath_Key);
   auto pSelectedInputArray = filterArgs.value<DataPath>(k_SelectedImageDataPath_Key);
   auto pOutputArrayPath = filterArgs.value<DataPath>(k_OutputIamgeDataPath_Key);
-  auto pKernelBandwidthSigma = filterArgs.value<double>(k_KernelBandwidthSigma_Key);
+  auto pKernelBandwidthSigma = filterArgs.value<float64>(k_KernelBandwidthSigma_Key);
   auto pPatchRadius = filterArgs.value<uint32_t>(k_PatchRadius_Key);
   auto pNumberOfIterations = filterArgs.value<uint32_t>(k_NumberOfIterations_Key);
   auto pNumberOfSamplePatches = filterArgs.value<uint32_t>(k_NumberOfSamplePatches_Key);
-  auto pSampleVariance = filterArgs.value<double>(k_SampleVariance_Key);
-  #error NoiseModel = filterArgs.value<typename FilterType::NoiseModelType>(k_NoiseModel_Key);
-  auto pNoiseSigma = filterArgs.value<double>(k_NoiseSigma_Key);
-  auto pNoiseModelFidelityWeight = filterArgs.value<double>(k_NoiseModelFidelityWeight_Key);
+  auto pSampleVariance = filterArgs.value<float64>(k_SampleVariance_Key);
+#error NoiseModel = filterArgs.value<typename FilterType::NoiseModelType>(k_NoiseModel_Key);
+  auto pNoiseSigma = filterArgs.value<float64>(k_NoiseSigma_Key);
+  auto pNoiseModelFidelityWeight = filterArgs.value<float64>(k_NoiseModelFidelityWeight_Key);
   auto pAlwaysTreatComponentsAsEuclidean = filterArgs.value<bool>(k_AlwaysTreatComponentsAsEuclidean_Key);
   auto pKernelBandwidthEstimation = filterArgs.value<bool>(k_KernelBandwidthEstimation_Key);
-  auto pKernelBandwidthMultiplicationFactor = filterArgs.value<double>(k_KernelBandwidthMultiplicationFactor_Key);
+  auto pKernelBandwidthMultiplicationFactor = filterArgs.value<float64>(k_KernelBandwidthMultiplicationFactor_Key);
   auto pKernelBandwidthUpdateFrequency = filterArgs.value<uint32_t>(k_KernelBandwidthUpdateFrequency_Key);
-  auto pKernelBandwidthFractionPixelsForEstimation = filterArgs.value<double>(k_KernelBandwidthFractionPixelsForEstimation_Key);
+  auto pKernelBandwidthFractionPixelsForEstimation = filterArgs.value<float64>(k_KernelBandwidthFractionPixelsForEstimation_Key);
 
   /****************************************************************************
    * Create the functor object that will instantiate the correct itk filter
    ***************************************************************************/
-  ::ITKPatchBasedDenoisingImageCreationFunctor itkFunctor{};
-  itkFunctor.pKernelBandwidthSigma = pKernelBandwidthSigma;
-  itkFunctor.pPatchRadius = pPatchRadius;
-  itkFunctor.pNumberOfIterations = pNumberOfIterations;
-  itkFunctor.pNumberOfSamplePatches = pNumberOfSamplePatches;
-  itkFunctor.pSampleVariance = pSampleVariance;
-  itkFunctor.pNoiseModel = pNoiseModel;
-  itkFunctor.pNoiseSigma = pNoiseSigma;
-  itkFunctor.pNoiseModelFidelityWeight = pNoiseModelFidelityWeight;
-  itkFunctor.pAlwaysTreatComponentsAsEuclidean = pAlwaysTreatComponentsAsEuclidean;
-  itkFunctor.pKernelBandwidthEstimation = pKernelBandwidthEstimation;
-  itkFunctor.pKernelBandwidthMultiplicationFactor = pKernelBandwidthMultiplicationFactor;
-  itkFunctor.pKernelBandwidthUpdateFrequency = pKernelBandwidthUpdateFrequency;
-  itkFunctor.pKernelBandwidthFractionPixelsForEstimation = pKernelBandwidthFractionPixelsForEstimation;
+  ::ITKPatchBasedDenoisingImageCreationFunctor itkFunctor = {pKernelBandwidthSigma,
+                                                             pPatchRadius,
+                                                             pNumberOfIterations,
+                                                             pNumberOfSamplePatches,
+                                                             pSampleVariance,
+                                                             pNoiseModel,
+                                                             pNoiseSigma,
+                                                             pNoiseModelFidelityWeight,
+                                                             pAlwaysTreatComponentsAsEuclidean,
+                                                             pKernelBandwidthEstimation,
+                                                             pKernelBandwidthMultiplicationFactor,
+                                                             pKernelBandwidthUpdateFrequency,
+                                                             pKernelBandwidthFractionPixelsForEstimation};
 
   /****************************************************************************
    * Associate the output image with the Image Geometry for Visualization

@@ -11,15 +11,17 @@ namespace complex
  * @class ITKBinaryMorphologicalClosingImage
  * @brief binary morphological closing of an image.
  *
- * This filter removes small (i.e., smaller than the structuring element) holes and tube like structures in the interior or at the boundaries of the image. The morphological closing of an image "f" is defined as: Closing(f) = Erosion(Dilation(f)).
- * 
+ * This filter removes small (i.e., smaller than the structuring element) holes and tube like structures in the interior or at the boundaries of the image. The morphological closing of an image "f" is
+ * defined as: Closing(f) = Erosion(Dilation(f)).
+ *
  * The structuring element is assumed to be composed of binary values (zero or one). Only elements of the structuring element having values > 0 are candidates for affecting the center pixel.
- * 
- * This code was contributed in the Insight Journal paper: "Binary morphological closing and opening image filters" by Lehmann G. https://hdl.handle.net/1926/141 http://www.insight-journal.org/browse/publication/58 
- * 
+ *
+ * This code was contributed in the Insight Journal paper: "Binary morphological closing and opening image filters" by Lehmann G. https://hdl.handle.net/1926/141
+ * http://www.insight-journal.org/browse/publication/58
+ *
  * @author Gaetan Lehmann. Biologie du Developpement et de la Reproduction, INRA de Jouy-en-Josas, France.
- * 
- * 
+ *
+ *
  * @see MorphologyImageFilter , GrayscaleDilateImageFilter , GrayscaleErodeImageFilter
  *
  * ITK Module: ITKBinaryMathematicalMorphology

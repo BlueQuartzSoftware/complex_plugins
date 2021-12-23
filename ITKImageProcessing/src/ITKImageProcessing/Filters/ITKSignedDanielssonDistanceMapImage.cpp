@@ -1,39 +1,38 @@
 #include "ITKSignedDanielssonDistanceMapImage.hpp"
 
 /**
- * This filter can report a number of measurements: 
+ * This filter can report a number of measurements:
  * @name VoronoiMap
  * @type Image
- * @description Get Voronoi Map This map shows for each pixel what object is closest to it. Each object should be labeled by a number (larger than 0), so the map has a value for each pixel corresponding to the label of the closest object.
+ * @description Get Voronoi Map This map shows for each pixel what object is closest to it. Each object should be labeled by a number (larger than 0), so the map has a value for each pixel
+ * corresponding to the label of the closest object.
  *
  * @name VectorDistanceMap
  * @type Image
- * @description Get Distance map image.  The distance map is shown as a gray value image depending on the pixel type of the output image. Regarding the source image, background should be dark (gray value = 0) and object should have a gray value larger than 0.  The minimal distance is calculated on the object frontier, and the output image gives for each pixel its minimal distance from the object (if there is more than one object the closest object is considered).
+ * @description Get Distance map image.  The distance map is shown as a gray value image depending on the pixel type of the output image. Regarding the source image, background should be dark (gray
+ * value = 0) and object should have a gray value larger than 0.  The minimal distance is calculated on the object frontier, and the output image gives for each pixel its minimal distance from the
+ * object (if there is more than one object the closest object is considered).
  *
  */
 /**
  * This filter only works with certain kinds of data. We
- * enable the types that the filter will compile against. The 
- * Allowed PixelTypes as defined in SimpleITK are: 
+ * enable the types that the filter will compile against. The
+ * Allowed PixelTypes as defined in SimpleITK are:
  *   IntegerPixelIDTypeList
- * The filter defines the following output pixel types: 
+ * The filter defines the following output pixel types:
  *   float
  */
-#define ITK_OUTPUT_PIXEL_TYPE float
 #define ITK_INTEGER_PIXEL_ID_TYPE_LIST 1
 #define COMPLEX_ITK_ARRAY_HELPER_USE_Scalar 1
 
 #include "ITKImageProcessing/Common/ITKArrayHelper.hpp"
 #include "ITKImageProcessing/Common/sitkCommon.hpp"
 
-
 #include "complex/DataStructure/DataPath.hpp"
 #include "complex/Parameters/ArrayCreationParameter.hpp"
 #include "complex/Parameters/ArraySelectionParameter.hpp"
+#include "complex/Parameters/BoolParameter.hpp"
 #include "complex/Parameters/GeometrySelectionParameter.hpp"
-#include "complex/Parameters/BoolParameter.hpp"
-#include "complex/Parameters/BoolParameter.hpp"
-#include "complex/Parameters/BoolParameter.hpp"
 
 #include <itkSignedDanielssonDistanceMapImageFilter.h>
 
@@ -41,13 +40,18 @@ using namespace complex;
 
 namespace
 {
+/**
+ * This filter uses a fixed output type.
+ */
+using FilterOutputType = float32;
+
 struct ITKSignedDanielssonDistanceMapImageCreationFunctor
 {
-  bool pInsideIsPositive;
-  bool pSquaredDistance;
-  bool pUseImageSpacing;
+  bool pInsideIsPositive = false;
+  bool pSquaredDistance = false;
+  bool pUseImageSpacing = false;
 
-  template <typename InputImageType, typename OutputImageType, unsigned int Dimension>
+  template <class InputImageType, class OutputImageType, uint32 Dimension>
   auto operator()() const
   {
     using FilterType = itk::SignedDanielssonDistanceMapImageFilter<InputImageType, OutputImageType>;
@@ -146,9 +150,7 @@ IFilter::PreflightResult ITKSignedDanielssonDistanceMapImage::preflightImpl(cons
   // If your filter is making structural changes to the DataStructure then the filter
   // is going to create OutputActions subclasses that need to be returned. This will
   // store those actions.
-  complex::Result<OutputActions> resultOutputActions;
-
-  resultOutputActions = ITK::DataCheck(dataStructure, pSelectedInputArray, pImageGeomPath, pOutputArrayPath);
+  complex::Result<OutputActions> resultOutputActions = ITK::DataCheck<FilterOutputType>(dataStructure, pSelectedInputArray, pImageGeomPath, pOutputArrayPath);
 
   // If the filter needs to pass back some updated values via a key:value string:string set of values
   // you can declare and update that string here.
@@ -189,10 +191,7 @@ Result<> ITKSignedDanielssonDistanceMapImage::executeImpl(DataStructure& dataStr
   /****************************************************************************
    * Create the functor object that will instantiate the correct itk filter
    ***************************************************************************/
-  ::ITKSignedDanielssonDistanceMapImageCreationFunctor itkFunctor{};
-  itkFunctor.pInsideIsPositive = pInsideIsPositive;
-  itkFunctor.pSquaredDistance = pSquaredDistance;
-  itkFunctor.pUseImageSpacing = pUseImageSpacing;
+  ::ITKSignedDanielssonDistanceMapImageCreationFunctor itkFunctor = {pInsideIsPositive, pSquaredDistance, pUseImageSpacing};
 
   /****************************************************************************
    * Associate the output image with the Image Geometry for Visualization
@@ -203,6 +202,6 @@ Result<> ITKSignedDanielssonDistanceMapImage::executeImpl(DataStructure& dataStr
   /****************************************************************************
    * Write your algorithm implementation in this function
    ***************************************************************************/
-  return ITK::Execute(dataStructure, pSelectedInputArray, pImageGeomPath, pOutputArrayPath, itkFunctor);
+  return ITK::Execute<ITKSignedDanielssonDistanceMapImageCreationFunctor, FilterOutputType>(dataStructure, pSelectedInputArray, pImageGeomPath, pOutputArrayPath, itkFunctor);
 }
 } // namespace complex

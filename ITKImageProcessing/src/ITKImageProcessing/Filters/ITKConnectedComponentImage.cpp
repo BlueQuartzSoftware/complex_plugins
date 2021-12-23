@@ -1,38 +1,36 @@
 #include "ITKConnectedComponentImage.hpp"
 
 /**
- * This filter has multiple Input images: 
+ * This filter has multiple Input images:
  *    Image of type: Image
  *    [OPTIONAL] MaskImage of type: Image
  */
 /**
- * This filter can report a number of measurements: 
+ * This filter can report a number of measurements:
  * @name ObjectCount
  * @type uint32_t
- * @description 
+ * @description
  *
  */
 /**
  * This filter only works with certain kinds of data. We
- * enable the types that the filter will compile against. The 
- * Allowed PixelTypes as defined in SimpleITK are: 
+ * enable the types that the filter will compile against. The
+ * Allowed PixelTypes as defined in SimpleITK are:
  *   IntegerPixelIDTypeList
- * The filter defines the following output pixel types: 
+ * The filter defines the following output pixel types:
  *   uint32_t
  */
-#define ITK_OUTPUT_PIXEL_TYPE uint32_t
 #define ITK_INTEGER_PIXEL_ID_TYPE_LIST 1
 #define COMPLEX_ITK_ARRAY_HELPER_USE_Scalar 1
 
 #include "ITKImageProcessing/Common/ITKArrayHelper.hpp"
 #include "ITKImageProcessing/Common/sitkCommon.hpp"
 
-
 #include "complex/DataStructure/DataPath.hpp"
 #include "complex/Parameters/ArrayCreationParameter.hpp"
 #include "complex/Parameters/ArraySelectionParameter.hpp"
-#include "complex/Parameters/GeometrySelectionParameter.hpp"
 #include "complex/Parameters/BoolParameter.hpp"
+#include "complex/Parameters/GeometrySelectionParameter.hpp"
 
 #include <itkConnectedComponentImageFilter.h>
 
@@ -40,14 +38,19 @@ using namespace complex;
 
 namespace
 {
+/**
+ * This filter uses a fixed output type.
+ */
+using FilterOutputType = uint32_t;
+
 struct ITKConnectedComponentImageCreationFunctor
 {
-  bool pFullyConnected;
+  bool pFullyConnected = false;
 
-  template <typename InputImageType, typename OutputImageType, unsigned int Dimension>
+  template <class InputImageType, class OutputImageType, uint32 Dimension>
   auto operator()() const
   {
-    using FilterType = itk::ConnectedComponentImageFilter<InputImageType, OutputImageType, itk::Image<uint8_t, InputImageType::ImageDimension> >;
+    using FilterType = itk::ConnectedComponentImageFilter<InputImageType, OutputImageType, itk::Image<uint8_t, InputImageType::ImageDimension>>;
     typename FilterType::Pointer filter = FilterType::New();
     filter->SetFullyConnected(pFullyConnected);
     return filter;
@@ -139,9 +142,7 @@ IFilter::PreflightResult ITKConnectedComponentImage::preflightImpl(const DataStr
   // If your filter is making structural changes to the DataStructure then the filter
   // is going to create OutputActions subclasses that need to be returned. This will
   // store those actions.
-  complex::Result<OutputActions> resultOutputActions;
-
-  resultOutputActions = ITK::DataCheck(dataStructure, pSelectedInputArray, pImageGeomPath, pOutputArrayPath);
+  complex::Result<OutputActions> resultOutputActions = ITK::DataCheck<FilterOutputType>(dataStructure, pSelectedInputArray, pImageGeomPath, pOutputArrayPath);
 
   // If the filter needs to pass back some updated values via a key:value string:string set of values
   // you can declare and update that string here.
@@ -181,8 +182,7 @@ Result<> ITKConnectedComponentImage::executeImpl(DataStructure& dataStructure, c
   /****************************************************************************
    * Create the functor object that will instantiate the correct itk filter
    ***************************************************************************/
-  ::ITKConnectedComponentImageCreationFunctor itkFunctor{};
-  itkFunctor.pFullyConnected = pFullyConnected;
+  ::ITKConnectedComponentImageCreationFunctor itkFunctor = {pFullyConnected};
 
   /****************************************************************************
    * Associate the output image with the Image Geometry for Visualization
@@ -193,6 +193,6 @@ Result<> ITKConnectedComponentImage::executeImpl(DataStructure& dataStructure, c
   /****************************************************************************
    * Write your algorithm implementation in this function
    ***************************************************************************/
-  return ITK::Execute(dataStructure, pSelectedInputArray, pImageGeomPath, pOutputArrayPath, itkFunctor);
+  return ITK::Execute<ITKConnectedComponentImageCreationFunctor, FilterOutputType>(dataStructure, pSelectedInputArray, pImageGeomPath, pOutputArrayPath, itkFunctor);
 }
 } // namespace complex

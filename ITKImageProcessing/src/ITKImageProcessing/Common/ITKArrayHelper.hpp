@@ -37,8 +37,6 @@
 #define COMPLEX_ITK_ARRAY_HELPER_USE_uint32 1
 #define COMPLEX_ITK_ARRAY_HELPER_USE_float32 1
 #define COMPLEX_ITK_ARRAY_HELPER_USE_float64 1
-#define COMPLEX_ITK_ARRAY_HELPER_USE_Scalar 1
-#define COMPLEX_ITK_ARRAY_HELPER_USE_Vector 0
 #endif
 
 #if defined(ITK_INTEGER_PIXEL_ID_TYPE_LIST)
@@ -48,22 +46,16 @@
 #define COMPLEX_ITK_ARRAY_HELPER_USE_uint16 1
 #define COMPLEX_ITK_ARRAY_HELPER_USE_int32 1
 #define COMPLEX_ITK_ARRAY_HELPER_USE_uint32 1
-#define COMPLEX_ITK_ARRAY_HELPER_USE_Scalar 1
-#define COMPLEX_ITK_ARRAY_HELPER_USE_Vector 0
 #endif
 
 #if defined(ITK_REAL_PIXEL_ID_TYPE_LIST)
 #define COMPLEX_ITK_ARRAY_HELPER_USE_float32 1
 #define COMPLEX_ITK_ARRAY_HELPER_USE_float64 1
-#define COMPLEX_ITK_ARRAY_HELPER_USE_Scalar 1
-#define COMPLEX_ITK_ARRAY_HELPER_USE_Vector 0
 #endif
 
 #if defined(ITK_REAL_VECTOR_PIXEL_ID_TYPE_LIST)
 #define COMPLEX_ITK_ARRAY_HELPER_USE_float32 1
 #define COMPLEX_ITK_ARRAY_HELPER_USE_float64 1
-#define COMPLEX_ITK_ARRAY_HELPER_USE_Scalar 0
-#define COMPLEX_ITK_ARRAY_HELPER_USE_Vector 1
 #endif
 
 #if defined(ITK_SCALAR_PIXEL_ID_TYPE_LIST)
@@ -75,8 +67,6 @@
 #define COMPLEX_ITK_ARRAY_HELPER_USE_uint32 1
 #define COMPLEX_ITK_ARRAY_HELPER_USE_float32 1
 #define COMPLEX_ITK_ARRAY_HELPER_USE_float64 1
-#define COMPLEX_ITK_ARRAY_HELPER_USE_Scalar 1
-#define COMPLEX_ITK_ARRAY_HELPER_USE_Vector 0
 #endif
 
 #if defined(ITK_SIGNED_PIXEL_ID_TYPE_LIST)
@@ -85,8 +75,6 @@
 #define COMPLEX_ITK_ARRAY_HELPER_USE_int32 1
 #define COMPLEX_ITK_ARRAY_HELPER_USE_float32 1
 #define COMPLEX_ITK_ARRAY_HELPER_USE_float64 1
-#define COMPLEX_ITK_ARRAY_HELPER_USE_Scalar 1
-#define COMPLEX_ITK_ARRAY_HELPER_USE_Vector 0
 #endif
 
 #if defined(ITK_VECTOR_PIXEL_ID_TYPE_LIST)
@@ -98,8 +86,6 @@
 #define COMPLEX_ITK_ARRAY_HELPER_USE_uint32 1
 #define COMPLEX_ITK_ARRAY_HELPER_USE_float32 1
 #define COMPLEX_ITK_ARRAY_HELPER_USE_float64 1
-#define COMPLEX_ITK_ARRAY_HELPER_USE_Scalar 0
-#define COMPLEX_ITK_ARRAY_HELPER_USE_Vector 1
 #endif
 
 #if defined(ITK_SIGNED_VECTOR_PIXEL_ID_TYPE_LIST)
@@ -108,8 +94,7 @@
 #define COMPLEX_ITK_ARRAY_HELPER_USE_int32 1
 #define COMPLEX_ITK_ARRAY_HELPER_USE_float32 1
 #define COMPLEX_ITK_ARRAY_HELPER_USE_float64 1
-#define COMPLEX_ITK_ARRAY_HELPER_USE_Scalar 0
-#define COMPLEX_ITK_ARRAY_HELPER_USE_Vector 1
+
 #endif
 
 #if 0
@@ -154,14 +139,14 @@
 #define COMPLEX_ITK_ARRAY_HELPER_USE_float64 1
 #endif
 
+#endif
+
 #ifndef COMPLEX_ITK_ARRAY_HELPER_USE_Scalar
 #define COMPLEX_ITK_ARRAY_HELPER_USE_Scalar 1
 #endif
 
 #ifndef COMPLEX_ITK_ARRAY_HELPER_USE_Vector
 #define COMPLEX_ITK_ARRAY_HELPER_USE_Vector 0
-#endif
-
 #endif
 
 #ifndef COMPLEX_ITK_ARRAY_HELPER_USE_RGB_RGBA
@@ -222,7 +207,7 @@ typename itk::Image<PixelT, Dimensions>::Pointer WrapDataStoreInImage(DataStore<
   using T = ITK::UnderlyingType_t<PixelT>;
 
   static_assert(std::is_standard_layout_v<PixelT>, "complex::ITK::WrapDataStoreInImage: PixelT must be standard layout");
-  static_assert(std::is_trivial_v<PixelT>, "complex::ITK::WrapDataStoreInImage: PixelT must be trivial");
+  // static_assert(std::is_trivial_v<PixelT>, "complex::ITK::WrapDataStoreInImage: PixelT must be trivial");
   static_assert(std::is_arithmetic_v<T>, "complex::ITK::WrapDataStoreInImage: The underlying type T of PixelT must be arithmetic");
   static_assert(sizeof(PixelT) % sizeof(T) == 0, "complex::ITK::WrapDataStoreInImage: The size of PixelT must be evenly divisible by T");
 

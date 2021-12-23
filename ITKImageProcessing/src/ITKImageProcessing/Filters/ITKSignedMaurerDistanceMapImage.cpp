@@ -2,27 +2,23 @@
 
 /**
  * This filter only works with certain kinds of data. We
- * enable the types that the filter will compile against. The 
- * Allowed PixelTypes as defined in SimpleITK are: 
+ * enable the types that the filter will compile against. The
+ * Allowed PixelTypes as defined in SimpleITK are:
  *   IntegerPixelIDTypeList
- * The filter defines the following output pixel types: 
+ * The filter defines the following output pixel types:
  *   float
  */
-#define ITK_OUTPUT_PIXEL_TYPE float
 #define ITK_INTEGER_PIXEL_ID_TYPE_LIST 1
 #define COMPLEX_ITK_ARRAY_HELPER_USE_Scalar 1
 
 #include "ITKImageProcessing/Common/ITKArrayHelper.hpp"
 #include "ITKImageProcessing/Common/sitkCommon.hpp"
 
-
 #include "complex/DataStructure/DataPath.hpp"
 #include "complex/Parameters/ArrayCreationParameter.hpp"
 #include "complex/Parameters/ArraySelectionParameter.hpp"
+#include "complex/Parameters/BoolParameter.hpp"
 #include "complex/Parameters/GeometrySelectionParameter.hpp"
-#include "complex/Parameters/BoolParameter.hpp"
-#include "complex/Parameters/BoolParameter.hpp"
-#include "complex/Parameters/BoolParameter.hpp"
 #include "complex/Parameters/NumberParameter.hpp"
 
 #include <itkSignedMaurerDistanceMapImageFilter.h>
@@ -31,14 +27,19 @@ using namespace complex;
 
 namespace
 {
+/**
+ * This filter uses a fixed output type.
+ */
+using FilterOutputType = float32;
+
 struct ITKSignedMaurerDistanceMapImageCreationFunctor
 {
-  bool pInsideIsPositive;
-  bool pSquaredDistance;
-  bool pUseImageSpacing;
-  double pBackgroundValue;
+  bool pInsideIsPositive = false;
+  bool pSquaredDistance = true;
+  bool pUseImageSpacing = false;
+  float64 pBackgroundValue = 0.0;
 
-  template <typename InputImageType, typename OutputImageType, unsigned int Dimension>
+  template <class InputImageType, class OutputImageType, uint32 Dimension>
   auto operator()() const
   {
     using FilterType = itk::SignedMaurerDistanceMapImageFilter<InputImageType, OutputImageType>;
@@ -124,7 +125,7 @@ IFilter::PreflightResult ITKSignedMaurerDistanceMapImage::preflightImpl(const Da
   auto pInsideIsPositive = filterArgs.value<bool>(k_InsideIsPositive_Key);
   auto pSquaredDistance = filterArgs.value<bool>(k_SquaredDistance_Key);
   auto pUseImageSpacing = filterArgs.value<bool>(k_UseImageSpacing_Key);
-  auto pBackgroundValue = filterArgs.value<double>(k_BackgroundValue_Key);
+  auto pBackgroundValue = filterArgs.value<float64>(k_BackgroundValue_Key);
 
   // Declare the preflightResult variable that will be populated with the results
   // of the preflight. The PreflightResult type contains the output Actions and
@@ -140,9 +141,7 @@ IFilter::PreflightResult ITKSignedMaurerDistanceMapImage::preflightImpl(const Da
   // If your filter is making structural changes to the DataStructure then the filter
   // is going to create OutputActions subclasses that need to be returned. This will
   // store those actions.
-  complex::Result<OutputActions> resultOutputActions;
-
-  resultOutputActions = ITK::DataCheck(dataStructure, pSelectedInputArray, pImageGeomPath, pOutputArrayPath);
+  complex::Result<OutputActions> resultOutputActions = ITK::DataCheck<FilterOutputType>(dataStructure, pSelectedInputArray, pImageGeomPath, pOutputArrayPath);
 
   // If the filter needs to pass back some updated values via a key:value string:string set of values
   // you can declare and update that string here.
@@ -179,16 +178,12 @@ Result<> ITKSignedMaurerDistanceMapImage::executeImpl(DataStructure& dataStructu
   auto pInsideIsPositive = filterArgs.value<bool>(k_InsideIsPositive_Key);
   auto pSquaredDistance = filterArgs.value<bool>(k_SquaredDistance_Key);
   auto pUseImageSpacing = filterArgs.value<bool>(k_UseImageSpacing_Key);
-  auto pBackgroundValue = filterArgs.value<double>(k_BackgroundValue_Key);
+  auto pBackgroundValue = filterArgs.value<float64>(k_BackgroundValue_Key);
 
   /****************************************************************************
    * Create the functor object that will instantiate the correct itk filter
    ***************************************************************************/
-  ::ITKSignedMaurerDistanceMapImageCreationFunctor itkFunctor{};
-  itkFunctor.pInsideIsPositive = pInsideIsPositive;
-  itkFunctor.pSquaredDistance = pSquaredDistance;
-  itkFunctor.pUseImageSpacing = pUseImageSpacing;
-  itkFunctor.pBackgroundValue = pBackgroundValue;
+  ::ITKSignedMaurerDistanceMapImageCreationFunctor itkFunctor = {pInsideIsPositive, pSquaredDistance, pUseImageSpacing, pBackgroundValue};
 
   /****************************************************************************
    * Associate the output image with the Image Geometry for Visualization
@@ -199,6 +194,6 @@ Result<> ITKSignedMaurerDistanceMapImage::executeImpl(DataStructure& dataStructu
   /****************************************************************************
    * Write your algorithm implementation in this function
    ***************************************************************************/
-  return ITK::Execute(dataStructure, pSelectedInputArray, pImageGeomPath, pOutputArrayPath, itkFunctor);
+  return ITK::Execute<ITKSignedMaurerDistanceMapImageCreationFunctor, FilterOutputType>(dataStructure, pSelectedInputArray, pImageGeomPath, pOutputArrayPath, itkFunctor);
 }
 } // namespace complex

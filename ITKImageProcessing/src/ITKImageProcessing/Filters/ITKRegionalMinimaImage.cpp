@@ -2,28 +2,24 @@
 
 /**
  * This filter only works with certain kinds of data. We
- * enable the types that the filter will compile against. The 
- * Allowed PixelTypes as defined in SimpleITK are: 
+ * enable the types that the filter will compile against. The
+ * Allowed PixelTypes as defined in SimpleITK are:
  *   ScalarPixelIDTypeList
- * The filter defines the following output pixel types: 
+ * The filter defines the following output pixel types:
  *   uint32_t
  */
-#define ITK_OUTPUT_PIXEL_TYPE uint32_t
 #define ITK_SCALAR_PIXEL_ID_TYPE_LIST 1
 #define COMPLEX_ITK_ARRAY_HELPER_USE_Scalar 1
 
 #include "ITKImageProcessing/Common/ITKArrayHelper.hpp"
 #include "ITKImageProcessing/Common/sitkCommon.hpp"
 
-
 #include "complex/DataStructure/DataPath.hpp"
 #include "complex/Parameters/ArrayCreationParameter.hpp"
 #include "complex/Parameters/ArraySelectionParameter.hpp"
+#include "complex/Parameters/BoolParameter.hpp"
 #include "complex/Parameters/GeometrySelectionParameter.hpp"
 #include "complex/Parameters/NumberParameter.hpp"
-#include "complex/Parameters/NumberParameter.hpp"
-#include "complex/Parameters/BoolParameter.hpp"
-#include "complex/Parameters/BoolParameter.hpp"
 
 #include <itkRegionalMinimaImageFilter.h>
 
@@ -31,14 +27,19 @@ using namespace complex;
 
 namespace
 {
+/**
+ * This filter uses a fixed output type.
+ */
+using FilterOutputType = uint32_t;
+
 struct ITKRegionalMinimaImageCreationFunctor
 {
-  double pBackgroundValue;
-  double pForegroundValue;
-  bool pFullyConnected;
-  bool pFlatIsMinima;
+  float64 pBackgroundValue = 0.0;
+  float64 pForegroundValue = 1.0;
+  bool pFullyConnected = false;
+  bool pFlatIsMinima = true;
 
-  template <typename InputImageType, typename OutputImageType, unsigned int Dimension>
+  template <class InputImageType, class OutputImageType, uint32 Dimension>
   auto operator()() const
   {
     using FilterType = itk::RegionalMinimaImageFilter<InputImageType, OutputImageType>;
@@ -121,8 +122,8 @@ IFilter::PreflightResult ITKRegionalMinimaImage::preflightImpl(const DataStructu
   auto pImageGeomPath = filterArgs.value<DataPath>(k_SelectedImageGeomPath_Key);
   auto pSelectedInputArray = filterArgs.value<DataPath>(k_SelectedImageDataPath_Key);
   auto pOutputArrayPath = filterArgs.value<DataPath>(k_OutputIamgeDataPath_Key);
-  auto pBackgroundValue = filterArgs.value<double>(k_BackgroundValue_Key);
-  auto pForegroundValue = filterArgs.value<double>(k_ForegroundValue_Key);
+  auto pBackgroundValue = filterArgs.value<float64>(k_BackgroundValue_Key);
+  auto pForegroundValue = filterArgs.value<float64>(k_ForegroundValue_Key);
   auto pFullyConnected = filterArgs.value<bool>(k_FullyConnected_Key);
   auto pFlatIsMinima = filterArgs.value<bool>(k_FlatIsMinima_Key);
 
@@ -140,9 +141,7 @@ IFilter::PreflightResult ITKRegionalMinimaImage::preflightImpl(const DataStructu
   // If your filter is making structural changes to the DataStructure then the filter
   // is going to create OutputActions subclasses that need to be returned. This will
   // store those actions.
-  complex::Result<OutputActions> resultOutputActions;
-
-  resultOutputActions = ITK::DataCheck(dataStructure, pSelectedInputArray, pImageGeomPath, pOutputArrayPath);
+  complex::Result<OutputActions> resultOutputActions = ITK::DataCheck<FilterOutputType>(dataStructure, pSelectedInputArray, pImageGeomPath, pOutputArrayPath);
 
   // If the filter needs to pass back some updated values via a key:value string:string set of values
   // you can declare and update that string here.
@@ -176,19 +175,15 @@ Result<> ITKRegionalMinimaImage::executeImpl(DataStructure& dataStructure, const
   auto pImageGeomPath = filterArgs.value<DataPath>(k_SelectedImageGeomPath_Key);
   auto pSelectedInputArray = filterArgs.value<DataPath>(k_SelectedImageDataPath_Key);
   auto pOutputArrayPath = filterArgs.value<DataPath>(k_OutputIamgeDataPath_Key);
-  auto pBackgroundValue = filterArgs.value<double>(k_BackgroundValue_Key);
-  auto pForegroundValue = filterArgs.value<double>(k_ForegroundValue_Key);
+  auto pBackgroundValue = filterArgs.value<float64>(k_BackgroundValue_Key);
+  auto pForegroundValue = filterArgs.value<float64>(k_ForegroundValue_Key);
   auto pFullyConnected = filterArgs.value<bool>(k_FullyConnected_Key);
   auto pFlatIsMinima = filterArgs.value<bool>(k_FlatIsMinima_Key);
 
   /****************************************************************************
    * Create the functor object that will instantiate the correct itk filter
    ***************************************************************************/
-  ::ITKRegionalMinimaImageCreationFunctor itkFunctor{};
-  itkFunctor.pBackgroundValue = pBackgroundValue;
-  itkFunctor.pForegroundValue = pForegroundValue;
-  itkFunctor.pFullyConnected = pFullyConnected;
-  itkFunctor.pFlatIsMinima = pFlatIsMinima;
+  ::ITKRegionalMinimaImageCreationFunctor itkFunctor = {pBackgroundValue, pForegroundValue, pFullyConnected, pFlatIsMinima};
 
   /****************************************************************************
    * Associate the output image with the Image Geometry for Visualization
@@ -199,6 +194,6 @@ Result<> ITKRegionalMinimaImage::executeImpl(DataStructure& dataStructure, const
   /****************************************************************************
    * Write your algorithm implementation in this function
    ***************************************************************************/
-  return ITK::Execute(dataStructure, pSelectedInputArray, pImageGeomPath, pOutputArrayPath, itkFunctor);
+  return ITK::Execute<ITKRegionalMinimaImageCreationFunctor, FilterOutputType>(dataStructure, pSelectedInputArray, pImageGeomPath, pOutputArrayPath, itkFunctor);
 }
 } // namespace complex

@@ -2,8 +2,8 @@
 
 /**
  * This filter only works with certain kinds of data. We
- * enable the types that the filter will compile against. The 
- * Allowed PixelTypes as defined in SimpleITK are: 
+ * enable the types that the filter will compile against. The
+ * Allowed PixelTypes as defined in SimpleITK are:
  *   IntegerPixelIDTypeList
  */
 #define ITK_INTEGER_PIXEL_ID_TYPE_LIST 1
@@ -12,16 +12,14 @@
 #include "ITKImageProcessing/Common/ITKArrayHelper.hpp"
 #include "ITKImageProcessing/Common/sitkCommon.hpp"
 
-
 #include "complex/DataStructure/DataPath.hpp"
 #include "complex/Parameters/ArrayCreationParameter.hpp"
 #include "complex/Parameters/ArraySelectionParameter.hpp"
-#include "complex/Parameters/GeometrySelectionParameter.hpp"
-#include "complex/Parameters/VectorParameter.hpp"
-#include "complex/Parameters/ChoicesParameter.hpp"
-#include "complex/Parameters/NumberParameter.hpp"
-#include "complex/Parameters/NumberParameter.hpp"
 #include "complex/Parameters/BoolParameter.hpp"
+#include "complex/Parameters/ChoicesParameter.hpp"
+#include "complex/Parameters/GeometrySelectionParameter.hpp"
+#include "complex/Parameters/NumberParameter.hpp"
+#include "complex/Parameters/VectorParameter.hpp"
 
 #include <itkBinaryErodeImageFilter.h>
 
@@ -31,18 +29,18 @@ namespace
 {
 struct ITKBinaryErodeImageCreationFunctor
 {
-  std::vector<uint32_t> pKernelRadius;
-  itk::simple::KernelEnum pKernelType;
-  double pBackgroundValue;
-  double pForegroundValue;
-  bool pBoundaryToForeground;
+  std::vector<uint32_t> pKernelRadius = {1, 1, 1};
+  itk::simple::KernelEnum pKernelType = itk::simple::sitkBall;
+  float64 pBackgroundValue = 0.0;
+  float64 pForegroundValue = 1.0;
+  bool pBoundaryToForeground = true;
 
-  template <typename InputImageType, typename OutputImageType, unsigned int Dimension>
+  template <class InputImageType, class OutputImageType, uint32 Dimension>
   auto operator()() const
   {
-    using FilterType = itk::BinaryErodeImageFilter<InputImageType, OutputImageType, itk::FlatStructuringElement< InputImageType::ImageDimension > >;
+    using FilterType = itk::BinaryErodeImageFilter<InputImageType, OutputImageType, itk::FlatStructuringElement<InputImageType::ImageDimension>>;
     typename FilterType::Pointer filter = FilterType::New();
-    auto kernel = itk::simple::CreateKernel<Dimension>( static_cast<itk::simple::KernelEnum>(pKernelType), pKernelRadius);
+    auto kernel = itk::simple::CreateKernel<Dimension>(static_cast<itk::simple::KernelEnum>(pKernelType), pKernelRadius);
     filter->SetKernel(kernel);
     filter->SetBackgroundValue(pBackgroundValue);
     filter->SetForegroundValue(pForegroundValue);
@@ -124,8 +122,8 @@ IFilter::PreflightResult ITKBinaryErodeImage::preflightImpl(const DataStructure&
   auto pOutputArrayPath = filterArgs.value<DataPath>(k_OutputIamgeDataPath_Key);
   auto pKernelRadius = filterArgs.value<VectorUInt32Parameter::ValueType>(k_KernelRadius_Key);
   auto pKernelType = static_cast<itk::simple::KernelEnum>(filterArgs.value<uint64>(k_KernelType_Key));
-  auto pBackgroundValue = filterArgs.value<double>(k_BackgroundValue_Key);
-  auto pForegroundValue = filterArgs.value<double>(k_ForegroundValue_Key);
+  auto pBackgroundValue = filterArgs.value<float64>(k_BackgroundValue_Key);
+  auto pForegroundValue = filterArgs.value<float64>(k_ForegroundValue_Key);
   auto pBoundaryToForeground = filterArgs.value<bool>(k_BoundaryToForeground_Key);
 
   // Declare the preflightResult variable that will be populated with the results
@@ -142,9 +140,7 @@ IFilter::PreflightResult ITKBinaryErodeImage::preflightImpl(const DataStructure&
   // If your filter is making structural changes to the DataStructure then the filter
   // is going to create OutputActions subclasses that need to be returned. This will
   // store those actions.
-  complex::Result<OutputActions> resultOutputActions;
-
-  resultOutputActions = ITK::DataCheck(dataStructure, pSelectedInputArray, pImageGeomPath, pOutputArrayPath);
+  complex::Result<OutputActions> resultOutputActions = ITK::DataCheck(dataStructure, pSelectedInputArray, pImageGeomPath, pOutputArrayPath);
 
   // If the filter needs to pass back some updated values via a key:value string:string set of values
   // you can declare and update that string here.
@@ -180,19 +176,14 @@ Result<> ITKBinaryErodeImage::executeImpl(DataStructure& dataStructure, const Ar
   auto pOutputArrayPath = filterArgs.value<DataPath>(k_OutputIamgeDataPath_Key);
   auto pKernelRadius = filterArgs.value<VectorUInt32Parameter::ValueType>(k_KernelRadius_Key);
   auto pKernelType = static_cast<itk::simple::KernelEnum>(filterArgs.value<uint64>(k_KernelType_Key));
-  auto pBackgroundValue = filterArgs.value<double>(k_BackgroundValue_Key);
-  auto pForegroundValue = filterArgs.value<double>(k_ForegroundValue_Key);
+  auto pBackgroundValue = filterArgs.value<float64>(k_BackgroundValue_Key);
+  auto pForegroundValue = filterArgs.value<float64>(k_ForegroundValue_Key);
   auto pBoundaryToForeground = filterArgs.value<bool>(k_BoundaryToForeground_Key);
 
   /****************************************************************************
    * Create the functor object that will instantiate the correct itk filter
    ***************************************************************************/
-  ::ITKBinaryErodeImageCreationFunctor itkFunctor{};
-  itkFunctor.pKernelRadius = pKernelRadius;
-  itkFunctor.pKernelType = pKernelType;
-  itkFunctor.pBackgroundValue = pBackgroundValue;
-  itkFunctor.pForegroundValue = pForegroundValue;
-  itkFunctor.pBoundaryToForeground = pBoundaryToForeground;
+  ::ITKBinaryErodeImageCreationFunctor itkFunctor = {pKernelRadius, pKernelType, pBackgroundValue, pForegroundValue, pBoundaryToForeground};
 
   /****************************************************************************
    * Associate the output image with the Image Geometry for Visualization

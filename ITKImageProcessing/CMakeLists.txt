@@ -10,11 +10,6 @@ set(FilterList
   ITKImageReader
   ITKImageWriter
   ITKAbsImage
-
-  ITKApproximateSignedDistanceMapImage
-
-  )
-set(Others
   ITKAcosImage
   ITKAsinImage
   ITKAtanImage
@@ -76,6 +71,7 @@ set(Others
   #-----------------------------------------------------------------------------
   # These filters have a fixed output type
   #-----------------------------------------------------------------------------
+  ITKApproximateSignedDistanceMapImage
   ITKMinMaxCurvatureFlowImage
   ITKGradientAnisotropicDiffusionImage
   ITKCurvatureAnisotropicDiffusionImage
@@ -99,24 +95,23 @@ set(Others
   ITKSumProjectionImage
   ITKThresholdMaximumConnectedComponentsImage
   ITKZeroCrossingImage
-
   ITKMorphologicalWatershedFromMarkersImage
   ITKSignedDanielssonDistanceMapImage
   ITKSignedMaurerDistanceMapImage
   ITKSmoothingRecursiveGaussianImage
 
-
-  )
-
-set(Filters_Disabled
   #-----------------------------------------------------------------------------
-  # These filters have issues with the generated unit test
+  # There are parameters from the old version that do not appear in the JSON when generating.
   #-----------------------------------------------------------------------------
   ITKRescaleIntensityImage
   ITKBoxMeanImage
   ITKAdaptiveHistogramEqualizationImage
   ITKMedianImage
   ITKDiscreteGaussianImage
+
+  )
+
+set(Filters_Disabled
 
   #-----------------------------------------------------------------------------
   # These filters are custom written filters by BQ and do not conform to the
@@ -142,7 +137,6 @@ set(Filters_Disabled
   # These filters have a fixed output type
   #-----------------------------------------------------------------------------
   ITKVectorConnectedComponentImage # Vector Input, uint32_t output
-
 
   #-----------------------------------------------------------------------------
   # These filters use the itk::InPlaceDream3DDataToImageFilter filter

@@ -26,12 +26,15 @@ using namespace complex;
 
 namespace
 {
+/**
+ * This filter uses a fixed output type.
+ */
 using FilterOutputType = float32;
 
 struct ITKApproximateSignedDistanceMapImageCreationFunctor
 {
-  double pInsideValue = 0.0;
-  double pOutsideValue = 0.0;
+  float64 pInsideValue = 1u;
+  float64 pOutsideValue = 0u;
 
   template <class InputImageType, class OutputImageType, uint32 Dimension>
   auto operator()() const
@@ -129,9 +132,7 @@ IFilter::PreflightResult ITKApproximateSignedDistanceMapImage::preflightImpl(con
   // If your filter is making structural changes to the DataStructure then the filter
   // is going to create OutputActions subclasses that need to be returned. This will
   // store those actions.
-  complex::Result<OutputActions> resultOutputActions;
-
-  resultOutputActions = ITK::DataCheck<FilterOutputType>(dataStructure, pSelectedInputArray, pImageGeomPath, pOutputArrayPath);
+  complex::Result<OutputActions> resultOutputActions = ITK::DataCheck<FilterOutputType>(dataStructure, pSelectedInputArray, pImageGeomPath, pOutputArrayPath);
 
   // If the filter needs to pass back some updated values via a key:value string:string set of values
   // you can declare and update that string here.
@@ -171,7 +172,7 @@ Result<> ITKApproximateSignedDistanceMapImage::executeImpl(DataStructure& dataSt
   /****************************************************************************
    * Create the functor object that will instantiate the correct itk filter
    ***************************************************************************/
-  ::ITKApproximateSignedDistanceMapImageCreationFunctor itkFunctor{pInsideValue, pOutsideValue};
+  ::ITKApproximateSignedDistanceMapImageCreationFunctor itkFunctor = {pInsideValue, pOutsideValue};
 
   /****************************************************************************
    * Associate the output image with the Image Geometry for Visualization

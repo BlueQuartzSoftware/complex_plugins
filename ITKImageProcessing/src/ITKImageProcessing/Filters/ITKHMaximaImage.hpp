@@ -11,20 +11,23 @@ namespace complex
  * @class ITKHMaximaImage
  * @brief Suppress local maxima whose height above the baseline is less than h.
  *
- * HMaximaImageFilter suppresses local maxima that are less than h intensity units above the (local) background. This has the effect of smoothing over the "high" parts of the noise in the image without smoothing over large changes in intensity (region boundaries). See the HMinimaImageFilter to suppress the local minima whose depth is less than h intensity units below the (local) background.
- * 
+ * HMaximaImageFilter suppresses local maxima that are less than h intensity units above the (local) background. This has the effect of smoothing over the "high" parts of the noise in the image
+ * without smoothing over large changes in intensity (region boundaries). See the HMinimaImageFilter to suppress the local minima whose depth is less than h intensity units below the (local)
+ * background.
+ *
  * If the output of HMaximaImageFilter is subtracted from the original image, the significant "peaks" in the image can be identified. This is what the HConvexImageFilter provides.
- * 
- * This filter uses the ReconstructionByDilationImageFilter . It provides its own input as the "mask" input to the geodesic dilation. The "marker" image for the geodesic dilation is the input image minus the height parameter h.
- * 
+ *
+ * This filter uses the ReconstructionByDilationImageFilter . It provides its own input as the "mask" input to the geodesic dilation. The "marker" image for the geodesic dilation is the input image
+ * minus the height parameter h.
+ *
  * Geodesic morphology and the H-Maxima algorithm is described in Chapter 6 of Pierre Soille's book "Morphological Image Analysis:
  * Principles and Applications", Second Edition, Springer, 2003.
- * 
+ *
  * The height parameter is set using SetHeight.
- * 
- * @see ReconstructionByDilationImageFilter , HMinimaImageFilter , HConvexImageFilter 
- * 
- * 
+ *
+ * @see ReconstructionByDilationImageFilter , HMinimaImageFilter , HConvexImageFilter
+ *
+ *
  * @see MorphologyImageFilter , GrayscaleDilateImageFilter , GrayscaleFunctionDilateImageFilter , BinaryDilateImageFilter
  *
  * ITK Module: ITKMathematicalMorphology

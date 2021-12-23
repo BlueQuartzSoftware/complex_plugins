@@ -11,11 +11,12 @@ namespace complex
  * @class ITKInvertIntensityImage
  * @brief Invert the intensity of an image.
  *
- * InvertIntensityImageFilter inverts intensity of pixels by subtracting pixel value to a maximum value. The maximum value can be set with SetMaximum and defaults the maximum of input pixel type. This filter can be used to invert, for example, a binary image, a distance map, etc.
- * 
+ * InvertIntensityImageFilter inverts intensity of pixels by subtracting pixel value to a maximum value. The maximum value can be set with SetMaximum and defaults the maximum of input pixel type. This
+ * filter can be used to invert, for example, a binary image, a distance map, etc.
+ *
  * @author Gaetan Lehmann. Biologie du Developpement et de la Reproduction, INRA de Jouy-en-Josas, France.
- * 
- * 
+ *
+ *
  * @see IntensityWindowingImageFilter ShiftScaleImageFilter
  *
  * ITK Module: ITKImageIntensity

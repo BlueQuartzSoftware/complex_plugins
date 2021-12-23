@@ -1,7 +1,7 @@
 #include "ITKOtsuMultipleThresholdsImage.hpp"
 
 /**
- * This filter can report a number of measurements: 
+ * This filter can report a number of measurements:
  * @name Thresholds
  * @type std::vector<double>
  * @description Get the computed threshold.
@@ -9,29 +9,24 @@
  */
 /**
  * This filter only works with certain kinds of data. We
- * enable the types that the filter will compile against. The 
- * Allowed PixelTypes as defined in SimpleITK are: 
+ * enable the types that the filter will compile against. The
+ * Allowed PixelTypes as defined in SimpleITK are:
  *   BasicPixelIDTypeList
- * The filter defines the following output pixel types: 
+ * The filter defines the following output pixel types:
  *   uint8_t
  */
-#define ITK_OUTPUT_PIXEL_TYPE uint8_t
 #define ITK_BASIC_PIXEL_ID_TYPE_LIST 1
 #define COMPLEX_ITK_ARRAY_HELPER_USE_Scalar 1
 
 #include "ITKImageProcessing/Common/ITKArrayHelper.hpp"
 #include "ITKImageProcessing/Common/sitkCommon.hpp"
 
-
 #include "complex/DataStructure/DataPath.hpp"
 #include "complex/Parameters/ArrayCreationParameter.hpp"
 #include "complex/Parameters/ArraySelectionParameter.hpp"
+#include "complex/Parameters/BoolParameter.hpp"
 #include "complex/Parameters/GeometrySelectionParameter.hpp"
 #include "complex/Parameters/NumberParameter.hpp"
-#include "complex/Parameters/NumberParameter.hpp"
-#include "complex/Parameters/NumberParameter.hpp"
-#include "complex/Parameters/BoolParameter.hpp"
-#include "complex/Parameters/BoolParameter.hpp"
 
 #include <itkOtsuMultipleThresholdsImageFilter.h>
 
@@ -39,15 +34,20 @@ using namespace complex;
 
 namespace
 {
+/**
+ * This filter uses a fixed output type.
+ */
+using FilterOutputType = uint8_t;
+
 struct ITKOtsuMultipleThresholdsImageCreationFunctor
 {
-  uint8_t pNumberOfThresholds;
-  uint8_t pLabelOffset;
-  uint32_t pNumberOfHistogramBins;
-  bool pValleyEmphasis;
-  bool pReturnBinMidpoint;
+  uint8_t pNumberOfThresholds = 1u;
+  uint8_t pLabelOffset = 0u;
+  uint32_t pNumberOfHistogramBins = 128u;
+  bool pValleyEmphasis = false;
+  bool pReturnBinMidpoint = false;
 
-  template <typename InputImageType, typename OutputImageType, unsigned int Dimension>
+  template <class InputImageType, class OutputImageType, uint32 Dimension>
   auto operator()() const
   {
     using FilterType = itk::OtsuMultipleThresholdsImageFilter<InputImageType, OutputImageType>;
@@ -152,9 +152,7 @@ IFilter::PreflightResult ITKOtsuMultipleThresholdsImage::preflightImpl(const Dat
   // If your filter is making structural changes to the DataStructure then the filter
   // is going to create OutputActions subclasses that need to be returned. This will
   // store those actions.
-  complex::Result<OutputActions> resultOutputActions;
-
-  resultOutputActions = ITK::DataCheck(dataStructure, pSelectedInputArray, pImageGeomPath, pOutputArrayPath);
+  complex::Result<OutputActions> resultOutputActions = ITK::DataCheck<FilterOutputType>(dataStructure, pSelectedInputArray, pImageGeomPath, pOutputArrayPath);
 
   // If the filter needs to pass back some updated values via a key:value string:string set of values
   // you can declare and update that string here.
@@ -197,12 +195,7 @@ Result<> ITKOtsuMultipleThresholdsImage::executeImpl(DataStructure& dataStructur
   /****************************************************************************
    * Create the functor object that will instantiate the correct itk filter
    ***************************************************************************/
-  ::ITKOtsuMultipleThresholdsImageCreationFunctor itkFunctor{};
-  itkFunctor.pNumberOfThresholds = pNumberOfThresholds;
-  itkFunctor.pLabelOffset = pLabelOffset;
-  itkFunctor.pNumberOfHistogramBins = pNumberOfHistogramBins;
-  itkFunctor.pValleyEmphasis = pValleyEmphasis;
-  itkFunctor.pReturnBinMidpoint = pReturnBinMidpoint;
+  ::ITKOtsuMultipleThresholdsImageCreationFunctor itkFunctor = {pNumberOfThresholds, pLabelOffset, pNumberOfHistogramBins, pValleyEmphasis, pReturnBinMidpoint};
 
   /****************************************************************************
    * Associate the output image with the Image Geometry for Visualization
@@ -213,6 +206,6 @@ Result<> ITKOtsuMultipleThresholdsImage::executeImpl(DataStructure& dataStructur
   /****************************************************************************
    * Write your algorithm implementation in this function
    ***************************************************************************/
-  return ITK::Execute(dataStructure, pSelectedInputArray, pImageGeomPath, pOutputArrayPath, itkFunctor);
+  return ITK::Execute<ITKOtsuMultipleThresholdsImageCreationFunctor, FilterOutputType>(dataStructure, pSelectedInputArray, pImageGeomPath, pOutputArrayPath, itkFunctor);
 }
 } // namespace complex

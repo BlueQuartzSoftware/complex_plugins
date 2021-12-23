@@ -11,35 +11,39 @@ namespace complex
  * @class ITKBilateralImage
  * @brief Blurs an image while preserving edges.
  *
- * This filter uses bilateral filtering to blur an image using both domain and range "neighborhoods". Pixels that are close to a pixel in the image domain and similar to a pixel in the image range are used to calculate the filtered value. Two gaussian kernels (one in the image domain and one in the image range) are used to smooth the image. The result is an image that is smoothed in homogeneous regions yet has edges preserved. The result is similar to anisotropic diffusion but the implementation in non-iterative. Another benefit to bilateral filtering is that any distance metric can be used for kernel smoothing the image range. Hence, color images can be smoothed as vector images, using the CIE distances between intensity values as the similarity metric (the Gaussian kernel for the image domain is evaluated using CIE distances). A separate version of this filter will be designed for color and vector images.
- * 
+ * This filter uses bilateral filtering to blur an image using both domain and range "neighborhoods". Pixels that are close to a pixel in the image domain and similar to a pixel in the image range are
+ * used to calculate the filtered value. Two gaussian kernels (one in the image domain and one in the image range) are used to smooth the image. The result is an image that is smoothed in homogeneous
+ * regions yet has edges preserved. The result is similar to anisotropic diffusion but the implementation in non-iterative. Another benefit to bilateral filtering is that any distance metric can be
+ * used for kernel smoothing the image range. Hence, color images can be smoothed as vector images, using the CIE distances between intensity values as the similarity metric (the Gaussian kernel for
+ * the image domain is evaluated using CIE distances). A separate version of this filter will be designed for color and vector images.
+ *
  * Bilateral filtering is capable of reducing the noise in an image by an order of magnitude while maintaining edges.
- * 
+ *
  * The bilateral operator used here was described by Tomasi and Manduchi (Bilateral Filtering for Gray and ColorImages. IEEE ICCV. 1998.)
- * 
- * @see GaussianOperator 
- * 
- * 
- * @see RecursiveGaussianImageFilter 
- * 
- * 
- * @see DiscreteGaussianImageFilter 
- * 
- * 
- * @see AnisotropicDiffusionImageFilter 
- * 
- * 
- * @see Image 
- * 
- * 
- * @see Neighborhood 
- * 
- * 
- * @see NeighborhoodOperator 
- * 
- * 
- * TodoSupport color images 
- * 
+ *
+ * @see GaussianOperator
+ *
+ *
+ * @see RecursiveGaussianImageFilter
+ *
+ *
+ * @see DiscreteGaussianImageFilter
+ *
+ *
+ * @see AnisotropicDiffusionImageFilter
+ *
+ *
+ * @see Image
+ *
+ *
+ * @see Neighborhood
+ *
+ *
+ * @see NeighborhoodOperator
+ *
+ *
+ * TodoSupport color images
+ *
  * Support vector images
  *
  * ITK Module: ITKImageFeature

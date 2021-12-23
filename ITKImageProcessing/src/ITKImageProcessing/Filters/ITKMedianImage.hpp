@@ -12,20 +12,20 @@ namespace complex
  * @brief Applies a median filter to an image.
  *
  * Computes an image where a given pixel is the median value of the the pixels in a neighborhood about the corresponding input pixel.
- * 
+ *
  * A median filter is one of the family of nonlinear filters. It is used to smooth an image without being biased by outliers or shot noise.
- * 
+ *
  * This filter requires that the input pixel type provides an operator<() (LessThan Comparable).
- * 
- * @see Image 
- * 
- * 
- * @see Neighborhood 
- * 
- * 
- * @see NeighborhoodOperator 
- * 
- * 
+ *
+ * @see Image
+ *
+ *
+ * @see Neighborhood
+ *
+ *
+ * @see NeighborhoodOperator
+ *
+ *
  * @see NeighborhoodIterator
  *
  * ITK Module: ITKSmoothing

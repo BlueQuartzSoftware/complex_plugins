@@ -2,31 +2,24 @@
 
 /**
  * This filter only works with certain kinds of data. We
- * enable the types that the filter will compile against. The 
- * Allowed PixelTypes as defined in SimpleITK are: 
+ * enable the types that the filter will compile against. The
+ * Allowed PixelTypes as defined in SimpleITK are:
  *   BasicPixelIDTypeList
- * The filter defines the following output pixel types: 
+ * The filter defines the following output pixel types:
  *   uint8_t
  */
-#define ITK_OUTPUT_PIXEL_TYPE uint8_t
 #define ITK_BASIC_PIXEL_ID_TYPE_LIST 1
 #define COMPLEX_ITK_ARRAY_HELPER_USE_Scalar 1
 
 #include "ITKImageProcessing/Common/ITKArrayHelper.hpp"
 #include "ITKImageProcessing/Common/sitkCommon.hpp"
 
-
 #include "complex/DataStructure/DataPath.hpp"
 #include "complex/Parameters/ArrayCreationParameter.hpp"
 #include "complex/Parameters/ArraySelectionParameter.hpp"
+#include "complex/Parameters/BoolParameter.hpp"
 #include "complex/Parameters/GeometrySelectionParameter.hpp"
 #include "complex/Parameters/NumberParameter.hpp"
-#include "complex/Parameters/NumberParameter.hpp"
-#include "complex/Parameters/NumberParameter.hpp"
-#include "complex/Parameters/NumberParameter.hpp"
-#include "complex/Parameters/NumberParameter.hpp"
-#include "complex/Parameters/NumberParameter.hpp"
-#include "complex/Parameters/BoolParameter.hpp"
 
 #include <itkDoubleThresholdImageFilter.h>
 
@@ -34,17 +27,22 @@ using namespace complex;
 
 namespace
 {
+/**
+ * This filter uses a fixed output type.
+ */
+using FilterOutputType = uint8_t;
+
 struct ITKDoubleThresholdImageCreationFunctor
 {
-  double pThreshold1;
-  double pThreshold2;
-  double pThreshold3;
-  double pThreshold4;
-  uint8_t pInsideValue;
-  uint8_t pOutsideValue;
-  bool pFullyConnected;
+  float64 pThreshold1 = 0.0;
+  float64 pThreshold2 = 1.0;
+  float64 pThreshold3 = 254.0;
+  float64 pThreshold4 = 255.0;
+  uint8_t pInsideValue = 1u;
+  uint8_t pOutsideValue = 0u;
+  bool pFullyConnected = false;
 
-  template <typename InputImageType, typename OutputImageType, unsigned int Dimension>
+  template <class InputImageType, class OutputImageType, uint32 Dimension>
   auto operator()() const
   {
     using FilterType = itk::DoubleThresholdImageFilter<InputImageType, OutputImageType>;
@@ -133,10 +131,10 @@ IFilter::PreflightResult ITKDoubleThresholdImage::preflightImpl(const DataStruct
   auto pImageGeomPath = filterArgs.value<DataPath>(k_SelectedImageGeomPath_Key);
   auto pSelectedInputArray = filterArgs.value<DataPath>(k_SelectedImageDataPath_Key);
   auto pOutputArrayPath = filterArgs.value<DataPath>(k_OutputIamgeDataPath_Key);
-  auto pThreshold1 = filterArgs.value<double>(k_Threshold1_Key);
-  auto pThreshold2 = filterArgs.value<double>(k_Threshold2_Key);
-  auto pThreshold3 = filterArgs.value<double>(k_Threshold3_Key);
-  auto pThreshold4 = filterArgs.value<double>(k_Threshold4_Key);
+  auto pThreshold1 = filterArgs.value<float64>(k_Threshold1_Key);
+  auto pThreshold2 = filterArgs.value<float64>(k_Threshold2_Key);
+  auto pThreshold3 = filterArgs.value<float64>(k_Threshold3_Key);
+  auto pThreshold4 = filterArgs.value<float64>(k_Threshold4_Key);
   auto pInsideValue = filterArgs.value<uint8_t>(k_InsideValue_Key);
   auto pOutsideValue = filterArgs.value<uint8_t>(k_OutsideValue_Key);
   auto pFullyConnected = filterArgs.value<bool>(k_FullyConnected_Key);
@@ -155,9 +153,7 @@ IFilter::PreflightResult ITKDoubleThresholdImage::preflightImpl(const DataStruct
   // If your filter is making structural changes to the DataStructure then the filter
   // is going to create OutputActions subclasses that need to be returned. This will
   // store those actions.
-  complex::Result<OutputActions> resultOutputActions;
-
-  resultOutputActions = ITK::DataCheck(dataStructure, pSelectedInputArray, pImageGeomPath, pOutputArrayPath);
+  complex::Result<OutputActions> resultOutputActions = ITK::DataCheck<FilterOutputType>(dataStructure, pSelectedInputArray, pImageGeomPath, pOutputArrayPath);
 
   // If the filter needs to pass back some updated values via a key:value string:string set of values
   // you can declare and update that string here.
@@ -191,10 +187,10 @@ Result<> ITKDoubleThresholdImage::executeImpl(DataStructure& dataStructure, cons
   auto pImageGeomPath = filterArgs.value<DataPath>(k_SelectedImageGeomPath_Key);
   auto pSelectedInputArray = filterArgs.value<DataPath>(k_SelectedImageDataPath_Key);
   auto pOutputArrayPath = filterArgs.value<DataPath>(k_OutputIamgeDataPath_Key);
-  auto pThreshold1 = filterArgs.value<double>(k_Threshold1_Key);
-  auto pThreshold2 = filterArgs.value<double>(k_Threshold2_Key);
-  auto pThreshold3 = filterArgs.value<double>(k_Threshold3_Key);
-  auto pThreshold4 = filterArgs.value<double>(k_Threshold4_Key);
+  auto pThreshold1 = filterArgs.value<float64>(k_Threshold1_Key);
+  auto pThreshold2 = filterArgs.value<float64>(k_Threshold2_Key);
+  auto pThreshold3 = filterArgs.value<float64>(k_Threshold3_Key);
+  auto pThreshold4 = filterArgs.value<float64>(k_Threshold4_Key);
   auto pInsideValue = filterArgs.value<uint8_t>(k_InsideValue_Key);
   auto pOutsideValue = filterArgs.value<uint8_t>(k_OutsideValue_Key);
   auto pFullyConnected = filterArgs.value<bool>(k_FullyConnected_Key);
@@ -202,14 +198,7 @@ Result<> ITKDoubleThresholdImage::executeImpl(DataStructure& dataStructure, cons
   /****************************************************************************
    * Create the functor object that will instantiate the correct itk filter
    ***************************************************************************/
-  ::ITKDoubleThresholdImageCreationFunctor itkFunctor{};
-  itkFunctor.pThreshold1 = pThreshold1;
-  itkFunctor.pThreshold2 = pThreshold2;
-  itkFunctor.pThreshold3 = pThreshold3;
-  itkFunctor.pThreshold4 = pThreshold4;
-  itkFunctor.pInsideValue = pInsideValue;
-  itkFunctor.pOutsideValue = pOutsideValue;
-  itkFunctor.pFullyConnected = pFullyConnected;
+  ::ITKDoubleThresholdImageCreationFunctor itkFunctor = {pThreshold1, pThreshold2, pThreshold3, pThreshold4, pInsideValue, pOutsideValue, pFullyConnected};
 
   /****************************************************************************
    * Associate the output image with the Image Geometry for Visualization
@@ -220,6 +209,6 @@ Result<> ITKDoubleThresholdImage::executeImpl(DataStructure& dataStructure, cons
   /****************************************************************************
    * Write your algorithm implementation in this function
    ***************************************************************************/
-  return ITK::Execute(dataStructure, pSelectedInputArray, pImageGeomPath, pOutputArrayPath, itkFunctor);
+  return ITK::Execute<ITKDoubleThresholdImageCreationFunctor, FilterOutputType>(dataStructure, pSelectedInputArray, pImageGeomPath, pOutputArrayPath, itkFunctor);
 }
 } // namespace complex

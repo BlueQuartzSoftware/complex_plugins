@@ -2,8 +2,8 @@
 
 /**
  * This filter only works with certain kinds of data. We
- * enable the types that the filter will compile against. The 
- * Allowed PixelTypes as defined in SimpleITK are: 
+ * enable the types that the filter will compile against. The
+ * Allowed PixelTypes as defined in SimpleITK are:
  *   BasicPixelIDTypeList
  */
 #define ITK_BASIC_PIXEL_ID_TYPE_LIST 1
@@ -12,14 +12,10 @@
 #include "ITKImageProcessing/Common/ITKArrayHelper.hpp"
 #include "ITKImageProcessing/Common/sitkCommon.hpp"
 
-
 #include "complex/DataStructure/DataPath.hpp"
 #include "complex/Parameters/ArrayCreationParameter.hpp"
 #include "complex/Parameters/ArraySelectionParameter.hpp"
 #include "complex/Parameters/GeometrySelectionParameter.hpp"
-#include "complex/Parameters/NumberParameter.hpp"
-#include "complex/Parameters/NumberParameter.hpp"
-#include "complex/Parameters/NumberParameter.hpp"
 #include "complex/Parameters/NumberParameter.hpp"
 
 #include <itkIntensityWindowingImageFilter.h>
@@ -30,12 +26,12 @@ namespace
 {
 struct ITKIntensityWindowingImageCreationFunctor
 {
-  double pWindowMinimum;
-  double pWindowMaximum;
-  double pOutputMinimum;
-  double pOutputMaximum;
+  float64 pWindowMinimum = 0.0;
+  float64 pWindowMaximum = 255;
+  float64 pOutputMinimum = 0;
+  float64 pOutputMaximum = 255;
 
-  template <typename InputImageType, typename OutputImageType, unsigned int Dimension>
+  template <class InputImageType, class OutputImageType, uint32 Dimension>
   auto operator()() const
   {
     using FilterType = itk::IntensityWindowingImageFilter<InputImageType, OutputImageType>;
@@ -118,10 +114,10 @@ IFilter::PreflightResult ITKIntensityWindowingImage::preflightImpl(const DataStr
   auto pImageGeomPath = filterArgs.value<DataPath>(k_SelectedImageGeomPath_Key);
   auto pSelectedInputArray = filterArgs.value<DataPath>(k_SelectedImageDataPath_Key);
   auto pOutputArrayPath = filterArgs.value<DataPath>(k_OutputIamgeDataPath_Key);
-  auto pWindowMinimum = filterArgs.value<double>(k_WindowMinimum_Key);
-  auto pWindowMaximum = filterArgs.value<double>(k_WindowMaximum_Key);
-  auto pOutputMinimum = filterArgs.value<double>(k_OutputMinimum_Key);
-  auto pOutputMaximum = filterArgs.value<double>(k_OutputMaximum_Key);
+  auto pWindowMinimum = filterArgs.value<float64>(k_WindowMinimum_Key);
+  auto pWindowMaximum = filterArgs.value<float64>(k_WindowMaximum_Key);
+  auto pOutputMinimum = filterArgs.value<float64>(k_OutputMinimum_Key);
+  auto pOutputMaximum = filterArgs.value<float64>(k_OutputMaximum_Key);
 
   // Declare the preflightResult variable that will be populated with the results
   // of the preflight. The PreflightResult type contains the output Actions and
@@ -137,9 +133,7 @@ IFilter::PreflightResult ITKIntensityWindowingImage::preflightImpl(const DataStr
   // If your filter is making structural changes to the DataStructure then the filter
   // is going to create OutputActions subclasses that need to be returned. This will
   // store those actions.
-  complex::Result<OutputActions> resultOutputActions;
-
-  resultOutputActions = ITK::DataCheck(dataStructure, pSelectedInputArray, pImageGeomPath, pOutputArrayPath);
+  complex::Result<OutputActions> resultOutputActions = ITK::DataCheck(dataStructure, pSelectedInputArray, pImageGeomPath, pOutputArrayPath);
 
   // If the filter needs to pass back some updated values via a key:value string:string set of values
   // you can declare and update that string here.
@@ -173,19 +167,15 @@ Result<> ITKIntensityWindowingImage::executeImpl(DataStructure& dataStructure, c
   auto pImageGeomPath = filterArgs.value<DataPath>(k_SelectedImageGeomPath_Key);
   auto pSelectedInputArray = filterArgs.value<DataPath>(k_SelectedImageDataPath_Key);
   auto pOutputArrayPath = filterArgs.value<DataPath>(k_OutputIamgeDataPath_Key);
-  auto pWindowMinimum = filterArgs.value<double>(k_WindowMinimum_Key);
-  auto pWindowMaximum = filterArgs.value<double>(k_WindowMaximum_Key);
-  auto pOutputMinimum = filterArgs.value<double>(k_OutputMinimum_Key);
-  auto pOutputMaximum = filterArgs.value<double>(k_OutputMaximum_Key);
+  auto pWindowMinimum = filterArgs.value<float64>(k_WindowMinimum_Key);
+  auto pWindowMaximum = filterArgs.value<float64>(k_WindowMaximum_Key);
+  auto pOutputMinimum = filterArgs.value<float64>(k_OutputMinimum_Key);
+  auto pOutputMaximum = filterArgs.value<float64>(k_OutputMaximum_Key);
 
   /****************************************************************************
    * Create the functor object that will instantiate the correct itk filter
    ***************************************************************************/
-  ::ITKIntensityWindowingImageCreationFunctor itkFunctor{};
-  itkFunctor.pWindowMinimum = pWindowMinimum;
-  itkFunctor.pWindowMaximum = pWindowMaximum;
-  itkFunctor.pOutputMinimum = pOutputMinimum;
-  itkFunctor.pOutputMaximum = pOutputMaximum;
+  ::ITKIntensityWindowingImageCreationFunctor itkFunctor = {pWindowMinimum, pWindowMaximum, pOutputMinimum, pOutputMaximum};
 
   /****************************************************************************
    * Associate the output image with the Image Geometry for Visualization

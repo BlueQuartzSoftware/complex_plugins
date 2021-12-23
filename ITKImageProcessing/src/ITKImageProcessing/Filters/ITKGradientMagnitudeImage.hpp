@@ -11,12 +11,12 @@ namespace complex
  * @class ITKGradientMagnitudeImage
  * @brief Computes the gradient magnitude of an image region at each pixel.
  *
- * @see Image 
- * 
- * @see Neighborhood 
- * 
- * @see NeighborhoodOperator 
- * 
+ * @see Image
+ *
+ * @see Neighborhood
+ *
+ * @see NeighborhoodOperator
+ *
  * @see NeighborhoodIterator
  *
  * ITK Module: ITKImageGradient

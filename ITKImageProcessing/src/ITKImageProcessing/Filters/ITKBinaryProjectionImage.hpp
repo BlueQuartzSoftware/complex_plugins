@@ -11,32 +11,32 @@ namespace complex
  * @class ITKBinaryProjectionImage
  * @brief Binary projection.
  *
- * This class was contributed to the Insight Journal by Gaetan Lehmann. The original paper can be found at https://hdl.handle.net/1926/164 
- * 
+ * This class was contributed to the Insight Journal by Gaetan Lehmann. The original paper can be found at https://hdl.handle.net/1926/164
+ *
  * @author Gaetan Lehmann. Biologie du Developpement et de la Reproduction, INRA de Jouy-en-Josas, France.
- * 
- * 
- * @see ProjectionImageFilter 
- * 
- * 
- * @see MedianProjectionImageFilter 
- * 
- * 
- * @see MeanProjectionImageFilter 
- * 
- * 
- * @see MeanProjectionImageFilter 
- * 
- * 
- * @see MaximumProjectionImageFilter 
- * 
- * 
- * @see MinimumProjectionImageFilter 
- * 
- * 
- * @see StandardDeviationProjectionImageFilter 
- * 
- * 
+ *
+ *
+ * @see ProjectionImageFilter
+ *
+ *
+ * @see MedianProjectionImageFilter
+ *
+ *
+ * @see MeanProjectionImageFilter
+ *
+ *
+ * @see MeanProjectionImageFilter
+ *
+ *
+ * @see MaximumProjectionImageFilter
+ *
+ *
+ * @see MinimumProjectionImageFilter
+ *
+ *
+ * @see StandardDeviationProjectionImageFilter
+ *
+ *
  * @see SumProjectionImageFilter
  *
  * ITK Module: ITKImageStatistics

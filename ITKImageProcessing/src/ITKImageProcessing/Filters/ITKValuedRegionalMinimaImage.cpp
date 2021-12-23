@@ -1,16 +1,16 @@
 #include "ITKValuedRegionalMinimaImage.hpp"
 
 /**
- * This filter can report a number of measurements: 
+ * This filter can report a number of measurements:
  * @name Flat
  * @type bool
- * @description 
+ * @description
  *
  */
 /**
  * This filter only works with certain kinds of data. We
- * enable the types that the filter will compile against. The 
- * Allowed PixelTypes as defined in SimpleITK are: 
+ * enable the types that the filter will compile against. The
+ * Allowed PixelTypes as defined in SimpleITK are:
  *   ScalarPixelIDTypeList
  */
 #define ITK_SCALAR_PIXEL_ID_TYPE_LIST 1
@@ -19,12 +19,11 @@
 #include "ITKImageProcessing/Common/ITKArrayHelper.hpp"
 #include "ITKImageProcessing/Common/sitkCommon.hpp"
 
-
 #include "complex/DataStructure/DataPath.hpp"
 #include "complex/Parameters/ArrayCreationParameter.hpp"
 #include "complex/Parameters/ArraySelectionParameter.hpp"
-#include "complex/Parameters/GeometrySelectionParameter.hpp"
 #include "complex/Parameters/BoolParameter.hpp"
+#include "complex/Parameters/GeometrySelectionParameter.hpp"
 
 #include <itkValuedRegionalMinimaImageFilter.h>
 
@@ -34,9 +33,9 @@ namespace
 {
 struct ITKValuedRegionalMinimaImageCreationFunctor
 {
-  bool pFullyConnected;
+  bool pFullyConnected = false;
 
-  template <typename InputImageType, typename OutputImageType, unsigned int Dimension>
+  template <class InputImageType, class OutputImageType, uint32 Dimension>
   auto operator()() const
   {
     using FilterType = itk::ValuedRegionalMinimaImageFilter<InputImageType, OutputImageType>;
@@ -129,9 +128,7 @@ IFilter::PreflightResult ITKValuedRegionalMinimaImage::preflightImpl(const DataS
   // If your filter is making structural changes to the DataStructure then the filter
   // is going to create OutputActions subclasses that need to be returned. This will
   // store those actions.
-  complex::Result<OutputActions> resultOutputActions;
-
-  resultOutputActions = ITK::DataCheck(dataStructure, pSelectedInputArray, pImageGeomPath, pOutputArrayPath);
+  complex::Result<OutputActions> resultOutputActions = ITK::DataCheck(dataStructure, pSelectedInputArray, pImageGeomPath, pOutputArrayPath);
 
   // If the filter needs to pass back some updated values via a key:value string:string set of values
   // you can declare and update that string here.
@@ -170,8 +167,7 @@ Result<> ITKValuedRegionalMinimaImage::executeImpl(DataStructure& dataStructure,
   /****************************************************************************
    * Create the functor object that will instantiate the correct itk filter
    ***************************************************************************/
-  ::ITKValuedRegionalMinimaImageCreationFunctor itkFunctor{};
-  itkFunctor.pFullyConnected = pFullyConnected;
+  ::ITKValuedRegionalMinimaImageCreationFunctor itkFunctor = {pFullyConnected};
 
   /****************************************************************************
    * Associate the output image with the Image Geometry for Visualization
