@@ -162,8 +162,7 @@ create_complex_plugin(NAME ${PLUGIN_NAME}
 
 find_package(ITK REQUIRED)
 
-target_link_libraries(${PLUGIN_NAME}
-  PUBLIC
+set(ItkComponents 
   ITKCommon
   ITKIOImageBase
   ITKIOBMP
@@ -185,10 +184,7 @@ target_link_libraries(${PLUGIN_NAME}
   ITKTransform
 )
 
-target_compile_options(${PLUGIN_NAME}
-  PUBLIC
-    ${ITK_REQUIRED_CXX_FLAGS}
-)
+target_link_libraries(${PLUGIN_NAME} PUBLIC ${ItkComponents})
 
 target_sources(${PLUGIN_NAME}
   PRIVATE
@@ -198,7 +194,24 @@ target_sources(${PLUGIN_NAME}
 
 target_include_directories(${PLUGIN_NAME} PUBLIC  ${ITK_INCLUDE_DIRS})
 
+if(WIN32)
+  # This removes some C++17 Deprecation Warnings inside of ITK 5.1
+  target_compile_definitions(${PLUGIN_NAME} PUBLIC "_SILENCE_CXX17_RESULT_OF_DEPRECATION_WARNING")
+  set_target_properties(${PLUGIN_NAME} PROPERTIES LINK_FLAGS_DEBUG "/INCREMENTAL:NO" )
+  # enable per object parallel compilation in this large library
+  target_compile_options(${PLUGIN_NAME} PRIVATE /MP /bigobj)
+endif()
+
 #------------------------------------------------------------------------------
 # Add in the unit tests for the filters included in this plugin
 enable_testing()
 add_subdirectory(${${PLUGIN_NAME}_SOURCE_DIR}/test)
+
+#------------------------------------------------------------------------------
+# Add in the install rules for ITK Libraries
+#------------------------------------------------------------------------------
+get_filename_component(ITKImageProcessing_SOURCE_DIR ${CMAKE_CURRENT_LIST_DIR} DIRECTORY CACHE)
+get_filename_component(COMPLEX_PLUGINS_SOURCE_DIR ${ITKImageProcessing_SOURCE_DIR} DIRECTORY CACHE)
+# message(STATUS "ITKImageProcessing_SOURCE_DIR: ${ITKImageProcessing_SOURCE_DIR}")
+include(${COMPLEX_PLUGINS_SOURCE_DIR}/cmake/ITKInstall.cmake)
+AddItkCopyInstallRules(LIBS ${ItkComponents})
