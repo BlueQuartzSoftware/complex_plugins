@@ -16,7 +16,7 @@ namespace fs = std::filesystem;
 using namespace complex;
 
 // Test grayscale erode
-TEST_CASE("ITK::GrayscaleErodeImageFilter(GrayscaleErode)", "[ITKImageProcessing][ITKGrayscaleErodeImage][GrayscaleErode]")
+TEST_CASE("ITKGrayscaleErodeImageFilter(GrayscaleErode)", "[ITKImageProcessing][ITKGrayscaleErodeImage][GrayscaleErode]")
 {
   // Instantiate the filter, a DataStructure object and an Arguments Object
   ITKGrayscaleErodeImage filter;

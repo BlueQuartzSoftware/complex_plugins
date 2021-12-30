@@ -14,7 +14,7 @@ namespace fs = std::filesystem;
 using namespace complex;
 
 // run with some defaults
-TEST_CASE("ITK::MedianProjectionImageFilter(defaults)", "[ITKImageProcessing][ITKMedianProjectionImage][defaults]")
+TEST_CASE("ITKMedianProjectionImageFilter(defaults)", "[ITKImageProcessing][ITKMedianProjectionImage][defaults]")
 {
   // Instantiate the filter, a DataStructure object and an Arguments Object
   ITKMedianProjectionImage filter;
@@ -77,7 +77,7 @@ TEST_CASE("ITK::MedianProjectionImageFilter(defaults)", "[ITKImageProcessing][IT
 #endif
 }
 // project in the 3rd dimension
-TEST_CASE("ITK::MedianProjectionImageFilter(another_dimension)", "[ITKImageProcessing][ITKMedianProjectionImage][another_dimension]")
+TEST_CASE("ITKMedianProjectionImageFilter(another_dimension)", "[ITKImageProcessing][ITKMedianProjectionImage][another_dimension]")
 {
   // Instantiate the filter, a DataStructure object and an Arguments Object
   ITKMedianProjectionImage filter;
@@ -141,7 +141,7 @@ TEST_CASE("ITK::MedianProjectionImageFilter(another_dimension)", "[ITKImageProce
 #endif
 }
 // project with a short image
-TEST_CASE("ITK::MedianProjectionImageFilter(short_image)", "[ITKImageProcessing][ITKMedianProjectionImage][short_image]")
+TEST_CASE("ITKMedianProjectionImageFilter(short_image)", "[ITKImageProcessing][ITKMedianProjectionImage][short_image]")
 {
   // Instantiate the filter, a DataStructure object and an Arguments Object
   ITKMedianProjectionImage filter;
@@ -205,7 +205,7 @@ TEST_CASE("ITK::MedianProjectionImageFilter(short_image)", "[ITKImageProcessing]
 #endif
 }
 // project with a rgb image in 2D
-TEST_CASE("ITK::MedianProjectionImageFilter(rgb_image)", "[ITKImageProcessing][ITKMedianProjectionImage][rgb_image]")
+TEST_CASE("ITKMedianProjectionImageFilter(rgb_image)", "[ITKImageProcessing][ITKMedianProjectionImage][rgb_image]")
 {
   // Instantiate the filter, a DataStructure object and an Arguments Object
   ITKMedianProjectionImage filter;

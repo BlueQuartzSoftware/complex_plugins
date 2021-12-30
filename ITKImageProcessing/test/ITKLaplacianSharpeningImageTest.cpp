@@ -14,7 +14,7 @@ namespace fs = std::filesystem;
 using namespace complex;
 
 // Simply run with default settings with a floating point image
-TEST_CASE("ITK::LaplacianSharpeningImageFilter(default)", "[ITKImageProcessing][ITKLaplacianSharpeningImage][default]")
+TEST_CASE("ITKLaplacianSharpeningImageFilter(default)", "[ITKImageProcessing][ITKLaplacianSharpeningImage][default]")
 {
   // Instantiate the filter, a DataStructure object and an Arguments Object
   ITKLaplacianSharpeningImage filter;
@@ -88,7 +88,7 @@ TEST_CASE("ITK::LaplacianSharpeningImageFilter(default)", "[ITKImageProcessing][
 #endif
 }
 // Simply run with default settings on a short image
-TEST_CASE("ITK::LaplacianSharpeningImageFilter(shortdefault)", "[ITKImageProcessing][ITKLaplacianSharpeningImage][shortdefault]")
+TEST_CASE("ITKLaplacianSharpeningImageFilter(shortdefault)", "[ITKImageProcessing][ITKLaplacianSharpeningImage][shortdefault]")
 {
   // Instantiate the filter, a DataStructure object and an Arguments Object
   ITKLaplacianSharpeningImage filter;
@@ -151,7 +151,7 @@ TEST_CASE("ITK::LaplacianSharpeningImageFilter(shortdefault)", "[ITKImageProcess
 #endif
 }
 // Run with defaults setting on an RGB image
-TEST_CASE("ITK::LaplacianSharpeningImageFilter(vectordefault)", "[ITKImageProcessing][ITKLaplacianSharpeningImage][vectordefault]")
+TEST_CASE("ITKLaplacianSharpeningImageFilter(vectordefault)", "[ITKImageProcessing][ITKLaplacianSharpeningImage][vectordefault]")
 {
   // Instantiate the filter, a DataStructure object and an Arguments Object
   ITKLaplacianSharpeningImage filter;

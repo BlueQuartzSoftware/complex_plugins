@@ -14,7 +14,7 @@ namespace fs = std::filesystem;
 using namespace complex;
 
 // Simply run with default settings
-TEST_CASE("ITK::MorphologicalWatershedImageFilter(defaults)", "[ITKImageProcessing][ITKMorphologicalWatershedImage][defaults]")
+TEST_CASE("ITKMorphologicalWatershedImageFilter(defaults)", "[ITKImageProcessing][ITKMorphologicalWatershedImage][defaults]")
 {
   // Instantiate the filter, a DataStructure object and an Arguments Object
   ITKMorphologicalWatershedImage filter;
@@ -77,7 +77,7 @@ TEST_CASE("ITK::MorphologicalWatershedImageFilter(defaults)", "[ITKImageProcessi
 #endif
 }
 // Set some parameters
-TEST_CASE("ITK::MorphologicalWatershedImageFilter(level_1)", "[ITKImageProcessing][ITKMorphologicalWatershedImage][level_1]")
+TEST_CASE("ITKMorphologicalWatershedImageFilter(level_1)", "[ITKImageProcessing][ITKMorphologicalWatershedImage][level_1]")
 {
   // Instantiate the filter, a DataStructure object and an Arguments Object
   ITKMorphologicalWatershedImage filter;

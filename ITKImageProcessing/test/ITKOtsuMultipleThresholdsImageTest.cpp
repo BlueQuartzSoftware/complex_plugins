@@ -14,7 +14,7 @@ namespace fs = std::filesystem;
 using namespace complex;
 
 // Default parameter settings
-TEST_CASE("ITK::OtsuMultipleThresholdsImageFilter(default)", "[ITKImageProcessing][ITKOtsuMultipleThresholdsImage][default]")
+TEST_CASE("ITKOtsuMultipleThresholdsImageFilter(default)", "[ITKImageProcessing][ITKOtsuMultipleThresholdsImage][default]")
 {
   // Instantiate the filter, a DataStructure object and an Arguments Object
   ITKOtsuMultipleThresholdsImage filter;
@@ -77,7 +77,7 @@ TEST_CASE("ITK::OtsuMultipleThresholdsImageFilter(default)", "[ITKImageProcessin
 #endif
 }
 // Default parameter settings
-TEST_CASE("ITK::OtsuMultipleThresholdsImageFilter(two_on_float)", "[ITKImageProcessing][ITKOtsuMultipleThresholdsImage][two_on_float]")
+TEST_CASE("ITKOtsuMultipleThresholdsImageFilter(two_on_float)", "[ITKImageProcessing][ITKOtsuMultipleThresholdsImage][two_on_float]")
 {
   // Instantiate the filter, a DataStructure object and an Arguments Object
   ITKOtsuMultipleThresholdsImage filter;
@@ -142,7 +142,7 @@ TEST_CASE("ITK::OtsuMultipleThresholdsImageFilter(two_on_float)", "[ITKImageProc
 #endif
 }
 // Default parameter settings
-TEST_CASE("ITK::OtsuMultipleThresholdsImageFilter(three_on)", "[ITKImageProcessing][ITKOtsuMultipleThresholdsImage][three_on]")
+TEST_CASE("ITKOtsuMultipleThresholdsImageFilter(three_on)", "[ITKImageProcessing][ITKOtsuMultipleThresholdsImage][three_on]")
 {
   // Instantiate the filter, a DataStructure object and an Arguments Object
   ITKOtsuMultipleThresholdsImage filter;
@@ -208,7 +208,7 @@ TEST_CASE("ITK::OtsuMultipleThresholdsImageFilter(three_on)", "[ITKImageProcessi
 #endif
 }
 // Default parameter settings
-TEST_CASE("ITK::OtsuMultipleThresholdsImageFilter(valley_emphasis)", "[ITKImageProcessing][ITKOtsuMultipleThresholdsImage][valley_emphasis]")
+TEST_CASE("ITKOtsuMultipleThresholdsImageFilter(valley_emphasis)", "[ITKImageProcessing][ITKOtsuMultipleThresholdsImage][valley_emphasis]")
 {
   // Instantiate the filter, a DataStructure object and an Arguments Object
   ITKOtsuMultipleThresholdsImage filter;

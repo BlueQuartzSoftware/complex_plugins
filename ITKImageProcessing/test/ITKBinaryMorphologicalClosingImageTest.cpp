@@ -16,7 +16,7 @@ namespace fs = std::filesystem;
 using namespace complex;
 
 // Test binary morphological closing
-TEST_CASE("ITK::BinaryMorphologicalClosingImageFilter(BinaryMorphologicalClosing)", "[ITKImageProcessing][ITKBinaryMorphologicalClosingImage][BinaryMorphologicalClosing]")
+TEST_CASE("ITKBinaryMorphologicalClosingImageFilter(BinaryMorphologicalClosing)", "[ITKImageProcessing][ITKBinaryMorphologicalClosingImage][BinaryMorphologicalClosing]")
 {
   // Instantiate the filter, a DataStructure object and an Arguments Object
   ITKBinaryMorphologicalClosingImage filter;
@@ -83,7 +83,7 @@ TEST_CASE("ITK::BinaryMorphologicalClosingImageFilter(BinaryMorphologicalClosing
 #endif
 }
 // Test binary morphological closing with unsafe boarder
-TEST_CASE("ITK::BinaryMorphologicalClosingImageFilter(BinaryMorphologicalClosingWithBorder)", "[ITKImageProcessing][ITKBinaryMorphologicalClosingImage][BinaryMorphologicalClosingWithBorder]")
+TEST_CASE("ITKBinaryMorphologicalClosingImageFilter(BinaryMorphologicalClosingWithBorder)", "[ITKImageProcessing][ITKBinaryMorphologicalClosingImage][BinaryMorphologicalClosingWithBorder]")
 {
   // Instantiate the filter, a DataStructure object and an Arguments Object
   ITKBinaryMorphologicalClosingImage filter;

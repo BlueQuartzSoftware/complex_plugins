@@ -14,7 +14,7 @@ namespace fs = std::filesystem;
 using namespace complex;
 
 // Test MeanImageFilter with default parametrs
-TEST_CASE("ITK::BoxMeanImageFilter(defaults)", "[ITKImageProcessing][ITKBoxMeanImage][defaults]")
+TEST_CASE("ITKBoxMeanImageFilter(defaults)", "[ITKImageProcessing][ITKBoxMeanImage][defaults]")
 {
   // Instantiate the filter, a DataStructure object and an Arguments Object
   ITKBoxMeanImage filter;
@@ -77,7 +77,7 @@ TEST_CASE("ITK::BoxMeanImageFilter(defaults)", "[ITKImageProcessing][ITKBoxMeanI
 #endif
 }
 // Test by 23
-TEST_CASE("ITK::BoxMeanImageFilter(by23)", "[ITKImageProcessing][ITKBoxMeanImage][by23]")
+TEST_CASE("ITKBoxMeanImageFilter(by23)", "[ITKImageProcessing][ITKBoxMeanImage][by23]")
 {
   // Instantiate the filter, a DataStructure object and an Arguments Object
   ITKBoxMeanImage filter;
@@ -142,7 +142,7 @@ TEST_CASE("ITK::BoxMeanImageFilter(by23)", "[ITKImageProcessing][ITKBoxMeanImage
 #endif
 }
 // Test by 333
-TEST_CASE("ITK::BoxMeanImageFilter(by333)", "[ITKImageProcessing][ITKBoxMeanImage][by333]")
+TEST_CASE("ITKBoxMeanImageFilter(by333)", "[ITKImageProcessing][ITKBoxMeanImage][by333]")
 {
   // Instantiate the filter, a DataStructure object and an Arguments Object
   ITKBoxMeanImage filter;

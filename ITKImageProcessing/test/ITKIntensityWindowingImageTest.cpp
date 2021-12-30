@@ -14,7 +14,7 @@ namespace fs = std::filesystem;
 using namespace complex;
 
 // 2D
-TEST_CASE("ITK::IntensityWindowingImageFilter(2d)", "[ITKImageProcessing][ITKIntensityWindowingImage][2d]")
+TEST_CASE("ITKIntensityWindowingImageFilter(2d)", "[ITKImageProcessing][ITKIntensityWindowingImage][2d]")
 {
   // Instantiate the filter, a DataStructure object and an Arguments Object
   ITKIntensityWindowingImage filter;
@@ -77,7 +77,7 @@ TEST_CASE("ITK::IntensityWindowingImageFilter(2d)", "[ITKImageProcessing][ITKInt
 #endif
 }
 // 3D
-TEST_CASE("ITK::IntensityWindowingImageFilter(3dFloat)", "[ITKImageProcessing][ITKIntensityWindowingImage][3dFloat]")
+TEST_CASE("ITKIntensityWindowingImageFilter(3dFloat)", "[ITKImageProcessing][ITKIntensityWindowingImage][3dFloat]")
 {
   // Instantiate the filter, a DataStructure object and an Arguments Object
   ITKIntensityWindowingImage filter;
@@ -140,7 +140,7 @@ TEST_CASE("ITK::IntensityWindowingImageFilter(3dFloat)", "[ITKImageProcessing][I
 #endif
 }
 // 3D
-TEST_CASE("ITK::IntensityWindowingImageFilter(3dShort)", "[ITKImageProcessing][ITKIntensityWindowingImage][3dShort]")
+TEST_CASE("ITKIntensityWindowingImageFilter(3dShort)", "[ITKImageProcessing][ITKIntensityWindowingImage][3dShort]")
 {
   // Instantiate the filter, a DataStructure object and an Arguments Object
   ITKIntensityWindowingImage filter;

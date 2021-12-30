@@ -16,7 +16,7 @@ namespace fs = std::filesystem;
 using namespace complex;
 
 // Test grayscale morphological opening
-TEST_CASE("ITK::GrayscaleMorphologicalOpeningImageFilter(GrayscaleMorphologicalOpening)", "[ITKImageProcessing][ITKGrayscaleMorphologicalOpeningImage][GrayscaleMorphologicalOpening]")
+TEST_CASE("ITKGrayscaleMorphologicalOpeningImageFilter(GrayscaleMorphologicalOpening)", "[ITKImageProcessing][ITKGrayscaleMorphologicalOpeningImage][GrayscaleMorphologicalOpening]")
 {
   // Instantiate the filter, a DataStructure object and an Arguments Object
   ITKGrayscaleMorphologicalOpeningImage filter;
@@ -83,7 +83,7 @@ TEST_CASE("ITK::GrayscaleMorphologicalOpeningImageFilter(GrayscaleMorphologicalO
 #endif
 }
 // Test grayscale morphological opening with vector 3D radius
-TEST_CASE("ITK::GrayscaleMorphologicalOpeningImageFilter(GrayscaleMorphologicalOpeningVectorRadius1)",
+TEST_CASE("ITKGrayscaleMorphologicalOpeningImageFilter(GrayscaleMorphologicalOpeningVectorRadius1)",
           "[ITKImageProcessing][ITKGrayscaleMorphologicalOpeningImage][GrayscaleMorphologicalOpeningVectorRadius1]")
 {
   // Instantiate the filter, a DataStructure object and an Arguments Object
@@ -151,7 +151,7 @@ TEST_CASE("ITK::GrayscaleMorphologicalOpeningImageFilter(GrayscaleMorphologicalO
 #endif
 }
 // Test grayscale morphological opening with vector 2D radius expecting padding of 1
-TEST_CASE("ITK::GrayscaleMorphologicalOpeningImageFilter(GrayscaleMorphologicalOpeningVectorRadius2)",
+TEST_CASE("ITKGrayscaleMorphologicalOpeningImageFilter(GrayscaleMorphologicalOpeningVectorRadius2)",
           "[ITKImageProcessing][ITKGrayscaleMorphologicalOpeningImage][GrayscaleMorphologicalOpeningVectorRadius2]")
 {
   // Instantiate the filter, a DataStructure object and an Arguments Object

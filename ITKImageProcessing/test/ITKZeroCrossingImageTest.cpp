@@ -14,7 +14,7 @@ namespace fs = std::filesystem;
 using namespace complex;
 
 // Simply run with default settings
-TEST_CASE("ITK::ZeroCrossingImageFilter(defaults)", "[ITKImageProcessing][ITKZeroCrossingImage][defaults]")
+TEST_CASE("ITKZeroCrossingImageFilter(defaults)", "[ITKImageProcessing][ITKZeroCrossingImage][defaults]")
 {
   // Instantiate the filter, a DataStructure object and an Arguments Object
   ITKZeroCrossingImage filter;
@@ -77,7 +77,7 @@ TEST_CASE("ITK::ZeroCrossingImageFilter(defaults)", "[ITKImageProcessing][ITKZer
 #endif
 }
 // Run image with backwards foreground and background
-TEST_CASE("ITK::ZeroCrossingImageFilter(inverted)", "[ITKImageProcessing][ITKZeroCrossingImage][inverted]")
+TEST_CASE("ITKZeroCrossingImageFilter(inverted)", "[ITKImageProcessing][ITKZeroCrossingImage][inverted]")
 {
   // Instantiate the filter, a DataStructure object and an Arguments Object
   ITKZeroCrossingImage filter;

@@ -14,7 +14,7 @@ namespace fs = std::filesystem;
 using namespace complex;
 
 // Test grayscale grind peak
-TEST_CASE("ITK::GrayscaleGrindPeakImageFilter(GrayscaleGrindPeak1)", "[ITKImageProcessing][ITKGrayscaleGrindPeakImage][GrayscaleGrindPeak1]")
+TEST_CASE("ITKGrayscaleGrindPeakImageFilter(GrayscaleGrindPeak1)", "[ITKImageProcessing][ITKGrayscaleGrindPeakImage][GrayscaleGrindPeak1]")
 {
   // Instantiate the filter, a DataStructure object and an Arguments Object
   ITKGrayscaleGrindPeakImage filter;
@@ -77,7 +77,7 @@ TEST_CASE("ITK::GrayscaleGrindPeakImageFilter(GrayscaleGrindPeak1)", "[ITKImageP
 #endif
 }
 // Test grayscale grind peak 2D
-TEST_CASE("ITK::GrayscaleGrindPeakImageFilter(GrayscaleGrindPeak2)", "[ITKImageProcessing][ITKGrayscaleGrindPeakImage][GrayscaleGrindPeak2]")
+TEST_CASE("ITKGrayscaleGrindPeakImageFilter(GrayscaleGrindPeak2)", "[ITKImageProcessing][ITKGrayscaleGrindPeakImage][GrayscaleGrindPeak2]")
 {
   // Instantiate the filter, a DataStructure object and an Arguments Object
   ITKGrayscaleGrindPeakImage filter;

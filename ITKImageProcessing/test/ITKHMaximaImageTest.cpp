@@ -14,7 +14,7 @@ namespace fs = std::filesystem;
 using namespace complex;
 
 // Test HMaxima
-TEST_CASE("ITK::HMaximaImageFilter(HMaxima)", "[ITKImageProcessing][ITKHMaximaImage][HMaxima]")
+TEST_CASE("ITKHMaximaImageFilter(HMaxima)", "[ITKImageProcessing][ITKHMaximaImage][HMaxima]")
 {
   // Instantiate the filter, a DataStructure object and an Arguments Object
   ITKHMaximaImage filter;

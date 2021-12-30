@@ -14,7 +14,7 @@ namespace fs = std::filesystem;
 using namespace complex;
 
 // Simply run with default settings
-TEST_CASE("ITK::Log10ImageFilter(defaults)", "[ITKImageProcessing][ITKLog10Image][defaults]")
+TEST_CASE("ITKLog10ImageFilter(defaults)", "[ITKImageProcessing][ITKLog10Image][defaults]")
 {
   // Instantiate the filter, a DataStructure object and an Arguments Object
   ITKLog10Image filter;

@@ -14,7 +14,7 @@ namespace fs = std::filesystem;
 using namespace complex;
 
 // Basic xcorr with and odd kernel
-TEST_CASE("ITK::FFTNormalizedCorrelationImageFilter(defaults)", "[ITKImageProcessing][ITKFFTNormalizedCorrelationImage][defaults]")
+TEST_CASE("ITKFFTNormalizedCorrelationImageFilter(defaults)", "[ITKImageProcessing][ITKFFTNormalizedCorrelationImage][defaults]")
 {
   // Instantiate the filter, a DataStructure object and an Arguments Object
   ITKFFTNormalizedCorrelationImage filter;
@@ -98,7 +98,7 @@ TEST_CASE("ITK::FFTNormalizedCorrelationImageFilter(defaults)", "[ITKImageProces
 #endif
 }
 // Basic xcorr with an even kernel
-TEST_CASE("ITK::FFTNormalizedCorrelationImageFilter(EvenKernel)", "[ITKImageProcessing][ITKFFTNormalizedCorrelationImage][EvenKernel]")
+TEST_CASE("ITKFFTNormalizedCorrelationImageFilter(EvenKernel)", "[ITKImageProcessing][ITKFFTNormalizedCorrelationImage][EvenKernel]")
 {
   // Instantiate the filter, a DataStructure object and an Arguments Object
   ITKFFTNormalizedCorrelationImage filter;
@@ -182,7 +182,7 @@ TEST_CASE("ITK::FFTNormalizedCorrelationImageFilter(EvenKernel)", "[ITKImageProc
 #endif
 }
 // Basic xcorr with an even kernel
-TEST_CASE("ITK::FFTNormalizedCorrelationImageFilter(3D)", "[ITKImageProcessing][ITKFFTNormalizedCorrelationImage][3D]")
+TEST_CASE("ITKFFTNormalizedCorrelationImageFilter(3D)", "[ITKImageProcessing][ITKFFTNormalizedCorrelationImage][3D]")
 {
   // Instantiate the filter, a DataStructure object and an Arguments Object
   ITKFFTNormalizedCorrelationImage filter;

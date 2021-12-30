@@ -14,7 +14,7 @@ namespace fs = std::filesystem;
 using namespace complex;
 
 // 3D
-TEST_CASE("ITK::RescaleIntensityImageFilter(3d)", "[ITKImageProcessing][ITKRescaleIntensityImage][3d]")
+TEST_CASE("ITKRescaleIntensityImageFilter(3d)", "[ITKImageProcessing][ITKRescaleIntensityImage][3d]")
 {
   // Instantiate the filter, a DataStructure object and an Arguments Object
   ITKRescaleIntensityImage filter;

@@ -14,7 +14,7 @@ namespace fs = std::filesystem;
 using namespace complex;
 
 // Simply run with default settings
-TEST_CASE("ITK::GradientAnisotropicDiffusionImageFilter(defaults)", "[ITKImageProcessing][ITKGradientAnisotropicDiffusionImage][defaults]")
+TEST_CASE("ITKGradientAnisotropicDiffusionImageFilter(defaults)", "[ITKImageProcessing][ITKGradientAnisotropicDiffusionImage][defaults]")
 {
   // Instantiate the filter, a DataStructure object and an Arguments Object
   ITKGradientAnisotropicDiffusionImage filter;
@@ -90,7 +90,7 @@ TEST_CASE("ITK::GradientAnisotropicDiffusionImageFilter(defaults)", "[ITKImagePr
 #endif
 }
 // Change number of iterations and timestep
-TEST_CASE("ITK::GradientAnisotropicDiffusionImageFilter(longer)", "[ITKImageProcessing][ITKGradientAnisotropicDiffusionImage][longer]")
+TEST_CASE("ITKGradientAnisotropicDiffusionImageFilter(longer)", "[ITKImageProcessing][ITKGradientAnisotropicDiffusionImage][longer]")
 {
   // Instantiate the filter, a DataStructure object and an Arguments Object
   ITKGradientAnisotropicDiffusionImage filter;

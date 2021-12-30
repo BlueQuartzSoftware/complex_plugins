@@ -14,7 +14,7 @@ namespace fs = std::filesystem;
 using namespace complex;
 
 // 3D
-TEST_CASE("ITK::InvertIntensityImageFilter(3d)", "[ITKImageProcessing][ITKInvertIntensityImage][3d]")
+TEST_CASE("ITKInvertIntensityImageFilter(3d)", "[ITKImageProcessing][ITKInvertIntensityImage][3d]")
 {
   // Instantiate the filter, a DataStructure object and an Arguments Object
   ITKInvertIntensityImage filter;

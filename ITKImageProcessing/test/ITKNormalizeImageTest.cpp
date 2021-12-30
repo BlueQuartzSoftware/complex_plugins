@@ -14,7 +14,7 @@ namespace fs = std::filesystem;
 using namespace complex;
 
 // Simply run with default settings
-TEST_CASE("ITK::NormalizeImageFilter(defaults)", "[ITKImageProcessing][ITKNormalizeImage][defaults]")
+TEST_CASE("ITKNormalizeImageFilter(defaults)", "[ITKImageProcessing][ITKNormalizeImage][defaults]")
 {
   // Instantiate the filter, a DataStructure object and an Arguments Object
   ITKNormalizeImage filter;
@@ -88,7 +88,7 @@ TEST_CASE("ITK::NormalizeImageFilter(defaults)", "[ITKImageProcessing][ITKNormal
 #endif
 }
 // Simply run with default settings for a vector image
-TEST_CASE("ITK::NormalizeImageFilter(vector)", "[ITKImageProcessing][ITKNormalizeImage][vector]")
+TEST_CASE("ITKNormalizeImageFilter(vector)", "[ITKImageProcessing][ITKNormalizeImage][vector]")
 {
   // Instantiate the filter, a DataStructure object and an Arguments Object
   ITKNormalizeImage filter;

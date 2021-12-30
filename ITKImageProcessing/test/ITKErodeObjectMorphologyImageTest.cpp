@@ -16,7 +16,7 @@ namespace fs = std::filesystem;
 using namespace complex;
 
 // Erode a float image
-TEST_CASE("ITK::ErodeObjectMorphologyImageFilter(float)", "[ITKImageProcessing][ITKErodeObjectMorphologyImage][float]")
+TEST_CASE("ITKErodeObjectMorphologyImageFilter(float)", "[ITKImageProcessing][ITKErodeObjectMorphologyImage][float]")
 {
   // Instantiate the filter, a DataStructure object and an Arguments Object
   ITKErodeObjectMorphologyImage filter;
@@ -94,7 +94,7 @@ TEST_CASE("ITK::ErodeObjectMorphologyImageFilter(float)", "[ITKImageProcessing][
 #endif
 }
 // Erode a short image
-TEST_CASE("ITK::ErodeObjectMorphologyImageFilter(short)", "[ITKImageProcessing][ITKErodeObjectMorphologyImage][short]")
+TEST_CASE("ITKErodeObjectMorphologyImageFilter(short)", "[ITKImageProcessing][ITKErodeObjectMorphologyImage][short]")
 {
   // Instantiate the filter, a DataStructure object and an Arguments Object
   ITKErodeObjectMorphologyImage filter;

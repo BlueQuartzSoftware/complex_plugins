@@ -14,7 +14,7 @@ namespace fs = std::filesystem;
 using namespace complex;
 
 // Simply run with default settings
-TEST_CASE("ITK::CurvatureAnisotropicDiffusionImageFilter(defaults)", "[ITKImageProcessing][ITKCurvatureAnisotropicDiffusionImage][defaults]")
+TEST_CASE("ITKCurvatureAnisotropicDiffusionImageFilter(defaults)", "[ITKImageProcessing][ITKCurvatureAnisotropicDiffusionImage][defaults]")
 {
   // Instantiate the filter, a DataStructure object and an Arguments Object
   ITKCurvatureAnisotropicDiffusionImage filter;
@@ -90,7 +90,7 @@ TEST_CASE("ITK::CurvatureAnisotropicDiffusionImageFilter(defaults)", "[ITKImageP
 #endif
 }
 // Change number of iterations and timestep
-TEST_CASE("ITK::CurvatureAnisotropicDiffusionImageFilter(longer)", "[ITKImageProcessing][ITKCurvatureAnisotropicDiffusionImage][longer]")
+TEST_CASE("ITKCurvatureAnisotropicDiffusionImageFilter(longer)", "[ITKImageProcessing][ITKCurvatureAnisotropicDiffusionImage][longer]")
 {
   // Instantiate the filter, a DataStructure object and an Arguments Object
   ITKCurvatureAnisotropicDiffusionImage filter;

@@ -14,7 +14,7 @@ namespace fs = std::filesystem;
 using namespace complex;
 
 // Simply run with default settings
-TEST_CASE("ITK::LabelContourImageFilter(default)", "[ITKImageProcessing][ITKLabelContourImage][default]")
+TEST_CASE("ITKLabelContourImageFilter(default)", "[ITKImageProcessing][ITKLabelContourImage][default]")
 {
   // Instantiate the filter, a DataStructure object and an Arguments Object
   ITKLabelContourImage filter;

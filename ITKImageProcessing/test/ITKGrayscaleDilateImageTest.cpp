@@ -16,7 +16,7 @@ namespace fs = std::filesystem;
 using namespace complex;
 
 // Test grayscale dilation
-TEST_CASE("ITK::GrayscaleDilateImageFilter(GrayscaleDilate)", "[ITKImageProcessing][ITKGrayscaleDilateImage][GrayscaleDilate]")
+TEST_CASE("ITKGrayscaleDilateImageFilter(GrayscaleDilate)", "[ITKImageProcessing][ITKGrayscaleDilateImage][GrayscaleDilate]")
 {
   // Instantiate the filter, a DataStructure object and an Arguments Object
   ITKGrayscaleDilateImage filter;

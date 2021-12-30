@@ -14,7 +14,7 @@ namespace fs = std::filesystem;
 using namespace complex;
 
 // Test MeanImageFilter with default parametrs
-TEST_CASE("ITK::MedianImageFilter(defaults)", "[ITKImageProcessing][ITKMedianImage][defaults]")
+TEST_CASE("ITKMedianImageFilter(defaults)", "[ITKImageProcessing][ITKMedianImage][defaults]")
 {
   // Instantiate the filter, a DataStructure object and an Arguments Object
   ITKMedianImage filter;
@@ -77,7 +77,7 @@ TEST_CASE("ITK::MedianImageFilter(defaults)", "[ITKImageProcessing][ITKMedianIma
 #endif
 }
 // Test by 23
-TEST_CASE("ITK::MedianImageFilter(by23)", "[ITKImageProcessing][ITKMedianImage][by23]")
+TEST_CASE("ITKMedianImageFilter(by23)", "[ITKImageProcessing][ITKMedianImage][by23]")
 {
   // Instantiate the filter, a DataStructure object and an Arguments Object
   ITKMedianImage filter;

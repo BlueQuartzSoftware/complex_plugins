@@ -14,7 +14,7 @@ namespace fs = std::filesystem;
 using namespace complex;
 
 // Default parameter settings
-TEST_CASE("ITK::SignedDanielssonDistanceMapImageFilter(default)", "[ITKImageProcessing][ITKSignedDanielssonDistanceMapImage][default]")
+TEST_CASE("ITKSignedDanielssonDistanceMapImageFilter(default)", "[ITKImageProcessing][ITKSignedDanielssonDistanceMapImage][default]")
 {
   // Instantiate the filter, a DataStructure object and an Arguments Object
   ITKSignedDanielssonDistanceMapImage filter;

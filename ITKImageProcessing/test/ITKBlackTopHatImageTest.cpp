@@ -16,7 +16,7 @@ namespace fs = std::filesystem;
 using namespace complex;
 
 // Test black top hat
-TEST_CASE("ITK::BlackTopHatImageFilter(BlackTopHapErode)", "[ITKImageProcessing][ITKBlackTopHatImage][BlackTopHapErode]")
+TEST_CASE("ITKBlackTopHatImageFilter(BlackTopHapErode)", "[ITKImageProcessing][ITKBlackTopHatImage][BlackTopHapErode]")
 {
   // Instantiate the filter, a DataStructure object and an Arguments Object
   ITKBlackTopHatImage filter;

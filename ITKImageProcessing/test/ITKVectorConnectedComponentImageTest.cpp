@@ -14,7 +14,7 @@ namespace fs = std::filesystem;
 using namespace complex;
 
 // 2D RGB
-TEST_CASE("ITK::VectorConnectedComponentImageFilter(wDistance)", "[ITKImageProcessing][ITKVectorConnectedComponentImage][wDistance]")
+TEST_CASE("ITKVectorConnectedComponentImageFilter(wDistance)", "[ITKImageProcessing][ITKVectorConnectedComponentImage][wDistance]")
 {
   // Instantiate the filter, a DataStructure object and an Arguments Object
   ITKVectorConnectedComponentImage filter;

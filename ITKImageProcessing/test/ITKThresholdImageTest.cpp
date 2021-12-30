@@ -14,7 +14,7 @@ namespace fs = std::filesystem;
 using namespace complex;
 
 // Default
-TEST_CASE("ITK::ThresholdImageFilter(Default)", "[ITKImageProcessing][ITKThresholdImage][Default]")
+TEST_CASE("ITKThresholdImageFilter(Default)", "[ITKImageProcessing][ITKThresholdImage][Default]")
 {
   // Instantiate the filter, a DataStructure object and an Arguments Object
   ITKThresholdImage filter;
@@ -77,7 +77,7 @@ TEST_CASE("ITK::ThresholdImageFilter(Default)", "[ITKImageProcessing][ITKThresho
 #endif
 }
 // Threshold settings 1
-TEST_CASE("ITK::ThresholdImageFilter(Threshold1)", "[ITKImageProcessing][ITKThresholdImage][Threshold1]")
+TEST_CASE("ITKThresholdImageFilter(Threshold1)", "[ITKImageProcessing][ITKThresholdImage][Threshold1]")
 {
   // Instantiate the filter, a DataStructure object and an Arguments Object
   ITKThresholdImage filter;
@@ -142,7 +142,7 @@ TEST_CASE("ITK::ThresholdImageFilter(Threshold1)", "[ITKImageProcessing][ITKThre
 #endif
 }
 // Threshold settings 2
-TEST_CASE("ITK::ThresholdImageFilter(Threshold2)", "[ITKImageProcessing][ITKThresholdImage][Threshold2]")
+TEST_CASE("ITKThresholdImageFilter(Threshold2)", "[ITKImageProcessing][ITKThresholdImage][Threshold2]")
 {
   // Instantiate the filter, a DataStructure object and an Arguments Object
   ITKThresholdImage filter;

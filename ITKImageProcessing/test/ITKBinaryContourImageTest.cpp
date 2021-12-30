@@ -14,7 +14,7 @@ namespace fs = std::filesystem;
 using namespace complex;
 
 // Simply run with default settings
-TEST_CASE("ITK::BinaryContourImageFilter(default)", "[ITKImageProcessing][ITKBinaryContourImage][default]")
+TEST_CASE("ITKBinaryContourImageFilter(default)", "[ITKImageProcessing][ITKBinaryContourImage][default]")
 {
   // Instantiate the filter, a DataStructure object and an Arguments Object
   ITKBinaryContourImage filter;
@@ -78,7 +78,7 @@ TEST_CASE("ITK::BinaryContourImageFilter(default)", "[ITKImageProcessing][ITKBin
 #endif
 }
 // Run binary mask on a single label
-TEST_CASE("ITK::BinaryContourImageFilter(custom)", "[ITKImageProcessing][ITKBinaryContourImage][custom]")
+TEST_CASE("ITKBinaryContourImageFilter(custom)", "[ITKImageProcessing][ITKBinaryContourImage][custom]")
 {
   // Instantiate the filter, a DataStructure object and an Arguments Object
   ITKBinaryContourImage filter;

@@ -16,7 +16,7 @@ namespace fs = std::filesystem;
 using namespace complex;
 
 // Test grayscale opening by reconstruction
-TEST_CASE("ITK::OpeningByReconstructionImageFilter(OpeningByReconstruction)", "[ITKImageProcessing][ITKOpeningByReconstructionImage][OpeningByReconstruction]")
+TEST_CASE("ITKOpeningByReconstructionImageFilter(OpeningByReconstruction)", "[ITKImageProcessing][ITKOpeningByReconstructionImage][OpeningByReconstruction]")
 {
   // Instantiate the filter, a DataStructure object and an Arguments Object
   ITKOpeningByReconstructionImage filter;

@@ -14,7 +14,7 @@ namespace fs = std::filesystem;
 using namespace complex;
 
 // Test binnary thinning
-TEST_CASE("ITK::BinaryThinningImageFilter(BinaryThinning)", "[ITKImageProcessing][ITKBinaryThinningImage][BinaryThinning]")
+TEST_CASE("ITKBinaryThinningImageFilter(BinaryThinning)", "[ITKImageProcessing][ITKBinaryThinningImage][BinaryThinning]")
 {
   // Instantiate the filter, a DataStructure object and an Arguments Object
   ITKBinaryThinningImage filter;

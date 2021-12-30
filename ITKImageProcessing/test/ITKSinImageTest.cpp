@@ -14,7 +14,7 @@ namespace fs = std::filesystem;
 using namespace complex;
 
 // Simply run with default settings
-TEST_CASE("ITK::SinImageFilter(defaults)", "[ITKImageProcessing][ITKSinImage][defaults]")
+TEST_CASE("ITKSinImageFilter(defaults)", "[ITKImageProcessing][ITKSinImage][defaults]")
 {
   // Instantiate the filter, a DataStructure object and an Arguments Object
   ITKSinImage filter;

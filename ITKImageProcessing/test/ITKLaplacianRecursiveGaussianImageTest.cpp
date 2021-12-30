@@ -14,7 +14,7 @@ namespace fs = std::filesystem;
 using namespace complex;
 
 // Simply run with default settings
-TEST_CASE("ITK::LaplacianRecursiveGaussianImageFilter(default)", "[ITKImageProcessing][ITKLaplacianRecursiveGaussianImage][default]")
+TEST_CASE("ITKLaplacianRecursiveGaussianImageFilter(default)", "[ITKImageProcessing][ITKLaplacianRecursiveGaussianImage][default]")
 {
   // Instantiate the filter, a DataStructure object and an Arguments Object
   ITKLaplacianRecursiveGaussianImage filter;

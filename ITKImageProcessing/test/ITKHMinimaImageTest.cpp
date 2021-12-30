@@ -14,7 +14,7 @@ namespace fs = std::filesystem;
 using namespace complex;
 
 // Test HMinima
-TEST_CASE("ITK::HMinimaImageFilter(HMinima)", "[ITKImageProcessing][ITKHMinimaImage][HMinima]")
+TEST_CASE("ITKHMinimaImageFilter(HMinima)", "[ITKImageProcessing][ITKHMinimaImage][HMinima]")
 {
   // Instantiate the filter, a DataStructure object and an Arguments Object
   ITKHMinimaImage filter;

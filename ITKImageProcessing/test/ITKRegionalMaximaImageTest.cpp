@@ -14,7 +14,7 @@ namespace fs = std::filesystem;
 using namespace complex;
 
 // Simply run with default settings
-TEST_CASE("ITK::RegionalMaximaImageFilter(defaults)", "[ITKImageProcessing][ITKRegionalMaximaImage][defaults]")
+TEST_CASE("ITKRegionalMaximaImageFilter(defaults)", "[ITKImageProcessing][ITKRegionalMaximaImage][defaults]")
 {
   // Instantiate the filter, a DataStructure object and an Arguments Object
   ITKRegionalMaximaImage filter;

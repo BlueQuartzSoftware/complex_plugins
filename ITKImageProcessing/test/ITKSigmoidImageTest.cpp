@@ -14,7 +14,7 @@ namespace fs = std::filesystem;
 using namespace complex;
 
 // Simply run with default settings
-TEST_CASE("ITK::SigmoidImageFilter(defaults)", "[ITKImageProcessing][ITKSigmoidImage][defaults]")
+TEST_CASE("ITKSigmoidImageFilter(defaults)", "[ITKImageProcessing][ITKSigmoidImage][defaults]")
 {
   // Instantiate the filter, a DataStructure object and an Arguments Object
   ITKSigmoidImage filter;

@@ -16,7 +16,7 @@ namespace fs = std::filesystem;
 using namespace complex;
 
 // Dilate a float image
-TEST_CASE("ITK::DilateObjectMorphologyImageFilter(float)", "[ITKImageProcessing][ITKDilateObjectMorphologyImage][float]")
+TEST_CASE("ITKDilateObjectMorphologyImageFilter(float)", "[ITKImageProcessing][ITKDilateObjectMorphologyImage][float]")
 {
   // Instantiate the filter, a DataStructure object and an Arguments Object
   ITKDilateObjectMorphologyImage filter;
@@ -94,7 +94,7 @@ TEST_CASE("ITK::DilateObjectMorphologyImageFilter(float)", "[ITKImageProcessing]
 #endif
 }
 // Dilate a short image
-TEST_CASE("ITK::DilateObjectMorphologyImageFilter(short)", "[ITKImageProcessing][ITKDilateObjectMorphologyImage][short]")
+TEST_CASE("ITKDilateObjectMorphologyImageFilter(short)", "[ITKImageProcessing][ITKDilateObjectMorphologyImage][short]")
 {
   // Instantiate the filter, a DataStructure object and an Arguments Object
   ITKDilateObjectMorphologyImage filter;

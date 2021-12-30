@@ -14,7 +14,7 @@ namespace fs = std::filesystem;
 using namespace complex;
 
 // Test HConvex
-TEST_CASE("ITK::HConvexImageFilter(HConvex)", "[ITKImageProcessing][ITKHConvexImage][HConvex]")
+TEST_CASE("ITKHConvexImageFilter(HConvex)", "[ITKImageProcessing][ITKHConvexImage][HConvex]")
 {
   // Instantiate the filter, a DataStructure object and an Arguments Object
   ITKHConvexImage filter;

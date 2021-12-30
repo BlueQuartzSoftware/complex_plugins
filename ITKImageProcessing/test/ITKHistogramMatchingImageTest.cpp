@@ -14,7 +14,7 @@ namespace fs = std::filesystem;
 using namespace complex;
 
 // Simply run with default settings
-TEST_CASE("ITK::HistogramMatchingImageFilter(defaults)", "[ITKImageProcessing][ITKHistogramMatchingImage][defaults]")
+TEST_CASE("ITKHistogramMatchingImageFilter(defaults)", "[ITKImageProcessing][ITKHistogramMatchingImage][defaults]")
 {
   // Instantiate the filter, a DataStructure object and an Arguments Object
   ITKHistogramMatchingImage filter;
@@ -98,7 +98,7 @@ TEST_CASE("ITK::HistogramMatchingImageFilter(defaults)", "[ITKImageProcessing][I
 #endif
 }
 // same image in input and match should be same output
-TEST_CASE("ITK::HistogramMatchingImageFilter(near_identity)", "[ITKImageProcessing][ITKHistogramMatchingImage][near_identity]")
+TEST_CASE("ITKHistogramMatchingImageFilter(near_identity)", "[ITKImageProcessing][ITKHistogramMatchingImage][near_identity]")
 {
   // Instantiate the filter, a DataStructure object and an Arguments Object
   ITKHistogramMatchingImage filter;

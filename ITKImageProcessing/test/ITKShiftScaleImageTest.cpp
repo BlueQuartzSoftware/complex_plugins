@@ -14,7 +14,7 @@ namespace fs = std::filesystem;
 using namespace complex;
 
 //  default parameters
-TEST_CASE("ITK::ShiftScaleImageFilter(default)", "[ITKImageProcessing][ITKShiftScaleImage][default]")
+TEST_CASE("ITKShiftScaleImageFilter(default)", "[ITKImageProcessing][ITKShiftScaleImage][default]")
 {
   // Instantiate the filter, a DataStructure object and an Arguments Object
   ITKShiftScaleImage filter;
@@ -77,7 +77,7 @@ TEST_CASE("ITK::ShiftScaleImageFilter(default)", "[ITKImageProcessing][ITKShiftS
 #endif
 }
 //  default parameters
-TEST_CASE("ITK::ShiftScaleImageFilter(params)", "[ITKImageProcessing][ITKShiftScaleImage][params]")
+TEST_CASE("ITKShiftScaleImageFilter(params)", "[ITKImageProcessing][ITKShiftScaleImage][params]")
 {
   // Instantiate the filter, a DataStructure object and an Arguments Object
   ITKShiftScaleImage filter;
@@ -142,7 +142,7 @@ TEST_CASE("ITK::ShiftScaleImageFilter(params)", "[ITKImageProcessing][ITKShiftSc
 #endif
 }
 // Shift and scale to pixel type with smaller range.
-TEST_CASE("ITK::ShiftScaleImageFilter(OutputPixel)", "[ITKImageProcessing][ITKShiftScaleImage][OutputPixel]")
+TEST_CASE("ITKShiftScaleImageFilter(OutputPixel)", "[ITKImageProcessing][ITKShiftScaleImage][OutputPixel]")
 {
   // Instantiate the filter, a DataStructure object and an Arguments Object
   ITKShiftScaleImage filter;
@@ -208,7 +208,7 @@ TEST_CASE("ITK::ShiftScaleImageFilter(OutputPixel)", "[ITKImageProcessing][ITKSh
 #endif
 }
 // Shift and scale with smaller output pixel type
-TEST_CASE("ITK::ShiftScaleImageFilter(OutputOverflow)", "[ITKImageProcessing][ITKShiftScaleImage][OutputOverflow]")
+TEST_CASE("ITKShiftScaleImageFilter(OutputOverflow)", "[ITKImageProcessing][ITKShiftScaleImage][OutputOverflow]")
 {
   // Instantiate the filter, a DataStructure object and an Arguments Object
   ITKShiftScaleImage filter;

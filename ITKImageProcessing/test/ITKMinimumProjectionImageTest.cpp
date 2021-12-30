@@ -14,7 +14,7 @@ namespace fs = std::filesystem;
 using namespace complex;
 
 // run with some defaults
-TEST_CASE("ITK::MinimumProjectionImageFilter(defaults)", "[ITKImageProcessing][ITKMinimumProjectionImage][defaults]")
+TEST_CASE("ITKMinimumProjectionImageFilter(defaults)", "[ITKImageProcessing][ITKMinimumProjectionImage][defaults]")
 {
   // Instantiate the filter, a DataStructure object and an Arguments Object
   ITKMinimumProjectionImage filter;
@@ -77,7 +77,7 @@ TEST_CASE("ITK::MinimumProjectionImageFilter(defaults)", "[ITKImageProcessing][I
 #endif
 }
 // project in the 3rd dimension
-TEST_CASE("ITK::MinimumProjectionImageFilter(another_dimension)", "[ITKImageProcessing][ITKMinimumProjectionImage][another_dimension]")
+TEST_CASE("ITKMinimumProjectionImageFilter(another_dimension)", "[ITKImageProcessing][ITKMinimumProjectionImage][another_dimension]")
 {
   // Instantiate the filter, a DataStructure object and an Arguments Object
   ITKMinimumProjectionImage filter;
@@ -141,7 +141,7 @@ TEST_CASE("ITK::MinimumProjectionImageFilter(another_dimension)", "[ITKImageProc
 #endif
 }
 // project with a short image
-TEST_CASE("ITK::MinimumProjectionImageFilter(short_image)", "[ITKImageProcessing][ITKMinimumProjectionImage][short_image]")
+TEST_CASE("ITKMinimumProjectionImageFilter(short_image)", "[ITKImageProcessing][ITKMinimumProjectionImage][short_image]")
 {
   // Instantiate the filter, a DataStructure object and an Arguments Object
   ITKMinimumProjectionImage filter;
@@ -205,7 +205,7 @@ TEST_CASE("ITK::MinimumProjectionImageFilter(short_image)", "[ITKImageProcessing
 #endif
 }
 // project with a rgb image in 2D
-TEST_CASE("ITK::MinimumProjectionImageFilter(rgb_image)", "[ITKImageProcessing][ITKMinimumProjectionImage][rgb_image]")
+TEST_CASE("ITKMinimumProjectionImageFilter(rgb_image)", "[ITKImageProcessing][ITKMinimumProjectionImage][rgb_image]")
 {
   // Instantiate the filter, a DataStructure object and an Arguments Object
   ITKMinimumProjectionImage filter;

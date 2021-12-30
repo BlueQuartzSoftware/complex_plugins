@@ -14,7 +14,7 @@ namespace fs = std::filesystem;
 using namespace complex;
 
 // Simply run with default settings
-TEST_CASE("ITK::PatchBasedDenoisingImageFilter(default)", "[ITKImageProcessing][ITKPatchBasedDenoisingImage][default]")
+TEST_CASE("ITKPatchBasedDenoisingImageFilter(default)", "[ITKImageProcessing][ITKPatchBasedDenoisingImage][default]")
 {
   // Instantiate the filter, a DataStructure object and an Arguments Object
   ITKPatchBasedDenoisingImage filter;

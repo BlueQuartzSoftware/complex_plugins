@@ -14,7 +14,7 @@ namespace fs = std::filesystem;
 using namespace complex;
 
 // Default parameter settings
-TEST_CASE("ITK::IsoContourDistanceImageFilter(default)", "[ITKImageProcessing][ITKIsoContourDistanceImage][default]")
+TEST_CASE("ITKIsoContourDistanceImageFilter(default)", "[ITKImageProcessing][ITKIsoContourDistanceImage][default]")
 {
   // Instantiate the filter, a DataStructure object and an Arguments Object
   ITKIsoContourDistanceImage filter;

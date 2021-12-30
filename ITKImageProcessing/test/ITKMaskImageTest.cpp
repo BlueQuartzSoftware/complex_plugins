@@ -14,7 +14,7 @@ namespace fs = std::filesystem;
 using namespace complex;
 
 // 2d
-TEST_CASE("ITK::MaskImageFilter(2d)", "[ITKImageProcessing][ITKMaskImage][2d]")
+TEST_CASE("ITKMaskImageFilter(2d)", "[ITKImageProcessing][ITKMaskImage][2d]")
 {
   // Instantiate the filter, a DataStructure object and an Arguments Object
   ITKMaskImage filter;
@@ -87,7 +87,7 @@ TEST_CASE("ITK::MaskImageFilter(2d)", "[ITKImageProcessing][ITKMaskImage][2d]")
 #endif
 }
 // cthead with different types
-TEST_CASE("ITK::MaskImageFilter(cthead1)", "[ITKImageProcessing][ITKMaskImage][cthead1]")
+TEST_CASE("ITKMaskImageFilter(cthead1)", "[ITKImageProcessing][ITKMaskImage][cthead1]")
 {
   // Instantiate the filter, a DataStructure object and an Arguments Object
   ITKMaskImage filter;
@@ -160,7 +160,7 @@ TEST_CASE("ITK::MaskImageFilter(cthead1)", "[ITKImageProcessing][ITKMaskImage][c
 #endif
 }
 // rgb
-TEST_CASE("ITK::MaskImageFilter(rgb)", "[ITKImageProcessing][ITKMaskImage][rgb]")
+TEST_CASE("ITKMaskImageFilter(rgb)", "[ITKImageProcessing][ITKMaskImage][rgb]")
 {
   // Instantiate the filter, a DataStructure object and an Arguments Object
   ITKMaskImage filter;
@@ -234,7 +234,7 @@ TEST_CASE("ITK::MaskImageFilter(rgb)", "[ITKImageProcessing][ITKMaskImage][rgb]"
 #endif
 }
 // cthead with mask value
-TEST_CASE("ITK::MaskImageFilter(cthead1_maskvalue)", "[ITKImageProcessing][ITKMaskImage][cthead1_maskvalue]")
+TEST_CASE("ITKMaskImageFilter(cthead1_maskvalue)", "[ITKImageProcessing][ITKMaskImage][cthead1_maskvalue]")
 {
   // Instantiate the filter, a DataStructure object and an Arguments Object
   ITKMaskImage filter;

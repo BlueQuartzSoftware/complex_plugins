@@ -14,7 +14,7 @@ namespace fs = std::filesystem;
 using namespace complex;
 
 // Cosine of an image
-TEST_CASE("ITK::CosImageFilter(float)", "[ITKImageProcessing][ITKCosImage][float]")
+TEST_CASE("ITKCosImageFilter(float)", "[ITKImageProcessing][ITKCosImage][float]")
 {
   // Instantiate the filter, a DataStructure object and an Arguments Object
   ITKCosImage filter;
@@ -88,7 +88,7 @@ TEST_CASE("ITK::CosImageFilter(float)", "[ITKImageProcessing][ITKCosImage][float
 #endif
 }
 // Cosine of an image
-TEST_CASE("ITK::CosImageFilter(short)", "[ITKImageProcessing][ITKCosImage][short]")
+TEST_CASE("ITKCosImageFilter(short)", "[ITKImageProcessing][ITKCosImage][short]")
 {
   // Instantiate the filter, a DataStructure object and an Arguments Object
   ITKCosImage filter;

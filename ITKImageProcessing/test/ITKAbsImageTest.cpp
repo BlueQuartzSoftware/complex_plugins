@@ -14,7 +14,7 @@ namespace fs = std::filesystem;
 using namespace complex;
 
 // Abs of a float image
-TEST_CASE("ITK::AbsImageFilter(float)", "[ITKImageProcessing][ITKAbsImage][float]")
+TEST_CASE("ITKAbsImageFilter(float)", "[ITKImageProcessing][ITKAbsImage][float]")
 {
   // Instantiate the filter, a DataStructure object and an Arguments Object
   ITKAbsImage filter;
@@ -88,7 +88,7 @@ TEST_CASE("ITK::AbsImageFilter(float)", "[ITKImageProcessing][ITKAbsImage][float
 #endif
 }
 // Abs of a short image
-TEST_CASE("ITK::AbsImageFilter(short)", "[ITKImageProcessing][ITKAbsImage][short]")
+TEST_CASE("ITKAbsImageFilter(short)", "[ITKImageProcessing][ITKAbsImage][short]")
 {
   // Instantiate the filter, a DataStructure object and an Arguments Object
   ITKAbsImage filter;

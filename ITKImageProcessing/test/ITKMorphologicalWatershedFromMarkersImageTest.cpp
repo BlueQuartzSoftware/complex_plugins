@@ -14,7 +14,7 @@ namespace fs = std::filesystem;
 using namespace complex;
 
 // Simply run with default settings
-TEST_CASE("ITK::MorphologicalWatershedFromMarkersImageFilter(defaults)", "[ITKImageProcessing][ITKMorphologicalWatershedFromMarkersImage][defaults]")
+TEST_CASE("ITKMorphologicalWatershedFromMarkersImageFilter(defaults)", "[ITKImageProcessing][ITKMorphologicalWatershedFromMarkersImage][defaults]")
 {
   // Instantiate the filter, a DataStructure object and an Arguments Object
   ITKMorphologicalWatershedFromMarkersImage filter;

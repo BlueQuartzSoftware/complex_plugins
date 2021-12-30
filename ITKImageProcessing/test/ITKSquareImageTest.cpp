@@ -14,7 +14,7 @@ namespace fs = std::filesystem;
 using namespace complex;
 
 // Simply run with default settings
-TEST_CASE("ITK::SquareImageFilter(defaults)", "[ITKImageProcessing][ITKSquareImage][defaults]")
+TEST_CASE("ITKSquareImageFilter(defaults)", "[ITKImageProcessing][ITKSquareImage][defaults]")
 {
   // Instantiate the filter, a DataStructure object and an Arguments Object
   ITKSquareImage filter;

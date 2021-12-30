@@ -14,7 +14,7 @@ namespace fs = std::filesystem;
 using namespace complex;
 
 // Simply run with default settings
-TEST_CASE("ITK::TanImageFilter(defaults)", "[ITKImageProcessing][ITKTanImage][defaults]")
+TEST_CASE("ITKTanImageFilter(defaults)", "[ITKImageProcessing][ITKTanImage][defaults]")
 {
   // Instantiate the filter, a DataStructure object and an Arguments Object
   ITKTanImage filter;

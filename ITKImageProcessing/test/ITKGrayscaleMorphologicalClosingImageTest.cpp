@@ -16,7 +16,7 @@ namespace fs = std::filesystem;
 using namespace complex;
 
 // Test grayscale morphological closing
-TEST_CASE("ITK::GrayscaleMorphologicalClosingImageFilter(GrayscaleMorphologicalClosing)", "[ITKImageProcessing][ITKGrayscaleMorphologicalClosingImage][GrayscaleMorphologicalClosing]")
+TEST_CASE("ITKGrayscaleMorphologicalClosingImageFilter(GrayscaleMorphologicalClosing)", "[ITKImageProcessing][ITKGrayscaleMorphologicalClosingImage][GrayscaleMorphologicalClosing]")
 {
   // Instantiate the filter, a DataStructure object and an Arguments Object
   ITKGrayscaleMorphologicalClosingImage filter;

@@ -14,7 +14,7 @@ namespace fs = std::filesystem;
 using namespace complex;
 
 // 2D - baseline as zero noise
-TEST_CASE("ITK::ShotNoiseImageFilter(2d)", "[ITKImageProcessing][ITKShotNoiseImage][2d]")
+TEST_CASE("ITKShotNoiseImageFilter(2d)", "[ITKImageProcessing][ITKShotNoiseImage][2d]")
 {
   // Instantiate the filter, a DataStructure object and an Arguments Object
   ITKShotNoiseImage filter;
@@ -89,7 +89,7 @@ TEST_CASE("ITK::ShotNoiseImageFilter(2d)", "[ITKImageProcessing][ITKShotNoiseIma
 #endif
 }
 // 3D - baseline as zero noise
-TEST_CASE("ITK::ShotNoiseImageFilter(3d)", "[ITKImageProcessing][ITKShotNoiseImage][3d]")
+TEST_CASE("ITKShotNoiseImageFilter(3d)", "[ITKImageProcessing][ITKShotNoiseImage][3d]")
 {
   // Instantiate the filter, a DataStructure object and an Arguments Object
   ITKShotNoiseImage filter;
@@ -164,7 +164,7 @@ TEST_CASE("ITK::ShotNoiseImageFilter(3d)", "[ITKImageProcessing][ITKShotNoiseIma
 #endif
 }
 // vector image - baseline as zero noise
-TEST_CASE("ITK::ShotNoiseImageFilter(rgb)", "[ITKImageProcessing][ITKShotNoiseImage][rgb]")
+TEST_CASE("ITKShotNoiseImageFilter(rgb)", "[ITKImageProcessing][ITKShotNoiseImage][rgb]")
 {
   // Instantiate the filter, a DataStructure object and an Arguments Object
   ITKShotNoiseImage filter;

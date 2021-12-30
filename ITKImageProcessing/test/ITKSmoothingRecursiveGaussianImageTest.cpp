@@ -14,7 +14,7 @@ namespace fs = std::filesystem;
 using namespace complex;
 
 // Simply run with default settings
-TEST_CASE("ITK::SmoothingRecursiveGaussianImageFilter(default)", "[ITKImageProcessing][ITKSmoothingRecursiveGaussianImage][default]")
+TEST_CASE("ITKSmoothingRecursiveGaussianImageFilter(default)", "[ITKImageProcessing][ITKSmoothingRecursiveGaussianImage][default]")
 {
   // Instantiate the filter, a DataStructure object and an Arguments Object
   ITKSmoothingRecursiveGaussianImage filter;
@@ -88,7 +88,7 @@ TEST_CASE("ITK::SmoothingRecursiveGaussianImageFilter(default)", "[ITKImageProce
 #endif
 }
 // Smooth a vector image
-TEST_CASE("ITK::SmoothingRecursiveGaussianImageFilter(rgb_image)", "[ITKImageProcessing][ITKSmoothingRecursiveGaussianImage][rgb_image]")
+TEST_CASE("ITKSmoothingRecursiveGaussianImageFilter(rgb_image)", "[ITKImageProcessing][ITKSmoothingRecursiveGaussianImage][rgb_image]")
 {
   // Instantiate the filter, a DataStructure object and an Arguments Object
   ITKSmoothingRecursiveGaussianImage filter;

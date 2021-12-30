@@ -14,7 +14,7 @@ namespace fs = std::filesystem;
 using namespace complex;
 
 // Default parameter settings
-TEST_CASE("ITK::ApproximateSignedDistanceMapImageFilter(default)", "[ITKImageProcessing][ITKApproximateSignedDistanceMapImage][default]")
+TEST_CASE("ITKApproximateSignedDistanceMapImageFilter(default)", "[ITKImageProcessing][ITKApproximateSignedDistanceMapImage][default]")
 {
   // Instantiate the filter, a DataStructure object and an Arguments Object
   ITKApproximateSignedDistanceMapImage filter;
@@ -89,7 +89,7 @@ TEST_CASE("ITK::ApproximateSignedDistanceMapImageFilter(default)", "[ITKImagePro
 #endif
 }
 // Setting InsideValue and OutsideValuew
-TEST_CASE("ITK::ApproximateSignedDistanceMapImageFilter(modified_parms)", "[ITKImageProcessing][ITKApproximateSignedDistanceMapImage][modified_parms]")
+TEST_CASE("ITKApproximateSignedDistanceMapImageFilter(modified_parms)", "[ITKImageProcessing][ITKApproximateSignedDistanceMapImage][modified_parms]")
 {
   // Instantiate the filter, a DataStructure object and an Arguments Object
   ITKApproximateSignedDistanceMapImage filter;

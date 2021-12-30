@@ -14,7 +14,7 @@ namespace fs = std::filesystem;
 using namespace complex;
 
 // Simply run with default settings
-TEST_CASE("ITK::AdaptiveHistogramEqualizationImageFilter(defaults)", "[ITKImageProcessing][ITKAdaptiveHistogramEqualizationImage][defaults]")
+TEST_CASE("ITKAdaptiveHistogramEqualizationImageFilter(defaults)", "[ITKImageProcessing][ITKAdaptiveHistogramEqualizationImage][defaults]")
 {
   // Instantiate the filter, a DataStructure object and an Arguments Object
   ITKAdaptiveHistogramEqualizationImage filter;
@@ -89,7 +89,7 @@ TEST_CASE("ITK::AdaptiveHistogramEqualizationImageFilter(defaults)", "[ITKImageP
 #endif
 }
 // values set for classical histogram qualization
-TEST_CASE("ITK::AdaptiveHistogramEqualizationImageFilter(histo)", "[ITKImageProcessing][ITKAdaptiveHistogramEqualizationImage][histo]")
+TEST_CASE("ITKAdaptiveHistogramEqualizationImageFilter(histo)", "[ITKImageProcessing][ITKAdaptiveHistogramEqualizationImage][histo]")
 {
   // Instantiate the filter, a DataStructure object and an Arguments Object
   ITKAdaptiveHistogramEqualizationImage filter;

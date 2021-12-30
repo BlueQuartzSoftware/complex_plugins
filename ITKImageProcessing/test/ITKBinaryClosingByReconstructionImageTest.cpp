@@ -16,7 +16,7 @@ namespace fs = std::filesystem;
 using namespace complex;
 
 // Test binary closing by reconstruction
-TEST_CASE("ITK::BinaryClosingByReconstructionImageFilter(BinaryClosingByReconstruction)", "[ITKImageProcessing][ITKBinaryClosingByReconstructionImage][BinaryClosingByReconstruction]")
+TEST_CASE("ITKBinaryClosingByReconstructionImageFilter(BinaryClosingByReconstruction)", "[ITKImageProcessing][ITKBinaryClosingByReconstructionImage][BinaryClosingByReconstruction]")
 {
   // Instantiate the filter, a DataStructure object and an Arguments Object
   ITKBinaryClosingByReconstructionImage filter;

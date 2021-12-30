@@ -14,7 +14,7 @@ namespace fs = std::filesystem;
 using namespace complex;
 
 // 2D - baseline as zero noise
-TEST_CASE("ITK::SaltAndPepperNoiseImageFilter(2d)", "[ITKImageProcessing][ITKSaltAndPepperNoiseImage][2d]")
+TEST_CASE("ITKSaltAndPepperNoiseImageFilter(2d)", "[ITKImageProcessing][ITKSaltAndPepperNoiseImage][2d]")
 {
   // Instantiate the filter, a DataStructure object and an Arguments Object
   ITKSaltAndPepperNoiseImage filter;
@@ -89,7 +89,7 @@ TEST_CASE("ITK::SaltAndPepperNoiseImageFilter(2d)", "[ITKImageProcessing][ITKSal
 #endif
 }
 // 3D - baseline as zero noise
-TEST_CASE("ITK::SaltAndPepperNoiseImageFilter(3d)", "[ITKImageProcessing][ITKSaltAndPepperNoiseImage][3d]")
+TEST_CASE("ITKSaltAndPepperNoiseImageFilter(3d)", "[ITKImageProcessing][ITKSaltAndPepperNoiseImage][3d]")
 {
   // Instantiate the filter, a DataStructure object and an Arguments Object
   ITKSaltAndPepperNoiseImage filter;
@@ -164,7 +164,7 @@ TEST_CASE("ITK::SaltAndPepperNoiseImageFilter(3d)", "[ITKImageProcessing][ITKSal
 #endif
 }
 // vector image - baseline as zero noise
-TEST_CASE("ITK::SaltAndPepperNoiseImageFilter(rgb)", "[ITKImageProcessing][ITKSaltAndPepperNoiseImage][rgb]")
+TEST_CASE("ITKSaltAndPepperNoiseImageFilter(rgb)", "[ITKImageProcessing][ITKSaltAndPepperNoiseImage][rgb]")
 {
   // Instantiate the filter, a DataStructure object and an Arguments Object
   ITKSaltAndPepperNoiseImage filter;

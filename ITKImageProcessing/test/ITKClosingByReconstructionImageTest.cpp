@@ -16,7 +16,7 @@ namespace fs = std::filesystem;
 using namespace complex;
 
 // Test grayscale closing by reconstruction
-TEST_CASE("ITK::ClosingByReconstructionImageFilter(ClosingByReconstruction)", "[ITKImageProcessing][ITKClosingByReconstructionImage][ClosingByReconstruction]")
+TEST_CASE("ITKClosingByReconstructionImageFilter(ClosingByReconstruction)", "[ITKImageProcessing][ITKClosingByReconstructionImage][ClosingByReconstruction]")
 {
   // Instantiate the filter, a DataStructure object and an Arguments Object
   ITKClosingByReconstructionImage filter;

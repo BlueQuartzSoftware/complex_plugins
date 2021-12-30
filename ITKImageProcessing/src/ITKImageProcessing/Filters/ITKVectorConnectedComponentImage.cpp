@@ -10,6 +10,7 @@
  */
 #define ITK_REAL_VECTOR_PIXEL_ID_TYPE_LIST 1
 #define COMPLEX_ITK_ARRAY_HELPER_USE_Vector 0
+#define ITK_ARRAY_HELPER_NAMESPACE VectorConnectedComponentImage
 
 #include "ITKImageProcessing/Common/ITKArrayHelper.hpp"
 #include "ITKImageProcessing/Common/sitkCommon.hpp"
@@ -133,7 +134,7 @@ IFilter::PreflightResult ITKVectorConnectedComponentImage::preflightImpl(const D
   // If your filter is making structural changes to the DataStructure then the filter
   // is going to create OutputActions subclasses that need to be returned. This will
   // store those actions.
-  complex::Result<OutputActions> resultOutputActions = ITK::DataCheck<FilterOutputType>(dataStructure, pSelectedInputArray, pImageGeomPath, pOutputArrayPath);
+  complex::Result<OutputActions> resultOutputActions = VectorConnectedComponentImage::ITK::DataCheck<FilterOutputType>(dataStructure, pSelectedInputArray, pImageGeomPath, pOutputArrayPath);
 
   // If the filter needs to pass back some updated values via a key:value string:string set of values
   // you can declare and update that string here.
@@ -184,6 +185,7 @@ Result<> ITKVectorConnectedComponentImage::executeImpl(DataStructure& dataStruct
   /****************************************************************************
    * Write your algorithm implementation in this function
    ***************************************************************************/
-  return ITK::Execute<ITKVectorConnectedComponentImageCreationFunctor, FilterOutputType>(dataStructure, pSelectedInputArray, pImageGeomPath, pOutputArrayPath, itkFunctor);
+  return VectorConnectedComponentImage::ITK::Execute<ITKVectorConnectedComponentImageCreationFunctor, FilterOutputType>(dataStructure, pSelectedInputArray, pImageGeomPath, pOutputArrayPath,
+                                                                                                                        itkFunctor);
 }
 } // namespace complex

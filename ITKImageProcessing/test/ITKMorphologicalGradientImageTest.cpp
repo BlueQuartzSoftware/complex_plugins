@@ -16,7 +16,7 @@ namespace fs = std::filesystem;
 using namespace complex;
 
 // Test morhological gradient
-TEST_CASE("ITK::MorphologicalGradientImageFilter(MorphologicalGradient)", "[ITKImageProcessing][ITKMorphologicalGradientImage][MorphologicalGradient]")
+TEST_CASE("ITKMorphologicalGradientImageFilter(MorphologicalGradient)", "[ITKImageProcessing][ITKMorphologicalGradientImage][MorphologicalGradient]")
 {
   // Instantiate the filter, a DataStructure object and an Arguments Object
   ITKMorphologicalGradientImage filter;

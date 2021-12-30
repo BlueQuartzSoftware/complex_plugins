@@ -16,7 +16,7 @@ namespace fs = std::filesystem;
 using namespace complex;
 
 // Test binary erosion
-TEST_CASE("ITK::BinaryErodeImageFilter(BinaryErode)", "[ITKImageProcessing][ITKBinaryErodeImage][BinaryErode]")
+TEST_CASE("ITKBinaryErodeImageFilter(BinaryErode)", "[ITKImageProcessing][ITKBinaryErodeImage][BinaryErode]")
 {
   // Instantiate the filter, a DataStructure object and an Arguments Object
   ITKBinaryErodeImage filter;

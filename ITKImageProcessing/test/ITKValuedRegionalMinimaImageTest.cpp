@@ -14,7 +14,7 @@ namespace fs = std::filesystem;
 using namespace complex;
 
 // Simply run with default settings
-TEST_CASE("ITK::ValuedRegionalMinimaImageFilter(defaults)", "[ITKImageProcessing][ITKValuedRegionalMinimaImage][defaults]")
+TEST_CASE("ITKValuedRegionalMinimaImageFilter(defaults)", "[ITKImageProcessing][ITKValuedRegionalMinimaImage][defaults]")
 {
   // Instantiate the filter, a DataStructure object and an Arguments Object
   ITKValuedRegionalMinimaImage filter;

@@ -14,7 +14,7 @@ namespace fs = std::filesystem;
 using namespace complex;
 
 // Simply run with default settings
-TEST_CASE("ITK::BoundedReciprocalImageFilter(defaults)", "[ITKImageProcessing][ITKBoundedReciprocalImage][defaults]")
+TEST_CASE("ITKBoundedReciprocalImageFilter(defaults)", "[ITKImageProcessing][ITKBoundedReciprocalImage][defaults]")
 {
   // Instantiate the filter, a DataStructure object and an Arguments Object
   ITKBoundedReciprocalImage filter;
@@ -88,7 +88,7 @@ TEST_CASE("ITK::BoundedReciprocalImageFilter(defaults)", "[ITKImageProcessing][I
 #endif
 }
 // Simply run with default settings for a vector image
-TEST_CASE("ITK::BoundedReciprocalImageFilter(vector)", "[ITKImageProcessing][ITKBoundedReciprocalImage][vector]")
+TEST_CASE("ITKBoundedReciprocalImageFilter(vector)", "[ITKImageProcessing][ITKBoundedReciprocalImage][vector]")
 {
   // Instantiate the filter, a DataStructure object and an Arguments Object
   ITKBoundedReciprocalImage filter;

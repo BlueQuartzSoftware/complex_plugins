@@ -14,7 +14,7 @@ namespace fs = std::filesystem;
 using namespace complex;
 
 // run with some defaults
-TEST_CASE("ITK::BinaryProjectionImageFilter(defaults)", "[ITKImageProcessing][ITKBinaryProjectionImage][defaults]")
+TEST_CASE("ITKBinaryProjectionImageFilter(defaults)", "[ITKImageProcessing][ITKBinaryProjectionImage][defaults]")
 {
   // Instantiate the filter, a DataStructure object and an Arguments Object
   ITKBinaryProjectionImage filter;
@@ -77,7 +77,7 @@ TEST_CASE("ITK::BinaryProjectionImageFilter(defaults)", "[ITKImageProcessing][IT
 #endif
 }
 // project in the 2rd dimension
-TEST_CASE("ITK::BinaryProjectionImageFilter(another_dimension)", "[ITKImageProcessing][ITKBinaryProjectionImage][another_dimension]")
+TEST_CASE("ITKBinaryProjectionImageFilter(another_dimension)", "[ITKImageProcessing][ITKBinaryProjectionImage][another_dimension]")
 {
   // Instantiate the filter, a DataStructure object and an Arguments Object
   ITKBinaryProjectionImage filter;

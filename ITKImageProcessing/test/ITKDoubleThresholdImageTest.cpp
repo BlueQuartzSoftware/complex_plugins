@@ -14,7 +14,7 @@ namespace fs = std::filesystem;
 using namespace complex;
 
 // Default parameter settings
-TEST_CASE("ITK::DoubleThresholdImageFilter(DoubleThreshold1)", "[ITKImageProcessing][ITKDoubleThresholdImage][DoubleThreshold1]")
+TEST_CASE("ITKDoubleThresholdImageFilter(DoubleThreshold1)", "[ITKImageProcessing][ITKDoubleThresholdImage][DoubleThreshold1]")
 {
   // Instantiate the filter, a DataStructure object and an Arguments Object
   ITKDoubleThresholdImage filter;
@@ -77,7 +77,7 @@ TEST_CASE("ITK::DoubleThresholdImageFilter(DoubleThreshold1)", "[ITKImageProcess
 #endif
 }
 // double threshold 2D
-TEST_CASE("ITK::DoubleThresholdImageFilter(DoubleThreshold2)", "[ITKImageProcessing][ITKDoubleThresholdImage][DoubleThreshold2]")
+TEST_CASE("ITKDoubleThresholdImageFilter(DoubleThreshold2)", "[ITKImageProcessing][ITKDoubleThresholdImage][DoubleThreshold2]")
 {
   // Instantiate the filter, a DataStructure object and an Arguments Object
   ITKDoubleThresholdImage filter;

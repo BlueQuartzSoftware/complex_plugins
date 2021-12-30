@@ -14,7 +14,7 @@ namespace fs = std::filesystem;
 using namespace complex;
 
 // Simply run with default settings
-TEST_CASE("ITK::AcosImageFilter(defaults)", "[ITKImageProcessing][ITKAcosImage][defaults]")
+TEST_CASE("ITKAcosImageFilter(defaults)", "[ITKImageProcessing][ITKAcosImage][defaults]")
 {
   // Instantiate the filter, a DataStructure object and an Arguments Object
   ITKAcosImage filter;

@@ -14,7 +14,7 @@ namespace fs = std::filesystem;
 using namespace complex;
 
 // 2D
-TEST_CASE("ITK::ConnectedComponentImageFilter(default)", "[ITKImageProcessing][ITKConnectedComponentImage][default]")
+TEST_CASE("ITKConnectedComponentImageFilter(default)", "[ITKImageProcessing][ITKConnectedComponentImage][default]")
 {
   // Instantiate the filter, a DataStructure object and an Arguments Object
   ITKConnectedComponentImage filter;
@@ -77,7 +77,7 @@ TEST_CASE("ITK::ConnectedComponentImageFilter(default)", "[ITKImageProcessing][I
 #endif
 }
 // With make image
-TEST_CASE("ITK::ConnectedComponentImageFilter(mask)", "[ITKImageProcessing][ITKConnectedComponentImage][mask]")
+TEST_CASE("ITKConnectedComponentImageFilter(mask)", "[ITKImageProcessing][ITKConnectedComponentImage][mask]")
 {
   // Instantiate the filter, a DataStructure object and an Arguments Object
   ITKConnectedComponentImage filter;
@@ -150,7 +150,7 @@ TEST_CASE("ITK::ConnectedComponentImageFilter(mask)", "[ITKImageProcessing][ITKC
 #endif
 }
 // 2D
-TEST_CASE("ITK::ConnectedComponentImageFilter(fullyconnected)", "[ITKImageProcessing][ITKConnectedComponentImage][fullyconnected]")
+TEST_CASE("ITKConnectedComponentImageFilter(fullyconnected)", "[ITKImageProcessing][ITKConnectedComponentImage][fullyconnected]")
 {
   // Instantiate the filter, a DataStructure object and an Arguments Object
   ITKConnectedComponentImage filter;

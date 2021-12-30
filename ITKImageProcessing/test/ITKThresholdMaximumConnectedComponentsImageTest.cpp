@@ -14,7 +14,7 @@ namespace fs = std::filesystem;
 using namespace complex;
 
 // 2D
-TEST_CASE("ITK::ThresholdMaximumConnectedComponentsImageFilter(default)", "[ITKImageProcessing][ITKThresholdMaximumConnectedComponentsImage][default]")
+TEST_CASE("ITKThresholdMaximumConnectedComponentsImageFilter(default)", "[ITKImageProcessing][ITKThresholdMaximumConnectedComponentsImage][default]")
 {
   // Instantiate the filter, a DataStructure object and an Arguments Object
   ITKThresholdMaximumConnectedComponentsImage filter;
@@ -77,7 +77,7 @@ TEST_CASE("ITK::ThresholdMaximumConnectedComponentsImageFilter(default)", "[ITKI
 #endif
 }
 // 2D
-TEST_CASE("ITK::ThresholdMaximumConnectedComponentsImageFilter(parameters)", "[ITKImageProcessing][ITKThresholdMaximumConnectedComponentsImage][parameters]")
+TEST_CASE("ITKThresholdMaximumConnectedComponentsImageFilter(parameters)", "[ITKImageProcessing][ITKThresholdMaximumConnectedComponentsImage][parameters]")
 {
   // Instantiate the filter, a DataStructure object and an Arguments Object
   ITKThresholdMaximumConnectedComponentsImage filter;
@@ -142,7 +142,7 @@ TEST_CASE("ITK::ThresholdMaximumConnectedComponentsImageFilter(parameters)", "[I
 #endif
 }
 // 3D-float
-TEST_CASE("ITK::ThresholdMaximumConnectedComponentsImageFilter(float)", "[ITKImageProcessing][ITKThresholdMaximumConnectedComponentsImage][float]")
+TEST_CASE("ITKThresholdMaximumConnectedComponentsImageFilter(float)", "[ITKImageProcessing][ITKThresholdMaximumConnectedComponentsImage][float]")
 {
   // Instantiate the filter, a DataStructure object and an Arguments Object
   ITKThresholdMaximumConnectedComponentsImage filter;

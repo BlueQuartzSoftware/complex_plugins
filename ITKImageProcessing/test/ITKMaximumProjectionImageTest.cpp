@@ -14,7 +14,7 @@ namespace fs = std::filesystem;
 using namespace complex;
 
 // run with some defaults
-TEST_CASE("ITK::MaximumProjectionImageFilter(defaults)", "[ITKImageProcessing][ITKMaximumProjectionImage][defaults]")
+TEST_CASE("ITKMaximumProjectionImageFilter(defaults)", "[ITKImageProcessing][ITKMaximumProjectionImage][defaults]")
 {
   // Instantiate the filter, a DataStructure object and an Arguments Object
   ITKMaximumProjectionImage filter;
@@ -77,7 +77,7 @@ TEST_CASE("ITK::MaximumProjectionImageFilter(defaults)", "[ITKImageProcessing][I
 #endif
 }
 // project in the 3rd dimension
-TEST_CASE("ITK::MaximumProjectionImageFilter(another_dimension)", "[ITKImageProcessing][ITKMaximumProjectionImage][another_dimension]")
+TEST_CASE("ITKMaximumProjectionImageFilter(another_dimension)", "[ITKImageProcessing][ITKMaximumProjectionImage][another_dimension]")
 {
   // Instantiate the filter, a DataStructure object and an Arguments Object
   ITKMaximumProjectionImage filter;
@@ -141,7 +141,7 @@ TEST_CASE("ITK::MaximumProjectionImageFilter(another_dimension)", "[ITKImageProc
 #endif
 }
 // project with a short image
-TEST_CASE("ITK::MaximumProjectionImageFilter(short_image)", "[ITKImageProcessing][ITKMaximumProjectionImage][short_image]")
+TEST_CASE("ITKMaximumProjectionImageFilter(short_image)", "[ITKImageProcessing][ITKMaximumProjectionImage][short_image]")
 {
   // Instantiate the filter, a DataStructure object and an Arguments Object
   ITKMaximumProjectionImage filter;
@@ -205,7 +205,7 @@ TEST_CASE("ITK::MaximumProjectionImageFilter(short_image)", "[ITKImageProcessing
 #endif
 }
 // project with a rgb image in 2D
-TEST_CASE("ITK::MaximumProjectionImageFilter(rgb_image)", "[ITKImageProcessing][ITKMaximumProjectionImage][rgb_image]")
+TEST_CASE("ITKMaximumProjectionImageFilter(rgb_image)", "[ITKImageProcessing][ITKMaximumProjectionImage][rgb_image]")
 {
   // Instantiate the filter, a DataStructure object and an Arguments Object
   ITKMaximumProjectionImage filter;

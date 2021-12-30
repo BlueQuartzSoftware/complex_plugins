@@ -14,7 +14,7 @@ namespace fs = std::filesystem;
 using namespace complex;
 
 // Simply run with default settings
-TEST_CASE("ITK::CurvatureFlowImageFilter(defaults)", "[ITKImageProcessing][ITKCurvatureFlowImage][defaults]")
+TEST_CASE("ITKCurvatureFlowImageFilter(defaults)", "[ITKImageProcessing][ITKCurvatureFlowImage][defaults]")
 {
   // Instantiate the filter, a DataStructure object and an Arguments Object
   ITKCurvatureFlowImage filter;
@@ -88,7 +88,7 @@ TEST_CASE("ITK::CurvatureFlowImageFilter(defaults)", "[ITKImageProcessing][ITKCu
 #endif
 }
 // Change number of iterations and timestep
-TEST_CASE("ITK::CurvatureFlowImageFilter(longer)", "[ITKImageProcessing][ITKCurvatureFlowImage][longer]")
+TEST_CASE("ITKCurvatureFlowImageFilter(longer)", "[ITKImageProcessing][ITKCurvatureFlowImage][longer]")
 {
   // Instantiate the filter, a DataStructure object and an Arguments Object
   ITKCurvatureFlowImage filter;

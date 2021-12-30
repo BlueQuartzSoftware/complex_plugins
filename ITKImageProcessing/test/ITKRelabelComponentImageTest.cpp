@@ -14,7 +14,7 @@ namespace fs = std::filesystem;
 using namespace complex;
 
 // 2D
-TEST_CASE("ITK::RelabelComponentImageFilter(default)", "[ITKImageProcessing][ITKRelabelComponentImage][default]")
+TEST_CASE("ITKRelabelComponentImageFilter(default)", "[ITKImageProcessing][ITKRelabelComponentImage][default]")
 {
   // Instantiate the filter, a DataStructure object and an Arguments Object
   ITKRelabelComponentImage filter;
@@ -77,7 +77,7 @@ TEST_CASE("ITK::RelabelComponentImageFilter(default)", "[ITKImageProcessing][ITK
 #endif
 }
 // 2D without size sorting
-TEST_CASE("ITK::RelabelComponentImageFilter(no_sorting)", "[ITKImageProcessing][ITKRelabelComponentImage][no_sorting]")
+TEST_CASE("ITKRelabelComponentImageFilter(no_sorting)", "[ITKImageProcessing][ITKRelabelComponentImage][no_sorting]")
 {
   // Instantiate the filter, a DataStructure object and an Arguments Object
   ITKRelabelComponentImage filter;
@@ -141,7 +141,7 @@ TEST_CASE("ITK::RelabelComponentImageFilter(no_sorting)", "[ITKImageProcessing][
 #endif
 }
 // 2D without size sorting
-TEST_CASE("ITK::RelabelComponentImageFilter(no_sorting2)", "[ITKImageProcessing][ITKRelabelComponentImage][no_sorting2]")
+TEST_CASE("ITKRelabelComponentImageFilter(no_sorting2)", "[ITKImageProcessing][ITKRelabelComponentImage][no_sorting2]")
 {
   // Instantiate the filter, a DataStructure object and an Arguments Object
   ITKRelabelComponentImage filter;

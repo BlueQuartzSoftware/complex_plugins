@@ -16,7 +16,7 @@ namespace fs = std::filesystem;
 using namespace complex;
 
 // Test binary dilation
-TEST_CASE("ITK::BinaryDilateImageFilter(BinaryDilate)", "[ITKImageProcessing][ITKBinaryDilateImage][BinaryDilate]")
+TEST_CASE("ITKBinaryDilateImageFilter(BinaryDilate)", "[ITKImageProcessing][ITKBinaryDilateImage][BinaryDilate]")
 {
   // Instantiate the filter, a DataStructure object and an Arguments Object
   ITKBinaryDilateImage filter;
@@ -84,7 +84,7 @@ TEST_CASE("ITK::BinaryDilateImageFilter(BinaryDilate)", "[ITKImageProcessing][IT
 #endif
 }
 // Test binary dilation with vector radius
-TEST_CASE("ITK::BinaryDilateImageFilter(BinaryDilateVectorRadius)", "[ITKImageProcessing][ITKBinaryDilateImage][BinaryDilateVectorRadius]")
+TEST_CASE("ITKBinaryDilateImageFilter(BinaryDilateVectorRadius)", "[ITKImageProcessing][ITKBinaryDilateImage][BinaryDilateVectorRadius]")
 {
   // Instantiate the filter, a DataStructure object and an Arguments Object
   ITKBinaryDilateImage filter;

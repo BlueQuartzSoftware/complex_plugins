@@ -9,12 +9,12 @@
 #include "complex/DataStructure/Geometry/ImageGeom.hpp"
 #include "complex/UnitTest/UnitTestCommon.hpp"
 
-#include <filesystem>
-#include <memory>
-#include <string>
-#include <ostream>
-#include <iostream>
 #include <cstdio>
+#include <filesystem>
+#include <iostream>
+#include <memory>
+#include <ostream>
+#include <string>
 
 namespace fs = std::filesystem;
 
@@ -40,7 +40,7 @@ std::string ComputeMd5Hash(DataStructure& ds, const DataPath& outputDataPath);
 
 void RemoveFiles(fs::path& dirPath, const std::string& filePattern);
 
-template<typename T>
+template <typename T>
 void WriteDataSetAsBinary(const fs::path& absolutePath, const DataStore<T>& dataStore)
 {
   std::cout << "Writing Binary File: " << absolutePath.string() << std::endl;
@@ -48,10 +48,9 @@ void WriteDataSetAsBinary(const fs::path& absolutePath, const DataStore<T>& data
 
   size_t numElements = dataStore.getSize();
 
-  size_t numWritten = fwrite(dataStore.data(),sizeof(T), numElements, file);
+  size_t numWritten = fwrite(dataStore.data(), sizeof(T), numElements, file);
 
   fclose(file);
-
 }
 
 } // namespace ITKTestBase

@@ -14,7 +14,7 @@ namespace fs = std::filesystem;
 using namespace complex;
 
 // Test grayscale fillhole
-TEST_CASE("ITK::GrayscaleFillholeImageFilter(GrayscaleFillhole1)", "[ITKImageProcessing][ITKGrayscaleFillholeImage][GrayscaleFillhole1]")
+TEST_CASE("ITKGrayscaleFillholeImageFilter(GrayscaleFillhole1)", "[ITKImageProcessing][ITKGrayscaleFillholeImage][GrayscaleFillhole1]")
 {
   // Instantiate the filter, a DataStructure object and an Arguments Object
   ITKGrayscaleFillholeImage filter;
@@ -77,7 +77,7 @@ TEST_CASE("ITK::GrayscaleFillholeImageFilter(GrayscaleFillhole1)", "[ITKImagePro
 #endif
 }
 // Test grayscale fillhole 2D
-TEST_CASE("ITK::GrayscaleFillholeImageFilter(GrayscaleFillhole2)", "[ITKImageProcessing][ITKGrayscaleFillholeImage][GrayscaleFillhole2]")
+TEST_CASE("ITKGrayscaleFillholeImageFilter(GrayscaleFillhole2)", "[ITKImageProcessing][ITKGrayscaleFillholeImage][GrayscaleFillhole2]")
 {
   // Instantiate the filter, a DataStructure object and an Arguments Object
   ITKGrayscaleFillholeImage filter;

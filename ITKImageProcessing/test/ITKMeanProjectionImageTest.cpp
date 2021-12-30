@@ -14,7 +14,7 @@ namespace fs = std::filesystem;
 using namespace complex;
 
 // project in the 2nd dimension
-TEST_CASE("ITK::MeanProjectionImageFilter(z_projection)", "[ITKImageProcessing][ITKMeanProjectionImage][z_projection]")
+TEST_CASE("ITKMeanProjectionImageFilter(z_projection)", "[ITKImageProcessing][ITKMeanProjectionImage][z_projection]")
 {
   // Instantiate the filter, a DataStructure object and an Arguments Object
   ITKMeanProjectionImage filter;

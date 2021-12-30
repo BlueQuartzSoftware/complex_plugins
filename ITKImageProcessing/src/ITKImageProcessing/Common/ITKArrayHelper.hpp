@@ -159,7 +159,19 @@
  */
 static_assert(!(COMPLEX_ITK_ARRAY_HELPER_USE_Vector == 1 && COMPLEX_ITK_ARRAY_HELPER_USE_RGB_RGBA == 1), "ITKArrayHelper: Vector and RGB/RGBA support cannot both be enabled at the same time");
 
-namespace complex
+namespace complex::ITK
+{
+bool DoDimensionsMatch(const IDataStore& dataStore, const ImageGeom& imageGeom);
+
+}
+
+#ifndef ITK_ARRAY_HELPER_NAMESPACE
+#define ITK_ARRAY_HELPER_NAMESPACE complex
+#else
+using namespace complex;
+#endif
+
+namespace ITK_ARRAY_HELPER_NAMESPACE
 {
 namespace ITK
 {
@@ -192,8 +204,6 @@ OutputType CastVec3ToITK(const InputType& inputVec3, unsigned int dimension)
  */
 template <class T>
 using UnderlyingType_t = typename itk::NumericTraits<T>::ValueType;
-
-bool DoDimensionsMatch(const IDataStore& dataStore, const ImageGeom& imageGeom);
 
 template <class PixelT>
 std::vector<usize> GetComponentDimensions()
@@ -365,7 +375,7 @@ Result<OutputActions> DataCheckImpl(const DataStructure& dataStructure, const Da
 
   const IDataStore& dataStore = dataArray.getIDataStoreRef();
 
-  if(!ITK::DoDimensionsMatch(dataStore, imageGeom))
+  if(!complex::ITK::DoDimensionsMatch(dataStore, imageGeom))
   {
     return MakeErrorResult<OutputActions>(-1, "DataArray dimensions don't match ImageGeom");
   }
@@ -429,6 +439,9 @@ struct ITKFilterFunctor
 template <class OutputT, class DefaultOutputT>
 using TrueOutputT = std::conditional_t<std::is_same_v<OutputT, void>, DefaultOutputT, OutputT>;
 } // namespace detail
+
+#define XSTR(x) STR(x)
+#define STR(x) #x
 
 template <template <class, class, uint32> class FunctorT, class ResultT = void, class OutputT = void, class... ArgsT>
 Result<ResultT> ArraySwitchFunc(const IDataStore& dataStore, const ImageGeom& imageGeom, int32 errorCode, ArgsT&&... args)
@@ -521,4 +534,4 @@ Result<> Execute(DataStructure& dataStructure, const DataPath& inputArrayPath, c
   }
 }
 } // namespace ITK
-} // namespace complex
+} // namespace ITK_ARRAY_HELPER_NAMESPACE

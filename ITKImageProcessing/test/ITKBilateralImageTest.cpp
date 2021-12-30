@@ -14,7 +14,7 @@ namespace fs = std::filesystem;
 using namespace complex;
 
 // Simply run with default settings on rgb
-TEST_CASE("ITK::BilateralImageFilter(default)", "[ITKImageProcessing][ITKBilateralImage][default]")
+TEST_CASE("ITKBilateralImageFilter(default)", "[ITKImageProcessing][ITKBilateralImage][default]")
 {
   // Instantiate the filter, a DataStructure object and an Arguments Object
   ITKBilateralImage filter;
@@ -77,7 +77,7 @@ TEST_CASE("ITK::BilateralImageFilter(default)", "[ITKImageProcessing][ITKBilater
 #endif
 }
 // small kernel in 3d
-TEST_CASE("ITK::BilateralImageFilter(3d)", "[ITKImageProcessing][ITKBilateralImage][3d]")
+TEST_CASE("ITKBilateralImageFilter(3d)", "[ITKImageProcessing][ITKBilateralImage][3d]")
 {
   // Instantiate the filter, a DataStructure object and an Arguments Object
   ITKBilateralImage filter;

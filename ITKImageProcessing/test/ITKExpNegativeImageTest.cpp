@@ -14,7 +14,7 @@ namespace fs = std::filesystem;
 using namespace complex;
 
 // Simply run with default settings
-TEST_CASE("ITK::ExpNegativeImageFilter(defaults)", "[ITKImageProcessing][ITKExpNegativeImage][defaults]")
+TEST_CASE("ITKExpNegativeImageFilter(defaults)", "[ITKImageProcessing][ITKExpNegativeImage][defaults]")
 {
   // Instantiate the filter, a DataStructure object and an Arguments Object
   ITKExpNegativeImage filter;

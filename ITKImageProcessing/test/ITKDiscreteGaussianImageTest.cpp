@@ -14,7 +14,7 @@ namespace fs = std::filesystem;
 using namespace complex;
 
 // Simply run with default settings
-TEST_CASE("ITK::DiscreteGaussianImageFilter(float)", "[ITKImageProcessing][ITKDiscreteGaussianImage][float]")
+TEST_CASE("ITKDiscreteGaussianImageFilter(float)", "[ITKImageProcessing][ITKDiscreteGaussianImage][float]")
 {
   // Instantiate the filter, a DataStructure object and an Arguments Object
   ITKDiscreteGaussianImage filter;
@@ -88,7 +88,7 @@ TEST_CASE("ITK::DiscreteGaussianImageFilter(float)", "[ITKImageProcessing][ITKDi
 #endif
 }
 // Simply run with a short image with default settings
-TEST_CASE("ITK::DiscreteGaussianImageFilter(short)", "[ITKImageProcessing][ITKDiscreteGaussianImage][short]")
+TEST_CASE("ITKDiscreteGaussianImageFilter(short)", "[ITKImageProcessing][ITKDiscreteGaussianImage][short]")
 {
   // Instantiate the filter, a DataStructure object and an Arguments Object
   ITKDiscreteGaussianImage filter;
@@ -162,7 +162,7 @@ TEST_CASE("ITK::DiscreteGaussianImageFilter(short)", "[ITKImageProcessing][ITKDi
 #endif
 }
 // use a big gaussian
-TEST_CASE("ITK::DiscreteGaussianImageFilter(bigG)", "[ITKImageProcessing][ITKDiscreteGaussianImage][bigG]")
+TEST_CASE("ITKDiscreteGaussianImageFilter(bigG)", "[ITKImageProcessing][ITKDiscreteGaussianImage][bigG]")
 {
   // Instantiate the filter, a DataStructure object and an Arguments Object
   ITKDiscreteGaussianImage filter;

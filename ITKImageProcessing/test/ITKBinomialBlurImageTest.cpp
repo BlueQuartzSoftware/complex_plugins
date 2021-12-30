@@ -14,7 +14,7 @@ namespace fs = std::filesystem;
 using namespace complex;
 
 // Test BinomialBlurImageFilter with default parametrs
-TEST_CASE("ITK::BinomialBlurImageFilter(defaults)", "[ITKImageProcessing][ITKBinomialBlurImage][defaults]")
+TEST_CASE("ITKBinomialBlurImageFilter(defaults)", "[ITKImageProcessing][ITKBinomialBlurImage][defaults]")
 {
   // Instantiate the filter, a DataStructure object and an Arguments Object
   ITKBinomialBlurImage filter;
