@@ -98,3 +98,38 @@ static_cast<> base to the itk::simple::* type to then pass into the filter.
 
 Some of the test variations still give a ```bad any cast```
 
+## Failing Tests 2021/12/30 ##
+
++ ITKBilateralImage 
++ ITKBinaryProjectionImage 
++ ITKBinomialBlurImage 
++ ITKLaplacianSharpeningImage 
++ ITKMaximumProjectionImage 
++ ITKMedianProjectionImage 
++ ITKMinimumProjectionImage 
++ ITKMinimumProjectionImage 
++ ITKSaltAndPepperNoiseImage 
++ ITKShiftScaleImage 
++ ITKShotNoiseImage 
++ ITKSpeckleNoiseImage 
++ ITKGradientAnisotropicDiffusionImage 
++ ITKBoundedReciprocalImage 
++ ITKConnectedComponentImage 
++ ITKCurvatureFlowImage 
++ ITKMeanProjectionImage 
++ ITKMinMaxCurvatureFlowImage 
++ ITKMorphologicalWatershedFromMarkersImage 
++ ITKNormalizeImage 
++ ITKNormalizeToConstantImage 
++ ITKRegionalMaximaImage 
++ ITKRegionalMinimaImage 
++ ITKSmoothingRecursiveGaussianImage 
++ ITKStandardDeviationProjectionImage 
++ ITKSumProjectionImage 
++ ITKThresholdMaximumConnectedComponentsImage 
++ ITKBoxMeanImage 
++ ITKAdaptiveHistogramEqualizationImage 
++ ITKMedianImage 
++ ITKDiscreteGaussianImage 
+
+

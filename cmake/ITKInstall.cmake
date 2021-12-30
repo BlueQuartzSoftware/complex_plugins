@@ -9,6 +9,10 @@ function(AddItkCopyInstallRules)
   cmake_parse_arguments(itk "${options}" "${oneValueArgs}" "${multiValueArgs}" ${ARGN} )
   set(INTER_DIR ".")
 
+  if(APPLE)
+    return()
+  endif()
+
 
   if(MSVC_IDE)
     set(itk_TYPES Debug Release)
