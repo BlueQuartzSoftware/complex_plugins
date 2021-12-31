@@ -78,15 +78,10 @@ types: RGBFilter and RGBAFilter. This needs to be rectified.
 ### ITKGradientAnisotropicDiffusionImage ###
 
 ```
--20: Comparing output image and baseline image produced too large of an error. Tolerance was: 0. Error was 0.00390625
+-20: Comparing output image and baseline image produced too large of an error. Tolerance was: 0. Error was 0.00390625.
 ```
 
-### ITKGradientMagnitudeImage ###
-```
--1000 : Invalid DataType while attempting to execute
-```
-This means that the ITKArrayHelper::ArraySwitchFunc<>() could not find an appropriate
-type to execute.
+my guess is that this filter needs to run internal calculations in double precision.
 
 ### ITK::ShiftScaleImageFilter ###
 
@@ -106,7 +101,6 @@ Some of the test variations still give a ```bad any cast```
 + ITKLaplacianSharpeningImage 
 + ITKMaximumProjectionImage 
 + ITKMedianProjectionImage 
-+ ITKMinimumProjectionImage 
 + ITKMinimumProjectionImage 
 + ITKSaltAndPepperNoiseImage 
 + ITKShiftScaleImage 
