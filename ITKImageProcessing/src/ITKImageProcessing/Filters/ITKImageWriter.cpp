@@ -9,9 +9,6 @@
 #include "complex/Parameters/GeometrySelectionParameter.hpp"
 #include "complex/Parameters/NumberParameter.hpp"
 
-#define ITK_BASIC_PIXEL_ID_TYPE_LIST 1
-#define COMPLEX_ITK_ARRAY_HELPER_USE_Vector 1
-#define COMPLEX_ITK_ARRAY_HELPER_USE_RGB_RGBA 0
 #include "ITKImageProcessing/Common/ITKArrayHelper.hpp"
 
 #include "ITKImageProcessing/ITKImageProcessingPlugin.hpp"
@@ -36,6 +33,8 @@ using namespace complex;
 
 namespace
 {
+using ArrayOptionsType = ITK::ScalarVectorPixelIdTypeList;
+
 bool Is2DFormat(const fs::path& fileName)
 {
   fs::path ext = fileName.extension();
@@ -201,7 +200,7 @@ Result<> SaveImageData(const fs::path& filePath, IDataStore& sliceData, const Im
 
   auto fileName = fs::path(ss.str());
 
-  return ITK::ArraySwitchFunc<WriteImageFunctor>(sliceData, imageGeom, -21010, sliceData, imageGeom, fileName, indexOffset);
+  return ITK::ArraySwitchFunc<WriteImageFunctor, ArrayOptionsType>(sliceData, imageGeom, -21010, sliceData, imageGeom, fileName, indexOffset);
 }
 } // namespace
 

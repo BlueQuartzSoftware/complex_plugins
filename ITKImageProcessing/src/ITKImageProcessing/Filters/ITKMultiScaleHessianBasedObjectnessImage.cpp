@@ -31,7 +31,7 @@ struct ITKMultiScaleHessianBasedObjectnessImageFilterCreationFunctor
   float64 m_NumberOfSigmaSteps;
 
   template <typename InputImageType, typename OutputImageType, unsigned int Dimension>
-  auto operator()() const
+  auto createFilter() const
   {
 
     using InputPixelType = typename InputImageType::PixelType;

@@ -37,7 +37,7 @@ TEST_CASE("ITKSignedMaurerDistanceMapImageFilter(default)", "[ITKImageProcessing
     DataPath outputDataPath = inputGeometryPath.createChildPath(complex::ITKTestBase::k_OutputDataPath);
     args.insertOrAssign(ITKSignedMaurerDistanceMapImage::k_SelectedImageGeomPath_Key, std::make_any<DataPath>(inputGeometryPath));
     args.insertOrAssign(ITKSignedMaurerDistanceMapImage::k_SelectedImageDataPath_Key, std::make_any<DataPath>(inputDataPath));
-    args.insertOrAssign(ITKSignedMaurerDistanceMapImage::k_OutputIamgeDataPath_Key, std::make_any<DataPath>(outputDataPath));
+    args.insertOrAssign(ITKSignedMaurerDistanceMapImage::k_OutputImageDataPath_Key, std::make_any<DataPath>(outputDataPath));
     // Preflight the filter and check result
     auto preflightResult = filter.preflight(ds, args);
     COMPLEX_RESULT_REQUIRE_VALID(preflightResult.outputActions);

@@ -47,7 +47,7 @@ TEST_CASE("ITKHistogramMatchingImageFilter(defaults)", "[ITKImageProcessing][ITK
     DataPath outputDataPath = inputGeometryPath.createChildPath(complex::ITKTestBase::k_OutputDataPath);
     args.insertOrAssign(ITKHistogramMatchingImage::k_SelectedImageGeomPath_Key, std::make_any<DataPath>(inputGeometryPath));
     args.insertOrAssign(ITKHistogramMatchingImage::k_SelectedImageDataPath_Key, std::make_any<DataPath>(inputDataPath));
-    args.insertOrAssign(ITKHistogramMatchingImage::k_OutputIamgeDataPath_Key, std::make_any<DataPath>(outputDataPath));
+    args.insertOrAssign(ITKHistogramMatchingImage::k_OutputImageDataPath_Key, std::make_any<DataPath>(outputDataPath));
     // Preflight the filter and check result
     auto preflightResult = filter.preflight(ds, args);
     COMPLEX_RESULT_REQUIRE_VALID(preflightResult.outputActions);
@@ -131,7 +131,7 @@ TEST_CASE("ITKHistogramMatchingImageFilter(near_identity)", "[ITKImageProcessing
     DataPath outputDataPath = inputGeometryPath.createChildPath(complex::ITKTestBase::k_OutputDataPath);
     args.insertOrAssign(ITKHistogramMatchingImage::k_SelectedImageGeomPath_Key, std::make_any<DataPath>(inputGeometryPath));
     args.insertOrAssign(ITKHistogramMatchingImage::k_SelectedImageDataPath_Key, std::make_any<DataPath>(inputDataPath));
-    args.insertOrAssign(ITKHistogramMatchingImage::k_OutputIamgeDataPath_Key, std::make_any<DataPath>(outputDataPath));
+    args.insertOrAssign(ITKHistogramMatchingImage::k_OutputImageDataPath_Key, std::make_any<DataPath>(outputDataPath));
     args.insertOrAssign(ITKHistogramMatchingImage::k_NumberOfHistogramLevels_Key, std::make_any<uint32_t>(65536));
     args.insertOrAssign(ITKHistogramMatchingImage::k_ThresholdAtMeanIntensity_Key, std::make_any<bool>(false));
     // Preflight the filter and check result

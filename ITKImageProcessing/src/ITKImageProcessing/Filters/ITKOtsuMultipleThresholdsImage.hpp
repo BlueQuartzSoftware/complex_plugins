@@ -12,8 +12,8 @@ namespace complex
  * @brief Threshold an image using multiple Otsu Thresholds.
  *
  * This filter creates a labeled image that separates the input image into various classes. The filter computes the thresholds using the OtsuMultipleThresholdsCalculator and applies those thresholds
- * to the input image using the ThresholdLabelerImageFilter . The NumberOfHistogramBins and NumberOfThresholds can be set for the Calculator. The LabelOffset can be set for the
- * ThresholdLabelerImageFilter .
+ * to the input image using the ThresholdLabelerImageFilter. The NumberOfHistogramBins and NumberOfThresholds can be set for the Calculator. The LabelOffset can be set for the
+ * ThresholdLabelerImageFilter.
  *
  * This filter also includes an option to use the valley emphasis algorithm from H.F. Ng, "Automatic thresholding for defect detection", Pattern Recognition Letters, (27): 1644-1649, 2006. The valley
  * emphasis algorithm is particularly effective when the object to be thresholded is small. See the following tests for examples: itkOtsuMultipleThresholdsImageFilterTest3 and
@@ -45,7 +45,7 @@ public:
   // Parameter Keys
   static inline constexpr StringLiteral k_SelectedImageGeomPath_Key = "SelectedImageGeomPath";
   static inline constexpr StringLiteral k_SelectedImageDataPath_Key = "InputImageDataPath";
-  static inline constexpr StringLiteral k_OutputIamgeDataPath_Key = "OutputImageDataPath";
+  static inline constexpr StringLiteral k_OutputImageDataPath_Key = "OutputImageDataPath";
   static inline constexpr StringLiteral k_NumberOfThresholds_Key = "NumberOfThresholds";
   static inline constexpr StringLiteral k_LabelOffset_Key = "LabelOffset";
   static inline constexpr StringLiteral k_NumberOfHistogramBins_Key = "NumberOfHistogramBins";

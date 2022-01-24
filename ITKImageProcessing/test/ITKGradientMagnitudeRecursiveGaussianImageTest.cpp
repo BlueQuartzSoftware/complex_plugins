@@ -37,7 +37,7 @@ TEST_CASE("ITKGradientMagnitudeRecursiveGaussianImageFilter(default)", "[ITKImag
     DataPath outputDataPath = inputGeometryPath.createChildPath(complex::ITKTestBase::k_OutputDataPath);
     args.insertOrAssign(ITKGradientMagnitudeRecursiveGaussianImage::k_SelectedImageGeomPath_Key, std::make_any<DataPath>(inputGeometryPath));
     args.insertOrAssign(ITKGradientMagnitudeRecursiveGaussianImage::k_SelectedImageDataPath_Key, std::make_any<DataPath>(inputDataPath));
-    args.insertOrAssign(ITKGradientMagnitudeRecursiveGaussianImage::k_OutputIamgeDataPath_Key, std::make_any<DataPath>(outputDataPath));
+    args.insertOrAssign(ITKGradientMagnitudeRecursiveGaussianImage::k_OutputImageDataPath_Key, std::make_any<DataPath>(outputDataPath));
     // Preflight the filter and check result
     auto preflightResult = filter.preflight(ds, args);
     COMPLEX_RESULT_REQUIRE_VALID(preflightResult.outputActions);

@@ -37,7 +37,7 @@ TEST_CASE("ITKBoxMeanImageFilter(defaults)", "[ITKImageProcessing][ITKBoxMeanIma
     DataPath outputDataPath = inputGeometryPath.createChildPath(complex::ITKTestBase::k_OutputDataPath);
     args.insertOrAssign(ITKBoxMeanImage::k_SelectedImageGeomPath_Key, std::make_any<DataPath>(inputGeometryPath));
     args.insertOrAssign(ITKBoxMeanImage::k_SelectedImageDataPath_Key, std::make_any<DataPath>(inputDataPath));
-    args.insertOrAssign(ITKBoxMeanImage::k_OutputIamgeDataPath_Key, std::make_any<DataPath>(outputDataPath));
+    args.insertOrAssign(ITKBoxMeanImage::k_OutputImageDataPath_Key, std::make_any<DataPath>(outputDataPath));
     // Preflight the filter and check result
     auto preflightResult = filter.preflight(ds, args);
     COMPLEX_RESULT_REQUIRE_VALID(preflightResult.outputActions);
@@ -100,7 +100,7 @@ TEST_CASE("ITKBoxMeanImageFilter(by23)", "[ITKImageProcessing][ITKBoxMeanImage][
     DataPath outputDataPath = inputGeometryPath.createChildPath(complex::ITKTestBase::k_OutputDataPath);
     args.insertOrAssign(ITKBoxMeanImage::k_SelectedImageGeomPath_Key, std::make_any<DataPath>(inputGeometryPath));
     args.insertOrAssign(ITKBoxMeanImage::k_SelectedImageDataPath_Key, std::make_any<DataPath>(inputDataPath));
-    args.insertOrAssign(ITKBoxMeanImage::k_OutputIamgeDataPath_Key, std::make_any<DataPath>(outputDataPath));
+    args.insertOrAssign(ITKBoxMeanImage::k_OutputImageDataPath_Key, std::make_any<DataPath>(outputDataPath));
     auto pRadius = std::vector<uint32_t>{2, 3};
     args.insertOrAssign(ITKBoxMeanImage::k_Radius_Key, std::make_any<std::vector<uint32_t>>(pRadius));
     // Preflight the filter and check result
@@ -165,7 +165,7 @@ TEST_CASE("ITKBoxMeanImageFilter(by333)", "[ITKImageProcessing][ITKBoxMeanImage]
     DataPath outputDataPath = inputGeometryPath.createChildPath(complex::ITKTestBase::k_OutputDataPath);
     args.insertOrAssign(ITKBoxMeanImage::k_SelectedImageGeomPath_Key, std::make_any<DataPath>(inputGeometryPath));
     args.insertOrAssign(ITKBoxMeanImage::k_SelectedImageDataPath_Key, std::make_any<DataPath>(inputDataPath));
-    args.insertOrAssign(ITKBoxMeanImage::k_OutputIamgeDataPath_Key, std::make_any<DataPath>(outputDataPath));
+    args.insertOrAssign(ITKBoxMeanImage::k_OutputImageDataPath_Key, std::make_any<DataPath>(outputDataPath));
     auto pRadius = std::vector<uint32_t>{3, 3, 3};
     args.insertOrAssign(ITKBoxMeanImage::k_Radius_Key, std::make_any<std::vector<uint32_t>>(pRadius));
     // Preflight the filter and check result

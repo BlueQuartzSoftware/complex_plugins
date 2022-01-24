@@ -36,7 +36,7 @@ struct ITKMorphologicalWatershedFromMarkersImageCreationFunctor
   bool pFullyConnected = false;
 
   template <class InputImageType, class OutputImageType, uint32 Dimension>
-  auto operator()() const
+  auto createFilter() const
   {
     using FilterType = itk::MorphologicalWatershedFromMarkersImageFilter<InputImageType, InputImageType>;
     typename FilterType::Pointer filter = FilterType::New();
@@ -86,7 +86,7 @@ Parameters ITKMorphologicalWatershedFromMarkersImage::parameters() const
   // Create the parameter descriptors that are needed for this filter
   params.insert(std::make_unique<GeometrySelectionParameter>(k_SelectedImageGeomPath_Key, "Image Geometry", "", DataPath{}, GeometrySelectionParameter::AllowedTypes{DataObject::Type::ImageGeom}));
   params.insert(std::make_unique<ArraySelectionParameter>(k_SelectedImageDataPath_Key, "Input Image", "", DataPath{}));
-  params.insert(std::make_unique<ArrayCreationParameter>(k_OutputIamgeDataPath_Key, "Output Image", "", DataPath{}));
+  params.insert(std::make_unique<ArrayCreationParameter>(k_OutputImageDataPath_Key, "Output Image", "", DataPath{}));
   params.insert(std::make_unique<ArraySelectionParameter>(k_MarkerImageDataPath_Key, "MarkerImage", "", DataPath{}));
   params.insert(std::make_unique<BoolParameter>(k_MarkWatershedLine_Key, "MarkWatershedLine", "", true));
   params.insert(std::make_unique<BoolParameter>(k_FullyConnected_Key, "FullyConnected", "", false));
@@ -114,7 +114,7 @@ IFilter::PreflightResult ITKMorphologicalWatershedFromMarkersImage::preflightImp
    */
   auto pImageGeomPath = filterArgs.value<DataPath>(k_SelectedImageGeomPath_Key);
   auto pSelectedInputArray = filterArgs.value<DataPath>(k_SelectedImageDataPath_Key);
-  auto pOutputArrayPath = filterArgs.value<DataPath>(k_OutputIamgeDataPath_Key);
+  auto pOutputArrayPath = filterArgs.value<DataPath>(k_OutputImageDataPath_Key);
   auto pMarkerImage = filterArgs.value<DataPath>(k_MarkerImageDataPath_Key);
   auto pMarkWatershedLine = filterArgs.value<bool>(k_MarkWatershedLine_Key);
   auto pFullyConnected = filterArgs.value<bool>(k_FullyConnected_Key);
@@ -133,7 +133,7 @@ IFilter::PreflightResult ITKMorphologicalWatershedFromMarkersImage::preflightImp
   // If your filter is making structural changes to the DataStructure then the filter
   // is going to create OutputActions subclasses that need to be returned. This will
   // store those actions.
-  complex::Result<OutputActions> resultOutputActions = MorphologicalWatershedFromMarkersImage::ITK::DataCheck(dataStructure, pSelectedInputArray, pImageGeomPath, pOutputArrayPath);
+  complex::Result<OutputActions> resultOutputActions = ITK::DataCheck(dataStructure, pSelectedInputArray, pImageGeomPath, pOutputArrayPath);
 
   // If the filter needs to pass back some updated values via a key:value string:string set of values
   // you can declare and update that string here.
@@ -167,7 +167,7 @@ Result<> ITKMorphologicalWatershedFromMarkersImage::executeImpl(DataStructure& d
    ***************************************************************************/
   auto pImageGeomPath = filterArgs.value<DataPath>(k_SelectedImageGeomPath_Key);
   auto pSelectedInputArray = filterArgs.value<DataPath>(k_SelectedImageDataPath_Key);
-  auto pOutputArrayPath = filterArgs.value<DataPath>(k_OutputIamgeDataPath_Key);
+  auto pOutputArrayPath = filterArgs.value<DataPath>(k_OutputImageDataPath_Key);
   auto pMarkerImage = filterArgs.value<DataPath>(k_MarkerImageDataPath_Key);
   auto pMarkWatershedLine = filterArgs.value<bool>(k_MarkWatershedLine_Key);
   auto pFullyConnected = filterArgs.value<bool>(k_FullyConnected_Key);
@@ -186,6 +186,6 @@ Result<> ITKMorphologicalWatershedFromMarkersImage::executeImpl(DataStructure& d
   /****************************************************************************
    * Write your algorithm implementation in this function
    ***************************************************************************/
-  return MorphologicalWatershedFromMarkersImage::ITK::Execute(dataStructure, pSelectedInputArray, pImageGeomPath, pOutputArrayPath, itkFunctor);
+  return ITK::Execute(dataStructure, pSelectedInputArray, pImageGeomPath, pOutputArrayPath, itkFunctor);
 }
 } // namespace complex

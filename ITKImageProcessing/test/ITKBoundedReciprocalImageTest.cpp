@@ -37,7 +37,7 @@ TEST_CASE("ITKBoundedReciprocalImageFilter(defaults)", "[ITKImageProcessing][ITK
     DataPath outputDataPath = inputGeometryPath.createChildPath(complex::ITKTestBase::k_OutputDataPath);
     args.insertOrAssign(ITKBoundedReciprocalImage::k_SelectedImageGeomPath_Key, std::make_any<DataPath>(inputGeometryPath));
     args.insertOrAssign(ITKBoundedReciprocalImage::k_SelectedImageDataPath_Key, std::make_any<DataPath>(inputDataPath));
-    args.insertOrAssign(ITKBoundedReciprocalImage::k_OutputIamgeDataPath_Key, std::make_any<DataPath>(outputDataPath));
+    args.insertOrAssign(ITKBoundedReciprocalImage::k_OutputImageDataPath_Key, std::make_any<DataPath>(outputDataPath));
     // Preflight the filter and check result
     auto preflightResult = filter.preflight(ds, args);
     COMPLEX_RESULT_REQUIRE_VALID(preflightResult.outputActions);
@@ -111,7 +111,7 @@ TEST_CASE("ITKBoundedReciprocalImageFilter(vector)", "[ITKImageProcessing][ITKBo
     DataPath outputDataPath = inputGeometryPath.createChildPath(complex::ITKTestBase::k_OutputDataPath);
     args.insertOrAssign(ITKBoundedReciprocalImage::k_SelectedImageGeomPath_Key, std::make_any<DataPath>(inputGeometryPath));
     args.insertOrAssign(ITKBoundedReciprocalImage::k_SelectedImageDataPath_Key, std::make_any<DataPath>(inputDataPath));
-    args.insertOrAssign(ITKBoundedReciprocalImage::k_OutputIamgeDataPath_Key, std::make_any<DataPath>(outputDataPath));
+    args.insertOrAssign(ITKBoundedReciprocalImage::k_OutputImageDataPath_Key, std::make_any<DataPath>(outputDataPath));
     // Preflight the filter and check result
     auto preflightResult = filter.preflight(ds, args);
     COMPLEX_RESULT_REQUIRE_VALID(preflightResult.outputActions);

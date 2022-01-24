@@ -37,7 +37,7 @@ TEST_CASE("ITKZeroCrossingImageFilter(defaults)", "[ITKImageProcessing][ITKZeroC
     DataPath outputDataPath = inputGeometryPath.createChildPath(complex::ITKTestBase::k_OutputDataPath);
     args.insertOrAssign(ITKZeroCrossingImage::k_SelectedImageGeomPath_Key, std::make_any<DataPath>(inputGeometryPath));
     args.insertOrAssign(ITKZeroCrossingImage::k_SelectedImageDataPath_Key, std::make_any<DataPath>(inputDataPath));
-    args.insertOrAssign(ITKZeroCrossingImage::k_OutputIamgeDataPath_Key, std::make_any<DataPath>(outputDataPath));
+    args.insertOrAssign(ITKZeroCrossingImage::k_OutputImageDataPath_Key, std::make_any<DataPath>(outputDataPath));
     // Preflight the filter and check result
     auto preflightResult = filter.preflight(ds, args);
     COMPLEX_RESULT_REQUIRE_VALID(preflightResult.outputActions);
@@ -100,7 +100,7 @@ TEST_CASE("ITKZeroCrossingImageFilter(inverted)", "[ITKImageProcessing][ITKZeroC
     DataPath outputDataPath = inputGeometryPath.createChildPath(complex::ITKTestBase::k_OutputDataPath);
     args.insertOrAssign(ITKZeroCrossingImage::k_SelectedImageGeomPath_Key, std::make_any<DataPath>(inputGeometryPath));
     args.insertOrAssign(ITKZeroCrossingImage::k_SelectedImageDataPath_Key, std::make_any<DataPath>(inputDataPath));
-    args.insertOrAssign(ITKZeroCrossingImage::k_OutputIamgeDataPath_Key, std::make_any<DataPath>(outputDataPath));
+    args.insertOrAssign(ITKZeroCrossingImage::k_OutputImageDataPath_Key, std::make_any<DataPath>(outputDataPath));
     args.insertOrAssign(ITKZeroCrossingImage::k_ForegroundValue_Key, std::make_any<uint8_t>(0));
     args.insertOrAssign(ITKZeroCrossingImage::k_BackgroundValue_Key, std::make_any<uint8_t>(2));
     // Preflight the filter and check result

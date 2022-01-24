@@ -33,7 +33,7 @@ struct ITKRescaleIntensityImageCreationFunctor
   double pOutputMaximum = 255;
 
   template <class InputImageType, class OutputImageType, uint32 Dimension>
-  auto operator()() const
+  auto createFilter() const
   {
     using FilterType = itk::RescaleIntensityImageFilter<InputImageType, OutputImageType>;
     typename FilterType::Pointer filter = FilterType::New();
@@ -83,7 +83,7 @@ Parameters ITKRescaleIntensityImage::parameters() const
   // Create the parameter descriptors that are needed for this filter
   params.insert(std::make_unique<GeometrySelectionParameter>(k_SelectedImageGeomPath_Key, "Image Geometry", "", DataPath{}, GeometrySelectionParameter::AllowedTypes{DataObject::Type::ImageGeom}));
   params.insert(std::make_unique<ArraySelectionParameter>(k_SelectedImageDataPath_Key, "Input Image", "", DataPath{}));
-  params.insert(std::make_unique<ArrayCreationParameter>(k_OutputIamgeDataPath_Key, "Output Image", "", DataPath{}));
+  params.insert(std::make_unique<ArrayCreationParameter>(k_OutputImageDataPath_Key, "Output Image", "", DataPath{}));
   params.insert(std::make_unique<Float64Parameter>(k_OutputMinimum_Key, "OutputMinimum", "", 0));
   params.insert(std::make_unique<Float64Parameter>(k_OutputMaximum_Key, "OutputMaximum", "", 255));
 
@@ -110,7 +110,7 @@ IFilter::PreflightResult ITKRescaleIntensityImage::preflightImpl(const DataStruc
    */
   auto pImageGeomPath = filterArgs.value<DataPath>(k_SelectedImageGeomPath_Key);
   auto pSelectedInputArray = filterArgs.value<DataPath>(k_SelectedImageDataPath_Key);
-  auto pOutputArrayPath = filterArgs.value<DataPath>(k_OutputIamgeDataPath_Key);
+  auto pOutputArrayPath = filterArgs.value<DataPath>(k_OutputImageDataPath_Key);
   auto pOutputMinimum = filterArgs.value<float64>(k_OutputMinimum_Key);
   auto pOutputMaximum = filterArgs.value<float64>(k_OutputMaximum_Key);
 
@@ -128,7 +128,7 @@ IFilter::PreflightResult ITKRescaleIntensityImage::preflightImpl(const DataStruc
   // If your filter is making structural changes to the DataStructure then the filter
   // is going to create OutputActions subclasses that need to be returned. This will
   // store those actions.
-  complex::Result<OutputActions> resultOutputActions = RescaleIntensityImage::ITK::DataCheck(dataStructure, pSelectedInputArray, pImageGeomPath, pOutputArrayPath);
+  complex::Result<OutputActions> resultOutputActions = ITK::DataCheck(dataStructure, pSelectedInputArray, pImageGeomPath, pOutputArrayPath);
 
   // If the filter needs to pass back some updated values via a key:value string:string set of values
   // you can declare and update that string here.
@@ -161,7 +161,7 @@ Result<> ITKRescaleIntensityImage::executeImpl(DataStructure& dataStructure, con
    ***************************************************************************/
   auto pImageGeomPath = filterArgs.value<DataPath>(k_SelectedImageGeomPath_Key);
   auto pSelectedInputArray = filterArgs.value<DataPath>(k_SelectedImageDataPath_Key);
-  auto pOutputArrayPath = filterArgs.value<DataPath>(k_OutputIamgeDataPath_Key);
+  auto pOutputArrayPath = filterArgs.value<DataPath>(k_OutputImageDataPath_Key);
   auto pOutputMinimum = filterArgs.value<float64>(k_OutputMinimum_Key);
   auto pOutputMaximum = filterArgs.value<float64>(k_OutputMaximum_Key);
 
@@ -179,6 +179,6 @@ Result<> ITKRescaleIntensityImage::executeImpl(DataStructure& dataStructure, con
   /****************************************************************************
    * Write your algorithm implementation in this function
    ***************************************************************************/
-  return RescaleIntensityImage::ITK::Execute(dataStructure, pSelectedInputArray, pImageGeomPath, pOutputArrayPath, itkFunctor);
+  return ITK::Execute(dataStructure, pSelectedInputArray, pImageGeomPath, pOutputArrayPath, itkFunctor);
 }
 } // namespace complex

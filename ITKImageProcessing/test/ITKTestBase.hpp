@@ -22,15 +22,15 @@ namespace complex
 {
 namespace ITKTestBase
 {
-// using DataStructurePointer = std::shared_ptr<DataStructure>;
+inline constexpr StringLiteral k_ImageGeometryPath = "[ImageGeometry]";
+inline constexpr StringLiteral k_MaskGeometryPath = "[MaskGeometry]";
+inline constexpr StringLiteral k_BaselineGeometryPath = "[BaselineGeometry]";
+inline constexpr StringLiteral k_InputDataPath = "Input";
+inline constexpr StringLiteral k_OutputDataPath = "Output";
+inline constexpr StringLiteral k_MaskDataPath = "Mask";
+inline constexpr StringLiteral k_BaselineDataPath = "Baseline";
 
-static inline constexpr StringLiteral k_ImageGeometryPath = "[ImageGeometry]";
-static inline constexpr StringLiteral k_BaselineGeometryPath = "[BaselineGeometry]";
-static inline constexpr StringLiteral k_InputDataPath = "Input";
-static inline constexpr StringLiteral k_OutputDataPath = "Output";
-static inline constexpr StringLiteral k_BaselineDataPath = "Baseline";
-
-int32_t ReadImage(DataStructure& ds, const fs::path& filePath, const DataPath& geometryPath, const DataPath& imagePath);
+Result<> ReadImage(DataStructure& ds, const fs::path& filePath, const DataPath& geometryPath, const DataPath& imagePath);
 
 int32_t WriteImage(DataStructure& ds, const fs::path& filePath, const DataPath& geometryPath, const DataPath& imagePath);
 
@@ -52,6 +52,5 @@ void WriteDataSetAsBinary(const fs::path& absolutePath, const DataStore<T>& data
 
   fclose(file);
 }
-
 } // namespace ITKTestBase
 } // namespace complex

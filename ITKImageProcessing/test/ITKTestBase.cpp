@@ -91,33 +91,15 @@ std::string ComputeMd5Hash(DataStructure& ds, const DataPath& outputDataPath)
   return {};
 }
 
-int32_t ReadImage(DataStructure& ds, const fs::path& filePath, const DataPath& geometryPath, const DataPath& imagePath)
+Result<> ReadImage(DataStructure& ds, const fs::path& filePath, const DataPath& geometryPath, const DataPath& imagePath)
 {
   ITKImageReader filter;
   Arguments args;
   args.insertOrAssign(ITKImageReader::k_FileName_Key, filePath);
   args.insertOrAssign(ITKImageReader::k_ImageGeometryPath_Key, geometryPath);
   args.insertOrAssign(ITKImageReader::k_ImageDataArrayPath_Key, imagePath);
-  auto preflightResult = filter.preflight(ds, args);
-  if(preflightResult.outputActions.invalid())
-  {
-    for(const auto& error : preflightResult.outputActions.errors())
-    {
-      std::cout << error.code << ": " << error.message << std::endl;
-    }
-    return -1;
-  }
   auto executeResult = filter.execute(ds, args);
-  if(executeResult.result.invalid())
-  {
-    for(const auto& error : executeResult.result.errors())
-    {
-      std::cout << error.code << ": " << error.message << std::endl;
-    }
-    return -2;
-  }
-
-  return 0;
+  return executeResult.result;
 }
 
 int32_t WriteImage(DataStructure& ds, const fs::path& filePath, const DataPath& geometryPath, const DataPath& imagePath)
@@ -359,8 +341,13 @@ Result<> CompareImages(DataStructure& ds, const DataPath& baselineGeometryPath, 
   case complex::DataType::uint64: {
     return CompareImages<uint64_t>(inputImageGeom, outputDataArray, baselineImageGeom, baselineDataArray, tolerance);
   }
-  case complex::DataType::boolean:
+  case complex::DataType::boolean: {
+    [[fallthrough]];
+  }
   case complex::DataType::error: {
+    [[fallthrough]];
+  }
+  default: {
     return MakeErrorResult(-100, fmt::format(""));
   }
   }

@@ -37,7 +37,7 @@ TEST_CASE("ITKMorphologicalWatershedImageFilter(defaults)", "[ITKImageProcessing
     DataPath outputDataPath = inputGeometryPath.createChildPath(complex::ITKTestBase::k_OutputDataPath);
     args.insertOrAssign(ITKMorphologicalWatershedImage::k_SelectedImageGeomPath_Key, std::make_any<DataPath>(inputGeometryPath));
     args.insertOrAssign(ITKMorphologicalWatershedImage::k_SelectedImageDataPath_Key, std::make_any<DataPath>(inputDataPath));
-    args.insertOrAssign(ITKMorphologicalWatershedImage::k_OutputIamgeDataPath_Key, std::make_any<DataPath>(outputDataPath));
+    args.insertOrAssign(ITKMorphologicalWatershedImage::k_OutputImageDataPath_Key, std::make_any<DataPath>(outputDataPath));
     // Preflight the filter and check result
     auto preflightResult = filter.preflight(ds, args);
     COMPLEX_RESULT_REQUIRE_VALID(preflightResult.outputActions);
@@ -100,7 +100,7 @@ TEST_CASE("ITKMorphologicalWatershedImageFilter(level_1)", "[ITKImageProcessing]
     DataPath outputDataPath = inputGeometryPath.createChildPath(complex::ITKTestBase::k_OutputDataPath);
     args.insertOrAssign(ITKMorphologicalWatershedImage::k_SelectedImageGeomPath_Key, std::make_any<DataPath>(inputGeometryPath));
     args.insertOrAssign(ITKMorphologicalWatershedImage::k_SelectedImageDataPath_Key, std::make_any<DataPath>(inputDataPath));
-    args.insertOrAssign(ITKMorphologicalWatershedImage::k_OutputIamgeDataPath_Key, std::make_any<DataPath>(outputDataPath));
+    args.insertOrAssign(ITKMorphologicalWatershedImage::k_OutputImageDataPath_Key, std::make_any<DataPath>(outputDataPath));
     args.insertOrAssign(ITKMorphologicalWatershedImage::k_Level_Key, std::make_any<float64>(1.0));
     args.insertOrAssign(ITKMorphologicalWatershedImage::k_MarkWatershedLine_Key, std::make_any<bool>(false));
     // Preflight the filter and check result

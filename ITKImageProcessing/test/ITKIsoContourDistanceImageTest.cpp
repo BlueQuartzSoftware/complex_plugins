@@ -37,7 +37,7 @@ TEST_CASE("ITKIsoContourDistanceImageFilter(default)", "[ITKImageProcessing][ITK
     DataPath outputDataPath = inputGeometryPath.createChildPath(complex::ITKTestBase::k_OutputDataPath);
     args.insertOrAssign(ITKIsoContourDistanceImage::k_SelectedImageGeomPath_Key, std::make_any<DataPath>(inputGeometryPath));
     args.insertOrAssign(ITKIsoContourDistanceImage::k_SelectedImageDataPath_Key, std::make_any<DataPath>(inputDataPath));
-    args.insertOrAssign(ITKIsoContourDistanceImage::k_OutputIamgeDataPath_Key, std::make_any<DataPath>(outputDataPath));
+    args.insertOrAssign(ITKIsoContourDistanceImage::k_OutputImageDataPath_Key, std::make_any<DataPath>(outputDataPath));
     args.insertOrAssign(ITKIsoContourDistanceImage::k_LevelSetValue_Key, std::make_any<float64>(50.0));
     // Preflight the filter and check result
     auto preflightResult = filter.preflight(ds, args);

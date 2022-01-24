@@ -37,7 +37,7 @@ TEST_CASE("ITKSmoothingRecursiveGaussianImageFilter(default)", "[ITKImageProcess
     DataPath outputDataPath = inputGeometryPath.createChildPath(complex::ITKTestBase::k_OutputDataPath);
     args.insertOrAssign(ITKSmoothingRecursiveGaussianImage::k_SelectedImageGeomPath_Key, std::make_any<DataPath>(inputGeometryPath));
     args.insertOrAssign(ITKSmoothingRecursiveGaussianImage::k_SelectedImageDataPath_Key, std::make_any<DataPath>(inputDataPath));
-    args.insertOrAssign(ITKSmoothingRecursiveGaussianImage::k_OutputIamgeDataPath_Key, std::make_any<DataPath>(outputDataPath));
+    args.insertOrAssign(ITKSmoothingRecursiveGaussianImage::k_OutputImageDataPath_Key, std::make_any<DataPath>(outputDataPath));
     // Preflight the filter and check result
     auto preflightResult = filter.preflight(ds, args);
     COMPLEX_RESULT_REQUIRE_VALID(preflightResult.outputActions);
@@ -111,7 +111,7 @@ TEST_CASE("ITKSmoothingRecursiveGaussianImageFilter(rgb_image)", "[ITKImageProce
     DataPath outputDataPath = inputGeometryPath.createChildPath(complex::ITKTestBase::k_OutputDataPath);
     args.insertOrAssign(ITKSmoothingRecursiveGaussianImage::k_SelectedImageGeomPath_Key, std::make_any<DataPath>(inputGeometryPath));
     args.insertOrAssign(ITKSmoothingRecursiveGaussianImage::k_SelectedImageDataPath_Key, std::make_any<DataPath>(inputDataPath));
-    args.insertOrAssign(ITKSmoothingRecursiveGaussianImage::k_OutputIamgeDataPath_Key, std::make_any<DataPath>(outputDataPath));
+    args.insertOrAssign(ITKSmoothingRecursiveGaussianImage::k_OutputImageDataPath_Key, std::make_any<DataPath>(outputDataPath));
     auto pSigma = std::vector<float64>{5, 5, 5};
     args.insertOrAssign(ITKSmoothingRecursiveGaussianImage::k_Sigma_Key, std::make_any<std::vector<float64>>(pSigma));
     // Preflight the filter and check result

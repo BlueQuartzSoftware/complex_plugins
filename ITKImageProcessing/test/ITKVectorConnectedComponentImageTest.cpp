@@ -37,7 +37,7 @@ TEST_CASE("ITKVectorConnectedComponentImageFilter(wDistance)", "[ITKImageProcess
     DataPath outputDataPath = inputGeometryPath.createChildPath(complex::ITKTestBase::k_OutputDataPath);
     args.insertOrAssign(ITKVectorConnectedComponentImage::k_SelectedImageGeomPath_Key, std::make_any<DataPath>(inputGeometryPath));
     args.insertOrAssign(ITKVectorConnectedComponentImage::k_SelectedImageDataPath_Key, std::make_any<DataPath>(inputDataPath));
-    args.insertOrAssign(ITKVectorConnectedComponentImage::k_OutputIamgeDataPath_Key, std::make_any<DataPath>(outputDataPath));
+    args.insertOrAssign(ITKVectorConnectedComponentImage::k_OutputImageDataPath_Key, std::make_any<DataPath>(outputDataPath));
     args.insertOrAssign(ITKVectorConnectedComponentImage::k_DistanceThreshold_Key, std::make_any<float64>(0.01));
     // Preflight the filter and check result
     auto preflightResult = filter.preflight(ds, args);

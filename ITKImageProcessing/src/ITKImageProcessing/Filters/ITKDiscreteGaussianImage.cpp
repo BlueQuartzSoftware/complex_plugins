@@ -35,7 +35,7 @@ struct ITKDiscreteGaussianImageCreationFunctor
   bool pUseImageSpacing = true;
 
   template <class InputImageType, class OutputImageType, uint32 Dimension>
-  auto operator()() const
+  auto createFilter() const
   {
     using FilterType = itk::DiscreteGaussianImageFilter<InputImageType, OutputImageType>;
     typename FilterType::Pointer filter = FilterType::New();
@@ -87,7 +87,7 @@ Parameters ITKDiscreteGaussianImage::parameters() const
   // Create the parameter descriptors that are needed for this filter
   params.insert(std::make_unique<GeometrySelectionParameter>(k_SelectedImageGeomPath_Key, "Image Geometry", "", DataPath{}, GeometrySelectionParameter::AllowedTypes{DataObject::Type::ImageGeom}));
   params.insert(std::make_unique<ArraySelectionParameter>(k_SelectedImageDataPath_Key, "Input Image", "", DataPath{}));
-  params.insert(std::make_unique<ArrayCreationParameter>(k_OutputIamgeDataPath_Key, "Output Image", "", DataPath{}));
+  params.insert(std::make_unique<ArrayCreationParameter>(k_OutputImageDataPath_Key, "Output Image", "", DataPath{}));
   params.insert(std::make_unique<VectorFloat64Parameter>(k_Variance_Key, "Variance", "", std::vector<double>(3, 1.0), std::vector<std::string>(3)));
   params.insert(std::make_unique<UInt32Parameter>(k_MaximumKernelWidth_Key, "MaximumKernelWidth", "", 32u));
   params.insert(std::make_unique<VectorFloat64Parameter>(k_MaximumError_Key, "MaximumError", "", std::vector<double>(3, 0.01), std::vector<std::string>(3)));
@@ -116,7 +116,7 @@ IFilter::PreflightResult ITKDiscreteGaussianImage::preflightImpl(const DataStruc
    */
   auto pImageGeomPath = filterArgs.value<DataPath>(k_SelectedImageGeomPath_Key);
   auto pSelectedInputArray = filterArgs.value<DataPath>(k_SelectedImageDataPath_Key);
-  auto pOutputArrayPath = filterArgs.value<DataPath>(k_OutputIamgeDataPath_Key);
+  auto pOutputArrayPath = filterArgs.value<DataPath>(k_OutputImageDataPath_Key);
   auto pVariance = filterArgs.value<float64>(k_Variance_Key);
   auto pMaximumKernelWidth = filterArgs.value<unsigned int>(k_MaximumKernelWidth_Key);
   auto pMaximumError = filterArgs.value<float64>(k_MaximumError_Key);
@@ -136,7 +136,7 @@ IFilter::PreflightResult ITKDiscreteGaussianImage::preflightImpl(const DataStruc
   // If your filter is making structural changes to the DataStructure then the filter
   // is going to create OutputActions subclasses that need to be returned. This will
   // store those actions.
-  complex::Result<OutputActions> resultOutputActions = DiscreteGaussianImage::ITK::DataCheck(dataStructure, pSelectedInputArray, pImageGeomPath, pOutputArrayPath);
+  complex::Result<OutputActions> resultOutputActions = ITK::DataCheck(dataStructure, pSelectedInputArray, pImageGeomPath, pOutputArrayPath);
 
   // If the filter needs to pass back some updated values via a key:value string:string set of values
   // you can declare and update that string here.
@@ -169,7 +169,7 @@ Result<> ITKDiscreteGaussianImage::executeImpl(DataStructure& dataStructure, con
    ***************************************************************************/
   auto pImageGeomPath = filterArgs.value<DataPath>(k_SelectedImageGeomPath_Key);
   auto pSelectedInputArray = filterArgs.value<DataPath>(k_SelectedImageDataPath_Key);
-  auto pOutputArrayPath = filterArgs.value<DataPath>(k_OutputIamgeDataPath_Key);
+  auto pOutputArrayPath = filterArgs.value<DataPath>(k_OutputImageDataPath_Key);
   auto pVariance = filterArgs.value<float64>(k_Variance_Key);
   auto pMaximumKernelWidth = filterArgs.value<unsigned int>(k_MaximumKernelWidth_Key);
   auto pMaximumError = filterArgs.value<float64>(k_MaximumError_Key);
@@ -189,6 +189,6 @@ Result<> ITKDiscreteGaussianImage::executeImpl(DataStructure& dataStructure, con
   /****************************************************************************
    * Write your algorithm implementation in this function
    ***************************************************************************/
-  return DiscreteGaussianImage::ITK::Execute(dataStructure, pSelectedInputArray, pImageGeomPath, pOutputArrayPath, itkFunctor);
+  return ITK::Execute(dataStructure, pSelectedInputArray, pImageGeomPath, pOutputArrayPath, itkFunctor);
 }
 } // namespace complex

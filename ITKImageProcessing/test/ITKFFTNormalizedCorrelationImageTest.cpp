@@ -47,7 +47,7 @@ TEST_CASE("ITKFFTNormalizedCorrelationImageFilter(defaults)", "[ITKImageProcessi
     DataPath outputDataPath = inputGeometryPath.createChildPath(complex::ITKTestBase::k_OutputDataPath);
     args.insertOrAssign(ITKFFTNormalizedCorrelationImage::k_SelectedImageGeomPath_Key, std::make_any<DataPath>(inputGeometryPath));
     args.insertOrAssign(ITKFFTNormalizedCorrelationImage::k_SelectedImageDataPath_Key, std::make_any<DataPath>(inputDataPath));
-    args.insertOrAssign(ITKFFTNormalizedCorrelationImage::k_OutputIamgeDataPath_Key, std::make_any<DataPath>(outputDataPath));
+    args.insertOrAssign(ITKFFTNormalizedCorrelationImage::k_OutputImageDataPath_Key, std::make_any<DataPath>(outputDataPath));
     // Preflight the filter and check result
     auto preflightResult = filter.preflight(ds, args);
     COMPLEX_RESULT_REQUIRE_VALID(preflightResult.outputActions);
@@ -131,7 +131,7 @@ TEST_CASE("ITKFFTNormalizedCorrelationImageFilter(EvenKernel)", "[ITKImageProces
     DataPath outputDataPath = inputGeometryPath.createChildPath(complex::ITKTestBase::k_OutputDataPath);
     args.insertOrAssign(ITKFFTNormalizedCorrelationImage::k_SelectedImageGeomPath_Key, std::make_any<DataPath>(inputGeometryPath));
     args.insertOrAssign(ITKFFTNormalizedCorrelationImage::k_SelectedImageDataPath_Key, std::make_any<DataPath>(inputDataPath));
-    args.insertOrAssign(ITKFFTNormalizedCorrelationImage::k_OutputIamgeDataPath_Key, std::make_any<DataPath>(outputDataPath));
+    args.insertOrAssign(ITKFFTNormalizedCorrelationImage::k_OutputImageDataPath_Key, std::make_any<DataPath>(outputDataPath));
     // Preflight the filter and check result
     auto preflightResult = filter.preflight(ds, args);
     COMPLEX_RESULT_REQUIRE_VALID(preflightResult.outputActions);
@@ -215,7 +215,7 @@ TEST_CASE("ITKFFTNormalizedCorrelationImageFilter(3D)", "[ITKImageProcessing][IT
     DataPath outputDataPath = inputGeometryPath.createChildPath(complex::ITKTestBase::k_OutputDataPath);
     args.insertOrAssign(ITKFFTNormalizedCorrelationImage::k_SelectedImageGeomPath_Key, std::make_any<DataPath>(inputGeometryPath));
     args.insertOrAssign(ITKFFTNormalizedCorrelationImage::k_SelectedImageDataPath_Key, std::make_any<DataPath>(inputDataPath));
-    args.insertOrAssign(ITKFFTNormalizedCorrelationImage::k_OutputIamgeDataPath_Key, std::make_any<DataPath>(outputDataPath));
+    args.insertOrAssign(ITKFFTNormalizedCorrelationImage::k_OutputImageDataPath_Key, std::make_any<DataPath>(outputDataPath));
     args.insertOrAssign(ITKFFTNormalizedCorrelationImage::k_RequiredNumberOfOverlappingPixels_Key, std::make_any<uint64_t>(15000));
     // Preflight the filter and check result
     auto preflightResult = filter.preflight(ds, args);

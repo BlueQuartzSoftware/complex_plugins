@@ -37,7 +37,7 @@ TEST_CASE("ITKMeanProjectionImageFilter(z_projection)", "[ITKImageProcessing][IT
     DataPath outputDataPath = inputGeometryPath.createChildPath(complex::ITKTestBase::k_OutputDataPath);
     args.insertOrAssign(ITKMeanProjectionImage::k_SelectedImageGeomPath_Key, std::make_any<DataPath>(inputGeometryPath));
     args.insertOrAssign(ITKMeanProjectionImage::k_SelectedImageDataPath_Key, std::make_any<DataPath>(inputDataPath));
-    args.insertOrAssign(ITKMeanProjectionImage::k_OutputIamgeDataPath_Key, std::make_any<DataPath>(outputDataPath));
+    args.insertOrAssign(ITKMeanProjectionImage::k_OutputImageDataPath_Key, std::make_any<DataPath>(outputDataPath));
     args.insertOrAssign(ITKMeanProjectionImage::k_ProjectionDimension_Key, std::make_any<unsigned int>(2));
     // Preflight the filter and check result
     auto preflightResult = filter.preflight(ds, args);

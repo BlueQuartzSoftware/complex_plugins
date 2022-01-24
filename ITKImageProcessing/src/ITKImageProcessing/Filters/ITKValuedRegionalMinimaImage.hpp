@@ -13,8 +13,8 @@ namespace complex
  *
  * Regional minima are flat zones surrounded by pixels of higher value. A completely flat image will be marked as a regional minima by this filter.
  *
- * This code was contributed in the Insight Journal paper: "Finding regional extrema - methods and performance" by Beare R., Lehmann G. https://hdl.handle.net/1926/153
- * http://www.insight-journal.org/browse/publication/65
+ * This code was contributed in the Insight Journal paper: "Finding regional extrema - methods and performance" by Beare R., Lehmann G. https://hdl.handle.net/1926/153 http://www.insight-
+ * journal.org/browse/publication/65
  *
  * @author Richard Beare. Department of Medicine, Monash University, Melbourne, Australia.
  *
@@ -42,7 +42,7 @@ public:
   // Parameter Keys
   static inline constexpr StringLiteral k_SelectedImageGeomPath_Key = "SelectedImageGeomPath";
   static inline constexpr StringLiteral k_SelectedImageDataPath_Key = "InputImageDataPath";
-  static inline constexpr StringLiteral k_OutputIamgeDataPath_Key = "OutputImageDataPath";
+  static inline constexpr StringLiteral k_OutputImageDataPath_Key = "OutputImageDataPath";
   static inline constexpr StringLiteral k_FullyConnected_Key = "FullyConnected";
 
   /**

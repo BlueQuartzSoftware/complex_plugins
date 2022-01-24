@@ -39,7 +39,7 @@ struct ITKMeanProjectionImageCreationFunctor
   unsigned int pProjectionDimension = 0u;
 
   template <class InputImageType, class OutputImageType, uint32 Dimension>
-  auto operator()() const
+  auto createFilter() const
   {
     using FilterType = itk::MeanProjectionImageFilter<InputImageType, OutputImageType>;
     typename FilterType::Pointer filter = FilterType::New();
@@ -88,7 +88,7 @@ Parameters ITKMeanProjectionImage::parameters() const
   // Create the parameter descriptors that are needed for this filter
   params.insert(std::make_unique<GeometrySelectionParameter>(k_SelectedImageGeomPath_Key, "Image Geometry", "", DataPath{}, GeometrySelectionParameter::AllowedTypes{DataObject::Type::ImageGeom}));
   params.insert(std::make_unique<ArraySelectionParameter>(k_SelectedImageDataPath_Key, "Input Image", "", DataPath{}));
-  params.insert(std::make_unique<ArrayCreationParameter>(k_OutputIamgeDataPath_Key, "Output Image", "", DataPath{}));
+  params.insert(std::make_unique<ArrayCreationParameter>(k_OutputImageDataPath_Key, "Output Image", "", DataPath{}));
   params.insert(std::make_unique<UInt32Parameter>(k_ProjectionDimension_Key, "ProjectionDimension", "", 0u));
 
   return params;
@@ -114,7 +114,7 @@ IFilter::PreflightResult ITKMeanProjectionImage::preflightImpl(const DataStructu
    */
   auto pImageGeomPath = filterArgs.value<DataPath>(k_SelectedImageGeomPath_Key);
   auto pSelectedInputArray = filterArgs.value<DataPath>(k_SelectedImageDataPath_Key);
-  auto pOutputArrayPath = filterArgs.value<DataPath>(k_OutputIamgeDataPath_Key);
+  auto pOutputArrayPath = filterArgs.value<DataPath>(k_OutputImageDataPath_Key);
   auto pProjectionDimension = filterArgs.value<unsigned int>(k_ProjectionDimension_Key);
 
   // Declare the preflightResult variable that will be populated with the results
@@ -131,7 +131,7 @@ IFilter::PreflightResult ITKMeanProjectionImage::preflightImpl(const DataStructu
   // If your filter is making structural changes to the DataStructure then the filter
   // is going to create OutputActions subclasses that need to be returned. This will
   // store those actions.
-  complex::Result<OutputActions> resultOutputActions = MeanProjectionImage::ITK::DataCheck<FilterOutputType>(dataStructure, pSelectedInputArray, pImageGeomPath, pOutputArrayPath);
+  complex::Result<OutputActions> resultOutputActions = ITK::DataCheck<FilterOutputType>(dataStructure, pSelectedInputArray, pImageGeomPath, pOutputArrayPath);
 
   // If the filter needs to pass back some updated values via a key:value string:string set of values
   // you can declare and update that string here.
@@ -164,7 +164,7 @@ Result<> ITKMeanProjectionImage::executeImpl(DataStructure& dataStructure, const
    ***************************************************************************/
   auto pImageGeomPath = filterArgs.value<DataPath>(k_SelectedImageGeomPath_Key);
   auto pSelectedInputArray = filterArgs.value<DataPath>(k_SelectedImageDataPath_Key);
-  auto pOutputArrayPath = filterArgs.value<DataPath>(k_OutputIamgeDataPath_Key);
+  auto pOutputArrayPath = filterArgs.value<DataPath>(k_OutputImageDataPath_Key);
   auto pProjectionDimension = filterArgs.value<unsigned int>(k_ProjectionDimension_Key);
 
   /****************************************************************************
@@ -175,6 +175,6 @@ Result<> ITKMeanProjectionImage::executeImpl(DataStructure& dataStructure, const
   /****************************************************************************
    * Write your algorithm implementation in this function
    ***************************************************************************/
-  return MeanProjectionImage::ITK::Execute<ITKMeanProjectionImageCreationFunctor, FilterOutputType>(dataStructure, pSelectedInputArray, pImageGeomPath, pOutputArrayPath, itkFunctor);
+  return ITK::Execute<ITKMeanProjectionImageCreationFunctor, FilterOutputType>(dataStructure, pSelectedInputArray, pImageGeomPath, pOutputArrayPath, itkFunctor);
 }
 } // namespace complex

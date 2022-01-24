@@ -21,7 +21,7 @@ struct ITKRGBToLuminanceImageFilterCreationFunctor
 {
 
   template <typename InputImageType, typename OutputImageType, unsigned int Dimension>
-  auto operator()() const
+  auto createFilter() const
   {
     using InputPixelType = typename InputImageType::PixelType;
     typedef typename itk::NumericTraits<InputPixelType>::ValueType ScalarPixelType;

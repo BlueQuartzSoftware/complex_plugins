@@ -38,7 +38,7 @@ struct ITKZeroCrossingImageCreationFunctor
   uint8_t pBackgroundValue = 0u;
 
   template <class InputImageType, class OutputImageType, uint32 Dimension>
-  auto operator()() const
+  auto createFilter() const
   {
     using FilterType = itk::ZeroCrossingImageFilter<InputImageType, OutputImageType>;
     typename FilterType::Pointer filter = FilterType::New();
@@ -88,7 +88,7 @@ Parameters ITKZeroCrossingImage::parameters() const
   // Create the parameter descriptors that are needed for this filter
   params.insert(std::make_unique<GeometrySelectionParameter>(k_SelectedImageGeomPath_Key, "Image Geometry", "", DataPath{}, GeometrySelectionParameter::AllowedTypes{DataObject::Type::ImageGeom}));
   params.insert(std::make_unique<ArraySelectionParameter>(k_SelectedImageDataPath_Key, "Input Image", "", DataPath{}));
-  params.insert(std::make_unique<ArrayCreationParameter>(k_OutputIamgeDataPath_Key, "Output Image", "", DataPath{}));
+  params.insert(std::make_unique<ArrayCreationParameter>(k_OutputImageDataPath_Key, "Output Image", "", DataPath{}));
   params.insert(std::make_unique<UInt8Parameter>(k_ForegroundValue_Key, "ForegroundValue", "", 1u));
   params.insert(std::make_unique<UInt8Parameter>(k_BackgroundValue_Key, "BackgroundValue", "", 0u));
 
@@ -115,7 +115,7 @@ IFilter::PreflightResult ITKZeroCrossingImage::preflightImpl(const DataStructure
    */
   auto pImageGeomPath = filterArgs.value<DataPath>(k_SelectedImageGeomPath_Key);
   auto pSelectedInputArray = filterArgs.value<DataPath>(k_SelectedImageDataPath_Key);
-  auto pOutputArrayPath = filterArgs.value<DataPath>(k_OutputIamgeDataPath_Key);
+  auto pOutputArrayPath = filterArgs.value<DataPath>(k_OutputImageDataPath_Key);
   auto pForegroundValue = filterArgs.value<uint8_t>(k_ForegroundValue_Key);
   auto pBackgroundValue = filterArgs.value<uint8_t>(k_BackgroundValue_Key);
 
@@ -133,7 +133,7 @@ IFilter::PreflightResult ITKZeroCrossingImage::preflightImpl(const DataStructure
   // If your filter is making structural changes to the DataStructure then the filter
   // is going to create OutputActions subclasses that need to be returned. This will
   // store those actions.
-  complex::Result<OutputActions> resultOutputActions = ZeroCrossingImage::ITK::DataCheck<FilterOutputType>(dataStructure, pSelectedInputArray, pImageGeomPath, pOutputArrayPath);
+  complex::Result<OutputActions> resultOutputActions = ITK::DataCheck<FilterOutputType>(dataStructure, pSelectedInputArray, pImageGeomPath, pOutputArrayPath);
 
   // If the filter needs to pass back some updated values via a key:value string:string set of values
   // you can declare and update that string here.
@@ -166,7 +166,7 @@ Result<> ITKZeroCrossingImage::executeImpl(DataStructure& dataStructure, const A
    ***************************************************************************/
   auto pImageGeomPath = filterArgs.value<DataPath>(k_SelectedImageGeomPath_Key);
   auto pSelectedInputArray = filterArgs.value<DataPath>(k_SelectedImageDataPath_Key);
-  auto pOutputArrayPath = filterArgs.value<DataPath>(k_OutputIamgeDataPath_Key);
+  auto pOutputArrayPath = filterArgs.value<DataPath>(k_OutputImageDataPath_Key);
   auto pForegroundValue = filterArgs.value<uint8_t>(k_ForegroundValue_Key);
   auto pBackgroundValue = filterArgs.value<uint8_t>(k_BackgroundValue_Key);
 
@@ -184,6 +184,6 @@ Result<> ITKZeroCrossingImage::executeImpl(DataStructure& dataStructure, const A
   /****************************************************************************
    * Write your algorithm implementation in this function
    ***************************************************************************/
-  return ZeroCrossingImage::ITK::Execute<ITKZeroCrossingImageCreationFunctor, FilterOutputType>(dataStructure, pSelectedInputArray, pImageGeomPath, pOutputArrayPath, itkFunctor);
+  return ITK::Execute<ITKZeroCrossingImageCreationFunctor, FilterOutputType>(dataStructure, pSelectedInputArray, pImageGeomPath, pOutputArrayPath, itkFunctor);
 }
 } // namespace complex
