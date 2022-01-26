@@ -371,7 +371,7 @@ struct ITKFilterFunctor
 
     auto& typedInputDataStore = dynamic_cast<DataStore<ITK::UnderlyingType_t<InputT>>&>(inputDataStore);
     typename InputImageType::Pointer inputImage = ITK::WrapDataStoreInImage<InputT, Dimension>(typedInputDataStore, imageGeom);
-    auto filter = filterCreationFunctor.createFilter<InputImageType, OutputImageType, Dimension>();
+    auto filter = filterCreationFunctor.template createFilter<InputImageType, OutputImageType, Dimension>();
     filter->SetInput(inputImage);
     filter->Update();
 
@@ -384,7 +384,7 @@ struct ITKFilterFunctor
 
     if constexpr(HasMeasurements_v<FilterCreationFunctorT>)
     {
-      return {filterCreationFunctor.getMeasurements<InputImageType, OutputImageType, Dimension>(*filter)};
+      return {filterCreationFunctor.template getMeasurements<InputImageType, OutputImageType, Dimension>(*filter)};
     }
     else
     {
