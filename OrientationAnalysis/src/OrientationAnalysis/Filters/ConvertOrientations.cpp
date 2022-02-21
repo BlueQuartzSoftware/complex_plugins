@@ -7,6 +7,7 @@
 #include "complex/Parameters/ArrayCreationParameter.hpp"
 #include "complex/Parameters/ArraySelectionParameter.hpp"
 #include "complex/Parameters/ChoicesParameter.hpp"
+#include "complex/Utilities/ParallelDataAlgorithm.hpp"
 
 #include "EbsdLib/Core/Orientation.hpp"
 #include "EbsdLib/Core/OrientationTransformation.hpp"
@@ -32,6 +33,55 @@ const std::vector<std::string> RepresentationNames = {"Euler", "OrientationMatri
 
 const std::vector<size_t> RepresentationElementCount = {3, 9, 4, 4, 4, 3, 3};
 
+/**
+ *
+ */
+template <typename T, typename InputType, size_t InCompSize, typename OutputType, size_t OutCompSize, typename TransformFunc>
+class ConvertOrientationImpl
+{
+
+public:
+  ConvertOrientationImpl(const DataArray<T>& inputArray, DataArray<T>& outputArray, TransformFunc transformFunc)
+  : m_InputArray(inputArray)
+  , m_OutputArray(outputArray)
+  , m_TransformFunc(transformFunc)
+  {
+  }
+  virtual ~ConvertOrientationImpl() = default;
+
+  void convert(size_t start, size_t end) const
+  {
+    auto& inDataStore = m_InputArray.getDataStoreRef();
+    auto& outDataStore = m_OutputArray.getDataStoreRef();
+    InputType input(InCompSize);
+    for(size_t t = start; t < end; t++)
+    {
+      for(size_t c = 0; c < InCompSize; c++)
+      {
+        input[c] = inDataStore.getValue(t * InCompSize + c);
+      }
+      OutputType output = m_TransformFunc(input); // Do the actual Conversion
+      for(size_t c = 0; c < OutCompSize; c++)
+      {
+        outDataStore.setValue(t * OutCompSize + c, output[c]);
+      }
+    }
+  }
+
+  void operator()(const ComplexRange& range) const
+  {
+    convert(range.min(), range.max());
+  }
+
+private:
+  const DataArray<T>& m_InputArray;
+  DataArray<T>& m_OutputArray;
+  TransformFunc m_TransformFunc;
+};
+
+/**
+ *
+ */
 template <typename T, size_t InCompSize = 0, size_t OutCompSize = 0, typename TransformFunc>
 void ConvertOrientation(const DataArray<T>& inputArray, DataArray<T>& outputArray, TransformFunc transformFunc)
 {
@@ -47,8 +97,7 @@ void ConvertOrientation(const DataArray<T>& inputArray, DataArray<T>& outputArra
     {
       input[c] = inDataStore.getValue(t * InCompSize + c);
     }
-    Orientation output = transformFunc(input);
-
+    Orientation<T> output = transformFunc(input); // Do the actual Conversion
     for(size_t c = 0; c < OutCompSize; c++)
     {
       outDataStore.setValue(t * OutCompSize + c, output[c]);
@@ -56,29 +105,57 @@ void ConvertOrientation(const DataArray<T>& inputArray, DataArray<T>& outputArra
   }
 }
 
+/**
+ *
+ */
 template <typename T, size_t InCompSize = 0, size_t OutCompSize = 0, typename TransformFunc>
 void ToQuaternion(const DataArray<T>& inputArray, DataArray<T>& outputArray, TransformFunc transformFunc, typename Quaternion<T>::Order layout)
 {
-  Orientation<T> input(InCompSize);
   using QuaterionType = Quaternion<T>;
 
-  input = {0.0F, 45.0F * 3.1415926F / 180.0F, 90.0F * 3.1415926F / 180.0F};
+  size_t numTuples = inputArray.getNumberOfTuples();
+  auto& inDataStore = inputArray.getDataStoreRef();
+  auto& outDataStore = outputArray.getDataStoreRef();
 
-  QuaterionType output = transformFunc(input, layout);
-  // std::cout << fmt::format("ConvertOrientation output: '{}'", fmt::join(output, ", ")) << std::endl;
+  Orientation<T> input(InCompSize);
+  for(size_t t = 0; t < numTuples; t++)
+  {
+    for(size_t c = 0; c < InCompSize; c++)
+    {
+      input[c] = inDataStore.getValue(t * InCompSize + c);
+    }
+    QuaterionType output = transformFunc(input, layout); // Do the actual Conversion
+    for(size_t c = 0; c < OutCompSize; c++)
+    {
+      outDataStore.setValue(t * OutCompSize + c, output[c]);
+    }
+  }
 }
 
+/**
+ *
+ */
 template <typename T, size_t InCompSize = 0, size_t OutCompSize = 0, typename TransformFunc>
 void FromQuaterion(const DataArray<T>& inputArray, DataArray<T>& outputArray, TransformFunc transformFunc, typename Quaternion<T>::Order layout)
 {
-  Orientation<T> output(InCompSize);
-
   using QuaterionType = Quaternion<T>;
+  size_t numTuples = inputArray.getNumberOfTuples();
+  auto& inDataStore = inputArray.getDataStoreRef();
+  auto& outDataStore = outputArray.getDataStoreRef();
 
-  QuaterionType input = {-0.270598F, 0.270598F, -0.653281F, 0.653281F};
-
-  output = transformFunc(input, layout);
-  // std::cout << fmt::format("ConvertOrientation output: '{}'", fmt::join(output, ", ")) << std::endl;
+  QuaterionType input;
+  for(size_t t = 0; t < numTuples; t++)
+  {
+    for(size_t c = 0; c < InCompSize; c++)
+    {
+      input[c] = inDataStore.getValue(t * InCompSize + c);
+    }
+    Orientation<T> output = transformFunc(input, layout); // Do the actual Conversion
+    for(size_t c = 0; c < OutCompSize; c++)
+    {
+      outDataStore.setValue(t * OutCompSize + c, output[c]);
+    }
+  }
 }
 
 } // namespace
@@ -194,231 +271,233 @@ Result<> ConvertOrientations::executeImpl(DataStructure& dataStructure, const Ar
   auto pOutputOrientationArrayNameValue = filterArgs.value<DataPath>(k_OutputOrientationArrayName_Key);
 
   Quaternion<float>::Order qLayout = Quaternion<float>::Order::VectorScalar;
+
   using OutputType = Orientation<float>;
   using InputType = Orientation<float>;
   using QuaterionType = Quaternion<float>;
+  using OrientationType = Orientation<float>;
+  using QuaterionType = Quaternion<float>;
+  using ConversionFunctionType = std::function<OutputType(InputType)>;
+  using ToQuaterionFunctionType = std::function<QuaterionType(InputType, Quaternion<float>::Order)>;
+  using FromQuaternionFunctionType = std::function<InputType(QuaterionType, Quaternion<float>::Order)>;
 
   const Float32Array& inputDataArray = dataStructure.getDataRefAs<Float32Array>(pInputOrientationArrayPathValue);
   Float32Array& outputDataArray = dataStructure.getDataRefAs<Float32Array>(pOutputOrientationArrayNameValue);
 
-#if 1
-
-  //  {
-  //    std::function<OutputType(InputType)> eu2ax = OrientationTransformation::eu2ax<InputType, OutputType>;
-  //    ::ConvertOrientation<float>(inputDataArray, outputDataArray, eu2ax);
-  //  }
+  // Parallel algorithm to find duplicate nodes
+  //  ParallelDataAlgorithm dataAlg;
+  //  dataAlg.setRange(0ULL, static_cast<size_t>(inputDataArray.getNumberOfTuples()));
 
   if(inputType == OrientationRepresentation::Type::Euler && outputType == OrientationRepresentation::Type::OrientationMatrix)
   {
-    std::function<OutputType(InputType)> eu2om = OrientationTransformation::eu2om<InputType, OutputType>;
+    ConversionFunctionType eu2om = OrientationTransformation::eu2om<InputType, OutputType>;
     ::ConvertOrientation<float, 3, 9>(inputDataArray, outputDataArray, eu2om);
   }
   else if(inputType == OrientationRepresentation::Type::Euler && outputType == OrientationRepresentation::Type::Quaternion)
   {
-    std::function<QuaterionType(InputType, Quaternion<float>::Order)> eu2qu = OrientationTransformation::eu2qu<InputType, QuaterionType>;
+    ToQuaterionFunctionType eu2qu = OrientationTransformation::eu2qu<InputType, QuaterionType>;
     ::ToQuaternion<float, 3, 4>(inputDataArray, outputDataArray, eu2qu, QuaterionType::Order::VectorScalar);
   }
   else if(inputType == OrientationRepresentation::Type::Euler && outputType == OrientationRepresentation::Type::AxisAngle)
   {
-    std::function<OutputType(InputType)> eu2ax = OrientationTransformation::eu2ax<InputType, OutputType>;
+    ConversionFunctionType eu2ax = OrientationTransformation::eu2ax<InputType, OutputType>;
     ::ConvertOrientation<float, 3, 4>(inputDataArray, outputDataArray, eu2ax);
   }
   else if(inputType == OrientationRepresentation::Type::Euler && outputType == OrientationRepresentation::Type::Rodrigues)
   {
-    std::function<OutputType(InputType)> eu2ro = OrientationTransformation::eu2ro<InputType, OutputType>;
+    ConversionFunctionType eu2ro = OrientationTransformation::eu2ro<InputType, OutputType>;
     ::ConvertOrientation<float, 3, 4>(inputDataArray, outputDataArray, eu2ro);
   }
   else if(inputType == OrientationRepresentation::Type::Euler && outputType == OrientationRepresentation::Type::Homochoric)
   {
-    std::function<OutputType(InputType)> eu2ho = OrientationTransformation::eu2ho<InputType, OutputType>;
+    ConversionFunctionType eu2ho = OrientationTransformation::eu2ho<InputType, OutputType>;
     ::ConvertOrientation<float, 3, 3>(inputDataArray, outputDataArray, eu2ho);
   }
   else if(inputType == OrientationRepresentation::Type::Euler && outputType == OrientationRepresentation::Type::Cubochoric)
   {
-    std::function<OutputType(InputType)> eu2cu = OrientationTransformation::eu2cu<InputType, OutputType>;
+    ConversionFunctionType eu2cu = OrientationTransformation::eu2cu<InputType, OutputType>;
     ::ConvertOrientation<float, 3, 3>(inputDataArray, outputDataArray, eu2cu);
   }
   else if(inputType == OrientationRepresentation::Type::OrientationMatrix && outputType == OrientationRepresentation::Type::Euler)
   {
-    std::function<OutputType(InputType)> om2eu = OrientationTransformation::om2eu<InputType, OutputType>;
+    ConversionFunctionType om2eu = OrientationTransformation::om2eu<InputType, OutputType>;
     ::ConvertOrientation<float, 9, 3>(inputDataArray, outputDataArray, om2eu);
   }
   else if(inputType == OrientationRepresentation::Type::OrientationMatrix && outputType == OrientationRepresentation::Type::Quaternion)
   {
-    std::function<QuaterionType(InputType, Quaternion<float>::Order)> om2qu = OrientationTransformation::om2qu<InputType, QuaterionType>;
+    ToQuaterionFunctionType om2qu = OrientationTransformation::om2qu<InputType, QuaterionType>;
     ::ToQuaternion<float, 9, 4>(inputDataArray, outputDataArray, om2qu, QuaterionType::Order::VectorScalar);
   }
   else if(inputType == OrientationRepresentation::Type::OrientationMatrix && outputType == OrientationRepresentation::Type::AxisAngle)
   {
-    std::function<OutputType(InputType)> om2ax = OrientationTransformation::om2ax<InputType, OutputType>;
+    ConversionFunctionType om2ax = OrientationTransformation::om2ax<InputType, OutputType>;
     ::ConvertOrientation<float, 9, 4>(inputDataArray, outputDataArray, om2ax);
   }
   else if(inputType == OrientationRepresentation::Type::OrientationMatrix && outputType == OrientationRepresentation::Type::Rodrigues)
   {
-    std::function<OutputType(InputType)> om2ro = OrientationTransformation::om2ro<InputType, OutputType>;
+    ConversionFunctionType om2ro = OrientationTransformation::om2ro<InputType, OutputType>;
     ::ConvertOrientation<float, 9, 4>(inputDataArray, outputDataArray, om2ro);
   }
   else if(inputType == OrientationRepresentation::Type::OrientationMatrix && outputType == OrientationRepresentation::Type::Homochoric)
   {
-    std::function<OutputType(InputType)> om2ho = OrientationTransformation::om2ho<InputType, OutputType>;
+    ConversionFunctionType om2ho = OrientationTransformation::om2ho<InputType, OutputType>;
     ::ConvertOrientation<float, 9, 3>(inputDataArray, outputDataArray, om2ho);
   }
   else if(inputType == OrientationRepresentation::Type::OrientationMatrix && outputType == OrientationRepresentation::Type::Cubochoric)
   {
-    std::function<OutputType(InputType)> om2cu = OrientationTransformation::om2cu<InputType, OutputType>;
+    ConversionFunctionType om2cu = OrientationTransformation::om2cu<InputType, OutputType>;
     ::ConvertOrientation<float, 9, 3>(inputDataArray, outputDataArray, om2cu);
   }
   else if(inputType == OrientationRepresentation::Type::Quaternion && outputType == OrientationRepresentation::Type::Euler)
   {
-    std::function<OutputType(QuaterionType, Quaternion<float>::Order)> qu2eu = OrientationTransformation::qu2eu<QuaterionType, OutputType>;
+    FromQuaternionFunctionType qu2eu = OrientationTransformation::qu2eu<QuaterionType, OutputType>;
     ::FromQuaterion<float, 4, 3>(inputDataArray, outputDataArray, qu2eu, QuaterionType::Order::VectorScalar);
   }
   else if(inputType == OrientationRepresentation::Type::Quaternion && outputType == OrientationRepresentation::Type::OrientationMatrix)
   {
-    std::function<OutputType(QuaterionType, Quaternion<float>::Order)> qu2om = OrientationTransformation::qu2om<QuaterionType, OutputType>;
+    FromQuaternionFunctionType qu2om = OrientationTransformation::qu2om<QuaterionType, OutputType>;
     ::FromQuaterion<float, 4, 9>(inputDataArray, outputDataArray, qu2om, QuaterionType::Order::VectorScalar);
   }
   else if(inputType == OrientationRepresentation::Type::Quaternion && outputType == OrientationRepresentation::Type::AxisAngle)
   {
-    std::function<OutputType(QuaterionType, Quaternion<float>::Order)> qu2ax = OrientationTransformation::qu2ax<QuaterionType, OutputType>;
+    FromQuaternionFunctionType qu2ax = OrientationTransformation::qu2ax<QuaterionType, OutputType>;
     ::FromQuaterion<float, 4, 4>(inputDataArray, outputDataArray, qu2ax, QuaterionType::Order::VectorScalar);
   }
   else if(inputType == OrientationRepresentation::Type::Quaternion && outputType == OrientationRepresentation::Type::Rodrigues)
   {
-    std::function<OutputType(QuaterionType, Quaternion<float>::Order)> qu2ro = OrientationTransformation::qu2ro<QuaterionType, OutputType>;
+    FromQuaternionFunctionType qu2ro = OrientationTransformation::qu2ro<QuaterionType, OutputType>;
     ::FromQuaterion<float, 4, 4>(inputDataArray, outputDataArray, qu2ro, QuaterionType::Order::VectorScalar);
   }
   else if(inputType == OrientationRepresentation::Type::Quaternion && outputType == OrientationRepresentation::Type::Homochoric)
   {
-    std::function<OutputType(QuaterionType, Quaternion<float>::Order)> qu2ho = OrientationTransformation::qu2ho<QuaterionType, OutputType>;
+    FromQuaternionFunctionType qu2ho = OrientationTransformation::qu2ho<QuaterionType, OutputType>;
     ::FromQuaterion<float, 4, 3>(inputDataArray, outputDataArray, qu2ho, QuaterionType::Order::VectorScalar);
   }
   else if(inputType == OrientationRepresentation::Type::Quaternion && outputType == OrientationRepresentation::Type::Cubochoric)
   {
-    std::function<OutputType(QuaterionType, Quaternion<float>::Order)> qu2cu = OrientationTransformation::qu2cu<QuaterionType, OutputType>;
+    FromQuaternionFunctionType qu2cu = OrientationTransformation::qu2cu<QuaterionType, OutputType>;
     ::FromQuaterion<float, 4, 3>(inputDataArray, outputDataArray, qu2cu, QuaterionType::Order::VectorScalar);
   }
   else if(inputType == OrientationRepresentation::Type::AxisAngle && outputType == OrientationRepresentation::Type::Euler)
   {
-    std::function<OutputType(InputType)> ax2eu = OrientationTransformation::ax2eu<InputType, OutputType>;
+    ConversionFunctionType ax2eu = OrientationTransformation::ax2eu<InputType, OutputType>;
     ::ConvertOrientation<float, 4, 3>(inputDataArray, outputDataArray, ax2eu);
   }
   else if(inputType == OrientationRepresentation::Type::AxisAngle && outputType == OrientationRepresentation::Type::OrientationMatrix)
   {
-    std::function<OutputType(InputType)> ax2om = OrientationTransformation::ax2om<InputType, OutputType>;
+    ConversionFunctionType ax2om = OrientationTransformation::ax2om<InputType, OutputType>;
     ::ConvertOrientation<float, 4, 9>(inputDataArray, outputDataArray, ax2om);
   }
   else if(inputType == OrientationRepresentation::Type::AxisAngle && outputType == OrientationRepresentation::Type::Quaternion)
   {
-    std::function<QuaterionType(InputType, Quaternion<float>::Order)> ax2qu = OrientationTransformation::ax2qu<InputType, QuaterionType>;
+    ToQuaterionFunctionType ax2qu = OrientationTransformation::ax2qu<InputType, QuaterionType>;
     ::ToQuaternion<float, 4, 4>(inputDataArray, outputDataArray, ax2qu, QuaterionType::Order::VectorScalar);
   }
   else if(inputType == OrientationRepresentation::Type::AxisAngle && outputType == OrientationRepresentation::Type::Rodrigues)
   {
-    std::function<OutputType(InputType)> ax2ro = OrientationTransformation::ax2ro<InputType, OutputType>;
+    ConversionFunctionType ax2ro = OrientationTransformation::ax2ro<InputType, OutputType>;
     ::ConvertOrientation<float, 4, 4>(inputDataArray, outputDataArray, ax2ro);
   }
   else if(inputType == OrientationRepresentation::Type::AxisAngle && outputType == OrientationRepresentation::Type::Homochoric)
   {
-    std::function<OutputType(InputType)> ax2ho = OrientationTransformation::ax2ho<InputType, OutputType>;
+    ConversionFunctionType ax2ho = OrientationTransformation::ax2ho<InputType, OutputType>;
     ::ConvertOrientation<float, 4, 3>(inputDataArray, outputDataArray, ax2ho);
   }
   else if(inputType == OrientationRepresentation::Type::AxisAngle && outputType == OrientationRepresentation::Type::Cubochoric)
   {
-    std::function<OutputType(InputType)> ax2cu = OrientationTransformation::ax2cu<InputType, OutputType>;
+    ConversionFunctionType ax2cu = OrientationTransformation::ax2cu<InputType, OutputType>;
     ::ConvertOrientation<float, 4, 3>(inputDataArray, outputDataArray, ax2cu);
   }
   else if(inputType == OrientationRepresentation::Type::Rodrigues && outputType == OrientationRepresentation::Type::Euler)
   {
-    std::function<OutputType(InputType)> ro2eu = OrientationTransformation::ro2eu<InputType, OutputType>;
+    ConversionFunctionType ro2eu = OrientationTransformation::ro2eu<InputType, OutputType>;
     ::ConvertOrientation<float, 4, 3>(inputDataArray, outputDataArray, ro2eu);
   }
   else if(inputType == OrientationRepresentation::Type::Rodrigues && outputType == OrientationRepresentation::Type::OrientationMatrix)
   {
-    std::function<OutputType(InputType)> ro2om = OrientationTransformation::ro2om<InputType, OutputType>;
+    ConversionFunctionType ro2om = OrientationTransformation::ro2om<InputType, OutputType>;
     ::ConvertOrientation<float, 4, 9>(inputDataArray, outputDataArray, ro2om);
   }
   else if(inputType == OrientationRepresentation::Type::Rodrigues && outputType == OrientationRepresentation::Type::Quaternion)
   {
-    std::function<QuaterionType(InputType, Quaternion<float>::Order)> ro2qu = OrientationTransformation::ro2qu<InputType, QuaterionType>;
+    ToQuaterionFunctionType ro2qu = OrientationTransformation::ro2qu<InputType, QuaterionType>;
     ::ToQuaternion<float, 4, 4>(inputDataArray, outputDataArray, ro2qu, QuaterionType::Order::VectorScalar);
   }
   else if(inputType == OrientationRepresentation::Type::Rodrigues && outputType == OrientationRepresentation::Type::AxisAngle)
   {
-    std::function<OutputType(InputType)> ro2ax = OrientationTransformation::ro2ax<InputType, OutputType>;
+    ConversionFunctionType ro2ax = OrientationTransformation::ro2ax<InputType, OutputType>;
     ::ConvertOrientation<float, 4, 4>(inputDataArray, outputDataArray, ro2ax);
   }
   else if(inputType == OrientationRepresentation::Type::Rodrigues && outputType == OrientationRepresentation::Type::Homochoric)
   {
-    std::function<OutputType(InputType)> ro2ho = OrientationTransformation::ro2ho<InputType, OutputType>;
+    ConversionFunctionType ro2ho = OrientationTransformation::ro2ho<InputType, OutputType>;
     ::ConvertOrientation<float, 4, 3>(inputDataArray, outputDataArray, ro2ho);
   }
   else if(inputType == OrientationRepresentation::Type::Rodrigues && outputType == OrientationRepresentation::Type::Cubochoric)
   {
-    std::function<OutputType(InputType)> ro2cu = OrientationTransformation::ro2cu<InputType, OutputType>;
+    ConversionFunctionType ro2cu = OrientationTransformation::ro2cu<InputType, OutputType>;
     ::ConvertOrientation<float, 4, 3>(inputDataArray, outputDataArray, ro2cu);
   }
   else if(inputType == OrientationRepresentation::Type::Homochoric && outputType == OrientationRepresentation::Type::Euler)
   {
-    std::function<OutputType(InputType)> ho2eu = OrientationTransformation::ho2eu<InputType, OutputType>;
+    ConversionFunctionType ho2eu = OrientationTransformation::ho2eu<InputType, OutputType>;
     ::ConvertOrientation<float, 3, 3>(inputDataArray, outputDataArray, ho2eu);
   }
   else if(inputType == OrientationRepresentation::Type::Homochoric && outputType == OrientationRepresentation::Type::OrientationMatrix)
   {
-    std::function<OutputType(InputType)> ho2om = OrientationTransformation::ho2om<InputType, OutputType>;
+    ConversionFunctionType ho2om = OrientationTransformation::ho2om<InputType, OutputType>;
     ::ConvertOrientation<float, 3, 9>(inputDataArray, outputDataArray, ho2om);
   }
   else if(inputType == OrientationRepresentation::Type::Homochoric && outputType == OrientationRepresentation::Type::Quaternion)
   {
-    std::function<QuaterionType(InputType, Quaternion<float>::Order)> ho2qu = OrientationTransformation::ho2qu<InputType, QuaterionType>;
+    ToQuaterionFunctionType ho2qu = OrientationTransformation::ho2qu<InputType, QuaterionType>;
     ::ToQuaternion<float, 3, 4>(inputDataArray, outputDataArray, ho2qu, QuaterionType::Order::VectorScalar);
   }
   else if(inputType == OrientationRepresentation::Type::Homochoric && outputType == OrientationRepresentation::Type::AxisAngle)
   {
-    std::function<OutputType(InputType)> ho2ax = OrientationTransformation::ho2ax<InputType, OutputType>;
+    ConversionFunctionType ho2ax = OrientationTransformation::ho2ax<InputType, OutputType>;
     ::ConvertOrientation<float, 3, 4>(inputDataArray, outputDataArray, ho2ax);
   }
   else if(inputType == OrientationRepresentation::Type::Homochoric && outputType == OrientationRepresentation::Type::Rodrigues)
   {
-    std::function<OutputType(InputType)> ho2ro = OrientationTransformation::ho2ro<InputType, OutputType>;
+    ConversionFunctionType ho2ro = OrientationTransformation::ho2ro<InputType, OutputType>;
     ::ConvertOrientation<float, 3, 4>(inputDataArray, outputDataArray, ho2ro);
   }
   else if(inputType == OrientationRepresentation::Type::Homochoric && outputType == OrientationRepresentation::Type::Cubochoric)
   {
-    std::function<OutputType(InputType)> ho2cu = OrientationTransformation::ho2cu<InputType, OutputType>;
+    ConversionFunctionType ho2cu = OrientationTransformation::ho2cu<InputType, OutputType>;
     ::ConvertOrientation<float, 3, 3>(inputDataArray, outputDataArray, ho2cu);
   }
   else if(inputType == OrientationRepresentation::Type::Cubochoric && outputType == OrientationRepresentation::Type::Euler)
   {
-    std::function<OutputType(InputType)> cu2eu = OrientationTransformation::cu2eu<InputType, OutputType>;
+    ConversionFunctionType cu2eu = OrientationTransformation::cu2eu<InputType, OutputType>;
     ::ConvertOrientation<float, 3, 3>(inputDataArray, outputDataArray, cu2eu);
   }
   else if(inputType == OrientationRepresentation::Type::Cubochoric && outputType == OrientationRepresentation::Type::OrientationMatrix)
   {
-    std::function<OutputType(InputType)> cu2om = OrientationTransformation::cu2om<InputType, OutputType>;
+    ConversionFunctionType cu2om = OrientationTransformation::cu2om<InputType, OutputType>;
     ::ConvertOrientation<float, 3, 9>(inputDataArray, outputDataArray, cu2om);
   }
   else if(inputType == OrientationRepresentation::Type::Cubochoric && outputType == OrientationRepresentation::Type::Quaternion)
   {
-    std::function<QuaterionType(InputType, Quaternion<float>::Order)> cu2qu = OrientationTransformation::cu2qu<InputType, QuaterionType>;
+    ToQuaterionFunctionType cu2qu = OrientationTransformation::cu2qu<InputType, QuaterionType>;
     ::ToQuaternion<float, 3, 4>(inputDataArray, outputDataArray, cu2qu, QuaterionType::Order::VectorScalar);
   }
   else if(inputType == OrientationRepresentation::Type::Cubochoric && outputType == OrientationRepresentation::Type::AxisAngle)
   {
-    std::function<OutputType(InputType)> cu2ax = OrientationTransformation::cu2ax<InputType, OutputType>;
+    ConversionFunctionType cu2ax = OrientationTransformation::cu2ax<InputType, OutputType>;
     ::ConvertOrientation<float, 3, 4>(inputDataArray, outputDataArray, cu2ax);
   }
   else if(inputType == OrientationRepresentation::Type::Cubochoric && outputType == OrientationRepresentation::Type::Rodrigues)
   {
-    std::function<OutputType(InputType)> cu2ro = OrientationTransformation::cu2ro<InputType, OutputType>;
+    ConversionFunctionType cu2ro = OrientationTransformation::cu2ro<InputType, OutputType>;
     ::ConvertOrientation<float, 3, 4>(inputDataArray, outputDataArray, cu2ro);
   }
   else if(inputType == OrientationRepresentation::Type::Cubochoric && outputType == OrientationRepresentation::Type::Homochoric)
   {
-    std::function<OutputType(InputType)> cu2ho = OrientationTransformation::cu2ho<InputType, OutputType>;
+    ConversionFunctionType cu2ho = OrientationTransformation::cu2ho<InputType, OutputType>;
     ::ConvertOrientation<float, 3, 3>(inputDataArray, outputDataArray, cu2ho);
   }
-#endif
 
   return {};
 }
