@@ -22,34 +22,96 @@
 
 #include <catch2/catch.hpp>
 
+#include "complex/Common/Numbers.hpp"
 #include "complex/Parameters/ArrayCreationParameter.hpp"
 #include "complex/Parameters/ArraySelectionParameter.hpp"
 #include "complex/Parameters/ChoicesParameter.hpp"
+#include "complex/UnitTest/UnitTestCommon.hpp"
 
 #include "OrientationAnalysis/Filters/ConvertOrientations.hpp"
 #include "OrientationAnalysis/OrientationAnalysis_test_dirs.hpp"
 
 using namespace complex;
 
-TEST_CASE("OrientationAnalysis::ConvertOrientations: Instantiation and Parameter Check", "[OrientationAnalysis][ConvertOrientations][.][UNIMPLEMENTED][!mayfail]")
+TEST_CASE("OrientationAnalysis::ConvertOrientations: Instantiation and Parameter Check", "[OrientationAnalysis][ConvertOrientations]")
 {
+#if 0
+  std::vector<std::string> inRep = {"eu", "om",  "qu", "ax", "ro", "ho", "cu"};
+  std::vector<std::string> outRep = {"eu", "om",  "qu", "ax", "ro", "ho", "cu"};
+  std::vector<std::string> names = {  "Euler" ,
+     "OrientationMatrix",
+      "Quaternion",
+      "AxisAngle",
+      "Rodrigues",
+      "Homochoric",
+      "Cubochoric"};
+
+  std::vector<int> strides = {3, 9, 4, 4, 4, 3, 3};
+
+  for(size_t i = 0; i < 7; i++)
+  {
+    for(size_t o = 0; o < 7; o++)
+    {
+      if(inRep[i] == outRep[o]) { continue;}
+
+      std::cout << "else if( inputType == OrientationRepresentation::Type::" << names[i]
+      << " && outputType == OrientationRepresentation::Type::" << names[o] << ")\n"
+      << "{\n";
+
+      if(inRep[i] == "qu" )
+      {
+        std::cout << "  std::function<OutputType(QuaterionType, Quaternion<float>::Order)> " << inRep[i] << "2" << outRep[o] << " = OrientationTransformation::" << inRep[i] << "2" << outRep[o] << "<QuaterionType, OutputType>;\n";
+        std::cout << "  ::FromQuaterion<float, " << strides[i] << ", " << strides[o] << ">(inputDataArray, outputDataArray, " << inRep[i] << "2" << outRep[o]
+                  << ", QuaterionType::Order::VectorScalar);\n";
+      }
+      else if (outRep[o] == "qu")
+      {
+        std::cout << "  std::function<QuaterionType(InputType, Quaternion<float>::Order)> " << inRep[i] << "2" << outRep[o] << " = OrientationTransformation::" << inRep[i] << "2" << outRep[o] << "<InputType, QuaterionType>;\n";
+        std::cout << "  ::ToQuaternion<float, " << strides[i] << ", " << strides[o] << ">(inputDataArray, outputDataArray, " << inRep[i] << "2" << outRep[o]
+                  << ", QuaterionType::Order::VectorScalar);\n";
+      }
+      else
+      {
+        std::cout << "  std::function<OutputType(InputType)> " << inRep[i] << "2" << outRep[o] << " = OrientationTransformation::" << inRep[i] << "2" << outRep[o] << "<InputType, OutputType>;\n";
+        std::cout << "  ::ConvertOrientation<float, " << strides[i] << ", " << strides[o] << ">(inputDataArray, outputDataArray, " << inRep[i] << "2" << outRep[o] << ");\n";
+      }
+      std::cout << "}\n";
+    };
+  }
+#endif
+
   // Instantiate the filter, a DataStructure object and an Arguments Object
   ConvertOrientations filter;
-  DataStructure ds;
+  DataStructure dataGraph;
   Arguments args;
+
+  DataGroup* topLevelGroup = DataGroup::Create(dataGraph, Constants::k_SmallIN100);
+  DataGroup* scanData = DataGroup::Create(dataGraph, Constants::k_EbsdScanData, topLevelGroup->getId());
+
+  std::vector<size_t> tupleShape = {10};
+  std::vector<size_t> componentShape = {3};
+
+  Float32Array* angles = UnitTest::CreateTestDataArray<float>(dataGraph, Constants::k_EulerAngles, tupleShape, componentShape, scanData->getId());
+  for(size_t t = 0; t < tupleShape[0]; t++)
+  {
+    for(size_t c = 0; c < componentShape[0]; c++)
+    {
+      (*angles)[t * componentShape[0] + c] = static_cast<float>(t * c);
+    }
+  }
 
   // Create default Parameters for the filter.
   args.insertOrAssign(ConvertOrientations::k_InputType_Key, std::make_any<ChoicesParameter::ValueType>(0));
-  args.insertOrAssign(ConvertOrientations::k_OutputType_Key, std::make_any<ChoicesParameter::ValueType>(0));
-  args.insertOrAssign(ConvertOrientations::k_InputOrientationArrayPath_Key, std::make_any<DataPath>(DataPath{}));
-  args.insertOrAssign(ConvertOrientations::k_OutputOrientationArrayName_Key, std::make_any<DataPath>(DataPath{}));
+  args.insertOrAssign(ConvertOrientations::k_OutputType_Key, std::make_any<ChoicesParameter::ValueType>(1));
+  args.insertOrAssign(ConvertOrientations::k_InputOrientationArrayPath_Key, std::make_any<DataPath>(DataPath({Constants::k_SmallIN100, Constants::k_EbsdScanData, Constants::k_EulerAngles})));
+  args.insertOrAssign(ConvertOrientations::k_OutputOrientationArrayName_Key, std::make_any<DataPath>(DataPath({Constants::k_SmallIN100, Constants::k_EbsdScanData, Constants::k_AxisAngles})));
 
   // Preflight the filter and check result
-  auto preflightResult = filter.preflight(ds, args);
-  REQUIRE(preflightResult.outputActions.valid());
+  auto preflightResult = filter.preflight(dataGraph, args);
+  //  REQUIRE(preflightResult.outputActions.valid());
 
-  // Execute the filter and check the result
-  auto executeResult = filter.execute(ds, args);
+  //  // Execute the filter and check the result
+  auto executeResult = filter.execute(dataGraph, args);
   REQUIRE(executeResult.result.valid());
 }
 
