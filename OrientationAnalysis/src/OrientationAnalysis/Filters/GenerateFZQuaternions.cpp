@@ -16,8 +16,8 @@ using namespace complex;
 namespace
 {
 /**
- * @brief The GenerateFZQuatsImpl class implements a threaded algorithm that computes the IPF
- * colors for each element in a geometry
+ * @brief The GenerateFZQuatsImpl class implements a threaded algorithm that computes the Fundamental Zone Quaternion
+ * for a given Quaternion and Laue Class (which is based from the crystalStructures array
  */
 template <typename MaskArrayType>
 class GenerateFZQuatsImpl
@@ -198,14 +198,14 @@ IFilter::PreflightResult GenerateFZQuaternions::preflightImpl(const DataStructur
 
   if(phaseData.getNumberOfTuples() != quatArray.getNumberOfTuples())
   {
-    return {MakeErrorResult<OutputActions>(-49005,
+    return {MakeErrorResult<OutputActions>(-49002,
                                            fmt::format("Quaternion and Phase Arrays must have the same number of tuples. '{} != {}'", quatArray.getNumberOfTuples(), phaseData.getNumberOfTuples()))};
   }
 
   const UInt32Array& xtalArray = dataStructure.getDataRefAs<UInt32Array>(pCrystalStructuresArrayPathValue);
   if(xtalArray.getNumberOfComponents() != 1)
   {
-    return {MakeErrorResult<OutputActions>(-49002, fmt::format("Crystal Structure Array number of components is not 1: '{}'", xtalArray.getNumberOfComponents()))};
+    return {MakeErrorResult<OutputActions>(-49003, fmt::format("Crystal Structure Array number of components is not 1: '{}'", xtalArray.getNumberOfComponents()))};
   }
 
   if(pUseGoodVoxelsValue)
@@ -213,16 +213,16 @@ IFilter::PreflightResult GenerateFZQuaternions::preflightImpl(const DataStructur
     const IDataArray& maskArray = dataStructure.getDataRefAs<IDataArray>(pGoodVoxelsArrayPathValue);
     if(maskArray.getNumberOfComponents() != 1)
     {
-      return {MakeErrorResult<OutputActions>(-49003, fmt::format("Mask Array number of components is not 1: '{}'", maskArray.getNumberOfComponents()))};
+      return {MakeErrorResult<OutputActions>(-49004, fmt::format("Mask Array number of components is not 1: '{}'", maskArray.getNumberOfComponents()))};
     }
     if(maskArray.getDataType() != complex::DataType::boolean && maskArray.getDataType() != complex::DataType::uint8 && maskArray.getDataType() != complex::DataType::int8)
     {
-      return {MakeErrorResult<OutputActions>(-49004, fmt::format("Mask Array is not [BOOL (10) | UINT8 (2) | INT8 (1)]: '{}'", maskArray.getDataType()))};
+      return {MakeErrorResult<OutputActions>(-49005, fmt::format("Mask Array is not [BOOL (10) | UINT8 (2) | INT8 (1)]: '{}'", maskArray.getDataType()))};
     }
 
     if(maskArray.getNumberOfTuples() != quatArray.getNumberOfTuples())
     {
-      return {MakeErrorResult<OutputActions>(-49005,
+      return {MakeErrorResult<OutputActions>(-49006,
                                              fmt::format("Quaternion and Mask arrays must have the same number of tuples. '{} != {}'", quatArray.getNumberOfTuples(), maskArray.getNumberOfTuples()))};
     }
   }
@@ -291,9 +291,9 @@ Result<> GenerateFZQuaternions::executeImpl(DataStructure& dataStructure, const 
 
   if(warningCount > 0)
   {
-    std::string errorMessage = fmt::format("The Ensemble Phase information only references {} phase(s) but {} cell(s) had a phase value greater than %2. \
-This indicates a problem with the input cell phase data. DREAM.3D will give INCORRECT RESULTS.",
-                                           numPhases - 1, warningCount);
+    std::string errorMessage = fmt::format("The Ensemble Phase information only references {} phase(s) but {} cell(s) had a phase value greater than {}. \
+This indicates a problem with the input cell phase data. DREAM.3D may have given INCORRECT RESULTS.",
+                                           numPhases - 1, warningCount, numPhases - 1);
 
     return {MakeErrorResult<>(-49008, errorMessage)};
   }

@@ -7,7 +7,7 @@ OrientationAnalysis (OrientationAnalysis)
 
 ## Description ##
 
-This **Filter** reduces input orienations (Quaternions) into the fundamental zone for the given Laue group.
+This **Filter** reduces input orientations (Quaternions) into the fundamental zone for the given Laue group.
 
 The following figures represent a BCC Interstitial steel EBSD data set courtesy of [1].
 
