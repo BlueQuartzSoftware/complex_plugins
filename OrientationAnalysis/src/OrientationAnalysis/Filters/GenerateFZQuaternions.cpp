@@ -265,6 +265,7 @@ Result<> GenerateFZQuaternions::executeImpl(DataStructure& dataStructure, const 
   // Parallel algorithm to find duplicate nodes
   ParallelDataAlgorithm dataAlg;
   dataAlg.setRange(0ULL, static_cast<size_t>(quatArray.getNumberOfTuples()));
+  dataAlg.setParallelizationEnabled(false);
 
   if(pUseGoodVoxelsValue)
   {
