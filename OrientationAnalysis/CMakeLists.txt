@@ -1,8 +1,9 @@
-
 #------------------------------------------------------------------------------
 # Required EbsdLib and H5Support
 #------------------------------------------------------------------------------
-find_package (EbsdLib REQUIRED)
+find_package(H5Support REQUIRED)
+find_package(EbsdLib REQUIRED)
+
 
 #------------------------------------------------------------------------------
 # Include the standard complex plugin cmake support codes
@@ -14,11 +15,16 @@ set(PLUGIN_NAME "OrientationAnalysis")
 # These are all the filters in the plugin. All filters should be kept in the
 # OrientationAnalysis/src/OrientationAnalysis/Filters/ directory.
 set(FilterList
-  BadDataNeighborOrientationCheck
-
-  #ConvertHexGridToSquareGrid # MISSING 1 or more Parameter Implementations
+  GenerateFZQuaternions
   ConvertOrientations
+  ReadH5Ebsd
+
+  )
+
+set(Private_Filter_List
+  BadDataNeighborOrientationCheck
   ConvertQuaternion
+  #ConvertHexGridToSquareGrid # MISSING 1 or more Parameter Implementations
   #CreateEnsembleInfo # MISSING 1 or more Parameter Implementations
   CreateLambertSphere
   EMsoftSO3Sampler
@@ -41,7 +47,6 @@ set(FilterList
   FindSlipTransmissionMetrics
   FindTwinBoundaries
   FindTwinBoundarySchmidFactors
-  GenerateFZQuaternions
   GenerateFaceIPFColoring
   GenerateFaceMisorientationColoring
   GenerateIPFColors
@@ -55,7 +60,6 @@ set(FilterList
   #OrientationUtility # MISSING 1 or more Parameter Implementations
   ReadAngData
   ReadCtfData
-  #ReadH5Ebsd # MISSING 1 or more Parameter Implementations
   ReplaceElementAttributesWithNeighborValues
   RodriguesConvertor
   RotateEulerRefFrame
@@ -64,41 +68,94 @@ set(FilterList
   WriteStatsGenOdfAngleFile
 )
 
+set(Parameter_List
+  H5EbsdReaderParameter
+)
+
 create_complex_plugin(NAME ${PLUGIN_NAME}
                       FILTER_LIST ${FilterList}
                       DESCRIPTION "Plugin for ${PLUGIN_NAME}"
-                      VERSION "0.1.0"
+                      VERSION "0.2.0"
 )
 
 #------------------------------------------------------------------------------
-# If there are additional library packages that need to be found, this is where
-# to do that using the usual find_package(....) call
-find_package(H5Support REQUIRED)
-find_package(EbsdLib REQUIRED)
+# Add in all the private filters.
+# This should be integrated with the `create_complex_plugin` function call
+#------------------------------------------------------------------------------
+foreach(source ${Private_Filter_List})
+  target_sources(${PLUGIN_NAME} PRIVATE  ${${PLUGIN_NAME}_SOURCE_DIR}/src/${PLUGIN_NAME}/Filters/Private/${source}.cpp ${${PLUGIN_NAME}_SOURCE_DIR}/src/${PLUGIN_NAME}/Filters/Private/${source}.hpp)
+endforeach()
 
+#------------------------------------------------------------------------------
+# Add in all the parameters.
+# This should be integrated with the `create_complex_plugin` function call
+#------------------------------------------------------------------------------
+foreach(source ${Parameter_List})
+  target_sources(${PLUGIN_NAME} PRIVATE
+    ${${PLUGIN_NAME}_SOURCE_DIR}/src/${PLUGIN_NAME}/Parameters/H5EbsdReaderParameter.h
+    ${${PLUGIN_NAME}_SOURCE_DIR}/src/${PLUGIN_NAME}/Parameters/H5EbsdReaderParameter.cpp)
+endforeach()
 
 #------------------------------------------------------------------------------
 # If there are additional libraries that this plugin needs to link against you
 # can use the target_link_libraries() cmake call
-target_link_libraries(${PLUGIN_NAME} PUBLIC EbsdLib::EbsdLib)
-
 #------------------------------------------------------------------------------
-# If there are additional source files that need to be compiled for this plugin
-# can use the target_sources(...) cmake call
-# target_sources(${PLUGIN_NAME}
-#   PUBLIC
-#     additional header files
-#   PRIVATE
-#     additional source files
-# )
+target_link_libraries(${PLUGIN_NAME} PUBLIC EbsdLib::EbsdLib NXComponents)
+
 
 #------------------------------------------------------------------------------
 # If there are additional include directories that are needed for this plugin
 # you can use the target_include_directories(.....) cmake call
- target_include_directories(${PLUGIN_NAME}
-     PUBLIC
-     ${EbsdLib_INCLUDE_DIRS}
- )
+target_include_directories(${PLUGIN_NAME}
+  PUBLIC
+  ${EbsdLib_INCLUDE_DIRS}
+  ${${PLUGIN_NAME}_BINARY_DIR}
+  )
+
+#------------------------------------------------------------------------------
+# If this plugin is also creating UI parameter widgets, then we can optionally
+# compile those sources
+#------------------------------------------------------------------------------
+if(ENABLE_PLUGIN_GUI)
+  #------------------------------------------------------------------------------
+  # If there are additional library packages that need to be found, this is where
+  # to do that using the usual find_package(....) call
+  #------------------------------------------------------------------------------
+  find_package(Qt5 COMPONENTS Core Widgets)
+
+  target_link_libraries(${PLUGIN_NAME} PUBLIC  Qt::Core Qt::Widgets)
+
+  QT5_WRAP_CPP(moc_files  ${${PLUGIN_NAME}_SOURCE_DIR}/src/${PLUGIN_NAME}/ui/Parameters/NXH5EbsdReaderParameter.h
+                          ${${PLUGIN_NAME}_SOURCE_DIR}/src/${PLUGIN_NAME}/ui/Widgets/NXH5EbsdReaderWidget.h
+    )
+  set_source_files_properties(${moc_files} PROPERTIES GENERATED TRUE)
+  #set_source_files_properties(${moc_files} PROPERTIES HEADER_FILE_ONLY TRUE)
+
+  QT5_WRAP_UI(ui_files ${${PLUGIN_NAME}_SOURCE_DIR}/src/${PLUGIN_NAME}/ui/Widgets/UI_Files/NXH5EbsdReaderWidget.ui)
+
+  #------------------------------------------------------------------------------
+  # If there are additional source files that need to be compiled for this plugin
+  # can use the target_sources(...) cmake call
+  target_sources(${PLUGIN_NAME}
+    PRIVATE
+    ${${PLUGIN_NAME}_SOURCE_DIR}/src/${PLUGIN_NAME}/ui/Parameters/NXH5EbsdReaderParameter.h
+    ${${PLUGIN_NAME}_SOURCE_DIR}/src/${PLUGIN_NAME}/ui/Parameters/NXH5EbsdReaderParameter.cpp
+
+    ${${PLUGIN_NAME}_SOURCE_DIR}/src/${PLUGIN_NAME}/ui/Widgets/NXH5EbsdReaderWidget.h
+    ${${PLUGIN_NAME}_SOURCE_DIR}/src/${PLUGIN_NAME}/ui/Widgets/NXH5EbsdReaderWidget.cpp
+    ${${PLUGIN_NAME}_SOURCE_DIR}/src/${PLUGIN_NAME}/ui/Widgets/UI_Files/NXH5EbsdReaderWidget.ui
+    ${moc_files}
+    ${ui_files}
+  )
+
+  target_include_directories(${PLUGIN_NAME}
+    PUBLIC
+      ${NXComponents_BINARY_DIR}
+    )
+
+endif()
+
+
 
 #------------------------------------------------------------------------------
 # Add in the unit tests for the filters included in this plugin

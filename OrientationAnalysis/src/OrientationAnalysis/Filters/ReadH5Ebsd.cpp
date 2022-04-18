@@ -1,11 +1,13 @@
 #include "ReadH5Ebsd.hpp"
 
+#include "OrientationAnalysis/Parameters/H5EbsdReaderParameter.h"
+
 #include "complex/DataStructure/DataPath.hpp"
 #include "complex/Filter/Actions/CreateDataGroupAction.hpp"
 #include "complex/Filter/Actions/EmptyAction.hpp"
 #include "complex/Parameters/ArrayCreationParameter.hpp"
 #include "complex/Parameters/DataGroupCreationParameter.hpp"
-#include "complex/Parameters/ReadH5EbsdFilterParameter.hpp"
+
 
 using namespace complex;
 
@@ -46,7 +48,7 @@ Parameters ReadH5Ebsd::parameters() const
 {
   Parameters params;
   // Create the parameter descriptors that are needed for this filter
-  /*[x]*/ params.insert(std::make_unique<ReadH5EbsdFilterParameter>(k_ReadH5Ebsd_Key, "Import H5Ebsd File", "", {}));
+  params.insert(std::make_unique<H5EbsdReaderParameter>(k_ReadH5Ebsd_Key, "Import H5Ebsd File", "", H5EbsdReaderParameter::ValueType{}));
   params.insert(std::make_unique<DataGroupCreationParameter>(k_DataContainerName_Key, "Data Container", "", DataPath{}));
   params.insertSeparator(Parameters::Separator{"Cell Data"});
   params.insert(std::make_unique<ArrayCreationParameter>(k_CellAttributeMatrixName_Key, "Cell Attribute Matrix", "", DataPath{}));
@@ -74,7 +76,7 @@ IFilter::PreflightResult ReadH5Ebsd::preflightImpl(const DataStructure& dataStru
    * otherwise passed into the filter. These are here for your convenience. If you
    * do not need some of them remove them.
    */
-  auto pReadH5EbsdValue = filterArgs.value<<<<NOT_IMPLEMENTED>>>>(k_ReadH5Ebsd_Key);
+  auto pReadH5EbsdValue = filterArgs.value<H5EbsdReaderParameter::ValueType>(k_ReadH5Ebsd_Key);
   auto pDataContainerNameValue = filterArgs.value<DataPath>(k_DataContainerName_Key);
   auto pCellAttributeMatrixNameValue = filterArgs.value<DataPath>(k_CellAttributeMatrixName_Key);
   auto pCellEnsembleAttributeMatrixNameValue = filterArgs.value<DataPath>(k_CellEnsembleAttributeMatrixName_Key);
@@ -133,7 +135,7 @@ Result<> ReadH5Ebsd::executeImpl(DataStructure& dataStructure, const Arguments& 
   /****************************************************************************
    * Extract the actual input values from the 'filterArgs' object
    ***************************************************************************/
-  auto pReadH5EbsdValue = filterArgs.value<<<<NOT_IMPLEMENTED>>>>(k_ReadH5Ebsd_Key);
+  auto pReadH5EbsdValue = filterArgs.value<H5EbsdReaderParameter::ValueType>(k_ReadH5Ebsd_Key);
   auto pDataContainerNameValue = filterArgs.value<DataPath>(k_DataContainerName_Key);
   auto pCellAttributeMatrixNameValue = filterArgs.value<DataPath>(k_CellAttributeMatrixName_Key);
   auto pCellEnsembleAttributeMatrixNameValue = filterArgs.value<DataPath>(k_CellEnsembleAttributeMatrixName_Key);
