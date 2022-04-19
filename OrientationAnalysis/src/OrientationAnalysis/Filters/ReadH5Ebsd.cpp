@@ -8,7 +8,6 @@
 #include "complex/Parameters/ArrayCreationParameter.hpp"
 #include "complex/Parameters/DataGroupCreationParameter.hpp"
 
-
 using namespace complex;
 
 namespace complex

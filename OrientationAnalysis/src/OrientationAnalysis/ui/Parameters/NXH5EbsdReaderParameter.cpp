@@ -4,8 +4,8 @@
 #include "NXComponents/interfaces/IFilter.h"
 #include "NXComponents/utils/NXQtUtils.hpp"
 
-#include <QtCore/QFileInfo>
 #include <QtCore/QDir>
+#include <QtCore/QFileInfo>
 
 #include <filesystem>
 
@@ -69,9 +69,9 @@ NXH5EbsdReaderParameter::NXH5EbsdReaderParameter(NXFilter* nxParentFilter, compl
     m_DefaultValue = complexParameter->defaultValue();
   }
   // Now set the actual value of the Parameter from the Default Value
-//  NXH5EbsdReaderParameter nxValueType;
-//  nxValueType.initialize(std::any_cast<complex::GeneratedFileListParameter::ValueType>(m_DefaultValue));
-//  m_Value = QVariant::fromValue(nxValueType);
+  //  NXH5EbsdReaderParameter nxValueType;
+  //  nxValueType.initialize(std::any_cast<complex::GeneratedFileListParameter::ValueType>(m_DefaultValue));
+  //  m_Value = QVariant::fromValue(nxValueType);
 }
 
 // -----------------------------------------------------------------------------
@@ -92,18 +92,17 @@ std::any NXH5EbsdReaderParameter::anyValue() const
   complex::H5EbsdReaderParameter::ValueType parameterValue;
 
   return std::make_any<complex::H5EbsdReaderParameter::ValueType>(parameterValue);
-
 }
 
 // -----------------------------------------------------------------------------
 QVariant NXH5EbsdReaderParameter::defaultValue() const
 {
-//  complex::H5EbsdReaderParameter* complexParameter = dynamic_cast<complex::H5EbsdReaderParameter*>(getComplexParameter());
-//  NXH5EbsdReaderParameter nxValueType;
-//  nxValueType.initialize(std::any_cast<complex::H5EbsdReaderParameter::ValueType>(complexParameter->defaultValue()));
-//  return QVariant::fromValue(nxValueType);
+  //  complex::H5EbsdReaderParameter* complexParameter = dynamic_cast<complex::H5EbsdReaderParameter*>(getComplexParameter());
+  //  NXH5EbsdReaderParameter nxValueType;
+  //  nxValueType.initialize(std::any_cast<complex::H5EbsdReaderParameter::ValueType>(complexParameter->defaultValue()));
+  //  return QVariant::fromValue(nxValueType);
 
-return {};
+  return {};
 }
 
 #if 0
@@ -152,4 +151,3 @@ bool NXH5EbsdReaderParameter::useRecommendedTransformation() const
   return m_UseRecommendedTransformation;
 }
 #endif
-

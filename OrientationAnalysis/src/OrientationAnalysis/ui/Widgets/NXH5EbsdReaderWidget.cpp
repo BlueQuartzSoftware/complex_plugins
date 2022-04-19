@@ -1,15 +1,12 @@
 #include "NXH5EbsdReaderWidget.h"
 
-
 #include "NXComponents/interfaces/IFilter.h"
 #include "NXComponents/interfaces/IParameter.h"
-
 
 //-- UIC generated Header
 #include "ui_NXH5EbsdReaderWidget.h"
 
 #include <sstream>
-
 
 // -----------------------------------------------------------------------------
 NXH5EbsdReaderWidget::NXH5EbsdReaderWidget(NX::IFilter* filter, NX::IParameter* parameter, QFrame* parent)
