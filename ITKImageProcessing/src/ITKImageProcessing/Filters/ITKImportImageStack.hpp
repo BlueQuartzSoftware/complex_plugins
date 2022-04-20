@@ -27,7 +27,11 @@ public:
   static inline constexpr StringLiteral k_InputFileListInfo_Key = "InputFileListInfo";
   static inline constexpr StringLiteral k_Origin_Key = "Origin";
   static inline constexpr StringLiteral k_Spacing_Key = "Spacing";
-  static inline constexpr StringLiteral k_ImageGeometryPath_Key = "ImageGeometryPath";
+  static inline constexpr StringLiteral k_UseExistingGeometry = "UseExistingGeometry";
+  static inline constexpr StringLiteral k_CreateGeometrySubdirectory = "CreateGeometrySubdirectory";
+  static inline constexpr StringLiteral k_GeometryDataGroup = "GeometryDataGroup";
+  static inline constexpr StringLiteral k_NewImageGeometryPath_Key = "NewImageGeometryPath";
+  static inline constexpr StringLiteral k_ExistingImageGeometryPath_Key = "ExistingImageGeometryPath";
   static inline constexpr StringLiteral k_ImageDataArrayPath_Key = "ImageDataArrayPath";
 
   /**

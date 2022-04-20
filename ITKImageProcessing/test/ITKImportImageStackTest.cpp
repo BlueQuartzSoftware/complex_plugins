@@ -71,7 +71,7 @@ TEST_CASE("ITKImageProcessing::ITKImportImageStack: NoFiles", "[ITKImageProcessi
   args.insertOrAssign(ITKImportImageStack::k_InputFileListInfo_Key, std::make_any<GeneratedFileListParameter::ValueType>(fileListInfo));
   args.insertOrAssign(ITKImportImageStack::k_Origin_Key, std::make_any<std::vector<float32>>(3));
   args.insertOrAssign(ITKImportImageStack::k_Spacing_Key, std::make_any<std::vector<float32>>(3));
-  args.insertOrAssign(ITKImportImageStack::k_ImageGeometryPath_Key, std::make_any<DataPath>(k_ImageGeomPath));
+  args.insertOrAssign(ITKImportImageStack::k_NewImageGeometryPath_Key, std::make_any<DataPath>(k_ImageGeomPath));
   args.insertOrAssign(ITKImportImageStack::k_ImageDataArrayPath_Key, std::make_any<DataPath>(k_ImageDataPath));
 
   auto preflightResult = filter.preflight(ds, args);
@@ -96,7 +96,7 @@ TEST_CASE("ITKImageProcessing::ITKImportImageStack: FileDoesNotExist", "[ITKImag
   args.insertOrAssign(ITKImportImageStack::k_InputFileListInfo_Key, std::make_any<GeneratedFileListParameter::ValueType>(fileListInfo));
   args.insertOrAssign(ITKImportImageStack::k_Origin_Key, std::make_any<std::vector<float32>>(3));
   args.insertOrAssign(ITKImportImageStack::k_Spacing_Key, std::make_any<std::vector<float32>>(3));
-  args.insertOrAssign(ITKImportImageStack::k_ImageGeometryPath_Key, std::make_any<DataPath>(k_ImageGeomPath));
+  args.insertOrAssign(ITKImportImageStack::k_NewImageGeometryPath_Key, std::make_any<DataPath>(k_ImageGeomPath));
   args.insertOrAssign(ITKImportImageStack::k_ImageDataArrayPath_Key, std::make_any<DataPath>(k_ImageDataPath));
 
   auto preflightResult = filter.preflight(ds, args);
@@ -126,7 +126,7 @@ TEST_CASE("ITKImageProcessing::ITKImportImageStack: CompareImage", "[ITKImagePro
   args.insertOrAssign(ITKImportImageStack::k_InputFileListInfo_Key, std::make_any<GeneratedFileListParameter::ValueType>(fileListInfo));
   args.insertOrAssign(ITKImportImageStack::k_Origin_Key, std::make_any<std::vector<float32>>(origin));
   args.insertOrAssign(ITKImportImageStack::k_Spacing_Key, std::make_any<std::vector<float32>>(spacing));
-  args.insertOrAssign(ITKImportImageStack::k_ImageGeometryPath_Key, std::make_any<DataPath>(k_ImageGeomPath));
+  args.insertOrAssign(ITKImportImageStack::k_NewImageGeometryPath_Key, std::make_any<DataPath>(k_ImageGeomPath));
   args.insertOrAssign(ITKImportImageStack::k_ImageDataArrayPath_Key, std::make_any<DataPath>(k_ImageDataPath));
 
   auto preflightResult = filter.preflight(ds, args);

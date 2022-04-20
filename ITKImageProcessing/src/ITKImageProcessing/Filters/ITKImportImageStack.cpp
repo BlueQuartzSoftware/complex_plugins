@@ -5,10 +5,14 @@
 
 #include "complex/DataStructure/DataPath.hpp"
 #include "complex/Filter/Actions/CreateArrayAction.hpp"
+#include "complex/Filter/Actions/CreateDataGroupAction.hpp"
 #include "complex/Filter/Actions/CreateImageGeometryAction.hpp"
 #include "complex/Parameters/ArrayCreationParameter.hpp"
+#include "complex/Parameters/BoolParameter.hpp"
 #include "complex/Parameters/DataGroupCreationParameter.hpp"
 #include "complex/Parameters/GeneratedFileListParameter.hpp"
+#include "complex/Parameters/GeometrySelectionParameter.hpp"
+#include "complex/Parameters/StringParameter.hpp"
 #include "complex/Parameters/VectorParameter.hpp"
 
 #include <itkImageFileReader.h>
@@ -45,6 +49,7 @@ Result<> ReadImageStack(DataStructure& dataStructure, const DataPath& imageGeomP
     messageHandler(IFilter::Message::Type::Info, fmt::format("Importing: {}", filePath));
 
     DataStructure importedDataStructure;
+    importedDataStructure.makePath(imageDataPath.getParent());
 
     // Create a subfilter to read each image, although for preflight we are going to read the first image in the
     // list and hope the rest are correct.
@@ -134,9 +139,18 @@ Parameters ITKImportImageStack::parameters() const
   params.insert(std::make_unique<GeneratedFileListParameter>(k_InputFileListInfo_Key, "Input File List", "", GeneratedFileListParameter::ValueType{}));
   params.insert(std::make_unique<VectorFloat32Parameter>(k_Origin_Key, "Origin", "", std::vector<float32>(3), std::vector<std::string>(3)));
   params.insert(std::make_unique<VectorFloat32Parameter>(k_Spacing_Key, "Spacing", "", std::vector<float32>(3), std::vector<std::string>(3)));
-  params.insert(std::make_unique<DataGroupCreationParameter>(k_ImageGeometryPath_Key, "Data Container", "", DataPath{}));
+  params.insertLinkableParameter(std::make_unique<BoolParameter>(k_UseExistingGeometry, "Use Existing Geometry", "Import the stack to an existing geometry.", false));
+  params.insert(std::make_unique<DataGroupCreationParameter>(k_NewImageGeometryPath_Key, "New Image Geometry", "", DataPath{}));
+  params.insert(std::make_unique<GeometrySelectionParameter>(k_ExistingImageGeometryPath_Key, "Existing Image Geometry", "", DataPath({"[Placeholder]"}), std::set{AbstractGeometry::Type::Image}));
+  params.insertLinkableParameter(std::make_unique<BoolParameter>(k_CreateGeometrySubdirectory, "Create Data Group Inside Geometry", "Create a group inside the given geometry to store data.", false));
+  params.insert(std::make_unique<DataGroupCreationParameter>(k_GeometryDataGroup, "Geometry Data Group", "The group that stores data inside the geometry.", DataGroupCreationParameter::ValueType{}));
   params.insertSeparator(Parameters::Separator{"Cell Data"});
   params.insert(std::make_unique<ArrayCreationParameter>(k_ImageDataArrayPath_Key, "Image Data", "", DataPath{}));
+
+  // Associate the Linkable Parameter(s) to the children parameters that they control
+  params.linkParameters(k_UseExistingGeometry, k_NewImageGeometryPath_Key, false);
+  params.linkParameters(k_UseExistingGeometry, k_ExistingImageGeometryPath_Key, true);
+  params.linkParameters(k_CreateGeometrySubdirectory, k_GeometryDataGroup, true);
 
   return params;
 }
@@ -154,7 +168,15 @@ IFilter::PreflightResult ITKImportImageStack::preflightImpl(const DataStructure&
   auto inputFileListInfo = filterArgs.value<GeneratedFileListParameter::ValueType>(k_InputFileListInfo_Key);
   auto origin = filterArgs.value<VectorFloat32Parameter::ValueType>(k_Origin_Key);
   auto spacing = filterArgs.value<VectorFloat32Parameter::ValueType>(k_Spacing_Key);
-  auto imageGeomPath = filterArgs.value<DataPath>(k_ImageGeometryPath_Key);
+  auto useExistingImageGeom = filterArgs.value<bool>(k_UseExistingGeometry);
+  auto imageGeomPath = filterArgs.value<DataPath>(k_NewImageGeometryPath_Key);
+  if(useExistingImageGeom)
+  {
+    imageGeomPath = filterArgs.value<DataPath>(k_ExistingImageGeometryPath_Key);
+  }
+  auto createGeometryGroup = filterArgs.value<bool>(k_CreateGeometrySubdirectory);
+  auto geometryDataGroupPath = filterArgs.value<DataPath>(k_GeometryDataGroup);
+
   auto imageDataPath = filterArgs.value<DataPath>(k_ImageDataArrayPath_Key);
 
   std::vector<std::string> files = inputFileListInfo.generate().first;
@@ -167,7 +189,7 @@ IFilter::PreflightResult ITKImportImageStack::preflightImpl(const DataStructure&
   // Create a subfilter to read each image, although for preflight we are going to read the first image in the
   // list and hope the rest are correct.
   Arguments imageReaderArgs;
-  imageReaderArgs.insertOrAssign(ITKImageReader::k_ImageGeometryPath_Key, std::make_any<DataPath>(imageGeomPath));
+  imageReaderArgs.insertOrAssign(ITKImageReader::k_ImageGeometryPath_Key, std::make_any<DataPath>(DataPath({"tmp"})));
   imageReaderArgs.insertOrAssign(ITKImageReader::k_ImageDataArrayPath_Key, std::make_any<DataPath>(imageDataPath));
   imageReaderArgs.insertOrAssign(ITKImageReader::k_FileName_Key, std::make_any<fs::path>(files.at(0)));
 
@@ -199,11 +221,29 @@ IFilter::PreflightResult ITKImportImageStack::preflightImpl(const DataStructure&
   auto dims = createImageGeomAction->dims();
   dims.back() = files.size();
 
+  OutputActions outputActions;
+  if(useExistingImageGeom)
+  {
+    const ImageGeom& geom = dataStructure.getDataRefAs<ImageGeom>(imageGeomPath);
+    std::vector<size_t> geomDims = geom.getDimensions().toContainer<std::vector<size_t>>();
+    if(geomDims != dims)
+    {
+      return {MakeErrorResult<OutputActions>(-10, fmt::format("The chosen geometry at path '{}' has dimensions {}, however the image stack data has dimensions {}.", imageGeomPath.toString(),
+                                                              fmt::join(geomDims, "x"), fmt::join(dims, "x")))};
+    }
+  }
+  else
+  {
+    outputActions.actions.push_back(std::make_unique<CreateImageGeometryAction>(std::move(imageGeomPath), std::move(dims), std::move(origin), std::move(spacing)));
+  }
+
+  if(createGeometryGroup)
+  {
+    outputActions.actions.push_back(std::make_unique<CreateDataGroupAction>(geometryDataGroupPath));
+  }
+
   // Z Y X
   std::vector<usize> arrayDims(dims.crbegin(), dims.crend());
-
-  OutputActions outputActions;
-  outputActions.actions.push_back(std::make_unique<CreateImageGeometryAction>(std::move(imageGeomPath), std::move(dims), std::move(origin), std::move(spacing)));
   outputActions.actions.push_back(std::make_unique<CreateArrayAction>(createArrayAction->type(), arrayDims, createArrayAction->componentDims(), imageDataPath));
 
   return {std::move(outputActions)};
@@ -216,7 +256,12 @@ Result<> ITKImportImageStack::executeImpl(DataStructure& dataStructure, const Ar
   auto inputFileListInfo = filterArgs.value<GeneratedFileListParameter::ValueType>(k_InputFileListInfo_Key);
   auto origin = filterArgs.value<VectorFloat32Parameter::ValueType>(k_Origin_Key);
   auto spacing = filterArgs.value<VectorFloat32Parameter::ValueType>(k_Spacing_Key);
-  auto imageGeomPath = filterArgs.value<DataPath>(k_ImageGeometryPath_Key);
+  auto useExistingImageGeom = filterArgs.value<bool>(k_UseExistingGeometry);
+  auto imageGeomPath = filterArgs.value<DataPath>(k_NewImageGeometryPath_Key);
+  if(useExistingImageGeom)
+  {
+    imageGeomPath = filterArgs.value<DataPath>(k_ExistingImageGeometryPath_Key);
+  }
   auto imageDataPath = filterArgs.value<DataPath>(k_ImageDataArrayPath_Key);
 
   std::vector<std::string> files = inputFileListInfo.generate().first;
