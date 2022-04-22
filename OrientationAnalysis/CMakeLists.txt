@@ -18,10 +18,9 @@ set(FilterList
   GenerateFZQuaternions
   ConvertOrientations
   ReadH5Ebsd
-
   )
-
-set(Private_Filter_List
+  
+set(STUB_FILTERS
   BadDataNeighborOrientationCheck
   ConvertQuaternion
   #ConvertHexGridToSquareGrid # MISSING 1 or more Parameter Implementations
@@ -78,13 +77,6 @@ create_complex_plugin(NAME ${PLUGIN_NAME}
                       VERSION "0.2.0"
 )
 
-#------------------------------------------------------------------------------
-# Add in all the private filters.
-# This should be integrated with the `create_complex_plugin` function call
-#------------------------------------------------------------------------------
-foreach(source ${Private_Filter_List})
-  target_sources(${PLUGIN_NAME} PRIVATE  ${${PLUGIN_NAME}_SOURCE_DIR}/src/${PLUGIN_NAME}/Filters/Private/${source}.cpp ${${PLUGIN_NAME}_SOURCE_DIR}/src/${PLUGIN_NAME}/Filters/Private/${source}.hpp)
-endforeach()
 
 #------------------------------------------------------------------------------
 # Add in all the parameters.
@@ -95,6 +87,27 @@ foreach(source ${Parameter_List})
     ${${PLUGIN_NAME}_SOURCE_DIR}/src/${PLUGIN_NAME}/Parameters/H5EbsdReaderParameter.h
     ${${PLUGIN_NAME}_SOURCE_DIR}/src/${PLUGIN_NAME}/Parameters/H5EbsdReaderParameter.cpp)
 endforeach()
+
+
+#------------------------------------------------------------------------------
+# Include filters that need to be compiled but not available to the general user
+# These are typically auto-generated sources that need to be compiled to ensure
+# the stubs are following the latest API changes
+#------------------------------------------------------------------------------
+foreach(file_name ${STUB_FILTERS})
+  list(APPEND hidden_filter_HDRS
+    "${${PLUGIN_NAME}_SOURCE_DIR}/src/${PLUGIN_NAME}/Filters/${file_name}.hpp"
+  )
+  list(APPEND hidden_filter_SRCS
+    "${${PLUGIN_NAME}_SOURCE_DIR}/src/${PLUGIN_NAME}/Filters/${file_name}.cpp"
+  )
+endforeach()
+
+target_sources(${PLUGIN_NAME}
+    PRIVATE ${hidden_filter_HDRS} ${hidden_filter_SRCS}
+)
+source_group(TREE "${${PLUGIN_NAME}_SOURCE_DIR}/src/${PLUGIN_NAME}" PREFIX ${PLUGIN_NAME} FILES ${hidden_filter_HDRS} ${hidden_filter_SRCS})
+
 
 #------------------------------------------------------------------------------
 # If there are additional libraries that this plugin needs to link against you
