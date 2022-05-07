@@ -23,7 +23,6 @@ set(STUB_FILTERS
   CreateGeometry
   CreateGridMontage
   CreateStringArray
-  CropVertexGeometry
   #DataContainerReader # MISSING 1 or more Parameter Implementations
   ExecuteProcess
   ExtractAttributeArraysFromGeometry
