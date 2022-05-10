@@ -113,7 +113,7 @@ source_group(TREE "${${PLUGIN_NAME}_SOURCE_DIR}/src/${PLUGIN_NAME}" PREFIX ${PLU
 # If there are additional libraries that this plugin needs to link against you
 # can use the target_link_libraries() cmake call
 #------------------------------------------------------------------------------
-target_link_libraries(${PLUGIN_NAME} PUBLIC EbsdLib::EbsdLib NXComponents)
+target_link_libraries(${PLUGIN_NAME} PUBLIC EbsdLib::EbsdLib)
 
 
 #------------------------------------------------------------------------------
@@ -124,51 +124,6 @@ target_include_directories(${PLUGIN_NAME}
   ${EbsdLib_INCLUDE_DIRS}
   ${${PLUGIN_NAME}_BINARY_DIR}
   )
-
-#------------------------------------------------------------------------------
-# If this plugin is also creating UI parameter widgets, then we can optionally
-# compile those sources
-#------------------------------------------------------------------------------
-if(ENABLE_PLUGIN_GUI)
-  #------------------------------------------------------------------------------
-  # If there are additional library packages that need to be found, this is where
-  # to do that using the usual find_package(....) call
-  #------------------------------------------------------------------------------
-  find_package(Qt5 COMPONENTS Core Widgets)
-
-  target_link_libraries(${PLUGIN_NAME} PUBLIC  Qt::Core Qt::Widgets)
-
-  QT5_WRAP_CPP(moc_files  ${${PLUGIN_NAME}_SOURCE_DIR}/src/${PLUGIN_NAME}/ui/Parameters/NXH5EbsdReaderParameter.h
-                          ${${PLUGIN_NAME}_SOURCE_DIR}/src/${PLUGIN_NAME}/ui/Widgets/NXH5EbsdReaderWidget.h
-    )
-  set_source_files_properties(${moc_files} PROPERTIES GENERATED TRUE)
-  #set_source_files_properties(${moc_files} PROPERTIES HEADER_FILE_ONLY TRUE)
-
-  QT5_WRAP_UI(ui_files ${${PLUGIN_NAME}_SOURCE_DIR}/src/${PLUGIN_NAME}/ui/Widgets/UI_Files/NXH5EbsdReaderWidget.ui)
-
-  #------------------------------------------------------------------------------
-  # If there are additional source files that need to be compiled for this plugin
-  # can use the target_sources(...) cmake call
-  target_sources(${PLUGIN_NAME}
-    PRIVATE
-    ${${PLUGIN_NAME}_SOURCE_DIR}/src/${PLUGIN_NAME}/ui/Parameters/NXH5EbsdReaderParameter.h
-    ${${PLUGIN_NAME}_SOURCE_DIR}/src/${PLUGIN_NAME}/ui/Parameters/NXH5EbsdReaderParameter.cpp
-
-    ${${PLUGIN_NAME}_SOURCE_DIR}/src/${PLUGIN_NAME}/ui/Widgets/NXH5EbsdReaderWidget.h
-    ${${PLUGIN_NAME}_SOURCE_DIR}/src/${PLUGIN_NAME}/ui/Widgets/NXH5EbsdReaderWidget.cpp
-    ${${PLUGIN_NAME}_SOURCE_DIR}/src/${PLUGIN_NAME}/ui/Widgets/UI_Files/NXH5EbsdReaderWidget.ui
-    ${moc_files}
-    ${ui_files}
-  )
-
-  target_include_directories(${PLUGIN_NAME}
-    PUBLIC
-      ${NXComponents_BINARY_DIR}
-    )
-
-endif()
-
-
 
 #------------------------------------------------------------------------------
 # Add in the unit tests for the filters included in this plugin
