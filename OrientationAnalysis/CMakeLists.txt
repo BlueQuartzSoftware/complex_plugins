@@ -2,8 +2,17 @@
 # Required EbsdLib and H5Support
 #------------------------------------------------------------------------------
 find_package(H5Support REQUIRED)
+
 find_package(EbsdLib REQUIRED)
 
+#------------------------------------------------------------------------------
+# EbsdLib needs install rules for creating packages
+#------------------------------------------------------------------------------
+get_property(GENERATOR_IS_MULTI_CONFIG GLOBAL PROPERTY GENERATOR_IS_MULTI_CONFIG)
+if(NOT GENERATOR_IS_MULTI_CONFIG)
+  get_property(COMPLEX_EXTRA_LIBRARY_DIRS GLOBAL PROPERTY COMPLEX_EXTRA_LIBRARY_DIRS)
+  set_property(GLOBAL PROPERTY COMPLEX_EXTRA_LIBRARY_DIRS ${COMPLEX_EXTRA_LIBRARY_DIRS} ${EbsdLib_LIB_DIRS})
+endif()
 
 #------------------------------------------------------------------------------
 # Include the standard complex plugin cmake support codes
