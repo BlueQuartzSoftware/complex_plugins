@@ -26,7 +26,7 @@ set(PLUGIN_NAME "OrientationAnalysis")
 set(FilterList
   GenerateFZQuaternions
   ConvertOrientations
-  ReadH5Ebsd
+  ReadH5EbsdFilter
   )
   
 set(STUB_FILTERS
@@ -116,6 +116,15 @@ target_sources(${PLUGIN_NAME}
     PRIVATE ${hidden_filter_HDRS} ${hidden_filter_SRCS}
 )
 source_group(TREE "${${PLUGIN_NAME}_SOURCE_DIR}/src/${PLUGIN_NAME}" PREFIX ${PLUGIN_NAME} FILES ${hidden_filter_HDRS} ${hidden_filter_SRCS})
+
+target_sources(${PLUGIN_NAME}
+    PRIVATE   "${${PLUGIN_NAME}_SOURCE_DIR}/src/${PLUGIN_NAME}/Filters/Algorithms/ReadH5Ebsd.cpp"
+              "${${PLUGIN_NAME}_SOURCE_DIR}/src/${PLUGIN_NAME}/Filters/Algorithms/ReadH5Ebsd.hpp"
+)
+source_group(TREE "${${PLUGIN_NAME}_SOURCE_DIR}/src/${PLUGIN_NAME}" PREFIX ${PLUGIN_NAME} 
+              FILES ${${PLUGIN_NAME}_SOURCE_DIR}/src/${PLUGIN_NAME}/Filters/Algorithms/ReadH5Ebsd.cpp
+              ${${PLUGIN_NAME}_SOURCE_DIR}/src/${PLUGIN_NAME}/Filters/Algorithms/ReadH5Ebsd.hpp
+              )
 
 
 #------------------------------------------------------------------------------

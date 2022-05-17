@@ -3,6 +3,8 @@
 
 #include "OrientationAnalysis/OrientationAnalysis_export.hpp"
 
+#include "EbsdLib/Core/EbsdLibConstants.h"
+
 #include "complex/Filter/ParameterTraits.hpp"
 #include "complex/Filter/ValueParameter.hpp"
 #include "complex/Utilities/FilePathGenerator.hpp"
@@ -16,13 +18,6 @@ class ORIENTATIONANALYSIS_EXPORT H5EbsdReaderParameter : public ValueParameter
 {
 
 public:
-
-  enum class EulerRepresentation : int32
-  {
-    Radians = 0,
-    Degrees = 1
-  };
-
   /**
    * @brief This struct holds all of the data necessary to generate a list of file paths.
    */
@@ -31,7 +26,7 @@ public:
     std::string inputFilePath;
     int32 startSlice = 0;
     int32 endSlice = 0;
-    EulerRepresentation eulerRepresentation = EulerRepresentation::Radians;
+    int32 eulerRepresentation = EbsdLib::AngleRepresentation::Radians;
     std::vector<std::string> hdf5DataPaths = {};
     bool useRecommendedTransform = {true};
 
