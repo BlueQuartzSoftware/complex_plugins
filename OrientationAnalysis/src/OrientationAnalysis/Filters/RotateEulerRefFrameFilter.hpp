@@ -8,20 +8,20 @@
 namespace complex
 {
 /**
- * @class RotateEulerRefFrame
+ * @class RotateEulerRefFrameFilter
  * @brief This filter will ....
  */
-class ORIENTATIONANALYSIS_EXPORT RotateEulerRefFrame : public IFilter
+class ORIENTATIONANALYSIS_EXPORT RotateEulerRefFrameFilter : public IFilter
 {
 public:
-  RotateEulerRefFrame() = default;
-  ~RotateEulerRefFrame() noexcept override = default;
+  RotateEulerRefFrameFilter() = default;
+  ~RotateEulerRefFrameFilter() noexcept override = default;
 
-  RotateEulerRefFrame(const RotateEulerRefFrame&) = delete;
-  RotateEulerRefFrame(RotateEulerRefFrame&&) noexcept = delete;
+  RotateEulerRefFrameFilter(const RotateEulerRefFrameFilter&) = delete;
+  RotateEulerRefFrameFilter(RotateEulerRefFrameFilter&&) noexcept = delete;
 
-  RotateEulerRefFrame& operator=(const RotateEulerRefFrame&) = delete;
-  RotateEulerRefFrame& operator=(RotateEulerRefFrame&&) noexcept = delete;
+  RotateEulerRefFrameFilter& operator=(const RotateEulerRefFrameFilter&) = delete;
+  RotateEulerRefFrameFilter& operator=(RotateEulerRefFrameFilter&&) noexcept = delete;
 
   // Parameter Keys
   static inline constexpr StringLiteral k_RotationAngle_Key = "RotationAngle";
@@ -94,4 +94,4 @@ protected:
 };
 } // namespace complex
 
-COMPLEX_DEF_FILTER_TRAITS(complex, RotateEulerRefFrame, "ef9420b2-8c46-55f3-8ae4-f53790639de4");
+COMPLEX_DEF_FILTER_TRAITS(complex, RotateEulerRefFrameFilter, "ef9420b2-8c46-55f3-8ae4-f53790639de4");

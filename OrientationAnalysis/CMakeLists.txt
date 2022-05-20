@@ -27,6 +27,7 @@ set(FilterList
   GenerateFZQuaternions
   ConvertOrientations
   ReadH5EbsdFilter
+  RotateEulerRefFrameFilter
   )
   
 set(STUB_FILTERS
@@ -70,7 +71,7 @@ set(STUB_FILTERS
   ReadCtfData
   ReplaceElementAttributesWithNeighborValues
   RodriguesConvertor
-  RotateEulerRefFrame
+  
   Stereographic3D
   WritePoleFigure
   WriteStatsGenOdfAngleFile
@@ -105,10 +106,10 @@ endforeach()
 #------------------------------------------------------------------------------
 foreach(file_name ${STUB_FILTERS})
   list(APPEND hidden_filter_HDRS
-    "${${PLUGIN_NAME}_SOURCE_DIR}/src/${PLUGIN_NAME}/Filters/${file_name}.hpp"
+    "${${PLUGIN_NAME}_SOURCE_DIR}/src/${PLUGIN_NAME}/Filters_Private/${file_name}.hpp"
   )
   list(APPEND hidden_filter_SRCS
-    "${${PLUGIN_NAME}_SOURCE_DIR}/src/${PLUGIN_NAME}/Filters/${file_name}.cpp"
+    "${${PLUGIN_NAME}_SOURCE_DIR}/src/${PLUGIN_NAME}/Filters_Private/${file_name}.cpp"
   )
 endforeach()
 
@@ -117,15 +118,25 @@ target_sources(${PLUGIN_NAME}
 )
 source_group(TREE "${${PLUGIN_NAME}_SOURCE_DIR}/src/${PLUGIN_NAME}" PREFIX ${PLUGIN_NAME} FILES ${hidden_filter_HDRS} ${hidden_filter_SRCS})
 
-target_sources(${PLUGIN_NAME}
-    PRIVATE   "${${PLUGIN_NAME}_SOURCE_DIR}/src/${PLUGIN_NAME}/Filters/Algorithms/ReadH5Ebsd.cpp"
-              "${${PLUGIN_NAME}_SOURCE_DIR}/src/${PLUGIN_NAME}/Filters/Algorithms/ReadH5Ebsd.hpp"
+#------------------------------------------------------------------------------
+# Algorithms
+#------------------------------------------------------------------------------
+set(filter_algorithms
+  ReadH5Ebsd
+  RotateEulerRefFrame
 )
-source_group(TREE "${${PLUGIN_NAME}_SOURCE_DIR}/src/${PLUGIN_NAME}" PREFIX ${PLUGIN_NAME} 
-              FILES ${${PLUGIN_NAME}_SOURCE_DIR}/src/${PLUGIN_NAME}/Filters/Algorithms/ReadH5Ebsd.cpp
-              ${${PLUGIN_NAME}_SOURCE_DIR}/src/${PLUGIN_NAME}/Filters/Algorithms/ReadH5Ebsd.hpp
-              )
 
+foreach(algorithm ${filter_algorithms})
+  
+  target_sources(${PLUGIN_NAME}
+    PRIVATE   "${${PLUGIN_NAME}_SOURCE_DIR}/src/${PLUGIN_NAME}/Filters/Algorithms/${algorithm}.cpp"
+              "${${PLUGIN_NAME}_SOURCE_DIR}/src/${PLUGIN_NAME}/Filters/Algorithms/${algorithm}.hpp"
+    )
+  source_group(TREE "${${PLUGIN_NAME}_SOURCE_DIR}/src/${PLUGIN_NAME}" PREFIX ${PLUGIN_NAME} 
+              FILES "${${PLUGIN_NAME}_SOURCE_DIR}/src/${PLUGIN_NAME}/Filters/Algorithms/${algorithm}.cpp"
+              "${${PLUGIN_NAME}_SOURCE_DIR}/src/${PLUGIN_NAME}/Filters/Algorithms/${algorithm}.hpp"
+              )
+endforeach()
 
 #------------------------------------------------------------------------------
 # If there are additional libraries that this plugin needs to link against you

@@ -1,7 +1,17 @@
 #include "ReadH5Ebsd.hpp"
 
+#include "OrientationAnalysis/Filters/RotateEulerRefFrameFilter.hpp"
+
 #include "complex/Common/Numbers.hpp"
+#include "complex/Common/StringLiteral.hpp"
+#include "complex/Common/TypeTraits.hpp"
+#include "complex/Core/Application.hpp"
 #include "complex/DataStructure/Geometry/ImageGeom.hpp"
+#include "complex/Filter/IFilter.hpp"
+#include "complex/Parameters/ArraySelectionParameter.hpp"
+#include "complex/Parameters/ChoicesParameter.hpp"
+#include "complex/Parameters/NumberParameter.hpp"
+#include "complex/Parameters/VectorParameter.hpp"
 
 #include "EbsdLib/Core/EbsdLibConstants.h"
 #include "EbsdLib/Core/EbsdMacros.h"
@@ -10,6 +20,25 @@
 #include "EbsdLib/IO/HKL/H5CtfVolumeReader.h"
 #include "EbsdLib/IO/TSL/AngFields.h"
 #include "EbsdLib/IO/TSL/H5AngVolumeReader.h"
+
+namespace RotateSampleRefFrame
+{
+// Parameter Keys
+static inline constexpr complex::StringLiteral k_RotationRepresentation_Key = "rotation_representation";
+static inline constexpr complex::StringLiteral k_RotationAngle_Key = "rotation_angle";
+static inline constexpr complex::StringLiteral k_RotationAxis_Key = "rotation_axis";
+static inline constexpr complex::StringLiteral k_RotationMatrix_Key = "rotation_matrix";
+static inline constexpr complex::StringLiteral k_SelectedImageGeometry_Key = "selected_image_geometry";
+static inline constexpr complex::StringLiteral k_SelectedCellArrays_Key = "selected_cell_arrays";
+static inline constexpr complex::StringLiteral k_CreatedImageGeometry_Key = "created_image_geometry";
+
+enum class RotationRepresentation : uint64_t
+{
+  AxisAngle = 0,
+  RotationMatrix = 1
+};
+
+} // namespace RotateSampleRefFrame
 
 namespace
 {
@@ -322,101 +351,141 @@ Result<> ReadH5Ebsd::operator()()
   }
 
   // Sanity Check the Error Condition or the state of the EBSD Reader Object.
-
-#if 0
   if(m_InputValues->useRecommendedTransform)
   {
 
-    if(sampleTransAngle > 0)
+    if(eulerTransAngle > 0)
     {
-      FloatVec3Type sampleAxis;
-      sampleAxis[0] = sampleTransAxis[0];
-      sampleAxis[1] = sampleTransAxis[1];
-      sampleAxis[2] = sampleTransAxis[2];
+      RotateEulerRefFrameFilter rot_Euler;
+      Arguments args;
+      args.insertOrAssign(RotateEulerRefFrameFilter::k_RotationAngle_Key, std::make_any<Float32Parameter::ValueType>(eulerTransAngle));
+      args.insertOrAssign(RotateEulerRefFrameFilter::k_RotationAxis_Key,
+                          std::make_any<VectorFloat32Parameter::ValueType>(std::vector<float32>{eulerTransAxis[0], eulerTransAxis[1], eulerTransAxis[2]}));
 
-      RotateSampleRefFrame::Pointer rot_Sample = RotateSampleRefFrame::New();
+      complex::DataPath eulerDataPath = m_InputValues->cellAttributeMatrixPath.createChildPath(EbsdLib::CellData::EulerAngles); // get the Euler data from the DataStructure
+      args.insertOrAssign(RotateEulerRefFrameFilter::k_CellEulerAnglesArrayPath_Key, std::make_any<DataPath>(eulerDataPath));
+      // Preflight the filter and check result
+      auto preflightResult = rot_Euler.preflight(m_DataStructure, args);
+      if(preflightResult.outputActions.invalid())
+      {
+        for(const auto& error : preflightResult.outputActions.errors())
+        {
+          std::cout << error.code << ": " << error.message << std::endl;
+        }
+      }
 
-      // Connect up the Error/Warning/Progress object so the filter can report those things
-      connect(rot_Sample.get(), SIGNAL(messageGenerated(const AbstractMessage::Pointer&)), this, SIGNAL(messageGenerated(const AbstractMessage::Pointer&)));
-      rot_Sample->setDataContainerArray(getDataContainerArray()); // AbstractFilter implements this so no problem
-      // Now set the filter parameters for the filter using QProperty System since we can not directly
-      // instantiate the filter since it resides in a plugin. These calls are SLOW. DO NOT EVER do this in a
-      // tight loop. Your filter will slow down by 10X.
-      rot_Sample->setRotationAngle(sampleTransAngle);
-      rot_Sample->setRotationAxis(sampleAxis);
-      rot_Sample->setSliceBySlice(true);
-
-      DataArrayPath tempPath;
-      tempPath.update(getDataContainerName().getDataContainerName(), getCellAttributeMatrixName(), "");
-      rot_Sample->setCellAttributeMatrixPath(tempPath);
-
-      rot_Sample->execute();
+      // Execute the filter and check the result
+      auto executeResult = rot_Euler.execute(m_DataStructure, args, nullptr, m_MessageHandler, m_ShouldCancel);
     }
 
-    if(m_EulerTransformation.angle > 0)
+    if(sampleTransAngle > 0)
     {
-      FloatVec3Type eulerAxis;
-      eulerAxis[0] = m_EulerTransformation.h;
-      eulerAxis[1] = m_EulerTransformation.k;
-      eulerAxis[2] = m_EulerTransformation.l;
+      m_MessageHandler(complex::IFilter::Message{IFilter::Message::Type::Warning, "Sample Reference Frame Rotation NOT applied."});
 
-      QString filtName = "RotateEulerRefFrame";
-      FilterManager* fm = FilterManager::Instance();
-      IFilterFactory::Pointer rotEulerFactory = fm->getFactoryFromClassName(filtName);
-      if(nullptr != rotEulerFactory.get())
-      {
-        // If we get this far, the Factory is good so creating the filter should not fail unless something has
-        // horribly gone wrong in which case the system is going to come down quickly after this.
-        AbstractFilter::Pointer rot_Euler = rotEulerFactory->create();
+#if 0
 
-        // Connect up the Error/Warning/Progress object so the filter can report those things
-        connect(rot_Euler.get(), SIGNAL(messageGenerated(const AbstractMessage::Pointer&)), this, SIGNAL(messageGenerated(const AbstractMessage::Pointer&)));
-        rot_Euler->setDataContainerArray(getDataContainerArray()); // AbstractFilter implements this so no problem
-        // Now set the filter parameters for the filter using QProperty System since we can not directly
-        // instantiate the filter since it resides in a plugin. These calls are SLOW. DO NOT EVER do this in a
-        // tight loop. Your filter will slow down by 10X.
-        bool propWasSet = rot_Euler->setProperty("RotationAngle", m_EulerTransformation.angle);
-        if(!propWasSet)
-        {
-          QString ss = QObject::tr("ReadH5Ebsd Error Setting Property '%1' into filter '%2' which is a subfilter called by ReadH5Ebsd. The property was not set which could mean the property was not "
-                                   "exposed with a Q_PROPERTY macro. Please notify the developers")
-                           .arg("RotationAngle")
-                           .arg(filtName);
-          setErrorCondition(-109884, ss);
-        }
-        QVariant v;
-        v.setValue(eulerAxis);
-        propWasSet = rot_Euler->setProperty("RotationAxis", v);
-        if(!propWasSet)
-        {
-          QString ss = QObject::tr("ReadH5Ebsd Error Setting Property '%1' into filter '%2' which is a subfilter called by ReadH5Ebsd. The property was not set which could mean the property was not "
-                                   "exposed with a Q_PROPERTY macro. Please notify the developers")
-                           .arg("RotationAxis")
-                           .arg(filtName);
-          setErrorCondition(-109873, ss);
-        }
-        DataArrayPath tempPath;
-        tempPath.update(getDataContainerName().getDataContainerName(), getCellAttributeMatrixName(), getCellEulerAnglesArrayName());
-        v.setValue(tempPath);
-        propWasSet = rot_Euler->setProperty("CellEulerAnglesArrayPath", v);
-        if(!propWasSet)
-        {
-          QString ss = QObject::tr("ReadH5Ebsd Error Setting Property '%1' into filter '%2' which is a subfilter called by ReadH5Ebsd. The property was not set which could mean the property was not "
-                                   "exposed with a Q_PROPERTY macro. Please notify the developers")
-                           .arg("CellEulerAnglesArrayPath")
-                           .arg(filtName);
-          setErrorCondition(-109872, ss);
-        }
-        rot_Euler->execute();
-      }
-      else
+      const Uuid k_CorePluginId = *Uuid::FromString("05cc618b-781f-4ac0-b9ac-43f26ce1854f");
+      const Uuid k_RotateSampleRefFrameFilterId = *Uuid::FromString("5efdf395-33fb-4dc0-986e-0dc0ae990f6a");
+      const FilterHandle k_RotateSampleRefFrameFilterHandle(k_RotateSampleRefFrameFilterId, k_CorePluginId);
+
+      auto* filterList = Application::Instance()->getFilterList();
+      auto filter = filterList->createFilter(k_RotateSampleRefFrameFilterHandle);
+      if(nullptr == filter)
       {
-        QString ss = QObject::tr("ReadH5Ebsd Error creating filter '%1' which is a subfilter called by ReadH5Ebsd. Filter was not created/executed. Please notify the developers").arg(filtName);
-        setErrorCondition(-109881, ss);
+        return {MakeErrorResult(-50010, fmt::format("Error creating RotateSampleRefFrame filter"))};
       }
+      Arguments args;
+
+      args.insertOrAssign(RotateSampleRefFrame::k_RotationRepresentation_Key, std::make_any<ChoicesParameter::ValueType>(to_underlying(RotateSampleRefFrame::RotationRepresentation::AxisAngle)));
+      args.insertOrAssign(RotateSampleRefFrame::k_SelectedImageGeometry_Key, std::make_any<DataPath>(m_InputValues->dataContainerPath));
+      DataPath rotatedGeometryDataPath({".RotatedGeometry"});
+      args.insertOrAssign(RotateSampleRefFrame::k_CreatedImageGeometry_Key, std::make_any<DataPath>(rotatedGeometryDataPath));
+
+      std::vector<DataPath> rotatedDataPaths;
+      for(const auto& path : m_InputValues->hdf5DataPaths)
+      {
+        rotatedDataPaths.push_back(m_InputValues->cellAttributeMatrixPath.createChildPath(path));
+      }
+      args.insertOrAssign(RotateSampleRefFrame::k_SelectedCellArrays_Key, std::make_any<std::vector<DataPath>>(rotatedDataPaths));
+
+      args.insertOrAssign(RotateSampleRefFrame::k_RotationAngle_Key, std::make_any<Float32Parameter::ValueType>(sampleTransAngle));
+      args.insertOrAssign(RotateSampleRefFrame::k_RotationAxis_Key, std::make_any<VectorFloat32Parameter::ValueType>({sampleTransAxis[0], sampleTransAxis[1], sampleTransAxis[2]}));
+
+      // Preflight the filter and check result
+      m_MessageHandler(complex::IFilter::Message{IFilter::Message::Type::Info, "Preflighting Rotate Sample Ref Frame..."});
+      complex::IFilter::PreflightResult preflightResult = filter->preflight(m_DataStructure, args);
+      if(preflightResult.outputActions.invalid())
+      {
+        return {MakeErrorResult(-50010, fmt::format("Error creating RotateSampleRefFrame filter"))};
+
+        for(const auto& error : preflightResult.outputActions.errors())
+        {
+          std::cout << error.code << ": " << error.message << std::endl;
+        }
+      }
+
+      // Execute the filter and check the result
+      m_MessageHandler(complex::IFilter::Message{IFilter::Message::Type::Info, "Executing Rotate Sample Ref Frame..."});
+      auto executeResult = filter->execute(m_DataStructure, args, nullptr, m_MessageHandler, m_ShouldCancel);
+      if(executeResult.result.invalid())
+      {
+      }
+      /********************    *************************************/
+      // Delete the original DataContainer
+      const Uuid k_DeleteDataFilterId = *Uuid::FromString("bf286740-e987-49fe-a7c8-6e566e3a0606");
+      const FilterHandle k_DeleteDataFilterHandle(k_DeleteDataFilterId, k_CorePluginId);
+      filter = filterList->createFilter(k_DeleteDataFilterHandle);
+      if(nullptr == filter)
+      {
+        return {MakeErrorResult(-50010, fmt::format("Error creating 'Delete Data Object' filter"))};
+      }
+      // Preflight the filter and check result
+      m_MessageHandler(complex::IFilter::Message{IFilter::Message::Type::Info, "Preflighting Delete Data Object Filter ..."});
+      preflightResult = filter->preflight(m_DataStructure, args);
+      if(preflightResult.outputActions.invalid())
+      {
+        for(const auto& error : preflightResult.outputActions.errors())
+        {
+          std::cout << error.code << ": " << error.message << std::endl;
+        }
+      }
+
+      // Execute the filter and check the result
+      m_MessageHandler(complex::IFilter::Message{IFilter::Message::Type::Info, "Executing Delete Data Object Filter..."});
+      executeResult = filter->execute(m_DataStructure, args, nullptr, m_MessageHandler, m_ShouldCancel);
+      if(executeResult.result.invalid())
+      {
+      }
+
+      /********************    *************************************/
+      // Rename the rotated back to the original
+      const Uuid k_RenameDataObjectFilterId = *Uuid::FromString("d53c808f-004d-5fac-b125-0fffc8cc78d6");
+      const FilterHandle k_RenameDataObjectFilterHandle(k_RenameDataObjectFilterId, k_CorePluginId);
+      filter = filterList->createFilter(k_RenameDataObjectFilterHandle);
+      if(nullptr == filter)
+      {
+        return {MakeErrorResult(-50010, fmt::format("Error creating 'Rename Data Object' filter"))};
+      }
+      // Preflight the filter and check result
+      m_MessageHandler(complex::IFilter::Message{IFilter::Message::Type::Info, "Preflighting Rename Data Object Filter ..."});
+      preflightResult = filter->preflight(m_DataStructure, args);
+      if(preflightResult.outputActions.invalid())
+      {
+        for(const auto& error : preflightResult.outputActions.errors())
+        {
+          std::cout << error.code << ": " << error.message << std::endl;
+        }
+      }
+
+      // Execute the filter and check the result
+      m_MessageHandler(complex::IFilter::Message{IFilter::Message::Type::Info, "Executing Rename Data Object Filter..."});
+      executeResult = filter->execute(m_DataStructure, args, nullptr, m_MessageHandler, m_ShouldCancel);
+      if(executeResult.result.invalid())
+      {
+      }
+#endif
     }
   }
 
-#endif
   return {};
 }
