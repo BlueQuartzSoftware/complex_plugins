@@ -38,13 +38,13 @@ set(FilterList
   BadDataNeighborOrientationCheckFilter
   NeighborOrientationCorrelationFilter
   MergeTwinsFilter
-
   FindFeatureReferenceMisorientationsFilter
   FindKernelAvgMisorientationsFilter
   FindMisorientationsFilter
   FindSchmidsFilter
+  ReadAngDataFilter
 )
-
+  
 set(STUB_FILTERS
   ConvertQuaternion
 
@@ -81,6 +81,12 @@ set(STUB_FILTERS
   # ImportH5EspritData # MISSING 1 or more Parameter Implementations
   # ImportH5OimData # MISSING 1 or more Parameter Implementations
   # OrientationUtility # MISSING 1 or more Parameter Implementations
+
+  #ImportEbsdMontage # MISSING 1 or more Parameter Implementations
+  #ImportH5EspritData # MISSING 1 or more Parameter Implementations
+  #ImportH5OimData # MISSING 1 or more Parameter Implementations
+  
+  #OrientationUtility # MISSING 1 or more Parameter Implementations
   ReadCtfData
   ReplaceElementAttributesWithNeighborValues
   RodriguesConvertor
@@ -157,6 +163,7 @@ set(filter_algorithms
   GenerateIPFColors
   BadDataNeighborOrientationCheck
   NeighborOrientationCorrelation
+<<<<<<< HEAD
   MergeTwins
   GroupFeatures
 
@@ -164,6 +171,9 @@ set(filter_algorithms
   FindKernelAvgMisorientations
   FindMisorientations
   FindSchmids
+=======
+  ReadAngData
+>>>>>>> a4f65c29 (Filter: ReadAngData implemented.)
 )
 
 
