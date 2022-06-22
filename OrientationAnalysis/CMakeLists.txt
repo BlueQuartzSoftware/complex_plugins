@@ -24,6 +24,7 @@ set(PLUGIN_NAME "OrientationAnalysis")
 # These are all the filters in the plugin. All filters should be kept in the
 # OrientationAnalysis/src/OrientationAnalysis/Filters/ directory.
 set(FilterList
+  AlignSectionsMisorientationFilter
   GenerateFZQuaternions
   ConvertOrientations
   ReadH5EbsdFilter
@@ -129,6 +130,7 @@ source_group(TREE "${${PLUGIN_NAME}_SOURCE_DIR}/src/${PLUGIN_NAME}" PREFIX ${PLU
 # This should be integrated with the `create_complex_plugin` function call
 #------------------------------------------------------------------------------
 set(filter_algorithms
+  AlignSectionsMisorientation
   ReadH5Ebsd
   RotateEulerRefFrame
   EBSDSegmentFeatures

@@ -12,6 +12,7 @@ set(${PLUGIN_NAME}UnitTest_SRCS
   FindAvgOrientationsTest.cpp         # NEEDS TEST IMPLEMENTED
   GenerateIPFColorsTest.cpp           # NEEDS TEST IMPLEMENTED
   RotateEulerRefFrameTest.cpp         # NEEDS TEST IMPLEMENTED
+  AlignSectionsMisorientationTest.cpp # NEEDS TEST IMPLEMENTED
   )
 set(DISABLED_TESTS
     BadDataNeighborOrientationCheckTest.cpp
