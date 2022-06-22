@@ -29,8 +29,8 @@
 #include <filesystem>
 namespace fs = std::filesystem;
 
-#include "Core/Filters/AlignSectionsMisorientationFilter.hpp"
-#include "Core/Core_test_dirs.hpp"
+#include "OrientationAnalysis/OrientationAnalysis_test_dirs.hpp"
+#include "OrientationAnalysis/Filters/AlignSectionsMisorientationFilter.hpp"
 
 using namespace complex;
 
@@ -45,7 +45,7 @@ TEST_CASE("Reconstruction::AlignSectionsMisorientation: Instantiation and Parame
   args.insertOrAssign(AlignSectionsMisorientationFilter::k_WriteAlignmentShifts_Key, std::make_any<bool>(false));
   args.insertOrAssign(AlignSectionsMisorientationFilter::k_AlignmentShiftFileName_Key, std::make_any<FileSystemPathParameter::ValueType>(fs::path("/Path/To/Output/File/To/Write.data")));
   args.insertOrAssign(AlignSectionsMisorientationFilter::k_MisorientationTolerance_Key, std::make_any<float32>(1.23345f));
-  args.insertOrAssign(AlignSectionsMisorientationFilter::k_UseGoodVoxels_Key, std::make_any<bool>(false));
+  args.insertOrAssign(AlignSectionsMisorientationFilter::k_GoodVoxels_Key, std::make_any<bool>(false));
   args.insertOrAssign(AlignSectionsMisorientationFilter::k_QuatsArrayPath_Key, std::make_any<DataPath>(DataPath{}));
   args.insertOrAssign(AlignSectionsMisorientationFilter::k_CellPhasesArrayPath_Key, std::make_any<DataPath>(DataPath{}));
   args.insertOrAssign(AlignSectionsMisorientationFilter::k_GoodVoxelsArrayPath_Key, std::make_any<DataPath>(DataPath{}));

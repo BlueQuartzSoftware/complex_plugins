@@ -1,23 +1,40 @@
 #pragma once
 
-
-#include "Core/Core_export.hpp"
+#include "OrientationAnalysis/OrientationAnalysis_export.hpp"
 
 #include "complex/DataStructure/DataPath.hpp"
 #include "complex/DataStructure/DataStructure.hpp"
 #include "complex/Filter/IFilter.hpp"
+#include "complex/Parameters/FileSystemPathParameter.hpp"
+#include "complex/Utilities/AlignSections.hpp"
 
 #include <vector>
 
 namespace complex
 {
 
-struct CORE_EXPORT AlignSectionsMisorientationInputValues
+/**
+ * @brief
+ */
+struct ORIENTATIONANALYSIS_EXPORT AlignSectionsMisorientationInputValues
 {
+  bool writeAlignmentShifts;
+  FileSystemPathParameter::ValueType alignmentShiftFileName;
+  float32 misorientationTolerance;
+  bool useGoodVoxels;
+  DataPath inputImageGeometry;
+  DataPath cellDataGroupPath;
+  DataPath quatsArrayPath;
+  DataPath cellPhasesArrayPath;
+  DataPath goodVoxelsArrayPath;
+  DataPath crystalStructuresArrayPath;
 
 };
 
-class CORE_EXPORT AlignSectionsMisorientation
+/**
+ * @brief
+ */
+class ORIENTATIONANALYSIS_EXPORT AlignSectionsMisorientation : public AlignSections
 {
 public:
   AlignSectionsMisorientation(DataStructure& dataStructure, const IFilter::MessageHandler& mesgHandler, const std::atomic_bool& shouldCancel, AlignSectionsMisorientationInputValues* inputValues);
@@ -32,10 +49,16 @@ public:
 
   const std::atomic_bool& getCancel();
 
+protected:
+  void find_shifts(std::vector<int64_t>& xshifts, std::vector<int64_t>& yshifts) override;
+
+  std::vector<DataPath> getSelectedDataPaths() const override;
+
+
 private:
   DataStructure& m_DataStructure;
   const AlignSectionsMisorientationInputValues* m_InputValues = nullptr;
   const std::atomic_bool& m_ShouldCancel;
   const IFilter::MessageHandler& m_MessageHandler;
 };
-}
+} // namespace complex
