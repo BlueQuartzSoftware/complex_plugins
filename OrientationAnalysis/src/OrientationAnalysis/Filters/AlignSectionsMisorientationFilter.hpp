@@ -26,15 +26,19 @@ public:
   // Parameter Keys
   static inline constexpr StringLiteral k_WriteAlignmentShifts_Key = "WriteAlignmentShifts";
   static inline constexpr StringLiteral k_AlignmentShiftFileName_Key = "AlignmentShiftFileName";
+
   static inline constexpr StringLiteral k_MisorientationTolerance_Key = "MisorientationTolerance";
+
   static inline constexpr StringLiteral k_GoodVoxels_Key = "UseGoodVoxels";
   static inline constexpr StringLiteral k_GoodVoxelsArrayPath_Key = "GoodVoxelsArrayPath";
 
   static inline constexpr StringLiteral k_QuatsArrayPath_Key = "QuatsArrayPath";
   static inline constexpr StringLiteral k_CellPhasesArrayPath_Key = "CellPhasesArrayPath";
   static inline constexpr StringLiteral k_CrystalStructuresArrayPath_Key = "CrystalStructuresArrayPath";
-  static inline constexpr StringLiteral k_SelectedImageGeometry_Key = "selected_image_geometry";
-  static inline constexpr StringLiteral k_SelectedCellDataGroup_Key = "selected_cell_data_group";
+
+  static inline constexpr StringLiteral k_SelectedImageGeometry_Key = "SelectedImageGeometryPath";
+  static inline constexpr StringLiteral k_SelectedCellDataGroup_Key = "SelectedCellDataPath";
+
   /**
    * @brief Returns the name of the filter.
    * @return

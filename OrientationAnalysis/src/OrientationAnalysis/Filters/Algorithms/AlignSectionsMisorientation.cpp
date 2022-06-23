@@ -1,16 +1,14 @@
 #include "AlignSectionsMisorientation.hpp"
 
+#include "complex/Common/Numbers.hpp"
 #include "complex/DataStructure/DataGroup.hpp"
 #include "complex/DataStructure/Geometry/AbstractGeometryGrid.hpp"
-#include "complex/Common/Numbers.hpp"
 #include "complex/Utilities/DataArrayUtilities.hpp"
-
 
 #include "EbsdLib/LaueOps/LaueOps.h"
 
-
-#include <iostream>
 #include <fstream>
+#include <iostream>
 
 using namespace complex;
 
@@ -56,9 +54,6 @@ std::vector<DataPath> AlignSectionsMisorientation::getSelectedDataPaths() const
   }
   return selectedCellArrays;
 }
-
-
-
 
 // -----------------------------------------------------------------------------
 void AlignSectionsMisorientation::find_shifts(std::vector<int64_t>& xshifts, std::vector<int64_t>& yshifts)
@@ -114,13 +109,19 @@ void AlignSectionsMisorientation::find_shifts(std::vector<int64_t>& xshifts, std
   const int64_t halfDim1 = static_cast<int64_t>(dims[1] * 0.5f);
 
   double deg2Rad = (complex::numbers::pi / 180.0);
+  auto start = std::chrono::steady_clock::now();
   // Loop over the Z Direction
   for(int64_t iter = 1; iter < dims[2]; iter++)
   {
     progInt = static_cast<float>(iter) / static_cast<float>(dims[2]) * 100.0f;
-    std::string message = fmt::format("Determining Shifts || {}% Complete", progInt);
-    m_MessageHandler(complex::IFilter::ProgressMessage{complex::IFilter::Message::Type::Info, message, progInt});
-
+    auto now = std::chrono::steady_clock::now();
+    // Only send updates every 1 second
+    if(std::chrono::duration_cast<std::chrono::milliseconds>(now - start).count() > 1000)
+    {
+      std::string message = fmt::format("Determining Shifts || {}% Complete", progInt);
+      m_MessageHandler(complex::IFilter::ProgressMessage{complex::IFilter::Message::Type::Info, message, progInt});
+      start = std::chrono::steady_clock::now();
+    }
     if(getCancel())
     {
       return;
@@ -133,7 +134,7 @@ void AlignSectionsMisorientation::find_shifts(std::vector<int64_t>& xshifts, std
     newyshift = 0;
 
     // Initialize everything to false
-    std::fill(misorients. begin(), misorients. end(), false);
+    std::fill(misorients.begin(), misorients.end(), false);
 
     float misorientationTolerance = m_InputValues->misorientationTolerance * deg2Rad;
 
@@ -161,7 +162,7 @@ void AlignSectionsMisorientation::find_shifts(std::vector<int64_t>& xshifts, std
                   count++;
                   refposition = ((slice + 1) * dims[0] * dims[1]) + (l * dims[0]) + n;
                   curposition = (slice * dims[0] * dims[1]) + ((l + j + oldyshift) * dims[0]) + (n + k + oldxshift);
-                  if(!m_InputValues->useGoodVoxels || maskCompare->bothTrue(refposition, curposition) )
+                  if(!m_InputValues->useGoodVoxels || maskCompare->bothTrue(refposition, curposition))
                   {
                     w = std::numeric_limits<float>::max();
                     if(cellPhases[refposition] > 0 && cellPhases[curposition] > 0)

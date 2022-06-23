@@ -28,7 +28,6 @@ struct ORIENTATIONANALYSIS_EXPORT AlignSectionsMisorientationInputValues
   DataPath cellPhasesArrayPath;
   DataPath goodVoxelsArrayPath;
   DataPath crystalStructuresArrayPath;
-
 };
 
 /**
@@ -53,7 +52,6 @@ protected:
   void find_shifts(std::vector<int64_t>& xshifts, std::vector<int64_t>& yshifts) override;
 
   std::vector<DataPath> getSelectedDataPaths() const override;
-
 
 private:
   DataStructure& m_DataStructure;

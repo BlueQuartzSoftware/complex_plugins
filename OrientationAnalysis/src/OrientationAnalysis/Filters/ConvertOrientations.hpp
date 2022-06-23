@@ -7,9 +7,19 @@
 
 namespace complex
 {
+
 /**
  * @class ConvertOrientations
- * @brief This filter will ....
+ * @brief This filter will convert between the various representations of an Orientation. Those representations are:
+ *
+ * "Euler" = 0
+ *  "OrientationMatrix" = 1
+ *  "Quaternion" = 2
+ *  "AxisAngle" = 3
+ *  "Rodrigues" = 4
+ *  "Homochoric" = 5
+ *  "Cubochoric" = 6
+ *
  */
 class ORIENTATIONANALYSIS_EXPORT ConvertOrientations : public IFilter
 {
