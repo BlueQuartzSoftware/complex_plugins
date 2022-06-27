@@ -6,7 +6,8 @@
 using namespace complex;
 
 // -----------------------------------------------------------------------------
-IdentifyDislocationSegments::FillBadData(DataStructure& dataStructure, const IFilter::MessageHandler& mesgHandler, const std::atomic_bool& shouldCancel, IdentifyDislocationSegmentsInputValues* inputValues)
+IdentifyDislocationSegments::FillBadData(DataStructure& dataStructure, const IFilter::MessageHandler& mesgHandler, const std::atomic_bool& shouldCancel,
+                                         IdentifyDislocationSegmentsInputValues* inputValues)
 : m_DataStructure(dataStructure)
 , m_InputValues(inputValues)
 , m_ShouldCancel(shouldCancel)
@@ -23,11 +24,9 @@ const std::atomic_bool& IdentifyDislocationSegments::getCancel()
   return m_ShouldCancel;
 }
 
-
 // -----------------------------------------------------------------------------
 Result<> IdentifyDislocationSegments::operator()()
 {
-
 
   return {};
 }

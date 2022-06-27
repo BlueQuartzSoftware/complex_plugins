@@ -25,7 +25,6 @@ struct DREAM3DREVIEW_EXPORT ImportMASSIFDataInputValues
   FileSystemPathParameter::ValueType MassifInputFilePath;
   StringParameter::ValueType FilePrefix;
   int32 StepNumber;
-
 };
 
 /**

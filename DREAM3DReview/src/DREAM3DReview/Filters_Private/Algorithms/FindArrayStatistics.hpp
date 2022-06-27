@@ -75,7 +75,6 @@ struct DREAM3DREVIEW_EXPORT FindArrayStatisticsInputValues
   DataPath StdDeviationArrayName;
   DataPath SummationArrayName;
   DataPath StandardizedArrayName;
-
 };
 
 /**

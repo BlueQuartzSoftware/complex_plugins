@@ -29,7 +29,6 @@ struct DREAM3DREVIEW_EXPORT IdentifyDislocationSegmentsInputValues
   DataPath DislocationIdsArrayName;
   DataPath EdgeFeatureAttributeMatrixName;
   DataPath ActiveArrayName;
-
 };
 
 /**

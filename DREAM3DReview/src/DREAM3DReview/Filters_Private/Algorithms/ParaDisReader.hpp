@@ -37,7 +37,6 @@ struct DREAM3DREVIEW_EXPORT ParaDisReaderInputValues
   DataPath NodeConstraintsArrayName;
   DataPath BurgersVectorsArrayName;
   DataPath SlipPlaneNormalsArrayName;
-
 };
 
 /**

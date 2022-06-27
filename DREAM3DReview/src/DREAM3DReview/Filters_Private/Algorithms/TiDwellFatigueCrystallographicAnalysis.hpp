@@ -81,7 +81,6 @@ struct DREAM3DREVIEW_EXPORT TiDwellFatigueCrystallographicAnalysisInputValues
   DataPath SoftFeaturesArrayName;
   DataPath HardSoftGroupsArrayName;
   DataPath FeatureParentIdsArrayName;
-
 };
 
 /**
@@ -93,7 +92,8 @@ struct DREAM3DREVIEW_EXPORT TiDwellFatigueCrystallographicAnalysisInputValues
 class DREAM3DREVIEW_EXPORT TiDwellFatigueCrystallographicAnalysis
 {
 public:
-  TiDwellFatigueCrystallographicAnalysis(DataStructure& dataStructure, const IFilter::MessageHandler& mesgHandler, const std::atomic_bool& shouldCancel, TiDwellFatigueCrystallographicAnalysisInputValues* inputValues);
+  TiDwellFatigueCrystallographicAnalysis(DataStructure& dataStructure, const IFilter::MessageHandler& mesgHandler, const std::atomic_bool& shouldCancel,
+                                         TiDwellFatigueCrystallographicAnalysisInputValues* inputValues);
   ~TiDwellFatigueCrystallographicAnalysis() noexcept;
 
   TiDwellFatigueCrystallographicAnalysis(const TiDwellFatigueCrystallographicAnalysis&) = delete;

@@ -31,7 +31,6 @@ struct DREAM3DREVIEW_EXPORT PottsModelInputValues
   bool UseMask;
   DataPath FeatureIdsArrayPath;
   DataPath MaskArrayPath;
-
 };
 
 /**

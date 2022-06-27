@@ -37,7 +37,6 @@ struct DREAM3DREVIEW_EXPORT FindLayerStatisticsInputValues
   DataPath LayerAvgArrayName;
   DataPath LayerStdArrayName;
   DataPath LayerVarArrayName;
-
 };
 
 /**

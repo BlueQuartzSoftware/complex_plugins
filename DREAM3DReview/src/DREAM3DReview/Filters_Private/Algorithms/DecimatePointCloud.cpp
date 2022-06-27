@@ -23,11 +23,9 @@ const std::atomic_bool& DecimatePointCloud::getCancel()
   return m_ShouldCancel;
 }
 
-
 // -----------------------------------------------------------------------------
 Result<> DecimatePointCloud::operator()()
 {
-
 
   return {};
 }

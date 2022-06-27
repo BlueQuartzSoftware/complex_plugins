@@ -35,7 +35,6 @@ struct DREAM3DREVIEW_EXPORT KMedoidsInputValues
   DataPath FeatureIdsArrayName;
   DataPath FeatureAttributeMatrixName;
   DataPath MedoidsArrayName;
-
 };
 
 /**

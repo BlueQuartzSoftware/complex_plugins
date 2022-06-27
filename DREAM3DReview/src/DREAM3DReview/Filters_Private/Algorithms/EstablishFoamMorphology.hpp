@@ -63,7 +63,6 @@ struct DREAM3DREVIEW_EXPORT EstablishFoamMorphologyInputValues
   float64 MinStrutThickness;
   float32 StrutThicknessVariability;
   float32 StrutShapeVariability;
-
 };
 
 /**

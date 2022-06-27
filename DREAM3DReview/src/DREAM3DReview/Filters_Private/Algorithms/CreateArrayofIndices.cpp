@@ -23,11 +23,9 @@ const std::atomic_bool& CreateArrayofIndices::getCancel()
   return m_ShouldCancel;
 }
 
-
 // -----------------------------------------------------------------------------
 Result<> CreateArrayofIndices::operator()()
 {
-
 
   return {};
 }

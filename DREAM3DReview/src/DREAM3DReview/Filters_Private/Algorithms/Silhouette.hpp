@@ -31,7 +31,6 @@ struct DREAM3DREVIEW_EXPORT SilhouetteInputValues
   DataPath MaskArrayPath;
   DataPath FeatureIdsArrayPath;
   DataPath SilhouetteArrayPath;
-
 };
 
 /**

@@ -6,7 +6,8 @@
 using namespace complex;
 
 // -----------------------------------------------------------------------------
-TiDwellFatigueCrystallographicAnalysis::FillBadData(DataStructure& dataStructure, const IFilter::MessageHandler& mesgHandler, const std::atomic_bool& shouldCancel, TiDwellFatigueCrystallographicAnalysisInputValues* inputValues)
+TiDwellFatigueCrystallographicAnalysis::FillBadData(DataStructure& dataStructure, const IFilter::MessageHandler& mesgHandler, const std::atomic_bool& shouldCancel,
+                                                    TiDwellFatigueCrystallographicAnalysisInputValues* inputValues)
 : m_DataStructure(dataStructure)
 , m_InputValues(inputValues)
 , m_ShouldCancel(shouldCancel)
@@ -23,11 +24,9 @@ const std::atomic_bool& TiDwellFatigueCrystallographicAnalysis::getCancel()
   return m_ShouldCancel;
 }
 
-
 // -----------------------------------------------------------------------------
 Result<> TiDwellFatigueCrystallographicAnalysis::operator()()
 {
-
 
   return {};
 }

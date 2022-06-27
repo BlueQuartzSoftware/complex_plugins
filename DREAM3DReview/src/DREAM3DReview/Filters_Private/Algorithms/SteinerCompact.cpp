@@ -23,11 +23,9 @@ const std::atomic_bool& SteinerCompact::getCancel()
   return m_ShouldCancel;
 }
 
-
 // -----------------------------------------------------------------------------
 Result<> SteinerCompact::operator()()
 {
-
 
   return {};
 }

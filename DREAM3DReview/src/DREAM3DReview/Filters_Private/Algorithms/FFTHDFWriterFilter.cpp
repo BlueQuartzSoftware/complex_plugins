@@ -23,11 +23,9 @@ const std::atomic_bool& FFTHDFWriterFilter::getCancel()
   return m_ShouldCancel;
 }
 
-
 // -----------------------------------------------------------------------------
 Result<> FFTHDFWriterFilter::operator()()
 {
-
 
   return {};
 }

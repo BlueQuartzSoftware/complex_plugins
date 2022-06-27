@@ -23,11 +23,9 @@ const std::atomic_bool& ImportCLIFile::getCancel()
   return m_ShouldCancel;
 }
 
-
 // -----------------------------------------------------------------------------
 Result<> ImportCLIFile::operator()()
 {
-
 
   return {};
 }

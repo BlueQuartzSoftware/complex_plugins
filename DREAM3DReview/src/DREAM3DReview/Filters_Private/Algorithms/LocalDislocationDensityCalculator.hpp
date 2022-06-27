@@ -35,7 +35,6 @@ struct DREAM3DREVIEW_EXPORT LocalDislocationDensityCalculatorInputValues
   DataPath OutputAttributeMatrixName;
   DataPath OutputArrayName;
   DataPath DominantSystemArrayName;
-
 };
 
 /**
@@ -47,7 +46,8 @@ struct DREAM3DREVIEW_EXPORT LocalDislocationDensityCalculatorInputValues
 class DREAM3DREVIEW_EXPORT LocalDislocationDensityCalculator
 {
 public:
-  LocalDislocationDensityCalculator(DataStructure& dataStructure, const IFilter::MessageHandler& mesgHandler, const std::atomic_bool& shouldCancel, LocalDislocationDensityCalculatorInputValues* inputValues);
+  LocalDislocationDensityCalculator(DataStructure& dataStructure, const IFilter::MessageHandler& mesgHandler, const std::atomic_bool& shouldCancel,
+                                    LocalDislocationDensityCalculatorInputValues* inputValues);
   ~LocalDislocationDensityCalculator() noexcept;
 
   LocalDislocationDensityCalculator(const LocalDislocationDensityCalculator&) = delete;

@@ -6,7 +6,8 @@
 using namespace complex;
 
 // -----------------------------------------------------------------------------
-AverageEdgeFaceCellArrayToVertexArray::FillBadData(DataStructure& dataStructure, const IFilter::MessageHandler& mesgHandler, const std::atomic_bool& shouldCancel, AverageEdgeFaceCellArrayToVertexArrayInputValues* inputValues)
+AverageEdgeFaceCellArrayToVertexArray::FillBadData(DataStructure& dataStructure, const IFilter::MessageHandler& mesgHandler, const std::atomic_bool& shouldCancel,
+                                                   AverageEdgeFaceCellArrayToVertexArrayInputValues* inputValues)
 : m_DataStructure(dataStructure)
 , m_InputValues(inputValues)
 , m_ShouldCancel(shouldCancel)
@@ -23,11 +24,9 @@ const std::atomic_bool& AverageEdgeFaceCellArrayToVertexArray::getCancel()
   return m_ShouldCancel;
 }
 
-
 // -----------------------------------------------------------------------------
 Result<> AverageEdgeFaceCellArrayToVertexArray::operator()()
 {
-
 
   return {};
 }

@@ -23,11 +23,9 @@ const std::atomic_bool& ImportHDF5Dataset::getCancel()
   return m_ShouldCancel;
 }
 
-
 // -----------------------------------------------------------------------------
 Result<> ImportHDF5Dataset::operator()()
 {
-
 
   return {};
 }

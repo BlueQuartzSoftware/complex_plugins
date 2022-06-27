@@ -25,7 +25,6 @@ struct DREAM3DREVIEW_EXPORT AlignGeometriesInputValues
   DataPath MovingGeometry;
   DataPath TargetGeometry;
   ChoicesParameter::ValueType AlignmentType;
-
 };
 
 /**

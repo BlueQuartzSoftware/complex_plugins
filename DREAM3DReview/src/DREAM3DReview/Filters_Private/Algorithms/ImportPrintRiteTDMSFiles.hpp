@@ -57,7 +57,6 @@ struct DREAM3DREVIEW_EXPORT ImportPrintRiteTDMSFilesInputValues
   GeneratedFileListParameter::ValueType InputFilesList;
   FileSystemPathParameter::ValueType OutputDirectory;
   StringParameter::ValueType OutputFilePrefix;
-
 };
 
 /**

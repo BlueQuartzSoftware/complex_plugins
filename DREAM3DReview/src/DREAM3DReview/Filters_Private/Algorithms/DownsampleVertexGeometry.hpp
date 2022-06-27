@@ -29,7 +29,6 @@ struct DREAM3DREVIEW_EXPORT DownsampleVertexGeometryInputValues
   float32 DecimationFraction;
   VectorFloat32Parameter::ValueType GridResolution;
   DataPath VertexAttrMatPath;
-
 };
 
 /**

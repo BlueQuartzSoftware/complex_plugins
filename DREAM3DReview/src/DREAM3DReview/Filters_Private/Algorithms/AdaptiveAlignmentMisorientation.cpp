@@ -6,7 +6,8 @@
 using namespace complex;
 
 // -----------------------------------------------------------------------------
-AdaptiveAlignmentMisorientation::FillBadData(DataStructure& dataStructure, const IFilter::MessageHandler& mesgHandler, const std::atomic_bool& shouldCancel, AdaptiveAlignmentMisorientationInputValues* inputValues)
+AdaptiveAlignmentMisorientation::FillBadData(DataStructure& dataStructure, const IFilter::MessageHandler& mesgHandler, const std::atomic_bool& shouldCancel,
+                                             AdaptiveAlignmentMisorientationInputValues* inputValues)
 : m_DataStructure(dataStructure)
 , m_InputValues(inputValues)
 , m_ShouldCancel(shouldCancel)
@@ -23,11 +24,9 @@ const std::atomic_bool& AdaptiveAlignmentMisorientation::getCancel()
   return m_ShouldCancel;
 }
 
-
 // -----------------------------------------------------------------------------
 Result<> AdaptiveAlignmentMisorientation::operator()()
 {
-
 
   return {};
 }

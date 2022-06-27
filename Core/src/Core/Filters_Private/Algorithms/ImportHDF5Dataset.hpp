@@ -22,8 +22,7 @@ namespace complex
 struct CORE_EXPORT ImportHDF5DatasetInputValues
 {
   <<<NOT_IMPLEMENTED>>> ImportHDF5File;
-/*[x]*/  DataPath SelectedAttributeMatrix;
-
+  /*[x]*/ DataPath SelectedAttributeMatrix;
 };
 
 /**

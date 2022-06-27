@@ -6,7 +6,8 @@
 using namespace complex;
 
 // -----------------------------------------------------------------------------
-GenerateMaskFromSimpleShapes::FillBadData(DataStructure& dataStructure, const IFilter::MessageHandler& mesgHandler, const std::atomic_bool& shouldCancel, GenerateMaskFromSimpleShapesInputValues* inputValues)
+GenerateMaskFromSimpleShapes::FillBadData(DataStructure& dataStructure, const IFilter::MessageHandler& mesgHandler, const std::atomic_bool& shouldCancel,
+                                          GenerateMaskFromSimpleShapesInputValues* inputValues)
 : m_DataStructure(dataStructure)
 , m_InputValues(inputValues)
 , m_ShouldCancel(shouldCancel)
@@ -23,11 +24,9 @@ const std::atomic_bool& GenerateMaskFromSimpleShapes::getCancel()
   return m_ShouldCancel;
 }
 
-
 // -----------------------------------------------------------------------------
 Result<> GenerateMaskFromSimpleShapes::operator()()
 {
-
 
   return {};
 }

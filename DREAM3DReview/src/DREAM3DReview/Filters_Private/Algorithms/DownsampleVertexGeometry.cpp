@@ -23,11 +23,9 @@ const std::atomic_bool& DownsampleVertexGeometry::getCancel()
   return m_ShouldCancel;
 }
 
-
 // -----------------------------------------------------------------------------
 Result<> DownsampleVertexGeometry::operator()()
 {
-
 
   return {};
 }

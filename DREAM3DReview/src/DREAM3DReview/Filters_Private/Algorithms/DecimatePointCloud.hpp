@@ -23,7 +23,6 @@ struct DREAM3DREVIEW_EXPORT DecimatePointCloudInputValues
 {
   float32 DecimationFreq;
   DataPath VertexAttrMatPath;
-
 };
 
 /**

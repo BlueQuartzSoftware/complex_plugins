@@ -23,11 +23,9 @@ const std::atomic_bool& KDistanceGraph::getCancel()
   return m_ShouldCancel;
 }
 
-
 // -----------------------------------------------------------------------------
 Result<> KDistanceGraph::operator()()
 {
-
 
   return {};
 }

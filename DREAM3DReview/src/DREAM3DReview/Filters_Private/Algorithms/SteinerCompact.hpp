@@ -35,7 +35,6 @@ struct DREAM3DREVIEW_EXPORT SteinerCompactInputValues
   FileSystemPathParameter::ValueType TxtFileName;
   DataPath FeatureIdsArrayPath;
   DataPath CellPhasesArrayPath;
-
 };
 
 /**

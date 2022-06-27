@@ -23,11 +23,9 @@ const std::atomic_bool& DelaunayTriangulation::getCancel()
   return m_ShouldCancel;
 }
 
-
 // -----------------------------------------------------------------------------
 Result<> DelaunayTriangulation::operator()()
 {
-
 
   return {};
 }

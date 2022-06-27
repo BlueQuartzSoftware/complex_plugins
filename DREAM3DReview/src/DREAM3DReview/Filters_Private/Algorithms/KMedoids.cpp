@@ -23,11 +23,9 @@ const std::atomic_bool& KMedoids::getCancel()
   return m_ShouldCancel;
 }
 
-
 // -----------------------------------------------------------------------------
 Result<> KMedoids::operator()()
 {
-
 
   return {};
 }

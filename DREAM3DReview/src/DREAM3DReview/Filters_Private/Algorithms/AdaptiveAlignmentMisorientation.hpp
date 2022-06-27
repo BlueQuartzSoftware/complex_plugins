@@ -41,7 +41,6 @@ struct DREAM3DREVIEW_EXPORT AdaptiveAlignmentMisorientationInputValues
   DataPath CellPhasesArrayPath;
   DataPath GoodVoxelsArrayPath;
   DataPath CrystalStructuresArrayPath;
-
 };
 
 /**
@@ -53,7 +52,8 @@ struct DREAM3DREVIEW_EXPORT AdaptiveAlignmentMisorientationInputValues
 class DREAM3DREVIEW_EXPORT AdaptiveAlignmentMisorientation
 {
 public:
-  AdaptiveAlignmentMisorientation(DataStructure& dataStructure, const IFilter::MessageHandler& mesgHandler, const std::atomic_bool& shouldCancel, AdaptiveAlignmentMisorientationInputValues* inputValues);
+  AdaptiveAlignmentMisorientation(DataStructure& dataStructure, const IFilter::MessageHandler& mesgHandler, const std::atomic_bool& shouldCancel,
+                                  AdaptiveAlignmentMisorientationInputValues* inputValues);
   ~AdaptiveAlignmentMisorientation() noexcept;
 
   AdaptiveAlignmentMisorientation(const AdaptiveAlignmentMisorientation&) = delete;

@@ -23,11 +23,9 @@ const std::atomic_bool& ImportMASSIFData::getCancel()
   return m_ShouldCancel;
 }
 
-
 // -----------------------------------------------------------------------------
 Result<> ImportMASSIFData::operator()()
 {
-
 
   return {};
 }

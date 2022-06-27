@@ -23,11 +23,9 @@ const std::atomic_bool& AdaptiveAlignmentFeature::getCancel()
   return m_ShouldCancel;
 }
 
-
 // -----------------------------------------------------------------------------
 Result<> AdaptiveAlignmentFeature::operator()()
 {
-
 
   return {};
 }

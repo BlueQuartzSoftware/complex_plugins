@@ -29,7 +29,6 @@ struct DREAM3DREVIEW_EXPORT DiscretizeDDDomainInputValues
   DataPath OutputDataContainerName;
   DataPath OutputAttributeMatrixName;
   DataPath OutputArrayName;
-
 };
 
 /**

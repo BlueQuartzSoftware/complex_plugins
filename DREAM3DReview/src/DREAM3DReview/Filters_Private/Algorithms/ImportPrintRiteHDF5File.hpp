@@ -29,7 +29,6 @@ struct DREAM3DREVIEW_EXPORT ImportPrintRiteHDF5FileInputValues
   StringParameter::ValueType HFDataName;
   StringParameter::ValueType HFSliceIdsArrayName;
   StringParameter::ValueType HFSliceDataName;
-
 };
 
 /**

@@ -23,11 +23,9 @@ const std::atomic_bool& LabelTriangleGeometry::getCancel()
   return m_ShouldCancel;
 }
 
-
 // -----------------------------------------------------------------------------
 Result<> LabelTriangleGeometry::operator()()
 {
-
 
   return {};
 }

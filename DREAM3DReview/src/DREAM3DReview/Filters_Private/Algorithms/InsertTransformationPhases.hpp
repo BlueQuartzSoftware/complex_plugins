@@ -71,7 +71,6 @@ struct DREAM3DREVIEW_EXPORT InsertTransformationPhasesInputValues
   DataPath NumFeaturesArrayPath;
   DataPath FeatureParentIdsArrayName;
   DataPath NumFeaturesPerParentArrayPath;
-
 };
 
 /**

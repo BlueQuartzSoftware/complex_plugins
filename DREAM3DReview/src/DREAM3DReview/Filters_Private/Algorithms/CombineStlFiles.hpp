@@ -27,7 +27,6 @@ struct DREAM3DREVIEW_EXPORT CombineStlFilesInputValues
   StringParameter::ValueType TriangleDataContainerName;
   DataPath FaceAttributeMatrixName;
   DataPath FaceNormalsArrayName;
-
 };
 
 /**

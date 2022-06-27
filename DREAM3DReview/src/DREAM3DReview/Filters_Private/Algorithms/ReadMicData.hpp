@@ -27,7 +27,6 @@ struct DREAM3DREVIEW_EXPORT ReadMicDataInputValues
   DataPath DataContainerName;
   DataPath CellAttributeMatrixName;
   DataPath CellEnsembleAttributeMatrixName;
-
 };
 
 /**

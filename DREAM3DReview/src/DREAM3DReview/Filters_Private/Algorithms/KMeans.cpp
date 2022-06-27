@@ -23,11 +23,9 @@ const std::atomic_bool& KMeans::getCancel()
   return m_ShouldCancel;
 }
 
-
 // -----------------------------------------------------------------------------
 Result<> KMeans::operator()()
 {
-
 
   return {};
 }

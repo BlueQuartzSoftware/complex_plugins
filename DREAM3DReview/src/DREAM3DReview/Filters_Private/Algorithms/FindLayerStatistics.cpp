@@ -23,11 +23,9 @@ const std::atomic_bool& FindLayerStatistics::getCancel()
   return m_ShouldCancel;
 }
 
-
 // -----------------------------------------------------------------------------
 Result<> FindLayerStatistics::operator()()
 {
-
 
   return {};
 }

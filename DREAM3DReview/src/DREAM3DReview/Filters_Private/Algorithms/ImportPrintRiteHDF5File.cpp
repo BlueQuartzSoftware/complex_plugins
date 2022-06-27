@@ -23,11 +23,9 @@ const std::atomic_bool& ImportPrintRiteHDF5File::getCancel()
   return m_ShouldCancel;
 }
 
-
 // -----------------------------------------------------------------------------
 Result<> ImportPrintRiteHDF5File::operator()()
 {
-
 
   return {};
 }

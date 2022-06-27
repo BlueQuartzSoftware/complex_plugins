@@ -23,11 +23,9 @@ const std::atomic_bool& ReadBinaryCTNorthStar::getCancel()
   return m_ShouldCancel;
 }
 
-
 // -----------------------------------------------------------------------------
 Result<> ReadBinaryCTNorthStar::operator()()
 {
-
 
   return {};
 }

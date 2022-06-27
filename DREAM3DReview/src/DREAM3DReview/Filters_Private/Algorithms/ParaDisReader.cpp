@@ -23,11 +23,9 @@ const std::atomic_bool& ParaDisReader::getCancel()
   return m_ShouldCancel;
 }
 
-
 // -----------------------------------------------------------------------------
 Result<> ParaDisReader::operator()()
 {
-
 
   return {};
 }

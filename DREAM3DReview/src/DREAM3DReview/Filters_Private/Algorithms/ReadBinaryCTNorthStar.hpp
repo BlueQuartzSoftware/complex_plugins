@@ -41,7 +41,6 @@ struct DREAM3DREVIEW_EXPORT ReadBinaryCTNorthStarInputValues
   VectorInt32Parameter::ValueType StartVoxelCoord;
   VectorInt32Parameter::ValueType EndVoxelCoord;
   <<<NOT_IMPLEMENTED>>> ImportedVolumeDescription;
-
 };
 
 /**

@@ -23,11 +23,9 @@ const std::atomic_bool& ImportQMMeltpoolTDMSFile::getCancel()
   return m_ShouldCancel;
 }
 
-
 // -----------------------------------------------------------------------------
 Result<> ImportQMMeltpoolTDMSFile::operator()()
 {
-
 
   return {};
 }

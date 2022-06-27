@@ -31,7 +31,6 @@ struct DREAM3DREVIEW_EXPORT AdaptiveAlignmentFeatureInputValues
   float32 ShiftY;
   MultiArraySelectionParameter::ValueType IgnoredDataArrayPaths;
   DataPath GoodVoxelsArrayPath;
-
 };
 
 /**

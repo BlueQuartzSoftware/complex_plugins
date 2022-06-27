@@ -23,11 +23,9 @@ const std::atomic_bool& SliceTriangleGeometry::getCancel()
   return m_ShouldCancel;
 }
 
-
 // -----------------------------------------------------------------------------
 Result<> SliceTriangleGeometry::operator()()
 {
-
 
   return {};
 }

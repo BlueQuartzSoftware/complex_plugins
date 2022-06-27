@@ -23,11 +23,9 @@ const std::atomic_bool& FindElementCentroids::getCancel()
   return m_ShouldCancel;
 }
 
-
 // -----------------------------------------------------------------------------
 Result<> FindElementCentroids::operator()()
 {
-
 
   return {};
 }

@@ -26,12 +26,11 @@ namespace complex
 struct DREAM3DREVIEW_EXPORT ImportQMMeltpoolH5FileInputValues
 {
   <<<NOT_IMPLEMENTED>>> InputFiles;
-/*[x]*/  <<<NOT_IMPLEMENTED>>> PossibleIndices;
+  /*[x]*/<<<NOT_IMPLEMENTED>>> PossibleIndices;
   VectorInt32Parameter::ValueType SliceRange;
   DataPath DataContainerPath;
   StringParameter::ValueType VertexAttributeMatrixName;
   float32 Power;
-
 };
 
 /**

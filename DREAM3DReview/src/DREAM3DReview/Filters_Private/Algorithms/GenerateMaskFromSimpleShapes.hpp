@@ -33,7 +33,6 @@ struct DREAM3DREVIEW_EXPORT GenerateMaskFromSimpleShapesInputValues
   DataPath BoxDimensionsArrayPath;
   DataPath CylinderRadiusArrayPath;
   DataPath CylinderHeightArrayPath;
-
 };
 
 /**

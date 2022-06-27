@@ -25,7 +25,6 @@ struct DREAM3DREVIEW_EXPORT FindSurfaceRoughnessInputValues
   DataPath BoundaryCellsArrayPath;
   StringParameter::ValueType AttributeMatrixName;
   StringParameter::ValueType RoughnessParamsArrayName;
-
 };
 
 /**

@@ -34,14 +34,13 @@ struct DREAM3DREVIEW_EXPORT ApplyTransformationToGeometryInputValues
   ChoicesParameter::ValueType InterpolationType;
   bool UseDataArraySelection;
   <<<NOT_IMPLEMENTED>>> ManualTransformationMatrix;
-/*[x]*/  float32 RotationAngle;
+  /*[x]*/ float32 RotationAngle;
   VectorFloat32Parameter::ValueType RotationAxis;
   VectorFloat32Parameter::ValueType Translation;
   VectorFloat32Parameter::ValueType Scale;
   DataPath ComputedTransformationMatrix;
   DataPath CellAttributeMatrixPath;
   MultiArraySelectionParameter::ValueType DataArraySelection;
-
 };
 
 /**

@@ -23,11 +23,9 @@ const std::atomic_bool& ImportVolumeGraphicsFile::getCancel()
   return m_ShouldCancel;
 }
 
-
 // -----------------------------------------------------------------------------
 Result<> ImportVolumeGraphicsFile::operator()()
 {
-
 
   return {};
 }

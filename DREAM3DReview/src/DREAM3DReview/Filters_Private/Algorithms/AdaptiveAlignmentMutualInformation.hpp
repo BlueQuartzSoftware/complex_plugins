@@ -41,7 +41,6 @@ struct DREAM3DREVIEW_EXPORT AdaptiveAlignmentMutualInformationInputValues
   DataPath CellPhasesArrayPath;
   DataPath GoodVoxelsArrayPath;
   DataPath CrystalStructuresArrayPath;
-
 };
 
 /**
@@ -53,7 +52,8 @@ struct DREAM3DREVIEW_EXPORT AdaptiveAlignmentMutualInformationInputValues
 class DREAM3DREVIEW_EXPORT AdaptiveAlignmentMutualInformation
 {
 public:
-  AdaptiveAlignmentMutualInformation(DataStructure& dataStructure, const IFilter::MessageHandler& mesgHandler, const std::atomic_bool& shouldCancel, AdaptiveAlignmentMutualInformationInputValues* inputValues);
+  AdaptiveAlignmentMutualInformation(DataStructure& dataStructure, const IFilter::MessageHandler& mesgHandler, const std::atomic_bool& shouldCancel,
+                                     AdaptiveAlignmentMutualInformationInputValues* inputValues);
   ~AdaptiveAlignmentMutualInformation() noexcept;
 
   AdaptiveAlignmentMutualInformation(const AdaptiveAlignmentMutualInformation&) = delete;

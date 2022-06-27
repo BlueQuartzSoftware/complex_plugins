@@ -39,7 +39,6 @@ struct DREAM3DREVIEW_EXPORT FindCSLBoundariesInputValues
   DataPath SurfaceMeshFaceNormalsArrayPath;
   DataPath SurfaceMeshCSLBoundaryArrayName;
   DataPath SurfaceMeshCSLBoundaryIncoherenceArrayName;
-
 };
 
 /**

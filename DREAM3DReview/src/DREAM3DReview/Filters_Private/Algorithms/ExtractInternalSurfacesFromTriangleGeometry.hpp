@@ -25,7 +25,6 @@ struct DREAM3DREVIEW_EXPORT ExtractInternalSurfacesFromTriangleGeometryInputValu
   DataPath TriangleDataContainerName;
   DataPath NodeTypesArrayPath;
   StringParameter::ValueType InternalTrianglesName;
-
 };
 
 /**
@@ -37,7 +36,8 @@ struct DREAM3DREVIEW_EXPORT ExtractInternalSurfacesFromTriangleGeometryInputValu
 class DREAM3DREVIEW_EXPORT ExtractInternalSurfacesFromTriangleGeometry
 {
 public:
-  ExtractInternalSurfacesFromTriangleGeometry(DataStructure& dataStructure, const IFilter::MessageHandler& mesgHandler, const std::atomic_bool& shouldCancel, ExtractInternalSurfacesFromTriangleGeometryInputValues* inputValues);
+  ExtractInternalSurfacesFromTriangleGeometry(DataStructure& dataStructure, const IFilter::MessageHandler& mesgHandler, const std::atomic_bool& shouldCancel,
+                                              ExtractInternalSurfacesFromTriangleGeometryInputValues* inputValues);
   ~ExtractInternalSurfacesFromTriangleGeometry() noexcept;
 
   ExtractInternalSurfacesFromTriangleGeometry(const ExtractInternalSurfacesFromTriangleGeometry&) = delete;

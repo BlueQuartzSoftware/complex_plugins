@@ -22,8 +22,7 @@ namespace complex
 struct CORE_EXPORT MultiThresholdObjects2InputValues
 {
   <<<NOT_IMPLEMENTED>>> SelectedThresholds;
-/*[x]*/  DataPath DestinationArrayName;
-
+  /*[x]*/ DataPath DestinationArrayName;
 };
 
 /**

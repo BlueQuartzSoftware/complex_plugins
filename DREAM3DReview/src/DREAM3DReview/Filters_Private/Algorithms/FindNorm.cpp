@@ -23,11 +23,9 @@ const std::atomic_bool& FindNorm::getCancel()
   return m_ShouldCancel;
 }
 
-
 // -----------------------------------------------------------------------------
 Result<> FindNorm::operator()()
 {
-
 
   return {};
 }

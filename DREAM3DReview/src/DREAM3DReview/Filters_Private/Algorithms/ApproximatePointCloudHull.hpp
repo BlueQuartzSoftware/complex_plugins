@@ -27,7 +27,6 @@ struct DREAM3DREVIEW_EXPORT ApproximatePointCloudHullInputValues
   int32 NumberOfEmptyNeighbors;
   DataPath VertexDataContainerName;
   StringParameter::ValueType HullDataContainerName;
-
 };
 
 /**

@@ -31,7 +31,6 @@ struct DREAM3DREVIEW_EXPORT ImportCLIFileInputValues
   DataPath EdgeAttributeMatrixName;
   DataPath LayerIdsArrayName;
   DataPath FeatureIdsArrayName;
-
 };
 
 /**

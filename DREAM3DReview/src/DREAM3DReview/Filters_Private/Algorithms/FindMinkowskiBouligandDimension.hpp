@@ -25,7 +25,6 @@ struct DREAM3DREVIEW_EXPORT FindMinkowskiBouligandDimensionInputValues
   DataPath MaskArrayPath;
   DataPath AttributeMatrixName;
   DataPath MinkowskiBouligandDimensionArrayName;
-
 };
 
 /**
@@ -37,7 +36,8 @@ struct DREAM3DREVIEW_EXPORT FindMinkowskiBouligandDimensionInputValues
 class DREAM3DREVIEW_EXPORT FindMinkowskiBouligandDimension
 {
 public:
-  FindMinkowskiBouligandDimension(DataStructure& dataStructure, const IFilter::MessageHandler& mesgHandler, const std::atomic_bool& shouldCancel, FindMinkowskiBouligandDimensionInputValues* inputValues);
+  FindMinkowskiBouligandDimension(DataStructure& dataStructure, const IFilter::MessageHandler& mesgHandler, const std::atomic_bool& shouldCancel,
+                                  FindMinkowskiBouligandDimensionInputValues* inputValues);
   ~FindMinkowskiBouligandDimension() noexcept;
 
   FindMinkowskiBouligandDimension(const FindMinkowskiBouligandDimension&) = delete;

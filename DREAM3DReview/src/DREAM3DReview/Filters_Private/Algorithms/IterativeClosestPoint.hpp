@@ -31,7 +31,6 @@ struct DREAM3DREVIEW_EXPORT IterativeClosestPointInputValues
   bool ApplyTransform;
   StringParameter::ValueType TransformAttributeMatrixName;
   StringParameter::ValueType TransformArrayName;
-
 };
 
 /**

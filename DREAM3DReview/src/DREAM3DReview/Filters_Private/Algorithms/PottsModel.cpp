@@ -23,11 +23,9 @@ const std::atomic_bool& PottsModel::getCancel()
   return m_ShouldCancel;
 }
 
-
 // -----------------------------------------------------------------------------
 Result<> PottsModel::operator()()
 {
-
 
   return {};
 }

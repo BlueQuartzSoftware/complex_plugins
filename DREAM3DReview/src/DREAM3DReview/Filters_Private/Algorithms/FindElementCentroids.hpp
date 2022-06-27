@@ -27,7 +27,6 @@ struct DREAM3DREVIEW_EXPORT FindElementCentroidsInputValues
   DataPath NewDataContainerName;
   DataPath VertexAttributeMatrixName;
   DataPath CellCentroidsArrayPath;
-
 };
 
 /**

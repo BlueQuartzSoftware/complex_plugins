@@ -25,7 +25,6 @@ struct DREAM3DREVIEW_EXPORT FindNormInputValues
   float32 PSpace;
   DataPath SelectedArrayPath;
   DataPath NormArrayPath;
-
 };
 
 /**

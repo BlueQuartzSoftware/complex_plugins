@@ -49,7 +49,6 @@ struct DREAM3DREVIEW_EXPORT InterpolatePointCloudToRegularGridInputValues
   DataPath KernelDistancesArrayName;
   StringParameter::ValueType InterpolatedSuffix;
   StringParameter::ValueType CopySuffix;
-
 };
 
 /**
@@ -61,7 +60,8 @@ struct DREAM3DREVIEW_EXPORT InterpolatePointCloudToRegularGridInputValues
 class DREAM3DREVIEW_EXPORT InterpolatePointCloudToRegularGrid
 {
 public:
-  InterpolatePointCloudToRegularGrid(DataStructure& dataStructure, const IFilter::MessageHandler& mesgHandler, const std::atomic_bool& shouldCancel, InterpolatePointCloudToRegularGridInputValues* inputValues);
+  InterpolatePointCloudToRegularGrid(DataStructure& dataStructure, const IFilter::MessageHandler& mesgHandler, const std::atomic_bool& shouldCancel,
+                                     InterpolatePointCloudToRegularGridInputValues* inputValues);
   ~InterpolatePointCloudToRegularGrid() noexcept;
 
   InterpolatePointCloudToRegularGrid(const InterpolatePointCloudToRegularGrid&) = delete;

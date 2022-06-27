@@ -29,7 +29,6 @@ struct DREAM3DREVIEW_EXPORT LaplacianSmoothPointCloudInputValues
   float32 Lambda;
   DataPath DataContainerName;
   DataPath MaskArrayPath;
-
 };
 
 /**

@@ -23,11 +23,9 @@ const std::atomic_bool& RemoveFlaggedVertices::getCancel()
   return m_ShouldCancel;
 }
 
-
 // -----------------------------------------------------------------------------
 Result<> RemoveFlaggedVertices::operator()()
 {
-
 
   return {};
 }

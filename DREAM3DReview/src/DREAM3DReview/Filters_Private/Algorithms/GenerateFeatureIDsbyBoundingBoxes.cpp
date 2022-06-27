@@ -6,7 +6,8 @@
 using namespace complex;
 
 // -----------------------------------------------------------------------------
-GenerateFeatureIDsbyBoundingBoxes::FillBadData(DataStructure& dataStructure, const IFilter::MessageHandler& mesgHandler, const std::atomic_bool& shouldCancel, GenerateFeatureIDsbyBoundingBoxesInputValues* inputValues)
+GenerateFeatureIDsbyBoundingBoxes::FillBadData(DataStructure& dataStructure, const IFilter::MessageHandler& mesgHandler, const std::atomic_bool& shouldCancel,
+                                               GenerateFeatureIDsbyBoundingBoxesInputValues* inputValues)
 : m_DataStructure(dataStructure)
 , m_InputValues(inputValues)
 , m_ShouldCancel(shouldCancel)
@@ -23,11 +24,9 @@ const std::atomic_bool& GenerateFeatureIDsbyBoundingBoxes::getCancel()
   return m_ShouldCancel;
 }
 
-
 // -----------------------------------------------------------------------------
 Result<> GenerateFeatureIDsbyBoundingBoxes::operator()()
 {
-
 
   return {};
 }

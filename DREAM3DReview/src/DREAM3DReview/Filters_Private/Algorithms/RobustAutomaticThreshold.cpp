@@ -23,11 +23,9 @@ const std::atomic_bool& RobustAutomaticThreshold::getCancel()
   return m_ShouldCancel;
 }
 
-
 // -----------------------------------------------------------------------------
 Result<> RobustAutomaticThreshold::operator()()
 {
-
 
   return {};
 }

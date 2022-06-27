@@ -23,11 +23,9 @@ const std::atomic_bool& ReadMicData::getCancel()
   return m_ShouldCancel;
 }
 
-
 // -----------------------------------------------------------------------------
 Result<> ReadMicData::operator()()
 {
-
 
   return {};
 }

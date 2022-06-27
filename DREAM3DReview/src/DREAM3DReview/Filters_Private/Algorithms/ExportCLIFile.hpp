@@ -35,7 +35,6 @@ struct DREAM3DREVIEW_EXPORT ExportCLIFileInputValues
   DataPath EdgeGeometry;
   DataPath LayerIdsArrayPath;
   DataPath GroupIdsArrayPath;
-
 };
 
 /**

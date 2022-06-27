@@ -23,11 +23,9 @@ const std::atomic_bool& TesselateFarFieldGrains::getCancel()
   return m_ShouldCancel;
 }
 
-
 // -----------------------------------------------------------------------------
 Result<> TesselateFarFieldGrains::operator()()
 {
-
 
   return {};
 }

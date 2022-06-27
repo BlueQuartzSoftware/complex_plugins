@@ -23,11 +23,9 @@ const std::atomic_bool& EstablishFoamMorphology::getCancel()
   return m_ShouldCancel;
 }
 
-
 // -----------------------------------------------------------------------------
 Result<> EstablishFoamMorphology::operator()()
 {
-
 
   return {};
 }

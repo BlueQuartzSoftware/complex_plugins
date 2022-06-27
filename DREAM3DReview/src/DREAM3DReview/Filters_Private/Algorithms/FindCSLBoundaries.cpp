@@ -23,11 +23,9 @@ const std::atomic_bool& FindCSLBoundaries::getCancel()
   return m_ShouldCancel;
 }
 
-
 // -----------------------------------------------------------------------------
 Result<> FindCSLBoundaries::operator()()
 {
-
 
   return {};
 }

@@ -21,7 +21,6 @@ namespace complex
 struct DREAM3DREVIEW_EXPORT CreateArrayofIndicesInputValues
 {
   DataPath IndexArrayPath;
-
 };
 
 /**

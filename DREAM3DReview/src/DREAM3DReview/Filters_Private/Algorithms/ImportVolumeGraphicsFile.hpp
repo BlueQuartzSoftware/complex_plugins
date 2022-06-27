@@ -27,7 +27,6 @@ struct DREAM3DREVIEW_EXPORT ImportVolumeGraphicsFileInputValues
   StringParameter::ValueType DataContainerName;
   DataPath CellAttributeMatrixName;
   DataPath DensityArrayName;
-
 };
 
 /**

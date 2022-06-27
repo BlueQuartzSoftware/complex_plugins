@@ -31,7 +31,6 @@ struct DREAM3DREVIEW_EXPORT KDistanceGraphInputValues
   DataPath MaskArrayPath;
   DataPath SelectedArrayPath;
   DataPath KDistanceArrayPath;
-
 };
 
 /**

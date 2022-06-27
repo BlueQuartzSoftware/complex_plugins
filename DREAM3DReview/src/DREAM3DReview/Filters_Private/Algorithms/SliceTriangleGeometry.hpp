@@ -43,7 +43,6 @@ struct DREAM3DREVIEW_EXPORT SliceTriangleGeometryInputValues
   DataPath EdgeAttributeMatrixName;
   DataPath SliceIdArrayName;
   DataPath SliceAttributeMatrixName;
-
 };
 
 /**

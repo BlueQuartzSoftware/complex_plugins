@@ -41,7 +41,6 @@ struct DREAM3DREVIEW_EXPORT TesselateFarFieldGrainsInputValues
   DataPath ElasticStrainsArrayName;
   DataPath OutputCellEnsembleAttributeMatrixName;
   DataPath CrystalStructuresArrayName;
-
 };
 
 /**

@@ -6,7 +6,8 @@
 using namespace complex;
 
 // -----------------------------------------------------------------------------
-InterpolatePointCloudToRegularGrid::FillBadData(DataStructure& dataStructure, const IFilter::MessageHandler& mesgHandler, const std::atomic_bool& shouldCancel, InterpolatePointCloudToRegularGridInputValues* inputValues)
+InterpolatePointCloudToRegularGrid::FillBadData(DataStructure& dataStructure, const IFilter::MessageHandler& mesgHandler, const std::atomic_bool& shouldCancel,
+                                                InterpolatePointCloudToRegularGridInputValues* inputValues)
 : m_DataStructure(dataStructure)
 , m_InputValues(inputValues)
 , m_ShouldCancel(shouldCancel)
@@ -23,11 +24,9 @@ const std::atomic_bool& InterpolatePointCloudToRegularGrid::getCancel()
   return m_ShouldCancel;
 }
 
-
 // -----------------------------------------------------------------------------
 Result<> InterpolatePointCloudToRegularGrid::operator()()
 {
-
 
   return {};
 }

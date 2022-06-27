@@ -29,7 +29,6 @@ struct DREAM3DREVIEW_EXPORT FindVertexToTriangleDistancesInputValues
   DataPath TriangleNormalsArrayPath;
   DataPath DistancesArrayPath;
   DataPath ClosestTriangleIdArrayPath;
-
 };
 
 /**

@@ -51,7 +51,6 @@ struct DREAM3DREVIEW_EXPORT FindNeighborListStatisticsInputValues
   DataPath MedianArrayName;
   DataPath StdDeviationArrayName;
   DataPath SummationArrayName;
-
 };
 
 /**

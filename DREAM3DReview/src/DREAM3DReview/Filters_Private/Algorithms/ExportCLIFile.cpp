@@ -23,11 +23,9 @@ const std::atomic_bool& ExportCLIFile::getCancel()
   return m_ShouldCancel;
 }
 
-
 // -----------------------------------------------------------------------------
 Result<> ExportCLIFile::operator()()
 {
-
 
   return {};
 }

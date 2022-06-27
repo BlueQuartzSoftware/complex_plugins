@@ -35,7 +35,6 @@ struct DREAM3DREVIEW_EXPORT DBSCANInputValues
   DataPath MaskArrayPath;
   DataPath FeatureIdsArrayName;
   DataPath FeatureAttributeMatrixName;
-
 };
 
 /**

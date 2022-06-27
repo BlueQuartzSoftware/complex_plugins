@@ -23,11 +23,9 @@ const std::atomic_bool& ImportPrintRiteTDMSFiles::getCancel()
   return m_ShouldCancel;
 }
 
-
 // -----------------------------------------------------------------------------
 Result<> ImportPrintRiteTDMSFiles::operator()()
 {
-
 
   return {};
 }

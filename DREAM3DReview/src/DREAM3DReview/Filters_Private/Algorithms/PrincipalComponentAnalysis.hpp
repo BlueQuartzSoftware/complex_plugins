@@ -35,7 +35,6 @@ struct DREAM3DREVIEW_EXPORT PrincipalComponentAnalysisInputValues
   StringParameter::ValueType PCAttributeMatrixName;
   StringParameter::ValueType PCEigenvaluesName;
   StringParameter::ValueType PCEigenvectorsName;
-
 };
 
 /**

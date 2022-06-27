@@ -29,7 +29,6 @@ struct DREAM3DREVIEW_EXPORT GenerateFeatureIDsbyBoundingBoxesInputValues
   DataPath BoxCenterArrayPath;
   DataPath BoxDimensionsArrayPath;
   DataPath BoxFeatureIDsArrayPath;
-
 };
 
 /**
@@ -41,7 +40,8 @@ struct DREAM3DREVIEW_EXPORT GenerateFeatureIDsbyBoundingBoxesInputValues
 class DREAM3DREVIEW_EXPORT GenerateFeatureIDsbyBoundingBoxes
 {
 public:
-  GenerateFeatureIDsbyBoundingBoxes(DataStructure& dataStructure, const IFilter::MessageHandler& mesgHandler, const std::atomic_bool& shouldCancel, GenerateFeatureIDsbyBoundingBoxesInputValues* inputValues);
+  GenerateFeatureIDsbyBoundingBoxes(DataStructure& dataStructure, const IFilter::MessageHandler& mesgHandler, const std::atomic_bool& shouldCancel,
+                                    GenerateFeatureIDsbyBoundingBoxesInputValues* inputValues);
   ~GenerateFeatureIDsbyBoundingBoxes() noexcept;
 
   GenerateFeatureIDsbyBoundingBoxes(const GenerateFeatureIDsbyBoundingBoxes&) = delete;

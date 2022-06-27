@@ -23,11 +23,9 @@ const std::atomic_bool& FindSurfaceRoughness::getCancel()
   return m_ShouldCancel;
 }
 
-
 // -----------------------------------------------------------------------------
 Result<> FindSurfaceRoughness::operator()()
 {
-
 
   return {};
 }

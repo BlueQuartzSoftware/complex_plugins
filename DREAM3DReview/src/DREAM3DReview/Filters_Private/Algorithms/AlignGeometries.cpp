@@ -23,11 +23,9 @@ const std::atomic_bool& AlignGeometries::getCancel()
   return m_ShouldCancel;
 }
 
-
 // -----------------------------------------------------------------------------
 Result<> AlignGeometries::operator()()
 {
-
 
   return {};
 }

@@ -35,7 +35,6 @@ struct DREAM3DREVIEW_EXPORT KMeansInputValues
   DataPath FeatureIdsArrayName;
   DataPath FeatureAttributeMatrixName;
   DataPath MeansArrayName;
-
 };
 
 /**

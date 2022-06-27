@@ -25,7 +25,6 @@ struct DREAM3DREVIEW_EXPORT RobustAutomaticThresholdInputValues
   DataPath InputArrayPath;
   DataPath GradientMagnitudeArrayPath;
   DataPath FeatureIdsArrayPath;
-
 };
 
 /**

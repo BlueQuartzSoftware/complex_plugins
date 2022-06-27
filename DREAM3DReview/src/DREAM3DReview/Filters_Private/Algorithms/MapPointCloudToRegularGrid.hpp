@@ -35,7 +35,6 @@ struct DREAM3DREVIEW_EXPORT MapPointCloudToRegularGridInputValues
   DataPath MaskArrayPath;
   DataPath VoxelIndicesArrayPath;
   DataPath CreatedImageDataContainerName;
-
 };
 
 /**

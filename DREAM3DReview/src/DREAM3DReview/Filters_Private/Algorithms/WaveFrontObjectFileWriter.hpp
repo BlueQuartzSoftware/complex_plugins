@@ -23,7 +23,6 @@ struct DREAM3DREVIEW_EXPORT WaveFrontObjectFileWriterInputValues
 {
   FileSystemPathParameter::ValueType OutputWaveFrontFile;
   DataPath TriangleGeometry;
-
 };
 
 /**

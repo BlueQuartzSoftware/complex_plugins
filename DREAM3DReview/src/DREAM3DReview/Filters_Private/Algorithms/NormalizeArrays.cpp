@@ -23,11 +23,9 @@ const std::atomic_bool& NormalizeArrays::getCancel()
   return m_ShouldCancel;
 }
 
-
 // -----------------------------------------------------------------------------
 Result<> NormalizeArrays::operator()()
 {
-
 
   return {};
 }

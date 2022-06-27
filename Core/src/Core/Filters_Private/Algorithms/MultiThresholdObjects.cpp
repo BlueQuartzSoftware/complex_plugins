@@ -23,11 +23,9 @@ const std::atomic_bool& MultiThresholdObjects::getCancel()
   return m_ShouldCancel;
 }
 
-
 // -----------------------------------------------------------------------------
 Result<> MultiThresholdObjects::operator()()
 {
-
 
   return {};
 }

@@ -33,7 +33,6 @@ struct DREAM3DREVIEW_EXPORT FFTHDFWriterFilterInputValues
   DataPath CellEulerAnglesArrayPath;
   DataPath CellPhasesArrayPath;
   DataPath CellEigenstrainsArrayPath;
-
 };
 
 /**

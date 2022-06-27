@@ -23,11 +23,9 @@ const std::atomic_bool& CombineStlFiles::getCancel()
   return m_ShouldCancel;
 }
 
-
 // -----------------------------------------------------------------------------
 Result<> CombineStlFiles::operator()()
 {
-
 
   return {};
 }

@@ -25,7 +25,6 @@ struct DREAM3DREVIEW_EXPORT AverageVertexArrayToEdgeFaceCellArrayInputValues
   bool WeightedAverage;
   DataPath SelectedArrayPath;
   DataPath AverageCellArrayPath;
-
 };
 
 /**
@@ -37,7 +36,8 @@ struct DREAM3DREVIEW_EXPORT AverageVertexArrayToEdgeFaceCellArrayInputValues
 class DREAM3DREVIEW_EXPORT AverageVertexArrayToEdgeFaceCellArray
 {
 public:
-  AverageVertexArrayToEdgeFaceCellArray(DataStructure& dataStructure, const IFilter::MessageHandler& mesgHandler, const std::atomic_bool& shouldCancel, AverageVertexArrayToEdgeFaceCellArrayInputValues* inputValues);
+  AverageVertexArrayToEdgeFaceCellArray(DataStructure& dataStructure, const IFilter::MessageHandler& mesgHandler, const std::atomic_bool& shouldCancel,
+                                        AverageVertexArrayToEdgeFaceCellArrayInputValues* inputValues);
   ~AverageVertexArrayToEdgeFaceCellArray() noexcept;
 
   AverageVertexArrayToEdgeFaceCellArray(const AverageVertexArrayToEdgeFaceCellArray&) = delete;

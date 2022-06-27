@@ -29,7 +29,6 @@ struct DREAM3DREVIEW_EXPORT ComputeUmeyamaTransformInputValues
   DataPath DestPointSet;
   DataPath TransformationAttributeMatrixName;
   DataPath TransformationMatrixName;
-
 };
 
 /**

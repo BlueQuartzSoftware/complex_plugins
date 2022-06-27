@@ -23,7 +23,6 @@ struct DREAM3DREVIEW_EXPORT ImportQMMeltpoolTDMSFileInputValues
 {
   FileSystemPathParameter::ValueType InputFile;
   DataPath DataContainerName;
-
 };
 
 /**

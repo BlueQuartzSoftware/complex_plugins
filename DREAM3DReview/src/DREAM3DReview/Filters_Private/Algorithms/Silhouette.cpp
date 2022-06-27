@@ -23,11 +23,9 @@ const std::atomic_bool& Silhouette::getCancel()
   return m_ShouldCancel;
 }
 
-
 // -----------------------------------------------------------------------------
 Result<> Silhouette::operator()()
 {
-
 
   return {};
 }

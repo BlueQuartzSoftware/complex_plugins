@@ -25,7 +25,6 @@ struct DREAM3DREVIEW_EXPORT LabelTriangleGeometryInputValues
   DataPath CADDataContainerName;
   StringParameter::ValueType TriangleAttributeMatrixName;
   StringParameter::ValueType RegionIdArrayName;
-
 };
 
 /**

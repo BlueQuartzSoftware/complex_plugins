@@ -23,11 +23,9 @@ const std::atomic_bool& ComputeUmeyamaTransform::getCancel()
   return m_ShouldCancel;
 }
 
-
 // -----------------------------------------------------------------------------
 Result<> ComputeUmeyamaTransform::operator()()
 {
-
 
   return {};
 }

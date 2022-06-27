@@ -45,7 +45,6 @@ struct DREAM3DREVIEW_EXPORT ComputeFeatureEigenstrainsInputValues
   DataPath AxisEulerAnglesArrayPath;
   DataPath ElasticStrainsArrayPath;
   DataPath EigenstrainsArrayName;
-
 };
 
 /**

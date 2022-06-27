@@ -35,7 +35,6 @@ struct DREAM3DREVIEW_EXPORT NormalizeArraysInputValues
   float64 RangeMax;
   MultiArraySelectionParameter::ValueType SelectedDataArrayPaths;
   DataPath MaskArrayPath;
-
 };
 
 /**

@@ -25,7 +25,6 @@ struct DREAM3DREVIEW_EXPORT RemoveFlaggedVerticesInputValues
   DataPath VertexGeometry;
   DataPath MaskArrayPath;
   StringParameter::ValueType ReducedVertexGeometry;
-
 };
 
 /**

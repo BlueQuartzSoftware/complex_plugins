@@ -23,11 +23,9 @@ const std::atomic_bool& ImportQMMeltpoolH5File::getCancel()
   return m_ShouldCancel;
 }
 
-
 // -----------------------------------------------------------------------------
 Result<> ImportQMMeltpoolH5File::operator()()
 {
-
 
   return {};
 }

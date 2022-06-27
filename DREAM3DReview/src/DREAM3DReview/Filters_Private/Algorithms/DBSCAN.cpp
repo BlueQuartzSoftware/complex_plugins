@@ -23,11 +23,9 @@ const std::atomic_bool& DBSCAN::getCancel()
   return m_ShouldCancel;
 }
 
-
 // -----------------------------------------------------------------------------
 Result<> DBSCAN::operator()()
 {
-
 
   return {};
 }

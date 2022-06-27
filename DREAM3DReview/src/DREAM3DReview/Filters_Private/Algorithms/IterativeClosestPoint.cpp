@@ -23,11 +23,9 @@ const std::atomic_bool& IterativeClosestPoint::getCancel()
   return m_ShouldCancel;
 }
 
-
 // -----------------------------------------------------------------------------
 Result<> IterativeClosestPoint::operator()()
 {
-
 
   return {};
 }

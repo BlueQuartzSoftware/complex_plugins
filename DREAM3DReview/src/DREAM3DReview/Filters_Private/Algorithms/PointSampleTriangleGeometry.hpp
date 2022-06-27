@@ -39,7 +39,6 @@ struct DREAM3DREVIEW_EXPORT PointSampleTriangleGeometryInputValues
   MultiArraySelectionParameter::ValueType SelectedDataArrayPaths;
   StringParameter::ValueType VertexGeometry;
   DataPath VertexAttributeMatrixName;
-
 };
 
 /**

@@ -31,7 +31,6 @@ struct DREAM3DREVIEW_EXPORT ExtractTripleLinesFromTriangleGeometryInputValues
   StringParameter::ValueType VertexAttributeMatrixName;
   StringParameter::ValueType NodeTypesArrayName;
   StringParameter::ValueType EdgeAttributeMatrixName;
-
 };
 
 /**
@@ -43,7 +42,8 @@ struct DREAM3DREVIEW_EXPORT ExtractTripleLinesFromTriangleGeometryInputValues
 class DREAM3DREVIEW_EXPORT ExtractTripleLinesFromTriangleGeometry
 {
 public:
-  ExtractTripleLinesFromTriangleGeometry(DataStructure& dataStructure, const IFilter::MessageHandler& mesgHandler, const std::atomic_bool& shouldCancel, ExtractTripleLinesFromTriangleGeometryInputValues* inputValues);
+  ExtractTripleLinesFromTriangleGeometry(DataStructure& dataStructure, const IFilter::MessageHandler& mesgHandler, const std::atomic_bool& shouldCancel,
+                                         ExtractTripleLinesFromTriangleGeometryInputValues* inputValues);
   ~ExtractTripleLinesFromTriangleGeometry() noexcept;
 
   ExtractTripleLinesFromTriangleGeometry(const ExtractTripleLinesFromTriangleGeometry&) = delete;
