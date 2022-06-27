@@ -24,9 +24,11 @@ const std::atomic_bool& GenerateFaceMisorientationColoring::getCancel()
   return m_ShouldCancel;
 }
 
+
 // -----------------------------------------------------------------------------
 Result<> GenerateFaceMisorientationColoring::operator()()
 {
+
 
   return {};
 }

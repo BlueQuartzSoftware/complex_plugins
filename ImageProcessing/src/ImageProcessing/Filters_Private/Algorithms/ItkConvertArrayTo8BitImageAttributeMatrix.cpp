@@ -24,9 +24,11 @@ const std::atomic_bool& ItkConvertArrayTo8BitImageAttributeMatrix::getCancel()
   return m_ShouldCancel;
 }
 
+
 // -----------------------------------------------------------------------------
 Result<> ItkConvertArrayTo8BitImageAttributeMatrix::operator()()
 {
+
 
   return {};
 }

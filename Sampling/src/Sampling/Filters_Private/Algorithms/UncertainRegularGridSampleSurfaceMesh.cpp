@@ -24,9 +24,11 @@ const std::atomic_bool& UncertainRegularGridSampleSurfaceMesh::getCancel()
   return m_ShouldCancel;
 }
 
+
 // -----------------------------------------------------------------------------
 Result<> UncertainRegularGridSampleSurfaceMesh::operator()()
 {
+
 
   return {};
 }

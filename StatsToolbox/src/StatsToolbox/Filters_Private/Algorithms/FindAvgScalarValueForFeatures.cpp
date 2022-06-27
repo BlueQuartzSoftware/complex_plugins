@@ -24,9 +24,11 @@ const std::atomic_bool& FindAvgScalarValueForFeatures::getCancel()
   return m_ShouldCancel;
 }
 
+
 // -----------------------------------------------------------------------------
 Result<> FindAvgScalarValueForFeatures::operator()()
 {
+
 
   return {};
 }

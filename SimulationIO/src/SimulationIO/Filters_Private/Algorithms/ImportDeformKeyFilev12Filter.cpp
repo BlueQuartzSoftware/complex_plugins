@@ -24,9 +24,11 @@ const std::atomic_bool& ImportDeformKeyFilev12Filter::getCancel()
   return m_ShouldCancel;
 }
 
+
 // -----------------------------------------------------------------------------
 Result<> ImportDeformKeyFilev12Filter::operator()()
 {
+
 
   return {};
 }

@@ -24,9 +24,11 @@ const std::atomic_bool& FindProjectedImageStatistics::getCancel()
   return m_ShouldCancel;
 }
 
+
 // -----------------------------------------------------------------------------
 Result<> FindProjectedImageStatistics::operator()()
 {
+
 
   return {};
 }

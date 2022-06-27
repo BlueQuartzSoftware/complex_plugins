@@ -24,9 +24,11 @@ const std::atomic_bool& AdaptiveAlignmentMisorientation::getCancel()
   return m_ShouldCancel;
 }
 
+
 // -----------------------------------------------------------------------------
 Result<> AdaptiveAlignmentMisorientation::operator()()
 {
+
 
   return {};
 }

@@ -24,9 +24,11 @@ const std::atomic_bool& PrincipalComponentAnalysis::getCancel()
   return m_ShouldCancel;
 }
 
+
 // -----------------------------------------------------------------------------
 Result<> PrincipalComponentAnalysis::operator()()
 {
+
 
   return {};
 }

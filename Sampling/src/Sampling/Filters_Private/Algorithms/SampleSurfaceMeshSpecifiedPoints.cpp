@@ -24,9 +24,11 @@ const std::atomic_bool& SampleSurfaceMeshSpecifiedPoints::getCancel()
   return m_ShouldCancel;
 }
 
+
 // -----------------------------------------------------------------------------
 Result<> SampleSurfaceMeshSpecifiedPoints::operator()()
 {
+
 
   return {};
 }

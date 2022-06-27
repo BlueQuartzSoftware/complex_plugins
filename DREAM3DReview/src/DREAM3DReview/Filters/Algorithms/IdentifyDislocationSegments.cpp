@@ -24,9 +24,11 @@ const std::atomic_bool& IdentifyDislocationSegments::getCancel()
   return m_ShouldCancel;
 }
 
+
 // -----------------------------------------------------------------------------
 Result<> IdentifyDislocationSegments::operator()()
 {
+
 
   return {};
 }

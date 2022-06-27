@@ -24,9 +24,11 @@ const std::atomic_bool& AvizoRectilinearCoordinateWriter::getCancel()
   return m_ShouldCancel;
 }
 
+
 // -----------------------------------------------------------------------------
 Result<> AvizoRectilinearCoordinateWriter::operator()()
 {
+
 
   return {};
 }

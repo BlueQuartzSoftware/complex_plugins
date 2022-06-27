@@ -24,9 +24,11 @@ const std::atomic_bool& GenerateGeometryConnectivity::getCancel()
   return m_ShouldCancel;
 }
 
+
 // -----------------------------------------------------------------------------
 Result<> GenerateGeometryConnectivity::operator()()
 {
+
 
   return {};
 }

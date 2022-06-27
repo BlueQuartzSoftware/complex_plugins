@@ -24,9 +24,11 @@ const std::atomic_bool& ErodeDilateCoordinationNumber::getCancel()
   return m_ShouldCancel;
 }
 
+
 // -----------------------------------------------------------------------------
 Result<> ErodeDilateCoordinationNumber::operator()()
 {
+
 
   return {};
 }

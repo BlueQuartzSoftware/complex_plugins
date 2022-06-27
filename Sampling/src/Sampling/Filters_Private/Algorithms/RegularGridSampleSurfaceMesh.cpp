@@ -24,9 +24,11 @@ const std::atomic_bool& RegularGridSampleSurfaceMesh::getCancel()
   return m_ShouldCancel;
 }
 
+
 // -----------------------------------------------------------------------------
 Result<> RegularGridSampleSurfaceMesh::operator()()
 {
+
 
   return {};
 }

@@ -24,9 +24,11 @@ const std::atomic_bool& ReplaceElementAttributesWithNeighborValues::getCancel()
   return m_ShouldCancel;
 }
 
+
 // -----------------------------------------------------------------------------
 Result<> ReplaceElementAttributesWithNeighborValues::operator()()
 {
+
 
   return {};
 }

@@ -24,9 +24,11 @@ const std::atomic_bool& FindFeatureReferenceMisorientations::getCancel()
   return m_ShouldCancel;
 }
 
+
 // -----------------------------------------------------------------------------
 Result<> FindFeatureReferenceMisorientations::operator()()
 {
+
 
   return {};
 }

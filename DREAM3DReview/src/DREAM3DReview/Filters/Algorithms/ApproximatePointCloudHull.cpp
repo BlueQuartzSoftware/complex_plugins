@@ -24,9 +24,11 @@ const std::atomic_bool& ApproximatePointCloudHull::getCancel()
   return m_ShouldCancel;
 }
 
+
 // -----------------------------------------------------------------------------
 Result<> ApproximatePointCloudHull::operator()()
 {
+
 
   return {};
 }

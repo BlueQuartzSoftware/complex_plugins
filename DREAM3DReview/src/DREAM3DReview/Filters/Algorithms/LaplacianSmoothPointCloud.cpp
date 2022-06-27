@@ -24,9 +24,11 @@ const std::atomic_bool& LaplacianSmoothPointCloud::getCancel()
   return m_ShouldCancel;
 }
 
+
 // -----------------------------------------------------------------------------
 Result<> LaplacianSmoothPointCloud::operator()()
 {
+
 
   return {};
 }

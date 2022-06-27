@@ -24,9 +24,11 @@ const std::atomic_bool& TiDwellFatigueCrystallographicAnalysis::getCancel()
   return m_ShouldCancel;
 }
 
+
 // -----------------------------------------------------------------------------
 Result<> TiDwellFatigueCrystallographicAnalysis::operator()()
 {
+
 
   return {};
 }

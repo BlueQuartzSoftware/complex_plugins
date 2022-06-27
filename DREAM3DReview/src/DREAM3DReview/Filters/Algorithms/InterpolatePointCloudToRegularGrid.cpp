@@ -24,9 +24,11 @@ const std::atomic_bool& InterpolatePointCloudToRegularGrid::getCancel()
   return m_ShouldCancel;
 }
 
+
 // -----------------------------------------------------------------------------
 Result<> InterpolatePointCloudToRegularGrid::operator()()
 {
+
 
   return {};
 }

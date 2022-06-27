@@ -24,9 +24,11 @@ const std::atomic_bool& AverageVertexArrayToEdgeFaceCellArray::getCancel()
   return m_ShouldCancel;
 }
 
+
 // -----------------------------------------------------------------------------
 Result<> AverageVertexArrayToEdgeFaceCellArray::operator()()
 {
+
 
   return {};
 }

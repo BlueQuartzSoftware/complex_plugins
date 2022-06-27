@@ -24,9 +24,11 @@ const std::atomic_bool& VMFindDistanceFieldFromTriangleGeometry::getCancel()
   return m_ShouldCancel;
 }
 
+
 // -----------------------------------------------------------------------------
 Result<> VMFindDistanceFieldFromTriangleGeometry::operator()()
 {
+
 
   return {};
 }

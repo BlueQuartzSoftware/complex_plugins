@@ -24,9 +24,11 @@ const std::atomic_bool& SetOriginResolutionImageGeom::getCancel()
   return m_ShouldCancel;
 }
 
+
 // -----------------------------------------------------------------------------
 Result<> SetOriginResolutionImageGeom::operator()()
 {
+
 
   return {};
 }

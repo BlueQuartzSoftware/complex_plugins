@@ -24,9 +24,11 @@ const std::atomic_bool& FindSlipTransmissionMetrics::getCancel()
   return m_ShouldCancel;
 }
 
+
 // -----------------------------------------------------------------------------
 Result<> FindSlipTransmissionMetrics::operator()()
 {
+
 
   return {};
 }

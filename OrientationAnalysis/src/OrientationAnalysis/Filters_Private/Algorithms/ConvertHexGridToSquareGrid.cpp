@@ -24,9 +24,11 @@ const std::atomic_bool& ConvertHexGridToSquareGrid::getCancel()
   return m_ShouldCancel;
 }
 
+
 // -----------------------------------------------------------------------------
 Result<> ConvertHexGridToSquareGrid::operator()()
 {
+
 
   return {};
 }

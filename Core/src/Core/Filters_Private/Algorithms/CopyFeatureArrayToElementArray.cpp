@@ -24,9 +24,11 @@ const std::atomic_bool& CopyFeatureArrayToElementArray::getCancel()
   return m_ShouldCancel;
 }
 
+
 // -----------------------------------------------------------------------------
 Result<> CopyFeatureArrayToElementArray::operator()()
 {
+
 
   return {};
 }

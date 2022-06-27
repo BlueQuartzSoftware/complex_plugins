@@ -24,9 +24,11 @@ const std::atomic_bool& WaveFrontObjectFileWriter::getCancel()
   return m_ShouldCancel;
 }
 
+
 // -----------------------------------------------------------------------------
 Result<> WaveFrontObjectFileWriter::operator()()
 {
+
 
   return {};
 }

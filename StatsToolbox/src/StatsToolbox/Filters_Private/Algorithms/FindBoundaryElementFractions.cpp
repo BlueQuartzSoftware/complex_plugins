@@ -24,9 +24,11 @@ const std::atomic_bool& FindBoundaryElementFractions::getCancel()
   return m_ShouldCancel;
 }
 
+
 // -----------------------------------------------------------------------------
 Result<> FindBoundaryElementFractions::operator()()
 {
+
 
   return {};
 }

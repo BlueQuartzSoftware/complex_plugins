@@ -24,9 +24,11 @@ const std::atomic_bool& ComputeFeatureEigenstrains::getCancel()
   return m_ShouldCancel;
 }
 
+
 // -----------------------------------------------------------------------------
 Result<> ComputeFeatureEigenstrains::operator()()
 {
+
 
   return {};
 }

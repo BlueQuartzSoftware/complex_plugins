@@ -24,9 +24,11 @@ const std::atomic_bool& GenerateFeatureIDsbyBoundingBoxes::getCancel()
   return m_ShouldCancel;
 }
 
+
 // -----------------------------------------------------------------------------
 Result<> GenerateFeatureIDsbyBoundingBoxes::operator()()
 {
+
 
   return {};
 }

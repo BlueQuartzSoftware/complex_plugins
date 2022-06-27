@@ -24,9 +24,11 @@ const std::atomic_bool& FindTwinBoundarySchmidFactors::getCancel()
   return m_ShouldCancel;
 }
 
+
 // -----------------------------------------------------------------------------
 Result<> FindTwinBoundarySchmidFactors::operator()()
 {
+
 
   return {};
 }

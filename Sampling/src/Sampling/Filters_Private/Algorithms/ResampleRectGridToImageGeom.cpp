@@ -24,9 +24,11 @@ const std::atomic_bool& ResampleRectGridToImageGeom::getCancel()
   return m_ShouldCancel;
 }
 
+
 // -----------------------------------------------------------------------------
 Result<> ResampleRectGridToImageGeom::operator()()
 {
+
 
   return {};
 }

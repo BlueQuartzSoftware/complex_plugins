@@ -24,9 +24,11 @@ const std::atomic_bool& VMFillLevelSetWithTetrahedra::getCancel()
   return m_ShouldCancel;
 }
 
+
 // -----------------------------------------------------------------------------
 Result<> VMFillLevelSetWithTetrahedra::operator()()
 {
+
 
   return {};
 }

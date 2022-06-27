@@ -24,9 +24,11 @@ const std::atomic_bool& AlignSectionsMutualInformation::getCancel()
   return m_ShouldCancel;
 }
 
+
 // -----------------------------------------------------------------------------
 Result<> AlignSectionsMutualInformation::operator()()
 {
+
 
   return {};
 }

@@ -24,9 +24,11 @@ const std::atomic_bool& InitializeSyntheticVolume::getCancel()
   return m_ShouldCancel;
 }
 
+
 // -----------------------------------------------------------------------------
 Result<> InitializeSyntheticVolume::operator()()
 {
+
 
   return {};
 }

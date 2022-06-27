@@ -24,9 +24,11 @@ const std::atomic_bool& TriangleDihedralAngleFilter::getCancel()
   return m_ShouldCancel;
 }
 
+
 // -----------------------------------------------------------------------------
 Result<> TriangleDihedralAngleFilter::operator()()
 {
+
 
   return {};
 }

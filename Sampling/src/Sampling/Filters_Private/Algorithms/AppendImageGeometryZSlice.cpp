@@ -24,9 +24,11 @@ const std::atomic_bool& AppendImageGeometryZSlice::getCancel()
   return m_ShouldCancel;
 }
 
+
 // -----------------------------------------------------------------------------
 Result<> AppendImageGeometryZSlice::operator()()
 {
+
 
   return {};
 }

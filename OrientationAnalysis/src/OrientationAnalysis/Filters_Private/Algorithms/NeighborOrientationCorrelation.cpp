@@ -24,9 +24,11 @@ const std::atomic_bool& NeighborOrientationCorrelation::getCancel()
   return m_ShouldCancel;
 }
 
+
 // -----------------------------------------------------------------------------
 Result<> NeighborOrientationCorrelation::operator()()
 {
+
 
   return {};
 }

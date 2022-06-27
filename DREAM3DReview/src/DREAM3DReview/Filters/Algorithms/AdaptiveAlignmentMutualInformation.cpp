@@ -24,9 +24,11 @@ const std::atomic_bool& AdaptiveAlignmentMutualInformation::getCancel()
   return m_ShouldCancel;
 }
 
+
 // -----------------------------------------------------------------------------
 Result<> AdaptiveAlignmentMutualInformation::operator()()
 {
+
 
   return {};
 }

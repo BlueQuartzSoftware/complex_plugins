@@ -24,9 +24,11 @@ const std::atomic_bool& GenerateVertexCoordinates::getCancel()
   return m_ShouldCancel;
 }
 
+
 // -----------------------------------------------------------------------------
 Result<> GenerateVertexCoordinates::operator()()
 {
+
 
   return {};
 }

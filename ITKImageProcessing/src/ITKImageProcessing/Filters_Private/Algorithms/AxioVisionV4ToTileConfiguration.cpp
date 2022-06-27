@@ -24,9 +24,11 @@ const std::atomic_bool& AxioVisionV4ToTileConfiguration::getCancel()
   return m_ShouldCancel;
 }
 
+
 // -----------------------------------------------------------------------------
 Result<> AxioVisionV4ToTileConfiguration::operator()()
 {
+
 
   return {};
 }

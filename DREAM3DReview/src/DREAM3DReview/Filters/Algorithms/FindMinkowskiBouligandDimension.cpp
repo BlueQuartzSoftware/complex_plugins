@@ -24,9 +24,11 @@ const std::atomic_bool& FindMinkowskiBouligandDimension::getCancel()
   return m_ShouldCancel;
 }
 
+
 // -----------------------------------------------------------------------------
 Result<> FindMinkowskiBouligandDimension::operator()()
 {
+
 
   return {};
 }

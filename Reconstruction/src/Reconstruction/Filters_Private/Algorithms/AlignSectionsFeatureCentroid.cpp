@@ -24,9 +24,11 @@ const std::atomic_bool& AlignSectionsFeatureCentroid::getCancel()
   return m_ShouldCancel;
 }
 
+
 // -----------------------------------------------------------------------------
 Result<> AlignSectionsFeatureCentroid::operator()()
 {
+
 
   return {};
 }

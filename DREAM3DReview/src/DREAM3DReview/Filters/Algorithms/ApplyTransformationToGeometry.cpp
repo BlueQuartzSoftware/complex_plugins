@@ -24,9 +24,11 @@ const std::atomic_bool& ApplyTransformationToGeometry::getCancel()
   return m_ShouldCancel;
 }
 
+
 // -----------------------------------------------------------------------------
 Result<> ApplyTransformationToGeometry::operator()()
 {
+
 
   return {};
 }

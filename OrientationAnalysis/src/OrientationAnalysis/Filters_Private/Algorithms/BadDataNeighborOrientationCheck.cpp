@@ -24,9 +24,11 @@ const std::atomic_bool& BadDataNeighborOrientationCheck::getCancel()
   return m_ShouldCancel;
 }
 
+
 // -----------------------------------------------------------------------------
 Result<> BadDataNeighborOrientationCheck::operator()()
 {
+
 
   return {};
 }

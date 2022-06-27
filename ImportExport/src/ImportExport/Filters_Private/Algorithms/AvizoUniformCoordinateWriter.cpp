@@ -24,9 +24,11 @@ const std::atomic_bool& AvizoUniformCoordinateWriter::getCancel()
   return m_ShouldCancel;
 }
 
+
 // -----------------------------------------------------------------------------
 Result<> AvizoUniformCoordinateWriter::operator()()
 {
+
 
   return {};
 }

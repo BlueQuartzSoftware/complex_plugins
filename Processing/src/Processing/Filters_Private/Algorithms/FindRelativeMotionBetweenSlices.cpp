@@ -24,9 +24,11 @@ const std::atomic_bool& FindRelativeMotionBetweenSlices::getCancel()
   return m_ShouldCancel;
 }
 
+
 // -----------------------------------------------------------------------------
 Result<> FindRelativeMotionBetweenSlices::operator()()
 {
+
 
   return {};
 }

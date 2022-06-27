@@ -24,9 +24,11 @@ const std::atomic_bool& ChangeAngleRepresentation::getCancel()
   return m_ShouldCancel;
 }
 
+
 // -----------------------------------------------------------------------------
 Result<> ChangeAngleRepresentation::operator()()
 {
+
 
   return {};
 }

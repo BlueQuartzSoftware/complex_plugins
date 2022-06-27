@@ -24,9 +24,11 @@ const std::atomic_bool& ExtractAttributeArraysFromGeometry::getCancel()
   return m_ShouldCancel;
 }
 
+
 // -----------------------------------------------------------------------------
 Result<> ExtractAttributeArraysFromGeometry::operator()()
 {
+
 
   return {};
 }
