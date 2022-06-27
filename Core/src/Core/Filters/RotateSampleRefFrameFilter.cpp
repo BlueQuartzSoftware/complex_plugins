@@ -418,7 +418,7 @@ Parameters RotateSampleRefFrameFilter::parameters() const
 
   params.insertSeparator({"Input Geometry and Data"});
   params.insert(
-      std::make_unique<GeometrySelectionParameter>(k_SelectedImageGeometry_Key, "Selected Image Geometry", "", DataPath{}, GeometrySelectionParameter::AllowedTypes{AbstractGeometry::Type::Image}));
+      std::make_unique<GeometrySelectionParameter>(k_SelectedImageGeometry_Key, "Selected Image Geometry", "", DataPath{}, GeometrySelectionParameter::AllowedTypes{IGeometry::Type::Image}));
   params.insert(std::make_unique<MultiArraySelectionParameter>(k_SelectedCellArrays_Key, "Cell Arrays", "", MultiArraySelectionParameter::ValueType{}, GetAllDataTypes()));
 
   params.insertSeparator({"Output Geometry and Data"});

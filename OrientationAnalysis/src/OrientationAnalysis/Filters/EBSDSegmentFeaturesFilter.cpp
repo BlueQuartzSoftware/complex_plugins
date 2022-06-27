@@ -2,7 +2,7 @@
 
 #include "complex/Common/Numbers.hpp"
 #include "complex/DataStructure/DataPath.hpp"
-#include "complex/DataStructure/Geometry/AbstractGeometryGrid.hpp"
+#include "complex/DataStructure/Geometry/IGridGeometry.hpp"
 #include "complex/Filter/Actions/CreateArrayAction.hpp"
 #include "complex/Filter/Actions/CreateDataGroupAction.hpp"
 #include "complex/Parameters/ArrayCreationParameter.hpp"
@@ -124,7 +124,7 @@ IFilter::PreflightResult EBSDSegmentFeaturesFilter::preflightImpl(const DataStru
 
   // Validate the Grid Geometry
   auto gridGeomPath = args.value<DataPath>(k_GridGeomPath_Key);
-  if(dataStructure.getDataAs<AbstractGeometryGrid>(gridGeomPath) == nullptr)
+  if(dataStructure.getDataAs<IGridGeometry>(gridGeomPath) == nullptr)
   {
     return {nonstd::make_unexpected(std::vector<Error>{Error{k_MissingGeomError, fmt::format("A Grid Geometry is required for {}", humanName())}})};
   }
