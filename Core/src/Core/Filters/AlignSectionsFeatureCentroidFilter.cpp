@@ -1,4 +1,4 @@
-#include "AlignSectionsFeatureCentroid.hpp"
+#include "AlignSectionsFeatureCentroidFilter.hpp"
 
 #include "complex/DataStructure/DataPath.hpp"
 #include "complex/Parameters/ArraySelectionParameter.hpp"
@@ -14,37 +14,37 @@ using namespace complex;
 namespace complex
 {
 //------------------------------------------------------------------------------
-std::string AlignSectionsFeatureCentroid::name() const
+std::string AlignSectionsFeatureCentroidFilter::name() const
 {
-  return FilterTraits<AlignSectionsFeatureCentroid>::name.str();
+  return FilterTraits<AlignSectionsFeatureCentroidFilter>::name.str();
 }
 
 //------------------------------------------------------------------------------
-std::string AlignSectionsFeatureCentroid::className() const
+std::string AlignSectionsFeatureCentroidFilter::className() const
 {
-  return FilterTraits<AlignSectionsFeatureCentroid>::className;
+  return FilterTraits<AlignSectionsFeatureCentroidFilter>::className;
 }
 
 //------------------------------------------------------------------------------
-Uuid AlignSectionsFeatureCentroid::uuid() const
+Uuid AlignSectionsFeatureCentroidFilter::uuid() const
 {
-  return FilterTraits<AlignSectionsFeatureCentroid>::uuid;
+  return FilterTraits<AlignSectionsFeatureCentroidFilter>::uuid;
 }
 
 //------------------------------------------------------------------------------
-std::string AlignSectionsFeatureCentroid::humanName() const
+std::string AlignSectionsFeatureCentroidFilter::humanName() const
 {
   return "Align Sections (Feature Centroid)";
 }
 
 //------------------------------------------------------------------------------
-std::vector<std::string> AlignSectionsFeatureCentroid::defaultTags() const
+std::vector<std::string> AlignSectionsFeatureCentroidFilter::defaultTags() const
 {
   return {"#Reconstruction", "#Alignment"};
 }
 
 //------------------------------------------------------------------------------
-Parameters AlignSectionsFeatureCentroid::parameters() const
+Parameters AlignSectionsFeatureCentroidFilter::parameters() const
 {
   Parameters params;
   // Create the parameter descriptors that are needed for this filter
@@ -63,14 +63,14 @@ Parameters AlignSectionsFeatureCentroid::parameters() const
 }
 
 //------------------------------------------------------------------------------
-IFilter::UniquePointer AlignSectionsFeatureCentroid::clone() const
+IFilter::UniquePointer AlignSectionsFeatureCentroidFilter::clone() const
 {
-  return std::make_unique<AlignSectionsFeatureCentroid>();
+  return std::make_unique<AlignSectionsFeatureCentroidFilter>();
 }
 
 //------------------------------------------------------------------------------
-IFilter::PreflightResult AlignSectionsFeatureCentroid::preflightImpl(const DataStructure& dataStructure, const Arguments& filterArgs, const MessageHandler& messageHandler,
-                                                                     const std::atomic_bool& shouldCancel) const
+IFilter::PreflightResult AlignSectionsFeatureCentroidFilter::preflightImpl(const DataStructure& dataStructure, const Arguments& filterArgs, const MessageHandler& messageHandler,
+                                                                           const std::atomic_bool& shouldCancel) const
 {
   /****************************************************************************
    * Write any preflight sanity checking codes in this function
@@ -130,8 +130,8 @@ IFilter::PreflightResult AlignSectionsFeatureCentroid::preflightImpl(const DataS
 }
 
 //------------------------------------------------------------------------------
-Result<> AlignSectionsFeatureCentroid::executeImpl(DataStructure& dataStructure, const Arguments& filterArgs, const PipelineFilter* pipelineNode, const MessageHandler& messageHandler,
-                                                   const std::atomic_bool& shouldCancel) const
+Result<> AlignSectionsFeatureCentroidFilter::executeImpl(DataStructure& dataStructure, const Arguments& filterArgs, const PipelineFilter* pipelineNode, const MessageHandler& messageHandler,
+                                                         const std::atomic_bool& shouldCancel) const
 {
   /****************************************************************************
    * Extract the actual input values from the 'filterArgs' object
