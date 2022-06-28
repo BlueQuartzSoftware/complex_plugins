@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Reconstruction/Reconstruction_export.hpp"
+#include "Core/Core_export.hpp"
 
 #include "complex/Filter/FilterTraits.hpp"
 #include "complex/Filter/IFilter.hpp"
@@ -8,20 +8,21 @@
 namespace complex
 {
 /**
- * @class AlignSectionsFeatureCentroid
+ * @class AlignSectionsFeatureCentroidFilter
+ *
  * @brief This filter will ....
  */
-class RECONSTRUCTION_EXPORT AlignSectionsFeatureCentroid : public IFilter
+class CORE_EXPORT AlignSectionsFeatureCentroidFilter : public IFilter
 {
 public:
-  AlignSectionsFeatureCentroid() = default;
-  ~AlignSectionsFeatureCentroid() noexcept override = default;
+  AlignSectionsFeatureCentroidFilter() = default;
+  ~AlignSectionsFeatureCentroidFilter() noexcept override = default;
 
-  AlignSectionsFeatureCentroid(const AlignSectionsFeatureCentroid&) = delete;
-  AlignSectionsFeatureCentroid(AlignSectionsFeatureCentroid&&) noexcept = delete;
+  AlignSectionsFeatureCentroidFilter(const AlignSectionsFeatureCentroidFilter&) = delete;
+  AlignSectionsFeatureCentroidFilter(AlignSectionsFeatureCentroidFilter&&) noexcept = delete;
 
-  AlignSectionsFeatureCentroid& operator=(const AlignSectionsFeatureCentroid&) = delete;
-  AlignSectionsFeatureCentroid& operator=(AlignSectionsFeatureCentroid&&) noexcept = delete;
+  AlignSectionsFeatureCentroidFilter& operator=(const AlignSectionsFeatureCentroidFilter&) = delete;
+  AlignSectionsFeatureCentroidFilter& operator=(AlignSectionsFeatureCentroidFilter&&) noexcept = delete;
 
   // Parameter Keys
   static inline constexpr StringLiteral k_WriteAlignmentShifts_Key = "WriteAlignmentShifts";
@@ -96,4 +97,4 @@ protected:
 };
 } // namespace complex
 
-COMPLEX_DEF_FILTER_TRAITS(complex, AlignSectionsFeatureCentroid, "886f8b46-51b6-5682-a289-6febd10b7ef0");
+COMPLEX_DEF_FILTER_TRAITS(complex, AlignSectionsFeatureCentroidFilter, "886f8b46-51b6-5682-a289-6febd10b7ef0");

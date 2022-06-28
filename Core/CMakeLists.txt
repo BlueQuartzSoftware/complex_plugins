@@ -9,6 +9,7 @@ set(FilterList
   RotateSampleRefFrameFilter
   ResampleImageGeomFilter
   FillBadDataFilter
+  AlignSectionsFeatureCentroidFilter
 )
 
 set(STUB_FILTERS

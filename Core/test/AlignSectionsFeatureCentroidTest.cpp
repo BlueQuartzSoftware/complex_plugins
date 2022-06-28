@@ -1,5 +1,5 @@
 /**
- * This file is auto generated from the original Reconstruction/AlignSectionsFeatureCentroid
+ * This file is auto generated from the original Reconstruction/AlignSectionsFeatureCentroidFilter
  * runtime information. These are the steps that need to be taken to utilize this
  * unit test in the proper way.
  *
@@ -15,7 +15,7 @@
  * NOTE the format of the ```TEST_CASE``` macro. Please stick to this format to
  * allow easier parsing of the unit tests.
  *
- * When you start working on this unit test remove "[AlignSectionsFeatureCentroid][.][UNIMPLEMENTED]"
+ * When you start working on this unit test remove "[AlignSectionsFeatureCentroidFilter][.][UNIMPLEMENTED]"
  * from the TEST_CASE macro. This will enable this unit test to be run by default
  * and report errors.
  */
@@ -30,24 +30,24 @@
 #include <filesystem>
 namespace fs = std::filesystem;
 
-#include "Reconstruction/Filters/AlignSectionsFeatureCentroid.hpp"
-#include "Reconstruction/Reconstruction_test_dirs.hpp"
+#include "Core/Core_test_dirs.hpp"
+#include "Core/Filters/AlignSectionsFeatureCentroidFilter.hpp"
 
 using namespace complex;
 
-TEST_CASE("Reconstruction::AlignSectionsFeatureCentroid: Instantiation and Parameter Check", "[Reconstruction][AlignSectionsFeatureCentroid][.][UNIMPLEMENTED][!mayfail]")
+TEST_CASE("Reconstruction::AlignSectionsFeatureCentroidFilter: Instantiation and Parameter Check", "[Reconstruction][AlignSectionsFeatureCentroidFilter][.][UNIMPLEMENTED][!mayfail]")
 {
   // Instantiate the filter, a DataStructure object and an Arguments Object
-  AlignSectionsFeatureCentroid filter;
+  AlignSectionsFeatureCentroidFilter filter;
   DataStructure ds;
   Arguments args;
 
   // Create default Parameters for the filter.
-  args.insertOrAssign(AlignSectionsFeatureCentroid::k_WriteAlignmentShifts_Key, std::make_any<bool>(false));
-  args.insertOrAssign(AlignSectionsFeatureCentroid::k_AlignmentShiftFileName_Key, std::make_any<FileSystemPathParameter::ValueType>(fs::path("/Path/To/Output/File/To/Write.data")));
-  args.insertOrAssign(AlignSectionsFeatureCentroid::k_UseReferenceSlice_Key, std::make_any<bool>(false));
-  args.insertOrAssign(AlignSectionsFeatureCentroid::k_ReferenceSlice_Key, std::make_any<int32>(1234356));
-  args.insertOrAssign(AlignSectionsFeatureCentroid::k_GoodVoxelsArrayPath_Key, std::make_any<DataPath>(DataPath{}));
+  args.insertOrAssign(AlignSectionsFeatureCentroidFilter::k_WriteAlignmentShifts_Key, std::make_any<bool>(false));
+  args.insertOrAssign(AlignSectionsFeatureCentroidFilter::k_AlignmentShiftFileName_Key, std::make_any<FileSystemPathParameter::ValueType>(fs::path("/Path/To/Output/File/To/Write.data")));
+  args.insertOrAssign(AlignSectionsFeatureCentroidFilter::k_UseReferenceSlice_Key, std::make_any<bool>(false));
+  args.insertOrAssign(AlignSectionsFeatureCentroidFilter::k_ReferenceSlice_Key, std::make_any<int32>(1234356));
+  args.insertOrAssign(AlignSectionsFeatureCentroidFilter::k_GoodVoxelsArrayPath_Key, std::make_any<DataPath>(DataPath{}));
 
   // Preflight the filter and check result
   auto preflightResult = filter.preflight(ds, args);
@@ -58,12 +58,12 @@ TEST_CASE("Reconstruction::AlignSectionsFeatureCentroid: Instantiation and Param
   REQUIRE(executeResult.result.valid());
 }
 
-// TEST_CASE("Reconstruction::AlignSectionsFeatureCentroid: Valid filter execution")
+// TEST_CASE("Reconstruction::AlignSectionsFeatureCentroidFilter: Valid filter execution")
 //{
 //
 //}
 
-// TEST_CASE("Reconstruction::AlignSectionsFeatureCentroid: InValid filter execution")
+// TEST_CASE("Reconstruction::AlignSectionsFeatureCentroidFilter: InValid filter execution")
 //{
 //
 //}
