@@ -81,7 +81,12 @@ void AlignSectionsMisorientation::find_shifts(std::vector<int64_t>& xshifts, std
   std::unique_ptr<MaskCompare> maskCompare = nullptr;
   if(m_InputValues->useGoodVoxels)
   {
-    maskCompare = InstantiateMaskCompare(m_DataStructure, m_InputValues->goodVoxelsArrayPath);
+    try
+    {
+      maskCompare = InstantiateMaskCompare(m_DataStructure, m_InputValues->goodVoxelsArrayPath);
+    } catch(const std::out_of_range& exception)
+    {
+    }
   }
   std::vector<LaueOps::Pointer> orientationOps = LaueOps::GetAllOrientationOps();
 
