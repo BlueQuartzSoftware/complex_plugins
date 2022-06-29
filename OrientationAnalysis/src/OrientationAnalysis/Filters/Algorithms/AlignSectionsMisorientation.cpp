@@ -35,9 +35,9 @@ const std::atomic_bool& AlignSectionsMisorientation::getCancel()
 // -----------------------------------------------------------------------------
 Result<> AlignSectionsMisorientation::operator()()
 {
-  auto gridGeom = m_DataStructure.getDataAs<AbstractGeometryGrid>(m_InputValues->inputImageGeometry);
+  const auto& gridGeom = m_DataStructure.getDataAs<AbstractGeometryGrid>(m_InputValues->inputImageGeometry);
 
-  return execute(gridGeom);
+  return execute(gridGeom->getDimensions());
 }
 
 // -----------------------------------------------------------------------------
@@ -48,9 +48,9 @@ std::vector<DataPath> AlignSectionsMisorientation::getSelectedDataPaths() const
   std::vector<DataPath> selectedCellArrays;
 
   // Create the vector of selected cell DataPaths
-  for(DataGroup::Iterator child = cellDataGroup.begin(); child != cellDataGroup.end(); ++child)
+  for(const auto& child : cellDataGroup)
   {
-    selectedCellArrays.push_back(m_InputValues->cellDataGroupPath.createChildPath(child->second->getName()));
+    selectedCellArrays.push_back(m_InputValues->cellDataGroupPath.createChildPath(child.second->getName()));
   }
   return selectedCellArrays;
 }
@@ -64,7 +64,7 @@ void AlignSectionsMisorientation::find_shifts(std::vector<int64_t>& xshifts, std
     return;
   }
 
-  auto gridGeom = m_DataStructure.getDataAs<AbstractGeometryGrid>(m_InputValues->inputImageGeometry);
+  auto* gridGeom = m_DataStructure.getDataAs<AbstractGeometryGrid>(m_InputValues->inputImageGeometry);
 
   const auto& cellPhases = m_DataStructure.getDataRefAs<Int32Array>(m_InputValues->cellPhasesArrayPath);
   const auto& quats = m_DataStructure.getDataRefAs<Float32Array>(m_InputValues->quatsArrayPath);
@@ -72,41 +72,27 @@ void AlignSectionsMisorientation::find_shifts(std::vector<int64_t>& xshifts, std
 
   SizeVec3 udims = gridGeom->getDimensions();
 
-  int64_t dims[3] = {
+  std::array<int64_t, 3> dims = {
       static_cast<int64_t>(udims[0]),
       static_cast<int64_t>(udims[1]),
       static_cast<int64_t>(udims[2]),
   };
 
-  std::shared_ptr<MaskCompare> maskCompare = InstantiateMaskCompare(m_DataStructure, m_InputValues->goodVoxelsArrayPath);
-
+  std::unique_ptr<MaskCompare> maskCompare = nullptr;
+  if(m_InputValues->useGoodVoxels)
+  {
+    maskCompare = InstantiateMaskCompare(m_DataStructure, m_InputValues->goodVoxelsArrayPath);
+  }
   std::vector<LaueOps::Pointer> orientationOps = LaueOps::GetAllOrientationOps();
 
-  float disorientation = 0.0f;
-  float minDisorientation = std::numeric_limits<float>::max();
-  int64_t newxshift = 0;
-  int64_t newyshift = 0;
-  int64_t oldxshift = 0;
-  int64_t oldyshift = 0;
-  float count = 0.0f;
-  int64_t slice = 0;
-  float w = 0.0f;
 
-  int64_t refposition = 0;
-  int64_t curposition = 0;
-
-  uint32_t phase1 = 0, phase2 = 0;
   int32_t progInt = 0;
 
   // Allocate a 2D Array which will be reused from slice to slice
   std::vector<bool> misorients(dims[0] * dims[1], false);
 
-  int64_t idx = 0; // This will be used to compute the index into the flat array
-  int64_t xIdx = 0;
-  int64_t yIdx = 0;
-
-  const int64_t halfDim0 = static_cast<int64_t>(dims[0] * 0.5f);
-  const int64_t halfDim1 = static_cast<int64_t>(dims[1] * 0.5f);
+  const auto halfDim0 = static_cast<int64_t>(dims[0] * 0.5f);
+  const auto halfDim1 = static_cast<int64_t>(dims[1] * 0.5f);
 
   double deg2Rad = (complex::numbers::pi / 180.0);
   auto start = std::chrono::steady_clock::now();
@@ -126,17 +112,18 @@ void AlignSectionsMisorientation::find_shifts(std::vector<int64_t>& xshifts, std
     {
       return;
     }
-    minDisorientation = std::numeric_limits<float>::max();
-    slice = (dims[2] - 1) - iter;
-    oldxshift = -1;
-    oldyshift = -1;
-    newxshift = 0;
-    newyshift = 0;
+    float minDisorientation = std::numeric_limits<float>::max();
+    // Work from the largest Slice Value to the lowest Slice Value.
+    int64_t slice = (dims[2] - 1) - iter;
+    int64_t oldxshift = -1;
+    int64_t oldyshift = -1;
+    int64_t newxshift = 0;
+    int64_t newyshift = 0;
 
     // Initialize everything to false
     std::fill(misorients.begin(), misorients.end(), false);
 
-    float misorientationTolerance = m_InputValues->misorientationTolerance * deg2Rad;
+    float misorientationTolerance = static_cast<float>(m_InputValues->misorientationTolerance * deg2Rad);
 
     while(newxshift != oldxshift || newyshift != oldyshift)
     {
@@ -146,11 +133,11 @@ void AlignSectionsMisorientation::find_shifts(std::vector<int64_t>& xshifts, std
       {
         for(int32_t k = -3; k < 4; k++)
         {
-          disorientation = 0.0f;
-          count = 0.0f;
-          xIdx = k + oldxshift + halfDim0;
-          yIdx = j + oldyshift + halfDim1;
-          idx = (dims[0] * yIdx) + xIdx;
+          float disorientation = 0.0f;
+          float count = 0.0f;
+          int64_t xIdx = k + oldxshift + halfDim0;
+          int64_t yIdx = j + oldyshift + halfDim1;
+          int64_t idx = (dims[0] * yIdx) + xIdx;
           if(!misorients[idx] && llabs(k + oldxshift) < halfDim0 && llabs(j + oldyshift) < halfDim1)
           {
             for(int64_t l = 0; l < dims[1]; l = l + 4)
@@ -160,24 +147,24 @@ void AlignSectionsMisorientation::find_shifts(std::vector<int64_t>& xshifts, std
                 if((l + j + oldyshift) >= 0 && (l + j + oldyshift) < dims[1] && (n + k + oldxshift) >= 0 && (n + k + oldxshift) < dims[0])
                 {
                   count++;
-                  refposition = ((slice + 1) * dims[0] * dims[1]) + (l * dims[0]) + n;
-                  curposition = (slice * dims[0] * dims[1]) + ((l + j + oldyshift) * dims[0]) + (n + k + oldxshift);
+                  int64_t refposition = ((slice + 1) * dims[0] * dims[1]) + (l * dims[0]) + n;
+                  int64_t curposition = (slice * dims[0] * dims[1]) + ((l + j + oldyshift) * dims[0]) + (n + k + oldxshift);
                   if(!m_InputValues->useGoodVoxels || maskCompare->bothTrue(refposition, curposition))
                   {
-                    w = std::numeric_limits<float>::max();
+                    float angle = std::numeric_limits<float>::max();
                     if(cellPhases[refposition] > 0 && cellPhases[curposition] > 0)
                     {
-                      QuatF q1(quats[refposition * 4], quats[refposition * 4 + 1], quats[refposition * 4 + 2], quats[refposition * 4 + 3]); // Makes a copy into voxQuat!!!!
-                      phase1 = crystalStructures[cellPhases[refposition]];
-                      QuatF q2(quats[curposition * 4], quats[curposition * 4 + 1], quats[curposition * 4 + 2], quats[curposition * 4 + 3]); // Makes a copy into voxQuat!!!!
-                      phase2 = crystalStructures[cellPhases[curposition]];
+                      QuatF quat1(quats[refposition * 4], quats[refposition * 4 + 1], quats[refposition * 4 + 2], quats[refposition * 4 + 3]); // Makes a copy into voxQuat!!!!
+                      auto phase1 = static_cast<int32_t>(crystalStructures[cellPhases[refposition]]);
+                      QuatF quat2(quats[curposition * 4], quats[curposition * 4 + 1], quats[curposition * 4 + 2], quats[curposition * 4 + 3]); // Makes a copy into voxQuat!!!!
+                      auto phase2 =  static_cast<int32_t>(crystalStructures[cellPhases[curposition]]);
                       if(phase1 == phase2 && phase1 < static_cast<uint32_t>(orientationOps.size()))
                       {
-                        OrientationF axisAngle = orientationOps[phase1]->calculateMisorientation(q1, q2);
-                        w = axisAngle[3];
+                        OrientationF axisAngle = orientationOps[phase1]->calculateMisorientation(quat1, quat2);
+                        angle = axisAngle[3];
                       }
                     }
-                    if(w > misorientationTolerance)
+                    if(angle > misorientationTolerance)
                     {
                       disorientation++;
                     }
