@@ -1,59 +1,202 @@
 /*
- # Test Plan #
+# Test Plan #
 
 Input Files:
-DREAM3D_Data/TestFiles/ASCII_Data/FeatureIds.csv
-DREAM3D_Data/TestFiles/ASCII_Data/Quats.csv
-DREAM3D_Data/TestFiles/ASCII_Data/Phases.csv
+DREAM3D_Data/TestFiles/ASCII_Data/FeatureIds.csv (int32, 1 component)
+DREAM3D_Data/TestFiles/ASCII_Data/Quats.csv (float32, 4 component)
+DREAM3D_Data/TestFiles/ASCII_Data/Phases.csv (int32, 1 component)
 
 Output DataArrays:
- AvgEulerAngles
- AvgQuats
+AvgEulerAngles  (float32, 3 component)
+AvgQuats  (float32, 4 component)
 
 Comparison Files:
 DREAM3D_Data/TestFiles/ASCII_Data/AvgEulerAngles.csv
 DREAM3D_Data/TestFiles/ASCII_Data/AvgQuats.csv
 
 You will need to create a UInt32 DataArray with 2 values in it: [ 999, 1 ]. This will
- be the input 'k_CrystalStructuresArrayPath_Key' path and data.
+be the input 'k_CrystalStructuresArrayPath_Key' path and data.
 
 
 Compare the data sets. Due to going back and forth between ASCII and Binary you will
 probably have to compare using a tolerance of about .0001. Look at the 'ConvertOrientationsTest' at the bottom for an example
- of doing that.
+of doing that.
 
 */
 
 #include <catch2/catch.hpp>
 
-#include "OrientationAnalysis/Filters/FindAvgOrientationsFilter.hpp"
+#include "complex/Core/Application.hpp"
+#include "complex/Parameters/ArraySelectionParameter.hpp"
+#include "complex/Parameters/BoolParameter.hpp"
+#include "complex/Parameters/ChoicesParameter.hpp"
+#include "complex/Parameters/FileSystemPathParameter.hpp"
+#include "complex/Parameters/NumericTypeParameter.hpp"
+#include "complex/UnitTest/UnitTestCommon.hpp"
 
+
+#include "OrientationAnalysis/Filters/FindAvgOrientationsFilter.hpp"
 #include "OrientationAnalysis/OrientationAnalysis_test_dirs.hpp"
+
+#include <filesystem>
+namespace fs = std::filesystem;
 
 using namespace complex;
 
+
+struct make_shared_enabler : public complex::Application
+{
+};
+
 TEST_CASE("OrientationAnalysis::FindAvgOrientations: Invalid preflight", "[OrientationAnalysis][FindAvgOrientations]")
 {
-  // Instantiate the filter, a DataStructure object and an Arguments Object
-  FindAvgOrientationsFilter filter;
-  DataStructure dataStructure;
-  Arguments args;
+ // Instantiate an "Application" instance to load plugins
+ std::shared_ptr<make_shared_enabler> app = std::make_shared<make_shared_enabler>();
+ app->loadPlugins(unit_test::k_BuildDir.view(), true);
 
-  // Create default Parameters for the filter.
-  args.insertOrAssign(FindAvgOrientationsFilter::k_CellFeatureIdsArrayPath_Key, std::make_any<DataPath>(DataPath{}));
-  args.insertOrAssign(FindAvgOrientationsFilter::k_CellPhasesArrayPath_Key, std::make_any<DataPath>(DataPath{}));
-  args.insertOrAssign(FindAvgOrientationsFilter::k_CellQuatsArrayPath_Key, std::make_any<DataPath>(DataPath{}));
-  args.insertOrAssign(FindAvgOrientationsFilter::k_CrystalStructuresArrayPath_Key, std::make_any<DataPath>(DataPath{}));
-  args.insertOrAssign(FindAvgOrientationsFilter::k_AvgQuatsArrayPath_Key, std::make_any<DataPath>(DataPath{}));
-  args.insertOrAssign(FindAvgOrientationsFilter::k_AvgEulerAnglesArrayPath_Key, std::make_any<DataPath>(DataPath{}));
+ const uint64 k_NumTuples = 480000;
 
-  // Preflight the filter and check result
-  auto preflightResult = filter.preflight(dataStructure, args);
-  REQUIRE(preflightResult.outputActions.invalid());
+ // Setup constants here that are going to be needed in multiple contexts
+ const std::string k_AvgQuats("AvgQuats");
+ const DataPath k_AvgQuatsDataPath({k_AvgQuats});
 
-  // Execute the filter and check the result
-  auto executeResult = filter.execute(dataStructure, args);
-  REQUIRE(executeResult.result.invalid());
+ const std::string k_AvgEulers("AvgEulers");
+ const DataPath k_AvgEulersDataPath({k_AvgEulers});
+
+ const std::string k_ExemplarAvgQuats("ExemplarAvgQuats");
+ const DataPath k_ExemplarAvgQuatsDataPath({k_ExemplarAvgQuats});
+
+ const std::string k_ExemplarAvgEulers("ExemplarAvgEulers");
+ const DataPath k_ExemplarAvgEulersDataPath({k_ExemplarAvgEulers});
+
+ const std::string k_CrystalStuctures("Crystal Structures");
+ const DataPath k_CrystalStructureDataPath({k_CrystalStuctures});
+
+ // These are the argument keys for the Import Text filter. We cannot use the ones from the
+ // header file as that would bring in a dependency on the ComplexCorePlugin
+ static constexpr StringLiteral k_InputFileKey = "input_file";
+ static constexpr StringLiteral k_ScalarTypeKey = "scalar_type";
+ static constexpr StringLiteral k_NTuplesKey = "n_tuples";
+ static constexpr StringLiteral k_NCompKey = "n_comp";
+ static constexpr StringLiteral k_NSkipLinesKey = "n_skip_lines";
+ static constexpr StringLiteral k_DelimiterChoiceKey = "delimiter_choice";
+ static constexpr StringLiteral k_DataArrayKey = "output_data_array";
+
+ // Make sure we can load the "Import Text Filter" filter from the plugin
+ const Uuid k_ComplexCorePluginId = *Uuid::FromString("05cc618b-781f-4ac0-b9ac-43f26ce1854f");
+ auto* filterList = Application::Instance()->getFilterList();
+ // Make sure we can instantiate the Import Text Filter
+ const Uuid k_ImportTextFilterId = *Uuid::FromString("25f7df3e-ca3e-4634-adda-732c0e56efd4");
+ const FilterHandle k_ImportTextFilterHandle(k_ImportTextFilterId, k_ComplexCorePluginId);
+
+ DataStructure dataStructure;
+
+ // Create the Crystal Structures Array (needed later down the pipeline)
+ UInt32Array* crystalStructuresPtr = complex::UnitTest::CreateTestDataArray<uint32>(dataStructure, k_CrystalStuctures, {2}, {1});
+ (*crystalStructuresPtr)[0] = 999; // Unknown Crystal Structure
+ (*crystalStructuresPtr)[0] = 1; // Cubic Laue Class
+
+
+ // Run the "Import Text Filter to import the data for the FeatureIds, Phases, Quats and Exemplar AvgQuats and AvgEulers
+ //... repeat for each data set from the 5 data sets (See top of file)
+ {
+   // The output data path will need to be updated for each data set
+   const std::string k_DataArrayName("Quats");
+   const DataPath k_OutputDataPath = DataPath({k_DataArrayName});
+   // The Scalar Type will need to be updated for each data set
+   complex::NumericType k_NumericType = complex::NumericType::int32;
+   // The number of components will need to be updated for each data set
+   const uint64 k_NumComponents = 4;
+
+   Arguments args;
+   args.insertOrAssign(k_InputFileKey, std::make_any<FileSystemPathParameter::ValueType>(fs::path(fmt::format("{}/Data/ASCII_Data/{}.csv", unit_test::k_DREAM3DDataDir, k_DataArrayName))));
+   args.insertOrAssign(k_ScalarTypeKey, std::make_any<NumericTypeParameter::ValueType>(k_NumericType));
+   args.insertOrAssign(k_NTuplesKey, std::make_any<uint64>(k_NumTuples));
+   args.insertOrAssign(k_NCompKey, std::make_any<uint64>(k_NumComponents));
+   args.insertOrAssign(k_NSkipLinesKey, std::make_any<uint64>(0));
+   args.insertOrAssign(k_DelimiterChoiceKey, std::make_any<ChoicesParameter::ValueType>(0));
+   args.insertOrAssign(k_DataArrayKey, std::make_any<DataPath>(k_OutputDataPath));
+
+   auto filter = filterList->createFilter(k_ImportTextFilterHandle);
+   REQUIRE(nullptr != filter);
+
+   // Preflight the filter and check result
+   auto preflightResult = filter->preflight(dataStructure, args);
+   COMPLEX_RESULT_REQUIRE_VALID(preflightResult.outputActions);
+
+   // Execute the filter and check the result
+   auto executeResult = filter->execute(dataStructure, args);
+   COMPLEX_RESULT_REQUIRE_VALID(executeResult.result);
+ }
+
+ // Run the "Import Text Filter to import the data for the FeatureIds
+ {
+   const std::string k_FeatureIds("FeatureIds");
+
+ }
+ // Run the "Import Text Filter to import the data for the Phases
+ {
+   const std::string k_Phases("Phases");
+
+ }
+ // Run the "Import Text Filter to import the data for the Exemplar AvgQuats
+ // Note there will be a subtle difference between the name of the output data array
+ // and the name of the input file where-as in earlier these ended up being the same thing
+ {
+
+ }
+ // Run the "Import Text Filter to import the data for the Exemplar Avg Eulers
+ // Note there will be a subtle difference between the name of the output data array
+ // and the name of the input file where-as in earlier these ended up being the same thing
+ {
+
+ }
+
+
+ // Run the FindAvgOrientationsFilter
+ {
+   // Instantiate the filter, a DataStructure object and an Arguments Object
+   FindAvgOrientationsFilter filter;
+   Arguments args;
+
+   // Create default Parameters for the filter.
+   args.insertOrAssign(FindAvgOrientationsFilter::k_CellFeatureIdsArrayPath_Key, std::make_any<DataPath>(DataPath{}));
+   args.insertOrAssign(FindAvgOrientationsFilter::k_CellPhasesArrayPath_Key, std::make_any<DataPath>(DataPath{}));
+   args.insertOrAssign(FindAvgOrientationsFilter::k_CellQuatsArrayPath_Key, std::make_any<DataPath>(DataPath{}));
+   args.insertOrAssign(FindAvgOrientationsFilter::k_CrystalStructuresArrayPath_Key, std::make_any<DataPath>(DataPath{}));
+   // These are the output AvgQuats and output AvgEuler paths NOT the Exemplar AvgQuats & AvgEulers
+   args.insertOrAssign(FindAvgOrientationsFilter::k_AvgQuatsArrayPath_Key, std::make_any<DataPath>(DataPath{}));
+   args.insertOrAssign(FindAvgOrientationsFilter::k_AvgEulerAnglesArrayPath_Key, std::make_any<DataPath>(DataPath{}));
+
+   // Preflight the filter and check result
+   auto preflightResult = filter.preflight(dataStructure, args);
+   REQUIRE(preflightResult.outputActions.invalid());
+
+   // Execute the filter and check the result
+   auto executeResult = filter.execute(dataStructure, args);
+   REQUIRE(executeResult.result.invalid());
+
+   // *************************************************************************
+   // this next is a sample bit of code that compares every element of 2 Data Arrays
+   // you will need to do something very similar for BOTH the AvgQuats/ExemplarAvgQuats and AvgEulers/ExemplarAvgEulers
+
+#if 0
+   const auto& calcShifts = dataStructure.getDataRefAs<Int32Array>(k_CalculatedShiftsPath);
+   const auto& exemplarShifts = dataStructure.getDataRefAs<Int32Array>(k_ExemplarShiftsPath);
+
+   size_t numElements = calcShifts.getSize();
+   bool sameValue = true;
+   for(size_t i = 0; i < numElements; i++)
+   {
+     sameValue = (calcShifts[i] == exemplarShifts[i]);
+     if(!sameValue)
+     {
+       REQUIRE(calcShifts[i] == exemplarShifts[i]);
+     }
+   }
+#endif
+ }
+
 }
 
 // TEST_CASE("OrientationAnalysis::FindAvgOrientations: Valid filter execution")
