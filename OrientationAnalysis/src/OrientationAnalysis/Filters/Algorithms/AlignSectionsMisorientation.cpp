@@ -85,7 +85,6 @@ void AlignSectionsMisorientation::find_shifts(std::vector<int64_t>& xshifts, std
   }
   std::vector<LaueOps::Pointer> orientationOps = LaueOps::GetAllOrientationOps();
 
-
   int32_t progInt = 0;
 
   // Allocate a 2D Array which will be reused from slice to slice
@@ -157,7 +156,7 @@ void AlignSectionsMisorientation::find_shifts(std::vector<int64_t>& xshifts, std
                       QuatF quat1(quats[refposition * 4], quats[refposition * 4 + 1], quats[refposition * 4 + 2], quats[refposition * 4 + 3]); // Makes a copy into voxQuat!!!!
                       auto phase1 = static_cast<int32_t>(crystalStructures[cellPhases[refposition]]);
                       QuatF quat2(quats[curposition * 4], quats[curposition * 4 + 1], quats[curposition * 4 + 2], quats[curposition * 4 + 3]); // Makes a copy into voxQuat!!!!
-                      auto phase2 =  static_cast<int32_t>(crystalStructures[cellPhases[curposition]]);
+                      auto phase2 = static_cast<int32_t>(crystalStructures[cellPhases[curposition]]);
                       if(phase1 == phase2 && phase1 < static_cast<uint32_t>(orientationOps.size()))
                       {
                         OrientationF axisAngle = orientationOps[phase1]->calculateMisorientation(quat1, quat2);
