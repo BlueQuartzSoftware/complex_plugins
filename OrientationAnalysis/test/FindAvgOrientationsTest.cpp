@@ -55,12 +55,13 @@ TEST_CASE("OrientationAnalysis::FindAvgOrientations: Invalid preflight", "[Orien
  app->loadPlugins(unit_test::k_BuildDir.view(), true);
 
  const uint64 k_NumTuples = 480000;
+ const uint64 k_FeatureNumTuples = 409;
 
  // Setup constants here that are going to be needed in multiple contexts
  const std::string k_AvgQuats("AvgQuats");
  const DataPath k_AvgQuatsDataPath({k_AvgQuats});
 
- const std::string k_AvgEulers("AvgEulers");
+ const std::string k_AvgEulers("AvgEulerAngles");
  const DataPath k_AvgEulersDataPath({k_AvgEulers});
 
  const std::string k_ExemplarAvgQuats("ExemplarAvgQuats");
@@ -71,6 +72,15 @@ TEST_CASE("OrientationAnalysis::FindAvgOrientations: Invalid preflight", "[Orien
 
  const std::string k_CrystalStuctures("Crystal Structures");
  const DataPath k_CrystalStructureDataPath({k_CrystalStuctures});
+
+ const std::string k_Phases("Phases");
+ const DataPath k_PhasesDataPath = DataPath({k_Phases});
+
+ const std::string k_FeatureIds("FeatureIds");
+ const DataPath k_FeatureIdsDataPath = DataPath({k_FeatureIds});
+
+ const std::string k_Quats("Quats");
+ const DataPath k_QuatsDataPath = DataPath({k_Quats});
 
  // These are the argument keys for the Import Text filter. We cannot use the ones from the
  // header file as that would bring in a dependency on the ComplexCorePlugin
@@ -94,28 +104,54 @@ TEST_CASE("OrientationAnalysis::FindAvgOrientations: Invalid preflight", "[Orien
  // Create the Crystal Structures Array (needed later down the pipeline)
  UInt32Array* crystalStructuresPtr = complex::UnitTest::CreateTestDataArray<uint32>(dataStructure, k_CrystalStuctures, {2}, {1});
  (*crystalStructuresPtr)[0] = 999; // Unknown Crystal Structure
- (*crystalStructuresPtr)[0] = 1; // Cubic Laue Class
+ (*crystalStructuresPtr)[1] = 1; // Cubic Laue Class
 
 
  // Run the "Import Text Filter to import the data for the FeatureIds, Phases, Quats and Exemplar AvgQuats and AvgEulers
  //... repeat for each data set from the 5 data sets (See top of file)
  {
-   // The output data path will need to be updated for each data set
-   const std::string k_DataArrayName("Quats");
-   const DataPath k_OutputDataPath = DataPath({k_DataArrayName});
+   //const DataPath k_OutputDataPath = DataPath({k_Quats});
    // The Scalar Type will need to be updated for each data set
-   complex::NumericType k_NumericType = complex::NumericType::int32;
+   complex::NumericType k_NumericType = complex::NumericType::float32;
    // The number of components will need to be updated for each data set
    const uint64 k_NumComponents = 4;
 
    Arguments args;
-   args.insertOrAssign(k_InputFileKey, std::make_any<FileSystemPathParameter::ValueType>(fs::path(fmt::format("{}/Data/ASCII_Data/{}.csv", unit_test::k_DREAM3DDataDir, k_DataArrayName))));
+   args.insertOrAssign(k_InputFileKey, std::make_any<FileSystemPathParameter::ValueType>(fs::path(fmt::format("{}/Data/ASCII_Data/{}.csv", unit_test::k_DREAM3DDataDir, k_Quats))));
    args.insertOrAssign(k_ScalarTypeKey, std::make_any<NumericTypeParameter::ValueType>(k_NumericType));
    args.insertOrAssign(k_NTuplesKey, std::make_any<uint64>(k_NumTuples));
    args.insertOrAssign(k_NCompKey, std::make_any<uint64>(k_NumComponents));
    args.insertOrAssign(k_NSkipLinesKey, std::make_any<uint64>(0));
    args.insertOrAssign(k_DelimiterChoiceKey, std::make_any<ChoicesParameter::ValueType>(0));
-   args.insertOrAssign(k_DataArrayKey, std::make_any<DataPath>(k_OutputDataPath));
+   args.insertOrAssign(k_DataArrayKey, std::make_any<DataPath>(k_QuatsDataPath));
+
+   auto filter = filterList->createFilter(k_ImportTextFilterHandle);
+   REQUIRE(nullptr != filter);
+
+   // Preflight the filter and check result
+   auto preflightResult = filter->preflight(dataStructure, args);
+   COMPLEX_RESULT_REQUIRE_VALID(preflightResult.outputActions);
+
+   // Execute the filter and check the result
+   auto executeResult = filter->execute(dataStructure, args);
+   COMPLEX_RESULT_REQUIRE_VALID(executeResult.result);
+ }
+ 
+ // Run the "Import Text Filter to import the data for the FeatureIds
+ {
+   // The Scalar Type will need to be updated for each data set
+   complex::NumericType k_NumericType = complex::NumericType::int32;
+   // The number of components will need to be updated for each data set
+   const uint64 k_NumComponents = 1;
+
+   Arguments args;
+   args.insertOrAssign(k_InputFileKey, std::make_any<FileSystemPathParameter::ValueType>(fs::path(fmt::format("{}/Data/ASCII_Data/{}.csv", unit_test::k_DREAM3DDataDir, k_FeatureIds))));
+   args.insertOrAssign(k_ScalarTypeKey, std::make_any<NumericTypeParameter::ValueType>(k_NumericType));
+   args.insertOrAssign(k_NTuplesKey, std::make_any<uint64>(k_NumTuples));
+   args.insertOrAssign(k_NCompKey, std::make_any<uint64>(k_NumComponents));
+   args.insertOrAssign(k_NSkipLinesKey, std::make_any<uint64>(0));
+   args.insertOrAssign(k_DelimiterChoiceKey, std::make_any<ChoicesParameter::ValueType>(0));
+   args.insertOrAssign(k_DataArrayKey, std::make_any<DataPath>(k_FeatureIdsDataPath));
 
    auto filter = filterList->createFilter(k_ImportTextFilterHandle);
    REQUIRE(nullptr != filter);
@@ -129,29 +165,93 @@ TEST_CASE("OrientationAnalysis::FindAvgOrientations: Invalid preflight", "[Orien
    COMPLEX_RESULT_REQUIRE_VALID(executeResult.result);
  }
 
- // Run the "Import Text Filter to import the data for the FeatureIds
- {
-   const std::string k_FeatureIds("FeatureIds");
-
- }
  // Run the "Import Text Filter to import the data for the Phases
  {
-   const std::string k_Phases("Phases");
+   // The Scalar Type will need to be updated for each data set
+   complex::NumericType k_NumericType = complex::NumericType::int32;
+   // The number of components will need to be updated for each data set
+   const uint64 k_NumComponents = 1;
 
+   Arguments args;
+   args.insertOrAssign(k_InputFileKey, std::make_any<FileSystemPathParameter::ValueType>(fs::path(fmt::format("{}/Data/ASCII_Data/{}.csv", unit_test::k_DREAM3DDataDir, k_Phases))));
+   args.insertOrAssign(k_ScalarTypeKey, std::make_any<NumericTypeParameter::ValueType>(k_NumericType));
+   args.insertOrAssign(k_NTuplesKey, std::make_any<uint64>(k_NumTuples));
+   args.insertOrAssign(k_NCompKey, std::make_any<uint64>(k_NumComponents));
+   args.insertOrAssign(k_NSkipLinesKey, std::make_any<uint64>(0));
+   args.insertOrAssign(k_DelimiterChoiceKey, std::make_any<ChoicesParameter::ValueType>(0));
+   args.insertOrAssign(k_DataArrayKey, std::make_any<DataPath>(k_PhasesDataPath));
+
+   auto filter = filterList->createFilter(k_ImportTextFilterHandle);
+   REQUIRE(nullptr != filter);
+
+   // Preflight the filter and check result
+   auto preflightResult = filter->preflight(dataStructure, args);
+   COMPLEX_RESULT_REQUIRE_VALID(preflightResult.outputActions);
+
+   // Execute the filter and check the result
+   auto executeResult = filter->execute(dataStructure, args);
+   COMPLEX_RESULT_REQUIRE_VALID(executeResult.result);
  }
+
  // Run the "Import Text Filter to import the data for the Exemplar AvgQuats
  // Note there will be a subtle difference between the name of the output data array
  // and the name of the input file where-as in earlier these ended up being the same thing
  {
+   // The Scalar Type will need to be updated for each data set
+   complex::NumericType k_NumericType = complex::NumericType::float32;
+   // The number of components will need to be updated for each data set
+   const uint64 k_NumComponents = 4;
 
+   Arguments args;
+   args.insertOrAssign(k_InputFileKey, std::make_any<FileSystemPathParameter::ValueType>(fs::path(fmt::format("{}/Data/ASCII_Data/{}.csv", unit_test::k_DREAM3DDataDir, k_AvgQuats))));
+   args.insertOrAssign(k_ScalarTypeKey, std::make_any<NumericTypeParameter::ValueType>(k_NumericType));
+   args.insertOrAssign(k_NTuplesKey, std::make_any<uint64>(k_FeatureNumTuples));
+   args.insertOrAssign(k_NCompKey, std::make_any<uint64>(k_NumComponents));
+   args.insertOrAssign(k_NSkipLinesKey, std::make_any<uint64>(0));
+   args.insertOrAssign(k_DelimiterChoiceKey, std::make_any<ChoicesParameter::ValueType>(0));
+   args.insertOrAssign(k_DataArrayKey, std::make_any<DataPath>(k_ExemplarAvgQuatsDataPath));
+
+   auto filter = filterList->createFilter(k_ImportTextFilterHandle);
+   REQUIRE(nullptr != filter);
+
+   // Preflight the filter and check result
+   auto preflightResult = filter->preflight(dataStructure, args);
+   COMPLEX_RESULT_REQUIRE_VALID(preflightResult.outputActions);
+
+   // Execute the filter and check the result
+   auto executeResult = filter->execute(dataStructure, args);
+   COMPLEX_RESULT_REQUIRE_VALID(executeResult.result);
  }
+
  // Run the "Import Text Filter to import the data for the Exemplar Avg Eulers
  // Note there will be a subtle difference between the name of the output data array
  // and the name of the input file where-as in earlier these ended up being the same thing
  {
+   // The Scalar Type will need to be updated for each data set
+   complex::NumericType k_NumericType = complex::NumericType::float32;
+   // The number of components will need to be updated for each data set
+   const uint64 k_NumComponents = 3;
 
+   Arguments args;
+   args.insertOrAssign(k_InputFileKey, std::make_any<FileSystemPathParameter::ValueType>(fs::path(fmt::format("{}/Data/ASCII_Data/{}.csv", unit_test::k_DREAM3DDataDir, k_AvgEulers))));
+   args.insertOrAssign(k_ScalarTypeKey, std::make_any<NumericTypeParameter::ValueType>(k_NumericType));
+   args.insertOrAssign(k_NTuplesKey, std::make_any<uint64>(k_FeatureNumTuples));
+   args.insertOrAssign(k_NCompKey, std::make_any<uint64>(k_NumComponents));
+   args.insertOrAssign(k_NSkipLinesKey, std::make_any<uint64>(0));
+   args.insertOrAssign(k_DelimiterChoiceKey, std::make_any<ChoicesParameter::ValueType>(0));
+   args.insertOrAssign(k_DataArrayKey, std::make_any<DataPath>(k_ExemplarAvgEulersDataPath));
+
+   auto filter = filterList->createFilter(k_ImportTextFilterHandle);
+   REQUIRE(nullptr != filter);
+
+   // Preflight the filter and check result
+   auto preflightResult = filter->preflight(dataStructure, args);
+   COMPLEX_RESULT_REQUIRE_VALID(preflightResult.outputActions);
+
+   // Execute the filter and check the result
+   auto executeResult = filter->execute(dataStructure, args);
+   COMPLEX_RESULT_REQUIRE_VALID(executeResult.result);
  }
-
 
  // Run the FindAvgOrientationsFilter
  {
@@ -160,51 +260,56 @@ TEST_CASE("OrientationAnalysis::FindAvgOrientations: Invalid preflight", "[Orien
    Arguments args;
 
    // Create default Parameters for the filter.
-   args.insertOrAssign(FindAvgOrientationsFilter::k_CellFeatureIdsArrayPath_Key, std::make_any<DataPath>(DataPath{}));
-   args.insertOrAssign(FindAvgOrientationsFilter::k_CellPhasesArrayPath_Key, std::make_any<DataPath>(DataPath{}));
-   args.insertOrAssign(FindAvgOrientationsFilter::k_CellQuatsArrayPath_Key, std::make_any<DataPath>(DataPath{}));
-   args.insertOrAssign(FindAvgOrientationsFilter::k_CrystalStructuresArrayPath_Key, std::make_any<DataPath>(DataPath{}));
+   args.insertOrAssign(FindAvgOrientationsFilter::k_CellFeatureIdsArrayPath_Key, std::make_any<DataPath>(k_FeatureIdsDataPath));
+   args.insertOrAssign(FindAvgOrientationsFilter::k_CellPhasesArrayPath_Key, std::make_any<DataPath>(k_PhasesDataPath));
+   args.insertOrAssign(FindAvgOrientationsFilter::k_CellQuatsArrayPath_Key, std::make_any<DataPath>(k_QuatsDataPath));
+   args.insertOrAssign(FindAvgOrientationsFilter::k_CrystalStructuresArrayPath_Key, std::make_any<DataPath>(k_CrystalStructureDataPath));
+
    // These are the output AvgQuats and output AvgEuler paths NOT the Exemplar AvgQuats & AvgEulers
-   args.insertOrAssign(FindAvgOrientationsFilter::k_AvgQuatsArrayPath_Key, std::make_any<DataPath>(DataPath{}));
-   args.insertOrAssign(FindAvgOrientationsFilter::k_AvgEulerAnglesArrayPath_Key, std::make_any<DataPath>(DataPath{}));
+   args.insertOrAssign(FindAvgOrientationsFilter::k_AvgQuatsArrayPath_Key, std::make_any<DataPath>(k_AvgQuatsDataPath));
+   args.insertOrAssign(FindAvgOrientationsFilter::k_AvgEulerAnglesArrayPath_Key, std::make_any<DataPath>(k_AvgEulersDataPath));
 
    // Preflight the filter and check result
    auto preflightResult = filter.preflight(dataStructure, args);
-   REQUIRE(preflightResult.outputActions.invalid());
+   //REQUIRE(preflightResult.outputActions.invalid());
+   COMPLEX_RESULT_REQUIRE_VALID(preflightResult.outputActions);
 
    // Execute the filter and check the result
    auto executeResult = filter.execute(dataStructure, args);
    REQUIRE(executeResult.result.invalid());
+ }
 
-   // *************************************************************************
-   // this next is a sample bit of code that compares every element of 2 Data Arrays
-   // you will need to do something very similar for BOTH the AvgQuats/ExemplarAvgQuats and AvgEulers/ExemplarAvgEulers
+ {
+   const auto& avgQuats = dataStructure.getDataRefAs<Float32Array>(k_AvgQuatsDataPath);
+   const auto& exemplarAvgQuats = dataStructure.getDataRefAs<Float32Array>(k_ExemplarAvgQuatsDataPath);
 
-#if 0
-   const auto& calcShifts = dataStructure.getDataRefAs<Int32Array>(k_CalculatedShiftsPath);
-   const auto& exemplarShifts = dataStructure.getDataRefAs<Int32Array>(k_ExemplarShiftsPath);
-
-   size_t numElements = calcShifts.getSize();
+   size_t numElements = avgQuats.getSize();
    bool sameValue = true;
    for(size_t i = 0; i < numElements; i++)
    {
-     sameValue = (calcShifts[i] == exemplarShifts[i]);
+     float absDif = std::fabs(avgQuats[i] - exemplarAvgQuats[i]);
+     sameValue = (absDif < 0.0001);
      if(!sameValue)
      {
-       REQUIRE(calcShifts[i] == exemplarShifts[i]);
+       REQUIRE(absDif < 0.0001);
      }
    }
-#endif
  }
 
+ {
+   const auto& avgEulers = dataStructure.getDataRefAs<Float32Array>(k_AvgEulersDataPath);
+   const auto& exemplarAvgEulers = dataStructure.getDataRefAs<Float32Array>(k_ExemplarAvgEulersDataPath);
+
+   size_t numElements = avgEulers.getSize();
+   bool sameValue = true;
+   for(size_t i = 0; i < numElements; i++)
+   {
+     float absDif = std::fabs(avgEulers[i] - exemplarAvgEulers[i]);
+     sameValue = (absDif < 0.0001);
+     if(!sameValue)
+     {
+       REQUIRE(absDif < 0.0001);
+     }
+   }
+ }
 }
-
-// TEST_CASE("OrientationAnalysis::FindAvgOrientations: Valid filter execution")
-//{
-//
-//}
-
-// TEST_CASE("OrientationAnalysis::FindAvgOrientations: InValid filter execution")
-//{
-//
-//}
