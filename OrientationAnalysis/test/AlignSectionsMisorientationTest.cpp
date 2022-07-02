@@ -204,13 +204,3 @@ TEST_CASE("OrientationAnalysis::AlignSectionsMisorientation_1", "[OrientationAna
     }
   }
 }
-
-// TEST_CASE("Reconstruction::AlignSectionsMisorientation: Valid filter execution")
-//{
-//
-//}
-
-// TEST_CASE("Reconstruction::AlignSectionsMisorientation: InValid filter execution")
-//{
-//
-//}

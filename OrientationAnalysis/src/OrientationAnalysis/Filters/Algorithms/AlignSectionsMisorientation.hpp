@@ -37,7 +37,7 @@ class ORIENTATIONANALYSIS_EXPORT AlignSectionsMisorientation : public AlignSecti
 {
 public:
   AlignSectionsMisorientation(DataStructure& dataStructure, const IFilter::MessageHandler& mesgHandler, const std::atomic_bool& shouldCancel, AlignSectionsMisorientationInputValues* inputValues);
-  ~AlignSectionsMisorientation() noexcept;
+  ~AlignSectionsMisorientation() noexcept override;
 
   AlignSectionsMisorientation(const AlignSectionsMisorientation&) = delete;
   AlignSectionsMisorientation(AlignSectionsMisorientation&&) noexcept = delete;
@@ -45,8 +45,6 @@ public:
   AlignSectionsMisorientation& operator=(AlignSectionsMisorientation&&) noexcept = delete;
 
   Result<> operator()();
-
-  const std::atomic_bool& getCancel();
 
 protected:
   void find_shifts(std::vector<int64_t>& xshifts, std::vector<int64_t>& yshifts) override;
@@ -58,5 +56,6 @@ private:
   const AlignSectionsMisorientationInputValues* m_InputValues = nullptr;
   const std::atomic_bool& m_ShouldCancel;
   const IFilter::MessageHandler& m_MessageHandler;
+  Result<> m_Result;
 };
 } // namespace complex

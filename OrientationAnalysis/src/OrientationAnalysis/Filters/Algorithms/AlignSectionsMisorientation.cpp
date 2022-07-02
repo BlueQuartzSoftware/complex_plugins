@@ -27,17 +27,20 @@ AlignSectionsMisorientation::AlignSectionsMisorientation(DataStructure& dataStru
 AlignSectionsMisorientation::~AlignSectionsMisorientation() noexcept = default;
 
 // -----------------------------------------------------------------------------
-const std::atomic_bool& AlignSectionsMisorientation::getCancel()
-{
-  return m_ShouldCancel;
-}
-
-// -----------------------------------------------------------------------------
 Result<> AlignSectionsMisorientation::operator()()
 {
   const auto& gridGeom = m_DataStructure.getDataAs<AbstractGeometryGrid>(m_InputValues->inputImageGeometry);
 
-  return execute(gridGeom->getDimensions());
+  Result<> result = execute(gridGeom->getDimensions());
+  if(result.invalid())
+  {
+    return result;
+  }
+  if(m_Result.invalid())
+  {
+    return m_Result;
+  }
+  return {};
 }
 
 // -----------------------------------------------------------------------------
@@ -58,10 +61,32 @@ std::vector<DataPath> AlignSectionsMisorientation::getSelectedDataPaths() const
 // -----------------------------------------------------------------------------
 void AlignSectionsMisorientation::find_shifts(std::vector<int64_t>& xshifts, std::vector<int64_t>& yshifts)
 {
-  std::ofstream outFile(m_InputValues->alignmentShiftFileName, std::ios_base::out);
-  if(!outFile.is_open())
+  std::unique_ptr<MaskCompare> maskCompare = nullptr;
+  if(m_InputValues->useGoodVoxels)
   {
-    return;
+    try
+    {
+      maskCompare = InstantiateMaskCompare(m_DataStructure, m_InputValues->goodVoxelsArrayPath);
+    } catch(const std::out_of_range& exception)
+    {
+      // This really should NOT be happening as the path was verified during preflight BUT we may be calling this from
+      // somewhere else that is NOT going through the normal complex::IFilter API of Preflight and Execute
+      std::string message = fmt::format("Mask Array DataPath does not exist or is not of the correct type (Bool | UInt8) {}", m_InputValues->goodVoxelsArrayPath.toString());
+      m_Result.errors().push_back({-53900, message});
+      return;
+    }
+  }
+
+  std::ofstream outFile;
+  if(m_InputValues->writeAlignmentShifts)
+  {
+    outFile.open(m_InputValues->alignmentShiftFileName, std::ios_base::out);
+    if(!outFile.is_open())
+    {
+      std::string message = fmt::format("Error creating Input Shifts File with file path {}", m_InputValues->alignmentShiftFileName.string());
+      m_Result.errors().push_back({-53901, message});
+      return;
+    }
   }
 
   auto* gridGeom = m_DataStructure.getDataAs<AbstractGeometryGrid>(m_InputValues->inputImageGeometry);
@@ -78,16 +103,6 @@ void AlignSectionsMisorientation::find_shifts(std::vector<int64_t>& xshifts, std
       static_cast<int64_t>(udims[2]),
   };
 
-  std::unique_ptr<MaskCompare> maskCompare = nullptr;
-  if(m_InputValues->useGoodVoxels)
-  {
-    try
-    {
-      maskCompare = InstantiateMaskCompare(m_DataStructure, m_InputValues->goodVoxelsArrayPath);
-    } catch(const std::out_of_range& exception)
-    {
-    }
-  }
   std::vector<LaueOps::Pointer> orientationOps = LaueOps::GetAllOrientationOps();
 
   int32_t progInt = 0;
@@ -175,7 +190,11 @@ void AlignSectionsMisorientation::find_shifts(std::vector<int64_t>& xshifts, std
                   }
                   if(m_InputValues->useGoodVoxels)
                   {
-                    if(!maskCompare->bothTrue(refposition, curposition))
+                    if(maskCompare->isTrue(refposition) && !maskCompare->isTrue(curposition))
+                    {
+                      disorientation++;
+                    }
+                    if(!maskCompare->isTrue(refposition) && maskCompare->isTrue(curposition))
                     {
                       disorientation++;
                     }
