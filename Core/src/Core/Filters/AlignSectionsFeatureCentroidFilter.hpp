@@ -31,6 +31,9 @@ public:
   static inline constexpr StringLiteral k_ReferenceSlice_Key = "ReferenceSlice";
   static inline constexpr StringLiteral k_GoodVoxelsArrayPath_Key = "GoodVoxelsArrayPath";
 
+  static inline constexpr StringLiteral k_SelectedImageGeometry_Key = "SelectedImageGeometryPath";
+  static inline constexpr StringLiteral k_SelectedCellDataGroup_Key = "SelectedCellDataPath";
+
   /**
    * @brief Returns the name of the filter.
    * @return
