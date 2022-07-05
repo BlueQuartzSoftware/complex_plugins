@@ -11,16 +11,15 @@
 #include "complex/Common/Types.hpp"
 #include "complex/Core/Application.hpp"
 #include "complex/Parameters/ArraySelectionParameter.hpp"
+#include "complex/Parameters/ArrayThresholdsParameter.hpp"
 #include "complex/Parameters/BoolParameter.hpp"
 #include "complex/Parameters/ChoicesParameter.hpp"
+#include "complex/Parameters/Dream3dImportParameter.hpp"
 #include "complex/Parameters/FileSystemPathParameter.hpp"
 #include "complex/Parameters/NumericTypeParameter.hpp"
-#include "complex/Parameters/ArrayThresholdsParameter.hpp"
 #include "complex/Utilities/ArrayThreshold.hpp"
 #include "complex/Utilities/Parsing/HDF5/H5FileWriter.hpp"
 #include "complex/Utilities/StringUtilities.hpp"
-#include "complex/Parameters/Dream3dImportParameter.hpp"
-
 
 #include "complex/UnitTest/UnitTestCommon.hpp"
 
@@ -45,7 +44,7 @@ using namespace complex;
  *
  * Compare all the data arrays from the "Exemplar Data / CellData"
  */
-template<typename T>
+template <typename T>
 void CompareDataArrays(const IDataArray& left, const IDataArray& right)
 {
   const auto& oldDataStore = left.getIDataStoreRefAs<AbstractDataStore<T>>();
@@ -56,14 +55,13 @@ void CompareDataArrays(const IDataArray& left, const IDataArray& right)
   usize badIndex = 0;
   for(usize i = start; i < end; i++)
   {
-    if( oldDataStore[i] != newDataStore[i] )
+    if(oldDataStore[i] != newDataStore[i])
     {
       badIndex = i;
-      REQUIRE( oldDataStore[badIndex] == newDataStore[badIndex] );
+      REQUIRE(oldDataStore[badIndex] == newDataStore[badIndex]);
       break;
     }
   }
-
 }
 
 struct make_shared_enabler : public complex::Application
@@ -85,10 +83,8 @@ TEST_CASE("OrientationAnalysis::AlignSectionsMisorientation_1", "[OrientationAna
   const Uuid k_ImportTextFilterId = *Uuid::FromString("25f7df3e-ca3e-4634-adda-732c0e56efd4");
   const FilterHandle k_ImportTextFilterHandle(k_ImportTextFilterId, k_ComplexCorePluginId);
 
-
   const Uuid k_ImportDream3dFilterId = *Uuid::FromString("0dbd31c7-19e0-4077-83ef-f4a6459a0e2d");
   const FilterHandle k_ImportDream3dFilterHandle(k_ImportDream3dFilterId, k_ComplexCorePluginId);
-
 
   // Instantiate the filter, a DataStructure object and an Arguments Object
   const std::string k_Quats("Quats");
@@ -117,7 +113,6 @@ TEST_CASE("OrientationAnalysis::AlignSectionsMisorientation_1", "[OrientationAna
   const DataPath k_CrystalStructuresArrayPath = k_CellEnsembleAttributeMatrix.createChildPath(EbsdLib::EnsembleData::CrystalStructures);
 
   const DataPath k_ExemplarShiftsPath = k_DataContainerPath.createChildPath("Exemplar Shifts");
-
 
   DataStructure dataStructure;
 
@@ -324,7 +319,6 @@ TEST_CASE("OrientationAnalysis::AlignSectionsMisorientation_1", "[OrientationAna
     }
   }
 
-
   // Loop and compare each array from the 'Exemplar Data / CellData' to the 'Data Container / CellData' group
   {
     auto& cellDataGroup = dataStructure.getDataRefAs<DataGroup>(k_CellAttributeMatrix);
@@ -348,54 +342,55 @@ TEST_CASE("OrientationAnalysis::AlignSectionsMisorientation_1", "[OrientationAna
 
       if(type != exemplarType)
       {
-        std::cout << fmt::format("DataArray {} and {} do not have the same type: {} vs {}. Data Will not be compared.", generatedDataArray.getName(), exemplarDataArray.getName(), type, exemplarType) << std::endl;
+        std::cout << fmt::format("DataArray {} and {} do not have the same type: {} vs {}. Data Will not be compared.", generatedDataArray.getName(), exemplarDataArray.getName(), type, exemplarType)
+                  << std::endl;
         continue;
       }
 
       switch(type)
       {
       case DataType::boolean: {
-         CompareDataArrays<bool>(generatedDataArray, exemplarDataArray);
+        CompareDataArrays<bool>(generatedDataArray, exemplarDataArray);
         break;
       }
       case DataType::int8: {
-         CompareDataArrays<int8>(generatedDataArray, exemplarDataArray);
+        CompareDataArrays<int8>(generatedDataArray, exemplarDataArray);
         break;
       }
       case DataType::int16: {
-         CompareDataArrays<int16>(generatedDataArray, exemplarDataArray);
+        CompareDataArrays<int16>(generatedDataArray, exemplarDataArray);
         break;
       }
       case DataType::int32: {
-         CompareDataArrays<int32>(generatedDataArray, exemplarDataArray);
+        CompareDataArrays<int32>(generatedDataArray, exemplarDataArray);
         break;
       }
       case DataType::int64: {
-         CompareDataArrays<int64>(generatedDataArray, exemplarDataArray);
+        CompareDataArrays<int64>(generatedDataArray, exemplarDataArray);
         break;
       }
       case DataType::uint8: {
-         CompareDataArrays<uint8>(generatedDataArray, exemplarDataArray);
+        CompareDataArrays<uint8>(generatedDataArray, exemplarDataArray);
         break;
       }
       case DataType::uint16: {
-         CompareDataArrays<uint16>(generatedDataArray, exemplarDataArray);
+        CompareDataArrays<uint16>(generatedDataArray, exemplarDataArray);
         break;
       }
       case DataType::uint32: {
-         CompareDataArrays<uint32>(generatedDataArray, exemplarDataArray);
+        CompareDataArrays<uint32>(generatedDataArray, exemplarDataArray);
         break;
       }
       case DataType::uint64: {
-         CompareDataArrays<uint64>(generatedDataArray, exemplarDataArray);
+        CompareDataArrays<uint64>(generatedDataArray, exemplarDataArray);
         break;
       }
       case DataType::float32: {
-         CompareDataArrays<float32>(generatedDataArray, exemplarDataArray);
+        CompareDataArrays<float32>(generatedDataArray, exemplarDataArray);
         break;
       }
       case DataType::float64: {
-         CompareDataArrays<float64>(generatedDataArray, exemplarDataArray);
+        CompareDataArrays<float64>(generatedDataArray, exemplarDataArray);
         break;
       }
       default: {
@@ -405,15 +400,11 @@ TEST_CASE("OrientationAnalysis::AlignSectionsMisorientation_1", "[OrientationAna
     }
   }
 
+  Result<H5::FileWriter> result = H5::FileWriter::CreateFile(fmt::format("{}/align_sections_misorientation.dream3d", unit_test::k_BinaryDir));
+  H5::FileWriter fileWriter = std::move(result.value());
 
-    Result<H5::FileWriter> result = H5::FileWriter::CreateFile(fmt::format("{}/align_sections_misorientation.dream3d", unit_test::k_BinaryDir));
-    H5::FileWriter fileWriter = std::move(result.value());
-
-    herr_t err = dataStructure.writeHdf5(fileWriter);
-    REQUIRE(err >= 0);
-
-
-
+  herr_t err = dataStructure.writeHdf5(fileWriter);
+  REQUIRE(err >= 0);
 }
 
 #if 0
