@@ -48,7 +48,7 @@ struct make_shared_enabler : public complex::Application
 {
 };
 
-TEST_CASE("OrientationAnalysis::RotateEulerRefFrame: Instantiation and Parameter Check", "[OrientationAnalysis][RotateEulerRefFrame][.][UNIMPLEMENTED][!mayfail]")
+TEST_CASE("OrientationAnalysis::RotateEulerRefFrame: Instantiation and Parameter Check", "[OrientationAnalysis]")
 {
   // Instantiate an "Application" instance to load plugins
   std::shared_ptr<make_shared_enabler> app = std::make_shared<make_shared_enabler>();
@@ -145,11 +145,11 @@ TEST_CASE("OrientationAnalysis::RotateEulerRefFrame: Instantiation and Parameter
 
     // Preflight the filter and check result
     auto preflightResult = filter.preflight(dataStructure, args);
-    REQUIRE(preflightResult.outputActions.valid());
+    COMPLEX_RESULT_REQUIRE_VALID(preflightResult.outputActions);
 
     // Execute the filter and check the result
     auto executeResult = filter.execute(dataStructure, args);
-    REQUIRE(executeResult.result.invalid());
+    COMPLEX_RESULT_REQUIRE_VALID(executeResult.result);
   }
 
   // Compare the 2 data sets

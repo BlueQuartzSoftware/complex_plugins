@@ -43,10 +43,55 @@ namespace fs = std::filesystem;
 
 using namespace complex;
 
-
 struct make_shared_enabler : public complex::Application
 {
 };
+
+namespace FindAvgOrientationsTest
+{
+// These are the argument keys for the Import Text filter. We cannot use the ones from the
+// header file as that would bring in a dependency on the ComplexCorePlugin
+static constexpr StringLiteral k_InputFileKey = "input_file";
+static constexpr StringLiteral k_ScalarTypeKey = "scalar_type";
+static constexpr StringLiteral k_NTuplesKey = "n_tuples";
+static constexpr StringLiteral k_NCompKey = "n_comp";
+static constexpr StringLiteral k_NSkipLinesKey = "n_skip_lines";
+static constexpr StringLiteral k_DelimiterChoiceKey = "delimiter_choice";
+static constexpr StringLiteral k_DataArrayKey = "output_data_array";
+} // namespace FindAvgOrientationsTest
+
+void runImportTextFilter(const std::string k_InputFileName, complex::NumericType k_NumericType, 
+                         const uint64 k_NumTuples, const uint64 k_NumComponents, const DataPath k_InputFileDataPath, DataStructure& dataStructure)
+{
+  // Make sure we can load the "Import Text Filter" filter from the plugin
+  const Uuid k_ComplexCorePluginId = *Uuid::FromString("05cc618b-781f-4ac0-b9ac-43f26ce1854f");
+  // Make sure we can instantiate the Import Text Filter
+  const Uuid k_ImportTextFilterId = *Uuid::FromString("25f7df3e-ca3e-4634-adda-732c0e56efd4");
+  const FilterHandle k_ImportTextFilterHandle(k_ImportTextFilterId, k_ComplexCorePluginId);
+
+  auto* filterList = Application::Instance()->getFilterList();
+
+  Arguments args;
+  args.insertOrAssign(FindAvgOrientationsTest::k_InputFileKey,
+                      std::make_any<FileSystemPathParameter::ValueType>(fs::path(fmt::format("{}/Data/ASCII_Data/{}.csv", unit_test::k_DREAM3DDataDir, k_InputFileName))));
+  args.insertOrAssign(FindAvgOrientationsTest::k_ScalarTypeKey, std::make_any<NumericTypeParameter::ValueType>(k_NumericType));
+  args.insertOrAssign(FindAvgOrientationsTest::k_NTuplesKey, std::make_any<uint64>(k_NumTuples));
+  args.insertOrAssign(FindAvgOrientationsTest::k_NCompKey, std::make_any<uint64>(k_NumComponents));
+  args.insertOrAssign(FindAvgOrientationsTest::k_NSkipLinesKey, std::make_any<uint64>(0));
+  args.insertOrAssign(FindAvgOrientationsTest::k_DelimiterChoiceKey, std::make_any<ChoicesParameter::ValueType>(0));
+  args.insertOrAssign(FindAvgOrientationsTest::k_DataArrayKey, std::make_any<DataPath>(k_InputFileDataPath));
+
+  auto filter = filterList->createFilter(k_ImportTextFilterHandle);
+  REQUIRE(nullptr != filter);
+
+  // Preflight the filter and check result
+  auto preflightResult = filter->preflight(dataStructure, args);
+  COMPLEX_RESULT_REQUIRE_VALID(preflightResult.outputActions);
+
+  // Execute the filter and check the result
+  auto executeResult = filter->execute(dataStructure, args);
+  COMPLEX_RESULT_REQUIRE_VALID(executeResult.result);
+}
 
 TEST_CASE("OrientationAnalysis::FindAvgOrientations: Invalid preflight", "[OrientationAnalysis][FindAvgOrientations]")
 {
@@ -82,22 +127,6 @@ TEST_CASE("OrientationAnalysis::FindAvgOrientations: Invalid preflight", "[Orien
  const std::string k_Quats("Quats");
  const DataPath k_QuatsDataPath({k_Quats});
 
- // These are the argument keys for the Import Text filter. We cannot use the ones from the
- // header file as that would bring in a dependency on the ComplexCorePlugin
- static constexpr StringLiteral k_InputFileKey = "input_file";
- static constexpr StringLiteral k_ScalarTypeKey = "scalar_type";
- static constexpr StringLiteral k_NTuplesKey = "n_tuples";
- static constexpr StringLiteral k_NCompKey = "n_comp";
- static constexpr StringLiteral k_NSkipLinesKey = "n_skip_lines";
- static constexpr StringLiteral k_DelimiterChoiceKey = "delimiter_choice";
- static constexpr StringLiteral k_DataArrayKey = "output_data_array";
-
- // Make sure we can load the "Import Text Filter" filter from the plugin
- const Uuid k_ComplexCorePluginId = *Uuid::FromString("05cc618b-781f-4ac0-b9ac-43f26ce1854f");
- auto* filterList = Application::Instance()->getFilterList();
- // Make sure we can instantiate the Import Text Filter
- const Uuid k_ImportTextFilterId = *Uuid::FromString("25f7df3e-ca3e-4634-adda-732c0e56efd4");
- const FilterHandle k_ImportTextFilterHandle(k_ImportTextFilterId, k_ComplexCorePluginId);
 
  DataStructure dataStructure;
 
@@ -107,142 +136,15 @@ TEST_CASE("OrientationAnalysis::FindAvgOrientations: Invalid preflight", "[Orien
  (*crystalStructuresPtr)[1] = 1; // Cubic Laue Class
 
  // Run the "Import Text" Filter to import the data for the FeatureIds, Phases, Quats and Exemplar AvgQuats and AvgEulers
- //... repeat for each data set from the 5 data sets (See top of file)
- {
-   // The Scalar Type will need to be updated for each data set
-   complex::NumericType k_NumericType = complex::NumericType::float32;
-   // The number of components will need to be updated for each data set
-   const uint64 k_NumComponents = 4;
-
-   Arguments args;
-   args.insertOrAssign(k_InputFileKey, std::make_any<FileSystemPathParameter::ValueType>(fs::path(fmt::format("{}/Data/ASCII_Data/{}.csv", unit_test::k_DREAM3DDataDir, k_Quats))));
-   args.insertOrAssign(k_ScalarTypeKey, std::make_any<NumericTypeParameter::ValueType>(k_NumericType));
-   args.insertOrAssign(k_NTuplesKey, std::make_any<uint64>(k_NumTuples));
-   args.insertOrAssign(k_NCompKey, std::make_any<uint64>(k_NumComponents));
-   args.insertOrAssign(k_NSkipLinesKey, std::make_any<uint64>(0));
-   args.insertOrAssign(k_DelimiterChoiceKey, std::make_any<ChoicesParameter::ValueType>(0));
-   args.insertOrAssign(k_DataArrayKey, std::make_any<DataPath>(k_QuatsDataPath));
-
-   auto filter = filterList->createFilter(k_ImportTextFilterHandle);
-   REQUIRE(nullptr != filter);
-
-   // Preflight the filter and check result
-   auto preflightResult = filter->preflight(dataStructure, args);
-   COMPLEX_RESULT_REQUIRE_VALID(preflightResult.outputActions);
-
-   // Execute the filter and check the result
-   auto executeResult = filter->execute(dataStructure, args);
-   COMPLEX_RESULT_REQUIRE_VALID(executeResult.result);
- }
- 
- // Run the "Import Text" Filter to import the data for the FeatureIds
- {
-   complex::NumericType k_NumericType = complex::NumericType::int32;
-   const uint64 k_NumComponents = 1;
-
-   Arguments args;
-   args.insertOrAssign(k_InputFileKey, std::make_any<FileSystemPathParameter::ValueType>(fs::path(fmt::format("{}/Data/ASCII_Data/{}.csv", unit_test::k_DREAM3DDataDir, k_FeatureIds))));
-   args.insertOrAssign(k_ScalarTypeKey, std::make_any<NumericTypeParameter::ValueType>(k_NumericType));
-   args.insertOrAssign(k_NTuplesKey, std::make_any<uint64>(k_NumTuples));
-   args.insertOrAssign(k_NCompKey, std::make_any<uint64>(k_NumComponents));
-   args.insertOrAssign(k_NSkipLinesKey, std::make_any<uint64>(0));
-   args.insertOrAssign(k_DelimiterChoiceKey, std::make_any<ChoicesParameter::ValueType>(0));
-   args.insertOrAssign(k_DataArrayKey, std::make_any<DataPath>(k_FeatureIdsDataPath));
-
-   auto filter = filterList->createFilter(k_ImportTextFilterHandle);
-   REQUIRE(nullptr != filter);
-
-   // Preflight the filter and check result
-   auto preflightResult = filter->preflight(dataStructure, args);
-   COMPLEX_RESULT_REQUIRE_VALID(preflightResult.outputActions);
-
-   // Execute the filter and check the result
-   auto executeResult = filter->execute(dataStructure, args);
-   COMPLEX_RESULT_REQUIRE_VALID(executeResult.result);
- }
-
- // Run the "Import Text" Filter to import the data for the Phases
- {
-   complex::NumericType k_NumericType = complex::NumericType::int32;
-   const uint64 k_NumComponents = 1;
-
-   Arguments args;
-   args.insertOrAssign(k_InputFileKey, std::make_any<FileSystemPathParameter::ValueType>(fs::path(fmt::format("{}/Data/ASCII_Data/{}.csv", unit_test::k_DREAM3DDataDir, k_Phases))));
-   args.insertOrAssign(k_ScalarTypeKey, std::make_any<NumericTypeParameter::ValueType>(k_NumericType));
-   args.insertOrAssign(k_NTuplesKey, std::make_any<uint64>(k_NumTuples));
-   args.insertOrAssign(k_NCompKey, std::make_any<uint64>(k_NumComponents));
-   args.insertOrAssign(k_NSkipLinesKey, std::make_any<uint64>(0));
-   args.insertOrAssign(k_DelimiterChoiceKey, std::make_any<ChoicesParameter::ValueType>(0));
-   args.insertOrAssign(k_DataArrayKey, std::make_any<DataPath>(k_PhasesDataPath));
-
-   auto filter = filterList->createFilter(k_ImportTextFilterHandle);
-   REQUIRE(nullptr != filter);
-
-   // Preflight the filter and check result
-   auto preflightResult = filter->preflight(dataStructure, args);
-   COMPLEX_RESULT_REQUIRE_VALID(preflightResult.outputActions);
-
-   // Execute the filter and check the result
-   auto executeResult = filter->execute(dataStructure, args);
-   COMPLEX_RESULT_REQUIRE_VALID(executeResult.result);
- }
-
- // Run the "Import Text" Filter to import the data for the Exemplar AvgQuats
- // Note there will be a subtle difference between the name of the output data array
- // and the name of the input file where-as in earlier these ended up being the same thing
- {
-   complex::NumericType k_NumericType = complex::NumericType::float32;
-   const uint64 k_NumComponents = 4;
-
-   Arguments args;
-   args.insertOrAssign(k_InputFileKey, std::make_any<FileSystemPathParameter::ValueType>(fs::path(fmt::format("{}/Data/ASCII_Data/{}.csv", unit_test::k_DREAM3DDataDir, k_AvgQuats))));
-   args.insertOrAssign(k_ScalarTypeKey, std::make_any<NumericTypeParameter::ValueType>(k_NumericType));
-   args.insertOrAssign(k_NTuplesKey, std::make_any<uint64>(k_FeatureNumTuples));
-   args.insertOrAssign(k_NCompKey, std::make_any<uint64>(k_NumComponents));
-   args.insertOrAssign(k_NSkipLinesKey, std::make_any<uint64>(0));
-   args.insertOrAssign(k_DelimiterChoiceKey, std::make_any<ChoicesParameter::ValueType>(0));
-   args.insertOrAssign(k_DataArrayKey, std::make_any<DataPath>(k_ExemplarAvgQuatsDataPath));
-
-   auto filter = filterList->createFilter(k_ImportTextFilterHandle);
-   REQUIRE(nullptr != filter);
-
-   // Preflight the filter and check result
-   auto preflightResult = filter->preflight(dataStructure, args);
-   COMPLEX_RESULT_REQUIRE_VALID(preflightResult.outputActions);
-
-   // Execute the filter and check the result
-   auto executeResult = filter->execute(dataStructure, args);
-   COMPLEX_RESULT_REQUIRE_VALID(executeResult.result);
- }
-
- {
-   complex::NumericType k_NumericType = complex::NumericType::float32;
-   const uint64 k_NumComponents = 3;
-
-   Arguments args;
-   args.insertOrAssign(k_InputFileKey, std::make_any<FileSystemPathParameter::ValueType>(fs::path(fmt::format("{}/Data/ASCII_Data/{}.csv", unit_test::k_DREAM3DDataDir, k_AvgEulers))));
-   args.insertOrAssign(k_ScalarTypeKey, std::make_any<NumericTypeParameter::ValueType>(k_NumericType));
-   args.insertOrAssign(k_NTuplesKey, std::make_any<uint64>(k_FeatureNumTuples));
-   args.insertOrAssign(k_NCompKey, std::make_any<uint64>(k_NumComponents));
-   args.insertOrAssign(k_NSkipLinesKey, std::make_any<uint64>(0));
-   args.insertOrAssign(k_DelimiterChoiceKey, std::make_any<ChoicesParameter::ValueType>(0));
-   args.insertOrAssign(k_DataArrayKey, std::make_any<DataPath>(k_ExemplarAvgEulersDataPath));
-
-   auto filter = filterList->createFilter(k_ImportTextFilterHandle);
-   REQUIRE(nullptr != filter);
-
-   // Preflight the filter and check result
-   auto preflightResult = filter->preflight(dataStructure, args);
-   COMPLEX_RESULT_REQUIRE_VALID(preflightResult.outputActions);
-
-   // Execute the filter and check the result
-   auto executeResult = filter->execute(dataStructure, args);
-   COMPLEX_RESULT_REQUIRE_VALID(executeResult.result);
- }
+ runImportTextFilter(k_Phases, NumericType::int32, k_NumTuples, 1, k_PhasesDataPath, dataStructure);
+ runImportTextFilter(k_Quats, NumericType::float32, k_NumTuples, 4, k_QuatsDataPath, dataStructure);
+ runImportTextFilter(k_FeatureIds, NumericType::int32, k_NumTuples, 1, k_FeatureIdsDataPath, dataStructure);
+ runImportTextFilter(k_AvgQuats, NumericType::float32, k_FeatureNumTuples, 4, k_ExemplarAvgQuatsDataPath, dataStructure);
+ runImportTextFilter(k_AvgEulers, NumericType::float32, k_FeatureNumTuples, 3, k_ExemplarAvgEulersDataPath, dataStructure);
 
  // Run the FindAvgOrientationsFilter
  {
-   // Instantiate the filter, a DataStructure object and an Arguments Object
+   // Instantiate the filter and an Arguments Object
    FindAvgOrientationsFilter filter;
    Arguments args;
 
