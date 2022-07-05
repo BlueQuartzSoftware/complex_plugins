@@ -74,13 +74,13 @@ TEST_CASE("OrientationAnalysis::FindAvgOrientations: Invalid preflight", "[Orien
  const DataPath k_CrystalStructureDataPath({k_CrystalStuctures});
 
  const std::string k_Phases("Phases");
- const DataPath k_PhasesDataPath = DataPath({k_Phases});
+ const DataPath k_PhasesDataPath({k_Phases});
 
  const std::string k_FeatureIds("FeatureIds");
- const DataPath k_FeatureIdsDataPath = DataPath({k_FeatureIds});
+ const DataPath k_FeatureIdsDataPath({k_FeatureIds});
 
  const std::string k_Quats("Quats");
- const DataPath k_QuatsDataPath = DataPath({k_Quats});
+ const DataPath k_QuatsDataPath({k_Quats});
 
  // These are the argument keys for the Import Text filter. We cannot use the ones from the
  // header file as that would bring in a dependency on the ComplexCorePlugin
@@ -106,11 +106,9 @@ TEST_CASE("OrientationAnalysis::FindAvgOrientations: Invalid preflight", "[Orien
  (*crystalStructuresPtr)[0] = 999; // Unknown Crystal Structure
  (*crystalStructuresPtr)[1] = 1; // Cubic Laue Class
 
-
- // Run the "Import Text Filter to import the data for the FeatureIds, Phases, Quats and Exemplar AvgQuats and AvgEulers
+ // Run the "Import Text" Filter to import the data for the FeatureIds, Phases, Quats and Exemplar AvgQuats and AvgEulers
  //... repeat for each data set from the 5 data sets (See top of file)
  {
-   //const DataPath k_OutputDataPath = DataPath({k_Quats});
    // The Scalar Type will need to be updated for each data set
    complex::NumericType k_NumericType = complex::NumericType::float32;
    // The number of components will need to be updated for each data set
@@ -137,11 +135,9 @@ TEST_CASE("OrientationAnalysis::FindAvgOrientations: Invalid preflight", "[Orien
    COMPLEX_RESULT_REQUIRE_VALID(executeResult.result);
  }
  
- // Run the "Import Text Filter to import the data for the FeatureIds
+ // Run the "Import Text" Filter to import the data for the FeatureIds
  {
-   // The Scalar Type will need to be updated for each data set
    complex::NumericType k_NumericType = complex::NumericType::int32;
-   // The number of components will need to be updated for each data set
    const uint64 k_NumComponents = 1;
 
    Arguments args;
@@ -165,11 +161,9 @@ TEST_CASE("OrientationAnalysis::FindAvgOrientations: Invalid preflight", "[Orien
    COMPLEX_RESULT_REQUIRE_VALID(executeResult.result);
  }
 
- // Run the "Import Text Filter to import the data for the Phases
+ // Run the "Import Text" Filter to import the data for the Phases
  {
-   // The Scalar Type will need to be updated for each data set
    complex::NumericType k_NumericType = complex::NumericType::int32;
-   // The number of components will need to be updated for each data set
    const uint64 k_NumComponents = 1;
 
    Arguments args;
@@ -193,13 +187,11 @@ TEST_CASE("OrientationAnalysis::FindAvgOrientations: Invalid preflight", "[Orien
    COMPLEX_RESULT_REQUIRE_VALID(executeResult.result);
  }
 
- // Run the "Import Text Filter to import the data for the Exemplar AvgQuats
+ // Run the "Import Text" Filter to import the data for the Exemplar AvgQuats
  // Note there will be a subtle difference between the name of the output data array
  // and the name of the input file where-as in earlier these ended up being the same thing
  {
-   // The Scalar Type will need to be updated for each data set
    complex::NumericType k_NumericType = complex::NumericType::float32;
-   // The number of components will need to be updated for each data set
    const uint64 k_NumComponents = 4;
 
    Arguments args;
@@ -223,13 +215,8 @@ TEST_CASE("OrientationAnalysis::FindAvgOrientations: Invalid preflight", "[Orien
    COMPLEX_RESULT_REQUIRE_VALID(executeResult.result);
  }
 
- // Run the "Import Text Filter to import the data for the Exemplar Avg Eulers
- // Note there will be a subtle difference between the name of the output data array
- // and the name of the input file where-as in earlier these ended up being the same thing
  {
-   // The Scalar Type will need to be updated for each data set
    complex::NumericType k_NumericType = complex::NumericType::float32;
-   // The number of components will need to be updated for each data set
    const uint64 k_NumComponents = 3;
 
    Arguments args;
@@ -271,7 +258,6 @@ TEST_CASE("OrientationAnalysis::FindAvgOrientations: Invalid preflight", "[Orien
 
    // Preflight the filter and check result
    auto preflightResult = filter.preflight(dataStructure, args);
-   //REQUIRE(preflightResult.outputActions.invalid());
    COMPLEX_RESULT_REQUIRE_VALID(preflightResult.outputActions);
 
    // Execute the filter and check the result
@@ -279,6 +265,7 @@ TEST_CASE("OrientationAnalysis::FindAvgOrientations: Invalid preflight", "[Orien
    REQUIRE(executeResult.result.invalid());
  }
 
+ // Compare the data sets
  {
    const auto& avgQuats = dataStructure.getDataRefAs<Float32Array>(k_AvgQuatsDataPath);
    const auto& exemplarAvgQuats = dataStructure.getDataRefAs<Float32Array>(k_ExemplarAvgQuatsDataPath);
