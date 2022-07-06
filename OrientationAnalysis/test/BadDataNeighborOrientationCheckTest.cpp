@@ -1,5 +1,5 @@
 /**
- * This file is auto generated from the original OrientationAnalysis/BadDataNeighborOrientationCheck
+ * This file is auto generated from the original OrientationAnalysis/BadDataNeighborOrientationCheckFilter
  * runtime information. These are the steps that need to be taken to utilize this
  * unit test in the proper way.
  *
@@ -15,7 +15,7 @@
  * NOTE the format of the ```TEST_CASE``` macro. Please stick to this format to
  * allow easier parsing of the unit tests.
  *
- * When you start working on this unit test remove "[BadDataNeighborOrientationCheck][.][UNIMPLEMENTED]"
+ * When you start working on this unit test remove "[BadDataNeighborOrientationCheckFilter][.][UNIMPLEMENTED]"
  * from the TEST_CASE macro. This will enable this unit test to be run by default
  * and report errors.
  */
@@ -25,25 +25,25 @@
 #include "complex/Parameters/ArraySelectionParameter.hpp"
 #include "complex/Parameters/NumberParameter.hpp"
 
-#include "OrientationAnalysis/Filters/BadDataNeighborOrientationCheck.hpp"
+#include "OrientationAnalysis/Filters/BadDataNeighborOrientationCheckFilter.hpp"
 #include "OrientationAnalysis/OrientationAnalysis_test_dirs.hpp"
 
 using namespace complex;
 
-TEST_CASE("OrientationAnalysis::BadDataNeighborOrientationCheck: Instantiation and Parameter Check", "[OrientationAnalysis][BadDataNeighborOrientationCheck][.][UNIMPLEMENTED][!mayfail]")
+TEST_CASE("OrientationAnalysis::BadDataNeighborOrientationCheckFilter: Instantiation and Parameter Check", "[OrientationAnalysis][BadDataNeighborOrientationCheckFilter][.][UNIMPLEMENTED][!mayfail]")
 {
   // Instantiate the filter, a DataStructure object and an Arguments Object
-  BadDataNeighborOrientationCheck filter;
+  BadDataNeighborOrientationCheckFilter filter;
   DataStructure ds;
   Arguments args;
 
   // Create default Parameters for the filter.
-  args.insertOrAssign(BadDataNeighborOrientationCheck::k_MisorientationTolerance_Key, std::make_any<float32>(1.23345f));
-  args.insertOrAssign(BadDataNeighborOrientationCheck::k_NumberOfNeighbors_Key, std::make_any<int32>(1234356));
-  args.insertOrAssign(BadDataNeighborOrientationCheck::k_QuatsArrayPath_Key, std::make_any<DataPath>(DataPath{}));
-  args.insertOrAssign(BadDataNeighborOrientationCheck::k_GoodVoxelsArrayPath_Key, std::make_any<DataPath>(DataPath{}));
-  args.insertOrAssign(BadDataNeighborOrientationCheck::k_CellPhasesArrayPath_Key, std::make_any<DataPath>(DataPath{}));
-  args.insertOrAssign(BadDataNeighborOrientationCheck::k_CrystalStructuresArrayPath_Key, std::make_any<DataPath>(DataPath{}));
+  args.insertOrAssign(BadDataNeighborOrientationCheckFilter::k_MisorientationTolerance_Key, std::make_any<float32>(1.23345f));
+  args.insertOrAssign(BadDataNeighborOrientationCheckFilter::k_NumberOfNeighbors_Key, std::make_any<int32>(1234356));
+  args.insertOrAssign(BadDataNeighborOrientationCheckFilter::k_QuatsArrayPath_Key, std::make_any<DataPath>(DataPath{}));
+  args.insertOrAssign(BadDataNeighborOrientationCheckFilter::k_GoodVoxelsArrayPath_Key, std::make_any<DataPath>(DataPath{}));
+  args.insertOrAssign(BadDataNeighborOrientationCheckFilter::k_CellPhasesArrayPath_Key, std::make_any<DataPath>(DataPath{}));
+  args.insertOrAssign(BadDataNeighborOrientationCheckFilter::k_CrystalStructuresArrayPath_Key, std::make_any<DataPath>(DataPath{}));
 
   // Preflight the filter and check result
   auto preflightResult = filter.preflight(ds, args);
@@ -54,12 +54,12 @@ TEST_CASE("OrientationAnalysis::BadDataNeighborOrientationCheck: Instantiation a
   REQUIRE(executeResult.result.valid());
 }
 
-// TEST_CASE("OrientationAnalysis::BadDataNeighborOrientationCheck: Valid filter execution")
+// TEST_CASE("OrientationAnalysis::BadDataNeighborOrientationCheckFilter: Valid filter execution")
 //{
 //
 //}
 
-// TEST_CASE("OrientationAnalysis::BadDataNeighborOrientationCheck: InValid filter execution")
+// TEST_CASE("OrientationAnalysis::BadDataNeighborOrientationCheckFilter: InValid filter execution")
 //{
 //
 //}
