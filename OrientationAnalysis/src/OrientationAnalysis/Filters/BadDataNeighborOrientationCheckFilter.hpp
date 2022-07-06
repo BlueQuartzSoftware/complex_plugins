@@ -8,20 +8,20 @@
 namespace complex
 {
 /**
- * @class BadDataNeighborOrientationCheck
+ * @class BadDataNeighborOrientationCheckFilter
  * @brief This filter will ....
  */
-class ORIENTATIONANALYSIS_EXPORT BadDataNeighborOrientationCheck : public IFilter
+class ORIENTATIONANALYSIS_EXPORT BadDataNeighborOrientationCheckFilter : public IFilter
 {
 public:
-  BadDataNeighborOrientationCheck() = default;
-  ~BadDataNeighborOrientationCheck() noexcept override = default;
+  BadDataNeighborOrientationCheckFilter() = default;
+  ~BadDataNeighborOrientationCheckFilter() noexcept override = default;
 
-  BadDataNeighborOrientationCheck(const BadDataNeighborOrientationCheck&) = delete;
-  BadDataNeighborOrientationCheck(BadDataNeighborOrientationCheck&&) noexcept = delete;
+  BadDataNeighborOrientationCheckFilter(const BadDataNeighborOrientationCheckFilter&) = delete;
+  BadDataNeighborOrientationCheckFilter(BadDataNeighborOrientationCheckFilter&&) noexcept = delete;
 
-  BadDataNeighborOrientationCheck& operator=(const BadDataNeighborOrientationCheck&) = delete;
-  BadDataNeighborOrientationCheck& operator=(BadDataNeighborOrientationCheck&&) noexcept = delete;
+  BadDataNeighborOrientationCheckFilter& operator=(const BadDataNeighborOrientationCheckFilter&) = delete;
+  BadDataNeighborOrientationCheckFilter& operator=(BadDataNeighborOrientationCheckFilter&&) noexcept = delete;
 
   // Parameter Keys
   static inline constexpr StringLiteral k_MisorientationTolerance_Key = "MisorientationTolerance";
@@ -97,4 +97,4 @@ protected:
 };
 } // namespace complex
 
-COMPLEX_DEF_FILTER_TRAITS(complex, BadDataNeighborOrientationCheck, "f4a7c2df-e9b0-5da9-b745-a862666d6c99");
+COMPLEX_DEF_FILTER_TRAITS(complex, BadDataNeighborOrientationCheckFilter, "f4a7c2df-e9b0-5da9-b745-a862666d6c99");

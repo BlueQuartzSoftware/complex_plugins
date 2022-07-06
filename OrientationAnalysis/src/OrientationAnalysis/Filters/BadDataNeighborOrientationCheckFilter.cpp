@@ -1,45 +1,47 @@
-#include "BadDataNeighborOrientationCheck.hpp"
+#include "BadDataNeighborOrientationCheckFilter.hpp"
 
 #include "complex/DataStructure/DataPath.hpp"
 #include "complex/Parameters/ArraySelectionParameter.hpp"
 #include "complex/Parameters/NumberParameter.hpp"
+
+#include "OrientationAnalysis/Filters/Algorithms/BadDataNeighborOrientationCheck.hpp"
 
 using namespace complex;
 
 namespace complex
 {
 //------------------------------------------------------------------------------
-std::string BadDataNeighborOrientationCheck::name() const
+std::string BadDataNeighborOrientationCheckFilter::name() const
 {
-  return FilterTraits<BadDataNeighborOrientationCheck>::name.str();
+  return FilterTraits<BadDataNeighborOrientationCheckFilter>::name.str();
 }
 
 //------------------------------------------------------------------------------
-std::string BadDataNeighborOrientationCheck::className() const
+std::string BadDataNeighborOrientationCheckFilter::className() const
 {
-  return FilterTraits<BadDataNeighborOrientationCheck>::className;
+  return FilterTraits<BadDataNeighborOrientationCheckFilter>::className;
 }
 
 //------------------------------------------------------------------------------
-Uuid BadDataNeighborOrientationCheck::uuid() const
+Uuid BadDataNeighborOrientationCheckFilter::uuid() const
 {
-  return FilterTraits<BadDataNeighborOrientationCheck>::uuid;
+  return FilterTraits<BadDataNeighborOrientationCheckFilter>::uuid;
 }
 
 //------------------------------------------------------------------------------
-std::string BadDataNeighborOrientationCheck::humanName() const
+std::string BadDataNeighborOrientationCheckFilter::humanName() const
 {
   return "Neighbor Orientation Comparison (Bad Data)";
 }
 
 //------------------------------------------------------------------------------
-std::vector<std::string> BadDataNeighborOrientationCheck::defaultTags() const
+std::vector<std::string> BadDataNeighborOrientationCheckFilter::defaultTags() const
 {
   return {"#Processing", "#Cleanup"};
 }
 
 //------------------------------------------------------------------------------
-Parameters BadDataNeighborOrientationCheck::parameters() const
+Parameters BadDataNeighborOrientationCheckFilter::parameters() const
 {
   Parameters params;
   // Create the parameter descriptors that are needed for this filter
@@ -56,14 +58,14 @@ Parameters BadDataNeighborOrientationCheck::parameters() const
 }
 
 //------------------------------------------------------------------------------
-IFilter::UniquePointer BadDataNeighborOrientationCheck::clone() const
+IFilter::UniquePointer BadDataNeighborOrientationCheckFilter::clone() const
 {
-  return std::make_unique<BadDataNeighborOrientationCheck>();
+  return std::make_unique<BadDataNeighborOrientationCheckFilter>();
 }
 
 //------------------------------------------------------------------------------
-IFilter::PreflightResult BadDataNeighborOrientationCheck::preflightImpl(const DataStructure& dataStructure, const Arguments& filterArgs, const MessageHandler& messageHandler,
-                                                                        const std::atomic_bool& shouldCancel) const
+IFilter::PreflightResult BadDataNeighborOrientationCheckFilter::preflightImpl(const DataStructure& dataStructure, const Arguments& filterArgs, const MessageHandler& messageHandler,
+                                                                              const std::atomic_bool& shouldCancel) const
 {
   /****************************************************************************
    * Write any preflight sanity checking codes in this function
@@ -124,23 +126,18 @@ IFilter::PreflightResult BadDataNeighborOrientationCheck::preflightImpl(const Da
 }
 
 //------------------------------------------------------------------------------
-Result<> BadDataNeighborOrientationCheck::executeImpl(DataStructure& dataStructure, const Arguments& filterArgs, const PipelineFilter* pipelineNode, const MessageHandler& messageHandler,
-                                                      const std::atomic_bool& shouldCancel) const
+Result<> BadDataNeighborOrientationCheckFilter::executeImpl(DataStructure& dataStructure, const Arguments& filterArgs, const PipelineFilter* pipelineNode, const MessageHandler& messageHandler,
+                                                            const std::atomic_bool& shouldCancel) const
 {
-  /****************************************************************************
-   * Extract the actual input values from the 'filterArgs' object
-   ***************************************************************************/
-  auto pMisorientationToleranceValue = filterArgs.value<float32>(k_MisorientationTolerance_Key);
-  auto pNumberOfNeighborsValue = filterArgs.value<int32>(k_NumberOfNeighbors_Key);
-  auto pQuatsArrayPathValue = filterArgs.value<DataPath>(k_QuatsArrayPath_Key);
-  auto pGoodVoxelsArrayPathValue = filterArgs.value<DataPath>(k_GoodVoxelsArrayPath_Key);
-  auto pCellPhasesArrayPathValue = filterArgs.value<DataPath>(k_CellPhasesArrayPath_Key);
-  auto pCrystalStructuresArrayPathValue = filterArgs.value<DataPath>(k_CrystalStructuresArrayPath_Key);
+  BadDataNeighborOrientationCheckInputValues inputValues;
 
-  /****************************************************************************
-   * Write your algorithm implementation in this function
-   ***************************************************************************/
+  inputValues.MisorientationTolerance = filterArgs.value<float32>(k_MisorientationTolerance_Key);
+  inputValues.NumberOfNeighbors = filterArgs.value<int32>(k_NumberOfNeighbors_Key);
+  inputValues.QuatsArrayPath = filterArgs.value<DataPath>(k_QuatsArrayPath_Key);
+  inputValues.GoodVoxelsArrayPath = filterArgs.value<DataPath>(k_GoodVoxelsArrayPath_Key);
+  inputValues.CellPhasesArrayPath = filterArgs.value<DataPath>(k_CellPhasesArrayPath_Key);
+  inputValues.CrystalStructuresArrayPath = filterArgs.value<DataPath>(k_CrystalStructuresArrayPath_Key);
 
-  return {};
+  return BadDataNeighborOrientationCheck(dataStructure, messageHandler, shouldCancel, &inputValues)();
 }
 } // namespace complex
