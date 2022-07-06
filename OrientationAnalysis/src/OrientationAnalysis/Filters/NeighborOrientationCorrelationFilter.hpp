@@ -8,20 +8,20 @@
 namespace complex
 {
 /**
- * @class NeighborOrientationCorrelation
+ * @class NeighborOrientationCorrelationFilter
  * @brief This filter will ....
  */
-class ORIENTATIONANALYSIS_EXPORT NeighborOrientationCorrelation : public IFilter
+class ORIENTATIONANALYSIS_EXPORT NeighborOrientationCorrelationFilter : public IFilter
 {
 public:
-  NeighborOrientationCorrelation() = default;
-  ~NeighborOrientationCorrelation() noexcept override = default;
+  NeighborOrientationCorrelationFilter() = default;
+  ~NeighborOrientationCorrelationFilter() noexcept override = default;
 
-  NeighborOrientationCorrelation(const NeighborOrientationCorrelation&) = delete;
-  NeighborOrientationCorrelation(NeighborOrientationCorrelation&&) noexcept = delete;
+  NeighborOrientationCorrelationFilter(const NeighborOrientationCorrelationFilter&) = delete;
+  NeighborOrientationCorrelationFilter(NeighborOrientationCorrelationFilter&&) noexcept = delete;
 
-  NeighborOrientationCorrelation& operator=(const NeighborOrientationCorrelation&) = delete;
-  NeighborOrientationCorrelation& operator=(NeighborOrientationCorrelation&&) noexcept = delete;
+  NeighborOrientationCorrelationFilter& operator=(const NeighborOrientationCorrelationFilter&) = delete;
+  NeighborOrientationCorrelationFilter& operator=(NeighborOrientationCorrelationFilter&&) noexcept = delete;
 
   // Parameter Keys
   static inline constexpr StringLiteral k_MinConfidence_Key = "MinConfidence";
@@ -99,4 +99,4 @@ protected:
 };
 } // namespace complex
 
-COMPLEX_DEF_FILTER_TRAITS(complex, NeighborOrientationCorrelation, "6427cd5e-0ad2-5a24-8847-29f8e0720f4f");
+COMPLEX_DEF_FILTER_TRAITS(complex, NeighborOrientationCorrelationFilter, "6427cd5e-0ad2-5a24-8847-29f8e0720f4f");

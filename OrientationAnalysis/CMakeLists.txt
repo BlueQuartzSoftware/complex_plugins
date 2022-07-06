@@ -35,10 +35,10 @@ set(FilterList
   FindAvgOrientationsFilter
   GenerateIPFColorsFilter
   BadDataNeighborOrientationCheckFilter
+  NeighborOrientationCorrelationFilter
 )
 
 set(STUB_FILTERS
-
   ConvertQuaternion
 
   # ConvertHexGridToSquareGrid # MISSING 1 or more Parameter Implementations
@@ -74,8 +74,6 @@ set(STUB_FILTERS
   # ImportEbsdMontage # MISSING 1 or more Parameter Implementations
   # ImportH5EspritData # MISSING 1 or more Parameter Implementations
   # ImportH5OimData # MISSING 1 or more Parameter Implementations
-  NeighborOrientationCorrelation
-
   # OrientationUtility # MISSING 1 or more Parameter Implementations
   ReadAngData
   ReadCtfData
@@ -142,6 +140,7 @@ set(filter_algorithms
   FindAvgOrientations
   GenerateIPFColors
   BadDataNeighborOrientationCheck
+  NeighborOrientationCorrelation
 )
 
 foreach(algorithm ${filter_algorithms})
