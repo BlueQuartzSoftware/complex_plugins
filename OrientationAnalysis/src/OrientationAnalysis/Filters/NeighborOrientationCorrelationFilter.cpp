@@ -1,46 +1,48 @@
-#include "NeighborOrientationCorrelation.hpp"
+#include "NeighborOrientationCorrelationFilter.hpp"
 
 #include "complex/DataStructure/DataPath.hpp"
 #include "complex/Parameters/ArraySelectionParameter.hpp"
 #include "complex/Parameters/MultiArraySelectionParameter.hpp"
 #include "complex/Parameters/NumberParameter.hpp"
 
+#include "OrientationAnalysis/Filters/Algorithms/NeighborOrientationCorrelation.hpp"
+
 using namespace complex;
 
 namespace complex
 {
 //------------------------------------------------------------------------------
-std::string NeighborOrientationCorrelation::name() const
+std::string NeighborOrientationCorrelationFilter::name() const
 {
-  return FilterTraits<NeighborOrientationCorrelation>::name.str();
+  return FilterTraits<NeighborOrientationCorrelationFilter>::name.str();
 }
 
 //------------------------------------------------------------------------------
-std::string NeighborOrientationCorrelation::className() const
+std::string NeighborOrientationCorrelationFilter::className() const
 {
-  return FilterTraits<NeighborOrientationCorrelation>::className;
+  return FilterTraits<NeighborOrientationCorrelationFilter>::className;
 }
 
 //------------------------------------------------------------------------------
-Uuid NeighborOrientationCorrelation::uuid() const
+Uuid NeighborOrientationCorrelationFilter::uuid() const
 {
-  return FilterTraits<NeighborOrientationCorrelation>::uuid;
+  return FilterTraits<NeighborOrientationCorrelationFilter>::uuid;
 }
 
 //------------------------------------------------------------------------------
-std::string NeighborOrientationCorrelation::humanName() const
+std::string NeighborOrientationCorrelationFilter::humanName() const
 {
   return "Neighbor Orientation Correlation";
 }
 
 //------------------------------------------------------------------------------
-std::vector<std::string> NeighborOrientationCorrelation::defaultTags() const
+std::vector<std::string> NeighborOrientationCorrelationFilter::defaultTags() const
 {
   return {"#Processing", "#Cleanup"};
 }
 
 //------------------------------------------------------------------------------
-Parameters NeighborOrientationCorrelation::parameters() const
+Parameters NeighborOrientationCorrelationFilter::parameters() const
 {
   Parameters params;
   // Create the parameter descriptors that are needed for this filter
@@ -60,14 +62,14 @@ Parameters NeighborOrientationCorrelation::parameters() const
 }
 
 //------------------------------------------------------------------------------
-IFilter::UniquePointer NeighborOrientationCorrelation::clone() const
+IFilter::UniquePointer NeighborOrientationCorrelationFilter::clone() const
 {
-  return std::make_unique<NeighborOrientationCorrelation>();
+  return std::make_unique<NeighborOrientationCorrelationFilter>();
 }
 
 //------------------------------------------------------------------------------
-IFilter::PreflightResult NeighborOrientationCorrelation::preflightImpl(const DataStructure& dataStructure, const Arguments& filterArgs, const MessageHandler& messageHandler,
-                                                                       const std::atomic_bool& shouldCancel) const
+IFilter::PreflightResult NeighborOrientationCorrelationFilter::preflightImpl(const DataStructure& dataStructure, const Arguments& filterArgs, const MessageHandler& messageHandler,
+                                                                             const std::atomic_bool& shouldCancel) const
 {
   /****************************************************************************
    * Write any preflight sanity checking codes in this function
@@ -130,25 +132,20 @@ IFilter::PreflightResult NeighborOrientationCorrelation::preflightImpl(const Dat
 }
 
 //------------------------------------------------------------------------------
-Result<> NeighborOrientationCorrelation::executeImpl(DataStructure& dataStructure, const Arguments& filterArgs, const PipelineFilter* pipelineNode, const MessageHandler& messageHandler,
-                                                     const std::atomic_bool& shouldCancel) const
+Result<> NeighborOrientationCorrelationFilter::executeImpl(DataStructure& dataStructure, const Arguments& filterArgs, const PipelineFilter* pipelineNode, const MessageHandler& messageHandler,
+                                                           const std::atomic_bool& shouldCancel) const
 {
-  /****************************************************************************
-   * Extract the actual input values from the 'filterArgs' object
-   ***************************************************************************/
-  auto pMinConfidenceValue = filterArgs.value<float32>(k_MinConfidence_Key);
-  auto pMisorientationToleranceValue = filterArgs.value<float32>(k_MisorientationTolerance_Key);
-  auto pLevelValue = filterArgs.value<int32>(k_Level_Key);
-  auto pConfidenceIndexArrayPathValue = filterArgs.value<DataPath>(k_ConfidenceIndexArrayPath_Key);
-  auto pCellPhasesArrayPathValue = filterArgs.value<DataPath>(k_CellPhasesArrayPath_Key);
-  auto pQuatsArrayPathValue = filterArgs.value<DataPath>(k_QuatsArrayPath_Key);
-  auto pCrystalStructuresArrayPathValue = filterArgs.value<DataPath>(k_CrystalStructuresArrayPath_Key);
-  auto pIgnoredDataArrayPathsValue = filterArgs.value<MultiArraySelectionParameter::ValueType>(k_IgnoredDataArrayPaths_Key);
+  NeighborOrientationCorrelationInputValues inputValues;
 
-  /****************************************************************************
-   * Write your algorithm implementation in this function
-   ***************************************************************************/
+  inputValues.MinConfidence = filterArgs.value<float32>(k_MinConfidence_Key);
+  inputValues.MisorientationTolerance = filterArgs.value<float32>(k_MisorientationTolerance_Key);
+  inputValues.Level = filterArgs.value<int32>(k_Level_Key);
+  inputValues.ConfidenceIndexArrayPath = filterArgs.value<DataPath>(k_ConfidenceIndexArrayPath_Key);
+  inputValues.CellPhasesArrayPath = filterArgs.value<DataPath>(k_CellPhasesArrayPath_Key);
+  inputValues.QuatsArrayPath = filterArgs.value<DataPath>(k_QuatsArrayPath_Key);
+  inputValues.CrystalStructuresArrayPath = filterArgs.value<DataPath>(k_CrystalStructuresArrayPath_Key);
+  inputValues.IgnoredDataArrayPaths = filterArgs.value<MultiArraySelectionParameter::ValueType>(k_IgnoredDataArrayPaths_Key);
 
-  return {};
+  return NeighborOrientationCorrelation(dataStructure, messageHandler, shouldCancel, &inputValues)();
 }
 } // namespace complex
