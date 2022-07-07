@@ -10,6 +10,7 @@ set(${PLUGIN_NAME}UnitTest_SRCS
   ResampleImageGeomFilterTest.cpp # NEEDS TEST IMPLEMENTED
   FillBadDataTest.cpp # NEEDS TEST IMPLEMENTED
   AlignSectionsFeatureCentroidTest.cpp # NEEDS TEST IMPLEMENTED
+  ConvertColorToGrayScaleTest.cpp
 )
 
 file(TO_CMAKE_PATH "${DREAM3D_DATA_DIR}" DREAM3D_DATA_DIR_NORM)

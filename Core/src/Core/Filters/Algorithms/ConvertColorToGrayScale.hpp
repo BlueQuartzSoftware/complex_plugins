@@ -5,21 +5,10 @@
 #include "complex/DataStructure/DataPath.hpp"
 #include "complex/DataStructure/DataStructure.hpp"
 #include "complex/Filter/IFilter.hpp"
-
-/**
-* This is example code to put in the Execute Method of the filter.
-  ConvertColorToGrayScaleInputValues inputValues;
-
-  inputValues.ConversionAlgorithm = filterArgs.value<ChoicesParameter::ValueType>(k_ConversionAlgorithm_Key);
-  inputValues.ColorWeights = filterArgs.value<VectorFloat32Parameter::ValueType>(k_ColorWeights_Key);
-  inputValues.ColorChannel = filterArgs.value<int32>(k_ColorChannel_Key);
-  inputValues.InputDataArrayVector = filterArgs.value<MultiArraySelectionParameter::ValueType>(k_InputDataArrayVector_Key);
-  inputValues.CreateNewAttributeMatrix = filterArgs.value<bool>(k_CreateNewAttributeMatrix_Key);
-  inputValues.OutputAttributeMatrixName = filterArgs.value<StringParameter::ValueType>(k_OutputAttributeMatrixName_Key);
-  inputValues.OutputArrayPrefix = filterArgs.value<StringParameter::ValueType>(k_OutputArrayPrefix_Key);
-
-  return ConvertColorToGrayScale(dataStructure, messageHandler, shouldCancel, &inputValues)();
-*/
+#include "complex/Parameters/ChoicesParameter.hpp"
+#include "complex/Parameters/MultiArraySelectionParameter.hpp"
+#include "complex/Parameters/VectorParameter.hpp"
+#include "complex/Parameters/StringParameter.hpp"
 
 namespace complex
 {

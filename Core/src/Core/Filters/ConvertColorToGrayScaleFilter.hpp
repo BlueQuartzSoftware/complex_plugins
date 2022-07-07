@@ -1,6 +1,6 @@
 #pragma once
 
-#include "SIMPL/SIMPL_export.hpp"
+#include "Core/Core_export.hpp"
 
 #include "complex/Filter/FilterTraits.hpp"
 #include "complex/Filter/IFilter.hpp"
@@ -8,20 +8,20 @@
 namespace complex
 {
 /**
- * @class ConvertColorToGrayScale
+ * @class ConvertColorToGrayScaleFilter
  * @brief This filter will ....
  */
-class SIMPL_EXPORT ConvertColorToGrayScale : public IFilter
+class CORE_EXPORT ConvertColorToGrayScaleFilter : public IFilter
 {
 public:
-  ConvertColorToGrayScale() = default;
-  ~ConvertColorToGrayScale() noexcept override = default;
+  ConvertColorToGrayScaleFilter() = default;
+  ~ConvertColorToGrayScaleFilter() noexcept override = default;
 
-  ConvertColorToGrayScale(const ConvertColorToGrayScale&) = delete;
-  ConvertColorToGrayScale(ConvertColorToGrayScale&&) noexcept = delete;
+  ConvertColorToGrayScaleFilter(const ConvertColorToGrayScaleFilter&) = delete;
+  ConvertColorToGrayScaleFilter(ConvertColorToGrayScaleFilter&&) noexcept = delete;
 
-  ConvertColorToGrayScale& operator=(const ConvertColorToGrayScale&) = delete;
-  ConvertColorToGrayScale& operator=(ConvertColorToGrayScale&&) noexcept = delete;
+  ConvertColorToGrayScaleFilter& operator=(const ConvertColorToGrayScaleFilter&) = delete;
+  ConvertColorToGrayScaleFilter& operator=(ConvertColorToGrayScaleFilter&&) noexcept = delete;
 
   // Parameter Keys
   static inline constexpr StringLiteral k_ConversionAlgorithm_Key = "ConversionAlgorithm";
@@ -98,4 +98,4 @@ protected:
 };
 } // namespace complex
 
-COMPLEX_DEF_FILTER_TRAITS(complex, ConvertColorToGrayScale, "eb5a89c4-4e71-59b1-9719-d10a652d961e");
+COMPLEX_DEF_FILTER_TRAITS(complex, ConvertColorToGrayScaleFilter, "eb5a89c4-4e71-59b1-9719-d10a652d961e");

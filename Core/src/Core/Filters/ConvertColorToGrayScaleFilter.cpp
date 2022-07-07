@@ -1,4 +1,4 @@
-#include "ConvertColorToGrayScale.hpp"
+#include "ConvertColorToGrayScaleFilter.hpp"
 
 #include "complex/DataStructure/DataPath.hpp"
 #include "complex/Parameters/BoolParameter.hpp"
@@ -8,42 +8,44 @@
 #include "complex/Parameters/StringParameter.hpp"
 #include "complex/Parameters/VectorParameter.hpp"
 
+#include "Core/Filters/Algorithms/ConvertColorToGrayScale.hpp"
+
 using namespace complex;
 
 namespace complex
 {
 //------------------------------------------------------------------------------
-std::string ConvertColorToGrayScale::name() const
+std::string ConvertColorToGrayScaleFilter::name() const
 {
-  return FilterTraits<ConvertColorToGrayScale>::name.str();
+  return FilterTraits<ConvertColorToGrayScaleFilter>::name.str();
 }
 
 //------------------------------------------------------------------------------
-std::string ConvertColorToGrayScale::className() const
+std::string ConvertColorToGrayScaleFilter::className() const
 {
-  return FilterTraits<ConvertColorToGrayScale>::className;
+  return FilterTraits<ConvertColorToGrayScaleFilter>::className;
 }
 
 //------------------------------------------------------------------------------
-Uuid ConvertColorToGrayScale::uuid() const
+Uuid ConvertColorToGrayScaleFilter::uuid() const
 {
-  return FilterTraits<ConvertColorToGrayScale>::uuid;
+  return FilterTraits<ConvertColorToGrayScaleFilter>::uuid;
 }
 
 //------------------------------------------------------------------------------
-std::string ConvertColorToGrayScale::humanName() const
+std::string ConvertColorToGrayScaleFilter::humanName() const
 {
   return "Color to GrayScale";
 }
 
 //------------------------------------------------------------------------------
-std::vector<std::string> ConvertColorToGrayScale::defaultTags() const
+std::vector<std::string> ConvertColorToGrayScaleFilter::defaultTags() const
 {
   return {"#Core", "#Image"};
 }
 
 //------------------------------------------------------------------------------
-Parameters ConvertColorToGrayScale::parameters() const
+Parameters ConvertColorToGrayScaleFilter::parameters() const
 {
   Parameters params;
   // Create the parameter descriptors that are needed for this filter
@@ -65,13 +67,13 @@ Parameters ConvertColorToGrayScale::parameters() const
 }
 
 //------------------------------------------------------------------------------
-IFilter::UniquePointer ConvertColorToGrayScale::clone() const
+IFilter::UniquePointer ConvertColorToGrayScaleFilter::clone() const
 {
-  return std::make_unique<ConvertColorToGrayScale>();
+  return std::make_unique<ConvertColorToGrayScaleFilter>();
 }
 
 //------------------------------------------------------------------------------
-IFilter::PreflightResult ConvertColorToGrayScale::preflightImpl(const DataStructure& dataStructure, const Arguments& filterArgs, const MessageHandler& messageHandler,
+IFilter::PreflightResult ConvertColorToGrayScaleFilter::preflightImpl(const DataStructure& dataStructure, const Arguments& filterArgs, const MessageHandler& messageHandler,
                                                                 const std::atomic_bool& shouldCancel) const
 {
   /****************************************************************************
@@ -134,24 +136,19 @@ IFilter::PreflightResult ConvertColorToGrayScale::preflightImpl(const DataStruct
 }
 
 //------------------------------------------------------------------------------
-Result<> ConvertColorToGrayScale::executeImpl(DataStructure& dataStructure, const Arguments& filterArgs, const PipelineFilter* pipelineNode, const MessageHandler& messageHandler,
+Result<> ConvertColorToGrayScaleFilter::executeImpl(DataStructure& dataStructure, const Arguments& filterArgs, const PipelineFilter* pipelineNode, const MessageHandler& messageHandler,
                                               const std::atomic_bool& shouldCancel) const
 {
-  /****************************************************************************
-   * Extract the actual input values from the 'filterArgs' object
-   ***************************************************************************/
-  auto pConversionAlgorithmValue = filterArgs.value<ChoicesParameter::ValueType>(k_ConversionAlgorithm_Key);
-  auto pColorWeightsValue = filterArgs.value<VectorFloat32Parameter::ValueType>(k_ColorWeights_Key);
-  auto pColorChannelValue = filterArgs.value<int32>(k_ColorChannel_Key);
-  auto pInputDataArrayVectorValue = filterArgs.value<MultiArraySelectionParameter::ValueType>(k_InputDataArrayVector_Key);
-  auto pCreateNewAttributeMatrixValue = filterArgs.value<bool>(k_CreateNewAttributeMatrix_Key);
-  auto pOutputAttributeMatrixNameValue = filterArgs.value<StringParameter::ValueType>(k_OutputAttributeMatrixName_Key);
-  auto pOutputArrayPrefixValue = filterArgs.value<StringParameter::ValueType>(k_OutputArrayPrefix_Key);
+  ConvertColorToGrayScaleInputValues inputValues;
 
-  /****************************************************************************
-   * Write your algorithm implementation in this function
-   ***************************************************************************/
+  inputValues.ConversionAlgorithm = filterArgs.value<ChoicesParameter::ValueType>(k_ConversionAlgorithm_Key);
+  inputValues.ColorWeights = filterArgs.value<VectorFloat32Parameter::ValueType>(k_ColorWeights_Key);
+  inputValues.ColorChannel = filterArgs.value<int32>(k_ColorChannel_Key);
+  inputValues.InputDataArrayVector = filterArgs.value<MultiArraySelectionParameter::ValueType>(k_InputDataArrayVector_Key);
+  inputValues.CreateNewAttributeMatrix = filterArgs.value<bool>(k_CreateNewAttributeMatrix_Key);
+  inputValues.OutputAttributeMatrixName = filterArgs.value<StringParameter::ValueType>(k_OutputAttributeMatrixName_Key);
+  inputValues.OutputArrayPrefix = filterArgs.value<StringParameter::ValueType>(k_OutputArrayPrefix_Key);
 
-  return {};
+  return ConvertColorToGrayScale(dataStructure, messageHandler, shouldCancel, &inputValues)();
 }
 } // namespace complex

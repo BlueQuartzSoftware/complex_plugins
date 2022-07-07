@@ -1,5 +1,5 @@
 /**
- * This file is auto generated from the original Core/ConvertColorToGrayScale
+ * This file is auto generated from the original Core/ConvertColorToGrayScaleFilter
  * runtime information. These are the steps that need to be taken to utilize this
  * unit test in the proper way.
  *
@@ -15,7 +15,7 @@
  * NOTE the format of the ```TEST_CASE``` macro. Please stick to this format to
  * allow easier parsing of the unit tests.
  *
- * When you start working on this unit test remove "[ConvertColorToGrayScale][.][UNIMPLEMENTED]"
+ * When you start working on this unit test remove "[ConvertColorToGrayScaleFilter][.][UNIMPLEMENTED]"
  * from the TEST_CASE macro. This will enable this unit test to be run by default
  * and report errors.
  */
@@ -28,26 +28,26 @@
 #include "complex/Parameters/StringParameter.hpp"
 #include "complex/Parameters/VectorParameter.hpp"
 
-#include "SIMPL/Filters/ConvertColorToGrayScale.hpp"
-#include "SIMPL/SIMPL_test_dirs.hpp"
+#include "Core/Filters/ConvertColorToGrayScaleFilter.hpp"
+#include "Core/Core_test_dirs.hpp"
 
 using namespace complex;
 
-TEST_CASE("Core::ConvertColorToGrayScale: Instantiation and Parameter Check", "[Core][ConvertColorToGrayScale][.][UNIMPLEMENTED][!mayfail]")
+TEST_CASE("Core::ConvertColorToGrayScale: Instantiation and Parameter Check", "[Core][ConvertColorToGrayScaleFilter]")
 {
   // Instantiate the filter, a DataStructure object and an Arguments Object
-  ConvertColorToGrayScale filter;
+  ConvertColorToGrayScaleFilter filter;
   DataStructure ds;
   Arguments args;
 
   // Create default Parameters for the filter.
-  args.insertOrAssign(ConvertColorToGrayScale::k_ColorWeights_Key, std::make_any<VectorFloat32Parameter::ValueType>(std::vector<float32>(3)));
-  args.insertOrAssign(ConvertColorToGrayScale::k_ColorChannel_Key, std::make_any<int32>(1234356));
-  args.insertOrAssign(ConvertColorToGrayScale::k_InputDataArrayVector_Key,
+  args.insertOrAssign(ConvertColorToGrayScaleFilter::k_ColorWeights_Key, std::make_any<VectorFloat32Parameter::ValueType>(std::vector<float32>(3)));
+  args.insertOrAssign(ConvertColorToGrayScaleFilter::k_ColorChannel_Key, std::make_any<int32>(1234356));
+  args.insertOrAssign(ConvertColorToGrayScaleFilter::k_InputDataArrayVector_Key,
                       std::make_any<MultiArraySelectionParameter::ValueType>(MultiArraySelectionParameter::ValueType{DataPath(), DataPath(), DataPath()}));
-  args.insertOrAssign(ConvertColorToGrayScale::k_CreateNewAttributeMatrix_Key, std::make_any<bool>(false));
-  args.insertOrAssign(ConvertColorToGrayScale::k_OutputAttributeMatrixName_Key, std::make_any<StringParameter::ValueType>("SomeString"));
-  args.insertOrAssign(ConvertColorToGrayScale::k_OutputArrayPrefix_Key, std::make_any<StringParameter::ValueType>("SomeString"));
+  args.insertOrAssign(ConvertColorToGrayScaleFilter::k_CreateNewAttributeMatrix_Key, std::make_any<bool>(false));
+  args.insertOrAssign(ConvertColorToGrayScaleFilter::k_OutputAttributeMatrixName_Key, std::make_any<StringParameter::ValueType>("SomeString"));
+  args.insertOrAssign(ConvertColorToGrayScaleFilter::k_OutputArrayPrefix_Key, std::make_any<StringParameter::ValueType>("SomeString"));
 
   // Preflight the filter and check result
   auto preflightResult = filter.preflight(ds, args);
@@ -58,12 +58,12 @@ TEST_CASE("Core::ConvertColorToGrayScale: Instantiation and Parameter Check", "[
   REQUIRE(executeResult.result.valid());
 }
 
-// TEST_CASE("Core::ConvertColorToGrayScale: Valid filter execution")
+// TEST_CASE("Core::ConvertColorToGrayScaleFilter: Valid filter execution")
 //{
 //
 //}
 
-// TEST_CASE("Core::ConvertColorToGrayScale: InValid filter execution")
+// TEST_CASE("Core::ConvertColorToGrayScaleFilter: InValid filter execution")
 //{
 //
 //}
