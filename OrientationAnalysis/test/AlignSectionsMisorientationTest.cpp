@@ -3,7 +3,6 @@
 #include "OrientationAnalysis/Filters/Algorithms/ReadH5Ebsd.hpp"
 #include "OrientationAnalysis/Filters/AlignSectionsMisorientationFilter.hpp"
 #include "OrientationAnalysis/Filters/ConvertOrientations.hpp"
-#include "OrientationAnalysis/Filters/ReadH5EbsdFilter.hpp"
 #include "OrientationAnalysis/Parameters/H5EbsdReaderParameter.h"
 
 #include "OrientationAnalysis/OrientationAnalysis_test_dirs.hpp"
@@ -19,8 +18,6 @@
 #include "complex/Parameters/NumericTypeParameter.hpp"
 #include "complex/Utilities/ArrayThreshold.hpp"
 #include "complex/Utilities/Parsing/HDF5/H5FileWriter.hpp"
-#include "complex/Utilities/StringUtilities.hpp"
-
 #include "complex/UnitTest/UnitTestCommon.hpp"
 
 #include "EbsdLib/IO/TSL/AngConstants.h"
@@ -51,14 +48,11 @@ void CompareDataArrays(const IDataArray& left, const IDataArray& right)
   const auto& newDataStore = right.getIDataStoreRefAs<AbstractDataStore<T>>();
   usize start = 0;
   usize end = oldDataStore.getSize();
-  bool same = true;
-  usize badIndex = 0;
   for(usize i = start; i < end; i++)
   {
     if(oldDataStore[i] != newDataStore[i])
     {
-      badIndex = i;
-      REQUIRE(oldDataStore[badIndex] == newDataStore[badIndex]);
+      REQUIRE(oldDataStore[i] == newDataStore[i]);
       break;
     }
   }
@@ -112,10 +106,9 @@ TEST_CASE("OrientationAnalysis::AlignSectionsMisorientation_1", "[OrientationAna
   const DataPath k_CellEnsembleAttributeMatrix = k_DataContainerPath.createChildPath("CellEnsembleData");
   const DataPath k_CrystalStructuresArrayPath = k_CellEnsembleAttributeMatrix.createChildPath(EbsdLib::EnsembleData::CrystalStructures);
 
-  const DataPath k_ExemplarShiftsPath = k_DataContainerPath.createChildPath("Exemplar Shifts");
+  const DataPath k_ExemplarShiftsPath = k_ExemplarDataContainerPath.createChildPath("Exemplar Shifts");
 
-  DataStructure dataStructure;
-
+  DataStructure exemplarDataStructure;
   // Read Exemplar DREAM3D File Filter
   {
     constexpr StringLiteral k_ImportFileData = "Import_File_Data";
@@ -130,40 +123,67 @@ TEST_CASE("OrientationAnalysis::AlignSectionsMisorientation_1", "[OrientationAna
     args.insertOrAssign(k_ImportFileData, std::make_any<Dream3dImportParameter::ImportData>(parameter));
 
     // Preflight the filter and check result
-    auto preflightResult = filter->preflight(dataStructure, args);
+    auto preflightResult = filter->preflight(exemplarDataStructure, args);
     REQUIRE(preflightResult.outputActions.valid());
+
+    // Execute the filter and check the result
+    auto executeResult = filter->execute(exemplarDataStructure, args);
+    REQUIRE(executeResult.result.valid());
+  }
+  {
+    static constexpr StringLiteral k_InputFileKey = "input_file";
+    static constexpr StringLiteral k_ScalarTypeKey = "scalar_type";
+    static constexpr StringLiteral k_NTuplesKey = "n_tuples";
+    static constexpr StringLiteral k_NCompKey = "n_comp";
+    static constexpr StringLiteral k_NSkipLinesKey = "n_skip_lines";
+    static constexpr StringLiteral k_DelimiterChoiceKey = "delimiter_choice";
+    static constexpr StringLiteral k_DataArrayKey = "output_data_array";
+
+    // Compare the output of the shifts file with the exemplar file
+
+    auto filter = filterList->createFilter(k_ImportTextFilterHandle);
+    REQUIRE(nullptr != filter);
+
+    Arguments args;
+    // read in the exemplar shift data file
+    args.insertOrAssign(k_InputFileKey, std::make_any<FileSystemPathParameter::ValueType>(fs::path(fmt::format("{}/TestFiles/align_sections_misorientation.txt", unit_test::k_DREAM3DDataDir))));
+    args.insertOrAssign(k_ScalarTypeKey, std::make_any<NumericTypeParameter::ValueType>(complex::NumericType::int32));
+    args.insertOrAssign(k_NTuplesKey, std::make_any<uint64>(116));
+    args.insertOrAssign(k_NCompKey, std::make_any<uint64>(6));
+    args.insertOrAssign(k_NSkipLinesKey, std::make_any<uint64>(0));
+    args.insertOrAssign(k_DelimiterChoiceKey, std::make_any<ChoicesParameter::ValueType>(4));
+    args.insertOrAssign(k_DataArrayKey, std::make_any<DataPath>(k_ExemplarShiftsPath));
+
+    // Preflight the filter and check result
+    auto preflightResult = filter->preflight(exemplarDataStructure, args);
+    COMPLEX_RESULT_REQUIRE_VALID(preflightResult.outputActions)
+
+    // Execute the filter and check the result
+    auto executeResult = filter->execute(exemplarDataStructure, args);
+    COMPLEX_RESULT_REQUIRE_VALID(executeResult.result)
+  }
+
+  DataStructure dataStructure;
+  // Read the Small IN100 Data set
+  {
+    constexpr StringLiteral k_ImportFileData = "Import_File_Data";
+
+    auto filter = filterList->createFilter(k_ImportDream3dFilterHandle);
+    REQUIRE(nullptr != filter);
+
+    Dream3dImportParameter::ImportData parameter;
+    parameter.FilePath = fs::path(fmt::format("{}/TestFiles/Small_IN100.dream3d", unit_test::k_DREAM3DDataDir));
+
+    Arguments args;
+    args.insertOrAssign(k_ImportFileData, std::make_any<Dream3dImportParameter::ImportData>(parameter));
+
+    // Preflight the filter and check result
+    auto preflightResult = filter->preflight(dataStructure, args);
+    COMPLEX_RESULT_REQUIRE_VALID(preflightResult.outputActions)
 
     // Execute the filter and check the result
     auto executeResult = filter->execute(dataStructure, args);
-    REQUIRE(executeResult.result.valid());
-  }
-
-  // Read the H5Ebsd File
-  {
-    ReadH5EbsdFilter filter;
-    Arguments args;
-
-    H5EbsdReaderParameter::ValueType h5ebsdParameter;
-    h5ebsdParameter.inputFilePath = fmt::format("{}/TestFiles/SmallIN100.h5ebsd", unit_test::k_DREAM3DDataDir.view());
-    h5ebsdParameter.startSlice = 1;
-    h5ebsdParameter.endSlice = 117;
-    h5ebsdParameter.eulerRepresentation = EbsdLib::AngleRepresentation::Radians;
-    h5ebsdParameter.useRecommendedTransform = true;
-    h5ebsdParameter.hdf5DataPaths = {EbsdLib::Ang::ConfidenceIndex, EbsdLib::Ang::ImageQuality, EbsdLib::H5Ebsd::Phases, EbsdLib::CellData::EulerAngles};
-
-    // Create default Parameters for the filter.
-    args.insertOrAssign(ReadH5EbsdFilter::k_ReadH5EbsdFilter_Key, std::make_any<H5EbsdReaderParameter::ValueType>(h5ebsdParameter));
-    args.insertOrAssign(ReadH5EbsdFilter::k_DataContainerName_Key, std::make_any<DataPath>(k_DataContainerPath));
-    args.insertOrAssign(ReadH5EbsdFilter::k_CellAttributeMatrixName_Key, std::make_any<DataPath>(k_CellAttributeMatrix));
-    args.insertOrAssign(ReadH5EbsdFilter::k_CellEnsembleAttributeMatrixName_Key, std::make_any<DataPath>(k_CellEnsembleAttributeMatrix));
-
-    // Preflight the filter and check result
-    auto preflightResult = filter.preflight(dataStructure, args);
-    REQUIRE(preflightResult.outputActions.valid());
-
-    // Execute the filter and check the result
-    auto executeResult = filter.execute(dataStructure, args);
-    REQUIRE(executeResult.result.valid());
+    COMPLEX_RESULT_REQUIRE_VALID(executeResult.result)
   }
 
   // MultiThreshold Objects Filter
@@ -248,14 +268,14 @@ TEST_CASE("OrientationAnalysis::AlignSectionsMisorientation_1", "[OrientationAna
 
     // Preflight the filter and check result
     auto preflightResult = filter.preflight(dataStructure, args);
-    COMPLEX_RESULT_REQUIRE_VALID(preflightResult.outputActions);
+    COMPLEX_RESULT_REQUIRE_VALID(preflightResult.outputActions)
 
     // Execute the filter and check the result
     auto executeResult = filter.execute(dataStructure, args);
-    COMPLEX_RESULT_REQUIRE_VALID(executeResult.result);
+    COMPLEX_RESULT_REQUIRE_VALID(executeResult.result)
   }
 
-  // Use the Read Text File Filter 2x to read in the Exemplar Shift File and the generated Shift File
+  // Use the Read Text File Filter to read in the generated Shift File
   {
     static constexpr StringLiteral k_InputFileKey = "input_file";
     static constexpr StringLiteral k_ScalarTypeKey = "scalar_type";
@@ -281,38 +301,19 @@ TEST_CASE("OrientationAnalysis::AlignSectionsMisorientation_1", "[OrientationAna
 
     // Preflight the filter and check result
     auto preflightResult = filter->preflight(dataStructure, args);
-    COMPLEX_RESULT_REQUIRE_VALID(preflightResult.outputActions);
+    COMPLEX_RESULT_REQUIRE_VALID(preflightResult.outputActions)
 
     // Execute the filter and check the result
     auto executeResult = filter->execute(dataStructure, args);
-    COMPLEX_RESULT_REQUIRE_VALID(executeResult.result);
-
-    // Run the filter again, but this time read in the exemplar data set.
-    args.insertOrAssign(k_InputFileKey, std::make_any<FileSystemPathParameter::ValueType>(fs::path(fmt::format("{}/TestFiles/align_sections_misorientation.txt", unit_test::k_DREAM3DDataDir))));
-    args.insertOrAssign(k_ScalarTypeKey, std::make_any<NumericTypeParameter::ValueType>(complex::NumericType::int32));
-    args.insertOrAssign(k_NTuplesKey, std::make_any<uint64>(116));
-    args.insertOrAssign(k_NCompKey, std::make_any<uint64>(6));
-    args.insertOrAssign(k_NSkipLinesKey, std::make_any<uint64>(0));
-    args.insertOrAssign(k_DelimiterChoiceKey, std::make_any<ChoicesParameter::ValueType>(4));
-    args.insertOrAssign(k_DataArrayKey, std::make_any<DataPath>(k_ExemplarShiftsPath));
-
-    // Preflight the filter and check result
-    preflightResult = filter->preflight(dataStructure, args);
-    COMPLEX_RESULT_REQUIRE_VALID(preflightResult.outputActions);
-
-    // Execute the filter and check the result
-    executeResult = filter->execute(dataStructure, args);
-    COMPLEX_RESULT_REQUIRE_VALID(executeResult.result);
+    COMPLEX_RESULT_REQUIRE_VALID(executeResult.result)
 
     const auto& calcShifts = dataStructure.getDataRefAs<Int32Array>(k_CalculatedShiftsPath);
-    const auto& exemplarShifts = dataStructure.getDataRefAs<Int32Array>(k_ExemplarShiftsPath);
+    const auto& exemplarShifts = exemplarDataStructure.getDataRefAs<Int32Array>(k_ExemplarShiftsPath);
 
     size_t numElements = calcShifts.getSize();
-    bool sameValue = true;
     for(size_t i = 0; i < numElements; i++)
     {
-      sameValue = (calcShifts[i] == exemplarShifts[i]);
-      if(!sameValue)
+      if(calcShifts[i] != exemplarShifts[i])
       {
         REQUIRE(calcShifts[i] == exemplarShifts[i]);
       }
@@ -325,19 +326,21 @@ TEST_CASE("OrientationAnalysis::AlignSectionsMisorientation_1", "[OrientationAna
     std::vector<DataPath> selectedCellArrays;
 
     // Create the vector of selected cell DataPaths
-    for(auto child = cellDataGroup.begin(); child != cellDataGroup.end(); ++child)
+    for(auto& child : cellDataGroup)
     {
-      selectedCellArrays.push_back(k_CellAttributeMatrix.createChildPath(child->second->getName()));
+      selectedCellArrays.push_back(k_CellAttributeMatrix.createChildPath(child.second->getName()));
     }
 
     for(const auto& cellArrayPath : selectedCellArrays)
     {
       const auto& generatedDataArray = dataStructure.getDataRefAs<IDataArray>(cellArrayPath);
-      std::string aPath = cellArrayPath.toString();
-      aPath = complex::StringUtilities::replace(aPath, k_DataContainer, k_ExemplarDataContainer);
-      DataPath createdArrayPath = DataPath::FromString(aPath).value();
-      auto& exemplarDataArray = dataStructure.getDataRefAs<IDataArray>(createdArrayPath);
       DataType type = generatedDataArray.getDataType();
+
+      // Now generate the path to the exemplar data set in the exemplar data structure.
+      std::vector<std::string> generatedPathVector = cellArrayPath.getPathVector();
+      generatedPathVector[0] = k_ExemplarDataContainer;
+      DataPath exemplarDataArrayPath(generatedPathVector);
+      auto& exemplarDataArray = exemplarDataStructure.getDataRefAs<IDataArray>(exemplarDataArrayPath);
       DataType exemplarType = exemplarDataArray.getDataType();
 
       if(type != exemplarType)
@@ -400,11 +403,13 @@ TEST_CASE("OrientationAnalysis::AlignSectionsMisorientation_1", "[OrientationAna
     }
   }
 
-  Result<H5::FileWriter> result = H5::FileWriter::CreateFile(fmt::format("{}/align_sections_misorientation.dream3d", unit_test::k_BinaryDir));
-  H5::FileWriter fileWriter = std::move(result.value());
+  {
+    Result<H5::FileWriter> result = H5::FileWriter::CreateFile(fmt::format("{}/align_sections_misorientation.dream3d", unit_test::k_BinaryDir));
+    H5::FileWriter fileWriter = std::move(result.value());
 
-  herr_t err = dataStructure.writeHdf5(fileWriter);
-  REQUIRE(err >= 0);
+    herr_t err = dataStructure.writeHdf5(fileWriter);
+    REQUIRE(err >= 0);
+  }
 }
 
 #if 0
