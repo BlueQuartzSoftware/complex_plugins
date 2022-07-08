@@ -7,8 +7,8 @@
 #include "complex/Filter/IFilter.hpp"
 #include "complex/Parameters/ChoicesParameter.hpp"
 #include "complex/Parameters/MultiArraySelectionParameter.hpp"
-#include "complex/Parameters/VectorParameter.hpp"
 #include "complex/Parameters/StringParameter.hpp"
+#include "complex/Parameters/VectorParameter.hpp"
 
 namespace complex
 {
@@ -18,9 +18,10 @@ struct CORE_EXPORT ConvertColorToGrayScaleInputValues
   ChoicesParameter::ValueType ConversionAlgorithm;
   VectorFloat32Parameter::ValueType ColorWeights;
   int32 ColorChannel;
-  MultiArraySelectionParameter::ValueType InputDataArrayVector;
+  MultiArraySelectionParameter::ValueType InputDataArrayPaths;
+  std::vector<DataPath> OutputDataArrayPaths;
   bool CreateNewAttributeMatrix;
-  StringParameter::ValueType OutputAttributeMatrixName;
+  DataPath OutputDataGroupPath;
   StringParameter::ValueType OutputArrayPrefix;
 };
 
@@ -40,6 +41,15 @@ public:
   ConvertColorToGrayScale(ConvertColorToGrayScale&&) noexcept = delete;
   ConvertColorToGrayScale& operator=(const ConvertColorToGrayScale&) = delete;
   ConvertColorToGrayScale& operator=(ConvertColorToGrayScale&&) noexcept = delete;
+
+  using EnumType = uint32_t;
+  enum class ConversionType : EnumType
+  {
+    Luminosity = 0,
+    Average = 1,
+    Lightness = 2,
+    SingleChannel = 3
+  };
 
   Result<> operator()();
 
