@@ -130,6 +130,8 @@ TEST_CASE("OrientationAnalysis::AlignSectionsMisorientation_1", "[OrientationAna
     auto executeResult = filter->execute(exemplarDataStructure, args);
     REQUIRE(executeResult.result.valid());
   }
+
+  // Read Exemplar Shifts File
   {
     static constexpr StringLiteral k_InputFileKey = "input_file";
     static constexpr StringLiteral k_ScalarTypeKey = "scalar_type";
@@ -186,7 +188,7 @@ TEST_CASE("OrientationAnalysis::AlignSectionsMisorientation_1", "[OrientationAna
     COMPLEX_RESULT_REQUIRE_VALID(executeResult.result)
   }
 
-  // MultiThreshold Objects Filter
+  // MultiThreshold Objects Filter (From ComplexCore Plugins)
   {
     constexpr StringLiteral k_ArrayThresholds_Key = "array_thresholds";
     constexpr StringLiteral k_CreatedDataPath_Key = "created_data_path";
@@ -225,7 +227,7 @@ TEST_CASE("OrientationAnalysis::AlignSectionsMisorientation_1", "[OrientationAna
     REQUIRE(executeResult.result.valid());
   }
 
-  // Convert Orientations Filter
+  // Convert Orientations Filter (From OrientationAnalysis Plugin)
   {
     Arguments args;
     ConvertOrientations filter;
@@ -244,7 +246,7 @@ TEST_CASE("OrientationAnalysis::AlignSectionsMisorientation_1", "[OrientationAna
     REQUIRE(executeResult.result.valid());
   }
 
-  // Align Sections Filter
+  // Align Sections Misorientation Filter (From OrientationAnalysis Plugin)
   {
     Arguments args;
     AlignSectionsMisorientationFilter filter;

@@ -9,8 +9,10 @@
 #include "complex/Parameters/ChoicesParameter.hpp"
 #include "complex/Parameters/Dream3dImportParameter.hpp"
 #include "complex/Parameters/FileSystemPathParameter.hpp"
+#include "complex/Parameters/GeometrySelectionParameter.hpp"
 #include "complex/Parameters/NumericTypeParameter.hpp"
 #include "complex/UnitTest/UnitTestCommon.hpp"
+#include "complex/Utilities/Parsing/HDF5/H5FileWriter.hpp"
 
 #include <filesystem>
 namespace fs = std::filesystem;
@@ -37,6 +39,27 @@ using namespace complex;
  * Compare all the data arrays from the "Exemplar Data / CellData"
  */
 
+namespace EbsdLib
+{
+namespace Ang
+{
+const std::string ConfidenceIndex("Confidence Index");
+const std::string ImageQuality("Image Quality");
+
+} // namespace Ang
+namespace CellData
+{
+inline const std::string EulerAngles("EulerAngles");
+inline const std::string Phases("Phases");
+} // namespace CellData
+namespace EnsembleData
+{
+inline const std::string CrystalStructures("CrystalStructures");
+inline const std::string LatticeConstants("LatticeConstants");
+inline const std::string MaterialName("MaterialName");
+} // namespace EnsembleData
+} // namespace EbsdLib
+
 template <typename T>
 void CompareDataArrays(const IDataArray& left, const IDataArray& right)
 {
@@ -57,6 +80,7 @@ void CompareDataArrays(const IDataArray& left, const IDataArray& right)
   }
 }
 
+
 struct make_shared_enabler : public complex::Application
 {
 };
@@ -69,7 +93,6 @@ TEST_CASE("Core::AlignSectionsFeatureCentroidFilter: Instantiation and Parameter
 
   // Make sure we can load the needed filters from the plugins
   const Uuid k_ComplexCorePluginId = *Uuid::FromString("05cc618b-781f-4ac0-b9ac-43f26ce1854f");
-
   // Make sure we can instantiate the Import Text Filter
   const Uuid k_MultiThresholdObjectsId = *Uuid::FromString("4246245e-1011-4add-8436-0af6bed19228");
   const FilterHandle k_MultiThresholdObjectsFilterHandle(k_MultiThresholdObjectsId, k_ComplexCorePluginId);
@@ -82,10 +105,8 @@ TEST_CASE("Core::AlignSectionsFeatureCentroidFilter: Instantiation and Parameter
 
   const Uuid k_OrientationAnalysisPluginId = *Uuid::FromString("c09cf01b-014e-5adb-84eb-ea76fc79eeb1");
 
-  const Uuid k_ReadH5EbsdFilterId = *Uuid::FromString("4ef7f56b-616e-5a80-9e68-1da8f35ad235");
-  const FilterHandle k_ReadH5EbsdFilterHandle(k_ReadH5EbsdFilterId, k_OrientationAnalysisPluginId);
+  const Uuid k_CorePluginId = *Uuid::FromString("65a0a3fc-8c93-5405-8ac6-182e7f313a69");
 
-#if 0
   // Instantiate the filter, a DataStructure object and an Arguments Object
   const std::string k_Quats("Quats");
   const std::string k_Phases("Phases");
@@ -112,10 +133,9 @@ TEST_CASE("Core::AlignSectionsFeatureCentroidFilter: Instantiation and Parameter
   const DataPath k_CellEnsembleAttributeMatrix = k_DataContainerPath.createChildPath("CellEnsembleData");
   const DataPath k_CrystalStructuresArrayPath = k_CellEnsembleAttributeMatrix.createChildPath(EbsdLib::EnsembleData::CrystalStructures);
 
-  const DataPath k_ExemplarShiftsPath = k_DataContainerPath.createChildPath("Exemplar Shifts");
+  const DataPath k_ExemplarShiftsPath = k_ExemplarDataContainerPath.createChildPath("Exemplar Shifts");
 
-  DataStructure dataStructure;
-
+  DataStructure exemplarDataStructure;
   // Read Exemplar DREAM3D File Filter
   {
     constexpr StringLiteral k_ImportFileData = "Import_File_Data";
@@ -130,43 +150,71 @@ TEST_CASE("Core::AlignSectionsFeatureCentroidFilter: Instantiation and Parameter
     args.insertOrAssign(k_ImportFileData, std::make_any<Dream3dImportParameter::ImportData>(parameter));
 
     // Preflight the filter and check result
-    auto preflightResult = filter->preflight(dataStructure, args);
+    auto preflightResult = filter->preflight(exemplarDataStructure, args);
     REQUIRE(preflightResult.outputActions.valid());
+
+    // Execute the filter and check the result
+    auto executeResult = filter->execute(exemplarDataStructure, args);
+    REQUIRE(executeResult.result.valid());
+  }
+
+  // Read Exemplar Shifts File
+  {
+    static constexpr StringLiteral k_InputFileKey = "input_file";
+    static constexpr StringLiteral k_ScalarTypeKey = "scalar_type";
+    static constexpr StringLiteral k_NTuplesKey = "n_tuples";
+    static constexpr StringLiteral k_NCompKey = "n_comp";
+    static constexpr StringLiteral k_NSkipLinesKey = "n_skip_lines";
+    static constexpr StringLiteral k_DelimiterChoiceKey = "delimiter_choice";
+    static constexpr StringLiteral k_DataArrayKey = "output_data_array";
+
+    // Compare the output of the shifts file with the exemplar file
+
+    auto filter = filterList->createFilter(k_ImportTextFilterHandle);
+    REQUIRE(nullptr != filter);
+
+    Arguments args;
+    // read in the exemplar shift data file
+    args.insertOrAssign(k_InputFileKey, std::make_any<FileSystemPathParameter::ValueType>(fs::path(fmt::format("{}/TestFiles/align_sections_feature_centroid.txt", unit_test::k_DREAM3DDataDir))));
+    args.insertOrAssign(k_ScalarTypeKey, std::make_any<NumericTypeParameter::ValueType>(complex::NumericType::int32));
+    args.insertOrAssign(k_NTuplesKey, std::make_any<uint64>(116));
+    args.insertOrAssign(k_NCompKey, std::make_any<uint64>(6));
+    args.insertOrAssign(k_NSkipLinesKey, std::make_any<uint64>(0));
+    args.insertOrAssign(k_DelimiterChoiceKey, std::make_any<ChoicesParameter::ValueType>(4));
+    args.insertOrAssign(k_DataArrayKey, std::make_any<DataPath>(k_ExemplarShiftsPath));
+
+    // Preflight the filter and check result
+    auto preflightResult = filter->preflight(exemplarDataStructure, args);
+    COMPLEX_RESULT_REQUIRE_VALID(preflightResult.outputActions)
+
+    // Execute the filter and check the result
+    auto executeResult = filter->execute(exemplarDataStructure, args);
+    COMPLEX_RESULT_REQUIRE_VALID(executeResult.result)
+  }
+  DataStructure dataStructure;
+  // Read the Small IN100 Data set
+  {
+    constexpr StringLiteral k_ImportFileData = "Import_File_Data";
+
+    auto filter = filterList->createFilter(k_ImportDream3dFilterHandle);
+    REQUIRE(nullptr != filter);
+
+    Dream3dImportParameter::ImportData parameter;
+    parameter.FilePath = fs::path(fmt::format("{}/TestFiles/Small_IN100.dream3d", unit_test::k_DREAM3DDataDir));
+
+    Arguments args;
+    args.insertOrAssign(k_ImportFileData, std::make_any<Dream3dImportParameter::ImportData>(parameter));
+
+    // Preflight the filter and check result
+    auto preflightResult = filter->preflight(dataStructure, args);
+    COMPLEX_RESULT_REQUIRE_VALID(preflightResult.outputActions)
 
     // Execute the filter and check the result
     auto executeResult = filter->execute(dataStructure, args);
-    REQUIRE(executeResult.result.valid());
+    COMPLEX_RESULT_REQUIRE_VALID(executeResult.result)
   }
 
-  // Read the H5Ebsd File
-  {
-    ReadH5EbsdFilter filter;
-    Arguments args;
-
-    H5EbsdReaderParameter::ValueType h5ebsdParameter;
-    h5ebsdParameter.inputFilePath = fmt::format("{}/TestFiles/SmallIN100.h5ebsd", unit_test::k_DREAM3DDataDir.view());
-    h5ebsdParameter.startSlice = 1;
-    h5ebsdParameter.endSlice = 117;
-    h5ebsdParameter.eulerRepresentation = EbsdLib::AngleRepresentation::Radians;
-    h5ebsdParameter.useRecommendedTransform = true;
-    h5ebsdParameter.hdf5DataPaths = {EbsdLib::Ang::ConfidenceIndex, EbsdLib::Ang::ImageQuality, EbsdLib::H5Ebsd::Phases, EbsdLib::CellData::EulerAngles};
-
-    // Create default Parameters for the filter.
-    args.insertOrAssign(ReadH5EbsdFilter::k_ReadH5EbsdFilter_Key, std::make_any<H5EbsdReaderParameter::ValueType>(h5ebsdParameter));
-    args.insertOrAssign(ReadH5EbsdFilter::k_DataContainerName_Key, std::make_any<DataPath>(k_DataContainerPath));
-    args.insertOrAssign(ReadH5EbsdFilter::k_CellAttributeMatrixName_Key, std::make_any<DataPath>(k_CellAttributeMatrix));
-    args.insertOrAssign(ReadH5EbsdFilter::k_CellEnsembleAttributeMatrixName_Key, std::make_any<DataPath>(k_CellEnsembleAttributeMatrix));
-
-    // Preflight the filter and check result
-    auto preflightResult = filter.preflight(dataStructure, args);
-    REQUIRE(preflightResult.outputActions.valid());
-
-    // Execute the filter and check the result
-    auto executeResult = filter.execute(dataStructure, args);
-    REQUIRE(executeResult.result.valid());
-  }
-
-  // MultiThreshold Objects Filter
+  // MultiThreshold Objects Filter (From ComplexCore Plugins)
   {
     constexpr StringLiteral k_ArrayThresholds_Key = "array_thresholds";
     constexpr StringLiteral k_CreatedDataPath_Key = "created_data_path";
@@ -205,235 +253,284 @@ TEST_CASE("Core::AlignSectionsFeatureCentroidFilter: Instantiation and Parameter
     REQUIRE(executeResult.result.valid());
   }
 
-  // Convert Orientations Filter
+  // Convert Orientations Filter (From OrientationAnalysis Plugin)
   {
-    Arguments args;
-    ConvertOrientations filter;
+    const Uuid k_ConvertOrientationsFilterId = *Uuid::FromString("e5629880-98c4-5656-82b8-c9fe2b9744de");
+    const FilterHandle k_ConvertOrientationsFilterHandle(k_ConvertOrientationsFilterId, k_OrientationAnalysisPluginId);
 
-    args.insertOrAssign(ConvertOrientations::k_InputType_Key, std::make_any<ChoicesParameter::ValueType>(0));
-    args.insertOrAssign(ConvertOrientations::k_OutputType_Key, std::make_any<ChoicesParameter::ValueType>(2));
-    args.insertOrAssign(ConvertOrientations::k_InputOrientationArrayPath_Key, std::make_any<DataPath>(k_EulersArrayPath));
-    args.insertOrAssign(ConvertOrientations::k_OutputOrientationArrayName_Key, std::make_any<DataPath>(k_QuatsArrayPath));
+    auto filter = filterList->createFilter(k_ConvertOrientationsFilterHandle);
+    REQUIRE(nullptr != filter);
+
+    // Parameter Keys from AlignSectionsMisorientation. If those change these will need to be updated
+    constexpr StringLiteral k_InputType_Key = "InputType";
+    constexpr StringLiteral k_OutputType_Key = "OutputType";
+    constexpr StringLiteral k_InputOrientationArrayPath_Key = "InputOrientationArrayPath";
+    constexpr StringLiteral k_OutputOrientationArrayName_Key = "OutputOrientationArrayName";
+
+    Arguments args;
+    args.insertOrAssign(k_InputType_Key, std::make_any<ChoicesParameter::ValueType>(0));
+    args.insertOrAssign(k_OutputType_Key, std::make_any<ChoicesParameter::ValueType>(2));
+    args.insertOrAssign(k_InputOrientationArrayPath_Key, std::make_any<DataPath>(k_EulersArrayPath));
+    args.insertOrAssign(k_OutputOrientationArrayName_Key, std::make_any<DataPath>(k_QuatsArrayPath));
 
     // Preflight the filter and check result
-    auto preflightResult = filter.preflight(dataStructure, args);
+    auto preflightResult = filter->preflight(dataStructure, args);
     REQUIRE(preflightResult.outputActions.valid());
 
     // Execute the filter and check the result
-    auto executeResult = filter.execute(dataStructure, args);
+    auto executeResult = filter->execute(dataStructure, args);
     REQUIRE(executeResult.result.valid());
   }
 
-  // Align Sections Misorientation Filter
+  // Align Sections Misorientation Filter (From OrientationAnalysis Plugin)
   {
+    const Uuid k_AlignSectionMisorientationFilterId = *Uuid::FromString("4fb2b9de-3124-534b-b914-dbbbdbc14604");
+    const FilterHandle k_AlignSectionMisorientationFilterHandle(k_AlignSectionMisorientationFilterId, k_OrientationAnalysisPluginId);
+
+    auto filter = filterList->createFilter(k_AlignSectionMisorientationFilterHandle);
+    REQUIRE(nullptr != filter);
+
+    // Parameter Keys
+    constexpr StringLiteral k_WriteAlignmentShifts_Key = "WriteAlignmentShifts";
+    constexpr StringLiteral k_AlignmentShiftFileName_Key = "AlignmentShiftFileName";
+
+    constexpr StringLiteral k_MisorientationTolerance_Key = "MisorientationTolerance";
+
+    constexpr StringLiteral k_GoodVoxels_Key = "UseGoodVoxels";
+    constexpr StringLiteral k_GoodVoxelsArrayPath_Key = "GoodVoxelsArrayPath";
+
+    constexpr StringLiteral k_QuatsArrayPath_Key = "QuatsArrayPath";
+    constexpr StringLiteral k_CellPhasesArrayPath_Key = "CellPhasesArrayPath";
+    constexpr StringLiteral k_CrystalStructuresArrayPath_Key = "CrystalStructuresArrayPath";
+
+    constexpr StringLiteral k_SelectedImageGeometry_Key = "SelectedImageGeometryPath";
+    constexpr StringLiteral k_SelectedCellDataGroup_Key = "SelectedCellDataPath";
+
     Arguments args;
-    AlignSectionsMisorientationFilter filter;
+
     // Create default Parameters for the filter.
-    args.insertOrAssign(AlignSectionsMisorientationFilter::k_WriteAlignmentShifts_Key, std::make_any<bool>(true));
-    args.insertOrAssign(AlignSectionsMisorientationFilter::k_AlignmentShiftFileName_Key,
-                        std::make_any<FileSystemPathParameter::ValueType>(fs::path(fmt::format("{}/AlignSectionsMisorientation_1.txt", unit_test::k_BinaryDir))));
+    args.insertOrAssign(k_WriteAlignmentShifts_Key, std::make_any<bool>(true));
+    args.insertOrAssign(k_AlignmentShiftFileName_Key, std::make_any<FileSystemPathParameter::ValueType>(fs::path(fmt::format("{}/AlignSectionsMisorientation_1.txt", unit_test::k_BinaryDir))));
 
-    args.insertOrAssign(AlignSectionsMisorientationFilter::k_MisorientationTolerance_Key, std::make_any<float32>(5.0F));
+    args.insertOrAssign(k_MisorientationTolerance_Key, std::make_any<float32>(5.0F));
 
-    args.insertOrAssign(AlignSectionsMisorientationFilter::k_GoodVoxels_Key, std::make_any<bool>(true));
-    args.insertOrAssign(AlignSectionsMisorientationFilter::k_GoodVoxelsArrayPath_Key, std::make_any<DataPath>(k_MaskArrayPath));
+    args.insertOrAssign(k_GoodVoxels_Key, std::make_any<bool>(true));
+    args.insertOrAssign(k_GoodVoxelsArrayPath_Key, std::make_any<DataPath>(k_MaskArrayPath));
 
-    args.insertOrAssign(AlignSectionsMisorientationFilter::k_QuatsArrayPath_Key, std::make_any<DataPath>(k_QuatsArrayPath));
-    args.insertOrAssign(AlignSectionsMisorientationFilter::k_CellPhasesArrayPath_Key, std::make_any<DataPath>(k_PhasesArrayPath));
+    args.insertOrAssign(k_QuatsArrayPath_Key, std::make_any<DataPath>(k_QuatsArrayPath));
+    args.insertOrAssign(k_CellPhasesArrayPath_Key, std::make_any<DataPath>(k_PhasesArrayPath));
 
-    args.insertOrAssign(AlignSectionsMisorientationFilter::k_CrystalStructuresArrayPath_Key, std::make_any<DataPath>(k_CrystalStructuresArrayPath));
+    args.insertOrAssign(k_CrystalStructuresArrayPath_Key, std::make_any<DataPath>(k_CrystalStructuresArrayPath));
 
-    args.insertOrAssign(AlignSectionsMisorientationFilter::k_SelectedImageGeometry_Key, std::make_any<DataPath>(k_DataContainerPath));
-    args.insertOrAssign(AlignSectionsMisorientationFilter::k_SelectedCellDataGroup_Key, std::make_any<DataPath>(k_CellAttributeMatrix));
+    args.insertOrAssign(k_SelectedImageGeometry_Key, std::make_any<DataPath>(k_DataContainerPath));
+    args.insertOrAssign(k_SelectedCellDataGroup_Key, std::make_any<DataPath>(k_CellAttributeMatrix));
 
     // Preflight the filter and check result
-    auto preflightResult = filter.preflight(dataStructure, args);
-    COMPLEX_RESULT_REQUIRE_VALID(preflightResult.outputActions);
+    auto preflightResult = filter->preflight(dataStructure, args);
+    REQUIRE(preflightResult.outputActions.valid());
 
     // Execute the filter and check the result
-    auto executeResult = filter.execute(dataStructure, args);
-    COMPLEX_RESULT_REQUIRE_VALID(executeResult.result);
+    auto executeResult = filter->execute(dataStructure, args);
+    REQUIRE(executeResult.result.valid());
   }
 
   // Identify Sample Filter
   {
+    const Uuid k_IdentifySampleFilterId = *Uuid::FromString("0e8c0818-a3fb-57d4-a5c8-7cb8ae54a40a");
+    const FilterHandle k_IdentifySampleFilterHandle(k_IdentifySampleFilterId, k_ComplexCorePluginId);
 
+    auto filter = filterList->createFilter(k_IdentifySampleFilterHandle);
+    REQUIRE(nullptr != filter);
+
+    // Parameter Keys
+    constexpr StringLiteral k_FillHoles_Key = "fill_holes";
+    constexpr StringLiteral k_ImageGeom_Key = "image_geometry";
+    constexpr StringLiteral k_GoodVoxels_Key = "good_voxels";
+
+    Arguments args;
+    args.insertOrAssign(k_FillHoles_Key, std::make_any<BoolParameter::ValueType>(false));
+    args.insertOrAssign(k_ImageGeom_Key, std::make_any<GeometrySelectionParameter::ValueType>(k_DataContainerPath));
+    args.insertOrAssign(k_GoodVoxels_Key, std::make_any<ArraySelectionParameter::ValueType>(k_MaskArrayPath));
+
+    // Preflight the filter and check result
+    auto preflightResult = filter->preflight(dataStructure, args);
+    REQUIRE(preflightResult.outputActions.valid());
+
+    // Execute the filter and check the result
+    auto executeResult = filter->execute(dataStructure, args);
+    REQUIRE(executeResult.result.valid());
   }
 
   // Align Sections Feature Centroid Filter
   {
+    const Uuid k_AlignSectionsFeatureCentroidFilterId = *Uuid::FromString("886f8b46-51b6-5682-a289-6febd10b7ef0");
+    const FilterHandle k_IdentifySampleFilterHandle(k_AlignSectionsFeatureCentroidFilterId, k_CorePluginId);
+
+    auto filter = filterList->createFilter(k_IdentifySampleFilterHandle);
+    REQUIRE(nullptr != filter);
+
+    // Parameter Keys
+    constexpr StringLiteral k_WriteAlignmentShifts_Key = "WriteAlignmentShifts";
+    constexpr StringLiteral k_AlignmentShiftFileName_Key = "AlignmentShiftFileName";
+    constexpr StringLiteral k_UseReferenceSlice_Key = "UseReferenceSlice";
+    constexpr StringLiteral k_ReferenceSlice_Key = "ReferenceSlice";
+    constexpr StringLiteral k_GoodVoxelsArrayPath_Key = "GoodVoxelsArrayPath";
+    constexpr StringLiteral k_SelectedImageGeometry_Key = "SelectedImageGeometryPath";
+    constexpr StringLiteral k_SelectedCellDataGroup_Key = "SelectedCellDataPath";
+
+    Arguments args;
+    // Create default Parameters for the filter.
+    args.insertOrAssign(k_WriteAlignmentShifts_Key, std::make_any<bool>(true));
+    args.insertOrAssign(k_AlignmentShiftFileName_Key, std::make_any<FileSystemPathParameter::ValueType>(fs::path(fmt::format("{}/AlignSectionsFeatureCentroid_1.txt", unit_test::k_BinaryDir))));
+    args.insertOrAssign(k_UseReferenceSlice_Key, std::make_any<bool>(true));
+    args.insertOrAssign(k_ReferenceSlice_Key, std::make_any<int32>(0));
+    args.insertOrAssign(k_GoodVoxelsArrayPath_Key, std::make_any<DataPath>(k_MaskArrayPath));
+    args.insertOrAssign(k_SelectedImageGeometry_Key, std::make_any<DataPath>(k_DataContainerPath));
+    args.insertOrAssign(k_SelectedCellDataGroup_Key, std::make_any<DataPath>(k_CellAttributeMatrix));
+
+    // Preflight the filter and check result
+    auto preflightResult = filter->preflight(dataStructure, args);
+    REQUIRE(preflightResult.outputActions.valid());
+
+    // Execute the filter and check the result
+    auto executeResult = filter->execute(dataStructure, args);
+    REQUIRE(executeResult.result.valid());
   }
 
-  // Compare Shift File
+  // Use the Read Text File Filter to read in the generated Shift File and compare with exemplar
   {
+    static constexpr StringLiteral k_InputFileKey = "input_file";
+    static constexpr StringLiteral k_ScalarTypeKey = "scalar_type";
+    static constexpr StringLiteral k_NTuplesKey = "n_tuples";
+    static constexpr StringLiteral k_NCompKey = "n_comp";
+    static constexpr StringLiteral k_NSkipLinesKey = "n_skip_lines";
+    static constexpr StringLiteral k_DelimiterChoiceKey = "delimiter_choice";
+    static constexpr StringLiteral k_DataArrayKey = "output_data_array";
 
-  }
-  // Compare cell arrays
-  {}
+    // Compare the output of the shifts file with the exemplar file
 
-#endif
-}
+    auto filter = filterList->createFilter(k_ImportTextFilterHandle);
+    REQUIRE(nullptr != filter);
 
-#if 0
-{
-  "isDisabled": false,
-  "name": "align_sections_featur_centroid.d3dpipeline",
-  "pinnedParams": [],
-  "pipeline": [
+    Arguments args;
+    args.insertOrAssign(k_InputFileKey, std::make_any<FileSystemPathParameter::ValueType>(fs::path(fmt::format("{}/AlignSectionsFeatureCentroid_1.txt", unit_test::k_BinaryDir))));
+    args.insertOrAssign(k_ScalarTypeKey, std::make_any<NumericTypeParameter::ValueType>(complex::NumericType::int32));
+    args.insertOrAssign(k_NTuplesKey, std::make_any<uint64>(116));
+    args.insertOrAssign(k_NCompKey, std::make_any<uint64>(6));
+    args.insertOrAssign(k_NSkipLinesKey, std::make_any<uint64>(0));
+    args.insertOrAssign(k_DelimiterChoiceKey, std::make_any<ChoicesParameter::ValueType>(4));
+    args.insertOrAssign(k_DataArrayKey, std::make_any<DataPath>(k_CalculatedShiftsPath));
+
+    // Preflight the filter and check result
+    auto preflightResult = filter->preflight(dataStructure, args);
+    COMPLEX_RESULT_REQUIRE_VALID(preflightResult.outputActions)
+
+    // Execute the filter and check the result
+    auto executeResult = filter->execute(dataStructure, args);
+    COMPLEX_RESULT_REQUIRE_VALID(executeResult.result)
+
+    const auto& calcShifts = dataStructure.getDataRefAs<Int32Array>(k_CalculatedShiftsPath);
+    const auto& exemplarShifts = exemplarDataStructure.getDataRefAs<Int32Array>(k_ExemplarShiftsPath);
+
+    size_t numElements = calcShifts.getSize();
+    for(size_t i = 0; i < numElements; i++)
     {
-      "args": {
-        "CellAttributeMatrixName": "Data Container/CellData",
-        "CellEnsembleAttributeMatrixName": "Data Container/CellEnsembleData",
-        "DataContainerName": "Exemplar Data",
-        "ReadH5EbsdFilter": {
-          "endSlice": 117,
-          "eulerRepresentation": 0,
-          "hdf5DataPaths": [
-            "Confidence Index",
-            "EulerAngles",
-            "Image Quality",
-            "Phases"
-          ],
-          "inputFilePath": "SmallIN100.h5ebsd",
-          "startSlice": 1,
-          "useRecommendedTransform": true
-        }
-      },
-      "filter": {
-        "name": "complex::ReadH5EbsdFilter",
-        "uuid": "4ef7f56b-616e-5a80-9e68-1da8f35ad235"
-      },
-      "isDisabled": false
-    },
-    {
-      "args": {
-        "array_thresholds": {
-          "inverted": false,
-          "thresholds": [
-            {
-              "array_path": "Data Container/CellData/Confidence Index",
-              "comparison": 0,
-              "inverted": false,
-              "type": "array",
-              "union": 0,
-              "value": 0.1
-            },
-            {
-              "array_path": "Data Container/CellData/Image Quality",
-              "comparison": 0,
-              "inverted": false,
-              "type": "array",
-              "union": 0,
-              "value": 120.0
-            }
-          ],
-          "type": "collection",
-          "union": 0
-        },
-        "created_data_path": "Data Container/CellData/Mask"
-      },
-      "filter": {
-        "name": "complex::MultiThresholdObjects",
-        "uuid": "4246245e-1011-4add-8436-0af6bed19228"
-      },
-      "isDisabled": false
-    },
-    {
-      "args": {
-        "InputOrientationArrayPath": "Data Container/CellData/EulerAngles",
-        "InputType": 0,
-        "OutputOrientationArrayName": "Data Container/CellData/Quats",
-        "OutputType": 2
-      },
-      "filter": {
-        "name": "complex::ConvertOrientations",
-        "uuid": "e5629880-98c4-5656-82b8-c9fe2b9744de"
-      },
-      "isDisabled": false
-    },
-    {
-      "args": {
-        "AlignmentShiftFileName": "align_sections_misorientation.txt",
-        "CellPhasesArrayPath": "Data Container/CellData/Phases",
-        "CrystalStructuresArrayPath": "Data Container/CellEnsembleData/CrystalStructures",
-        "GoodVoxelsArrayPath": "Data Container/CellData/Mask",
-        "MisorientationTolerance": 5.0,
-        "QuatsArrayPath": "Data Container/CellData/Quats",
-        "SelectedCellDataPath": "Data Container/CellData",
-        "SelectedImageGeometryPath": "Exemplar Data",
-        "UseGoodVoxels": true,
-        "WriteAlignmentShifts": true
-      },
-      "filter": {
-        "name": "complex::AlignSectionsMisorientationFilter",
-        "uuid": "4fb2b9de-3124-534b-b914-dbbbdbc14604"
-      },
-      "isDisabled": false
-    },
-    {
-      "args": {
-        "fill_holes": false,
-        "good_voxels": "Data Container/CellData/Mask",
-        "image_geometry": "Exemplar Data"
-      },
-      "filter": {
-        "name": "complex::IdentifySample",
-        "uuid": "0e8c0818-a3fb-57d4-a5c8-7cb8ae54a40a"
-      },
-      "isDisabled": false
-    },
-    {
-      "args": {
-        "AlignmentShiftFileName": "align_sections_feature_centroid.txt",
-        "GoodVoxelsArrayPath": "Data Container/CellData/Mask",
-        "ReferenceSlice": 0,
-        "SelectedCellDataPath": "Data Container/CellData",
-        "SelectedImageGeometryPath": "Exemplar Data",
-        "UseReferenceSlice": true,
-        "WriteAlignmentShifts": true
-      },
-      "filter": {
-        "name": "complex::AlignSectionsFeatureCentroidFilter",
-        "uuid": "886f8b46-51b6-5682-a289-6febd10b7ef0"
-      },
-      "isDisabled": false
-    },
-    {
-      "args": {
-        "Export_File_Path": "align_sections_feature_centroid.dream3d"
-      },
-      "filter": {
-        "name": "complex::ExportDREAM3DFilter",
-        "uuid": "b3a95784-2ced-11ec-8d3d-0242ac130003"
-      },
-      "isDisabled": false
-    },
-{
-  "args": {
-    "Import_File_Data": {
-      "datapaths": [
-        "Exemplar Data/CellEnsembleData",
-        "Exemplar Data/CellEnsembleData/CrystalStructures",
-        "Exemplar Data/CellEnsembleData/LatticeConstants",
-        "Exemplar Data",
-        "Exemplar Data/CellData",
-        "Exemplar Data/CellData/Confidence Index",
-        "Exemplar Data/CellData/EulerAngles",
-        "Exemplar Data/CellData/Image Quality",
-        "Exemplar Data/CellData/Phases",
-        "Exemplar Data/CellData/Mask",
-        "Exemplar Data/CellData/Quats"
-      ],
-      "filepath": "DREAM3D_Data/TestFiles/align_sections_feature_centroid.dream3d"
+      if(calcShifts[i] != exemplarShifts[i])
+      {
+        REQUIRE(calcShifts[i] == exemplarShifts[i]);
+      }
     }
-    },
-    "filter": {
-      "name": "complex::ImportDREAM3DFilter",
-      "uuid": "0dbd31c7-19e0-4077-83ef-f4a6459a0e2d"
-    },
-    "isDisabled": false
   }
-  ],
-  "workflowParams": []
+
+  // Loop and compare each array from the 'Exemplar Data / CellData' to the 'Data Container / CellData' group
+  {
+    auto& cellDataGroup = dataStructure.getDataRefAs<DataGroup>(k_CellAttributeMatrix);
+    std::vector<DataPath> selectedCellArrays;
+
+    // Create the vector of selected cell DataPaths
+    for(auto& child : cellDataGroup)
+    {
+      selectedCellArrays.push_back(k_CellAttributeMatrix.createChildPath(child.second->getName()));
+    }
+
+    for(const auto& cellArrayPath : selectedCellArrays)
+    {
+      const auto& generatedDataArray = dataStructure.getDataRefAs<IDataArray>(cellArrayPath);
+      DataType type = generatedDataArray.getDataType();
+
+      // Now generate the path to the exemplar data set in the exemplar data structure.
+      std::vector<std::string> generatedPathVector = cellArrayPath.getPathVector();
+      generatedPathVector[0] = k_ExemplarDataContainer;
+      DataPath exemplarDataArrayPath(generatedPathVector);
+      auto& exemplarDataArray = exemplarDataStructure.getDataRefAs<IDataArray>(exemplarDataArrayPath);
+      DataType exemplarType = exemplarDataArray.getDataType();
+
+      if(type != exemplarType)
+      {
+        std::cout << fmt::format("DataArray {} and {} do not have the same type: {} vs {}. Data Will not be compared.", generatedDataArray.getName(), exemplarDataArray.getName(), type, exemplarType)
+                  << std::endl;
+        continue;
+      }
+
+      switch(type)
+      {
+      case DataType::boolean: {
+        CompareDataArrays<bool>(generatedDataArray, exemplarDataArray);
+        break;
+      }
+      case DataType::int8: {
+        CompareDataArrays<int8>(generatedDataArray, exemplarDataArray);
+        break;
+      }
+      case DataType::int16: {
+        CompareDataArrays<int16>(generatedDataArray, exemplarDataArray);
+        break;
+      }
+      case DataType::int32: {
+        CompareDataArrays<int32>(generatedDataArray, exemplarDataArray);
+        break;
+      }
+      case DataType::int64: {
+        CompareDataArrays<int64>(generatedDataArray, exemplarDataArray);
+        break;
+      }
+      case DataType::uint8: {
+        CompareDataArrays<uint8>(generatedDataArray, exemplarDataArray);
+        break;
+      }
+      case DataType::uint16: {
+        CompareDataArrays<uint16>(generatedDataArray, exemplarDataArray);
+        break;
+      }
+      case DataType::uint32: {
+        CompareDataArrays<uint32>(generatedDataArray, exemplarDataArray);
+        break;
+      }
+      case DataType::uint64: {
+        CompareDataArrays<uint64>(generatedDataArray, exemplarDataArray);
+        break;
+      }
+      case DataType::float32: {
+        CompareDataArrays<float32>(generatedDataArray, exemplarDataArray);
+        break;
+      }
+      case DataType::float64: {
+        CompareDataArrays<float64>(generatedDataArray, exemplarDataArray);
+        break;
+      }
+      default: {
+        throw std::runtime_error("Invalid DataType");
+      }
+      }
+    }
+  }
+
+  {
+    Result<H5::FileWriter> result = H5::FileWriter::CreateFile(fmt::format("{}/align_sections_feature_centroid.dream3d", unit_test::k_BinaryDir));
+    H5::FileWriter fileWriter = std::move(result.value());
+
+    herr_t err = dataStructure.writeHdf5(fileWriter);
+    REQUIRE(err >= 0);
+  }
 }
-#endif
+
