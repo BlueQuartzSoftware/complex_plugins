@@ -161,13 +161,8 @@ public:
     }
   }
 
-
-
-
-
 #endif
 };
-
 
 /**
  * @brief
@@ -185,20 +180,18 @@ public:
 
   Result<> operator()();
 
-
 protected:
-
 private:
   DataStructure& m_DataStructure;
   const IFilter::MessageHandler& m_MessageHandler;
   const std::atomic_bool& m_ShouldCancel;
   const ReadAngDataInputValues* m_InputValues = nullptr;
 
-/**
- * @brief
- * @param reader
- * @return Error code.
- */
+  /**
+   * @brief
+   * @param reader
+   * @return Error code.
+   */
   std::pair<int32, std::string> loadMaterialInfo(AngReader* reader) const;
 
   /**

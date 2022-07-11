@@ -97,6 +97,7 @@ protected:
    * @return Returns a Result object with error or warning values if any of those occurred during execution of this function
    */
   Result<> executeImpl(DataStructure& data, const Arguments& filterArgs, const PipelineFilter* pipelineNode, const MessageHandler& messageHandler, const std::atomic_bool& shouldCancel) const override;
+
 private:
   std::shared_ptr<ReadAngDataPrivate> m_AngDataPrivate;
 };
