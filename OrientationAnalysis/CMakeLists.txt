@@ -163,17 +163,13 @@ set(filter_algorithms
   GenerateIPFColors
   BadDataNeighborOrientationCheck
   NeighborOrientationCorrelation
-<<<<<<< HEAD
   MergeTwins
   GroupFeatures
-
   FindFeatureReferenceMisorientations
   FindKernelAvgMisorientations
   FindMisorientations
   FindSchmids
-=======
   ReadAngData
->>>>>>> a4f65c29 (Filter: ReadAngData implemented.)
 )
 
 
