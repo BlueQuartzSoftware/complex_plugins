@@ -19,8 +19,8 @@ using ArrayOptionsT = ITK::ScalarPixelIdTypeList;
 
 struct ITKAdaptiveHistogramEqualizationImageFunctor
 {
-  using InputRadiusType = std::vector<uint32>;
-  InputRadiusType radius = std::vector<unsigned int>(3, 5);
+  using InputRadiusType = std::vector<float>;
+  InputRadiusType radius = std::vector<float>(3, 5.0F);
   float32 alpha = 0.3f;
   float32 beta = 0.3f;
 
@@ -77,7 +77,7 @@ Parameters ITKAdaptiveHistogramEqualizationImage::parameters() const
 {
   Parameters params;
   params.insertSeparator(Parameters::Separator{"Filter Parameters"});
-  params.insert(std::make_unique<VectorUInt32Parameter>(k_Radius_Key, "Radius", "Radius Dimensions XYZ", std::vector<unsigned int>(3, 5), std::vector<std::string>{"X", "Y", "Z"}));
+  params.insert(std::make_unique<VectorFloat32Parameter>(k_Radius_Key, "Radius", "Radius Dimensions XYZ", std::vector<float>(3, 5.0F), std::vector<std::string>{"X", "Y", "Z"}));
 
   params.insert(std::make_unique<Float32Parameter>(k_Alpha_Key, "Alpha", "", 0.3f));
   params.insert(std::make_unique<Float32Parameter>(k_Beta_Key, "Beta", "", 0.3f));
@@ -107,7 +107,7 @@ IFilter::PreflightResult ITKAdaptiveHistogramEqualizationImage::preflightImpl(co
   auto imageGeomPath = filterArgs.value<DataPath>(k_SelectedImageGeomPath_Key);
   auto selectedInputArray = filterArgs.value<DataPath>(k_SelectedImageDataPath_Key);
   auto outputArrayPath = filterArgs.value<DataPath>(k_OutputImageDataPath_Key);
-  auto radius = filterArgs.value<VectorUInt32Parameter::ValueType>(k_Radius_Key);
+  auto radius = filterArgs.value<VectorFloat32Parameter::ValueType>(k_Radius_Key);
 
   auto alpha = filterArgs.value<float32>(k_Alpha_Key);
   auto beta = filterArgs.value<float32>(k_Beta_Key);
@@ -125,7 +125,7 @@ Result<> ITKAdaptiveHistogramEqualizationImage::executeImpl(DataStructure& dataS
   auto selectedInputArray = filterArgs.value<DataPath>(k_SelectedImageDataPath_Key);
   auto outputArrayPath = filterArgs.value<DataPath>(k_OutputImageDataPath_Key);
 
-  auto radius = filterArgs.value<VectorUInt32Parameter::ValueType>(k_Radius_Key);
+  auto radius = filterArgs.value<VectorFloat32Parameter::ValueType>(k_Radius_Key);
 
   auto alpha = filterArgs.value<float32>(k_Alpha_Key);
   auto beta = filterArgs.value<float32>(k_Beta_Key);

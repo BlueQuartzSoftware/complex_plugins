@@ -90,7 +90,7 @@ IFilter::PreflightResult ConvertColorToGrayScaleFilter::preflightImpl(const Data
   auto pColorChannelValue = filterArgs.value<int32>(k_ColorChannel_Key);
   auto inputDataArrayPaths = filterArgs.value<MultiArraySelectionParameter::ValueType>(k_InputDataArrayVector_Key);
   auto pCreateNewAttributeMatrixValue = filterArgs.value<bool>(k_CreateNewAttributeMatrix_Key);
-  auto outputDataGroupPath = filterArgs.value<DataPath>(k_OutputAttributeMatrixName_Key);
+  auto outputDataGroupPath = filterArgs.value<DataGroupCreationParameter::ValueType>(k_OutputAttributeMatrixName_Key);
   auto outputArrayPrefix = filterArgs.value<StringParameter::ValueType>(k_OutputArrayPrefix_Key);
 
   // Declare the preflightResult variable that will be populated with the results
