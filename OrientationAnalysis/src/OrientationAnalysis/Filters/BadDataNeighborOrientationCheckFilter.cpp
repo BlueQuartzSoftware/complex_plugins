@@ -13,10 +13,6 @@ using namespace complex;
 
 namespace
 {
-
-using FeatureIdsArrayType = Int32Array;
-using GoodVoxelsArrayType = BoolArray;
-
 inline constexpr int32 k_MissingGeomError = -6800;
 inline constexpr int32 k_MissingInputArray = -6801;
 inline constexpr int32 k_IncorrectInputArray = -6802;
@@ -173,7 +169,7 @@ IFilter::PreflightResult BadDataNeighborOrientationCheckFilter::preflightImpl(co
   // validate the number of tuples
   if(!dataStructure.validateNumberOfTuples(dataArrayPaths))
   {
-    return {nonstd::make_unexpected(std::vector<Error>{Error{k_InvalidNumTuples, "Input arrays do have matching tuple counts."}})};
+    return {nonstd::make_unexpected(std::vector<Error>{Error{k_InvalidNumTuples, "Input arrays do not have matching tuple counts."}})};
   }
 
   return {};

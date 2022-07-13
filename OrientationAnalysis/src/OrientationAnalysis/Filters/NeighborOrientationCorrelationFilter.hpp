@@ -24,6 +24,7 @@ public:
   NeighborOrientationCorrelationFilter& operator=(NeighborOrientationCorrelationFilter&&) noexcept = delete;
 
   // Parameter Keys
+  static inline constexpr StringLiteral k_ImageGeometryPath_Key = "ImageGeometryPath";
   static inline constexpr StringLiteral k_MinConfidence_Key = "MinConfidence";
   static inline constexpr StringLiteral k_MisorientationTolerance_Key = "MisorientationTolerance";
   static inline constexpr StringLiteral k_Level_Key = "Level";
