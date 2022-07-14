@@ -14,6 +14,7 @@ set(${PLUGIN_NAME}UnitTest_SRCS
   RotateEulerRefFrameTest.cpp         # NEEDS TEST IMPLEMENTED
   AlignSectionsMisorientationTest.cpp # NEEDS TEST IMPLEMENTED
   BadDataNeighborOrientationCheckTest.cpp # NEEDS TEST IMPLEMENTED
+  NeighborOrientationCorrelationTest.cpp
 )
 set(DISABLED_TESTS
 
