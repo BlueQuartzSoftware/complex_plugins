@@ -13,7 +13,7 @@ set(${PLUGIN_NAME}UnitTest_SRCS
   GenerateIPFColorsTest.cpp           # NEEDS TEST IMPLEMENTED
   RotateEulerRefFrameTest.cpp         # NEEDS TEST IMPLEMENTED
   AlignSectionsMisorientationTest.cpp # NEEDS TEST IMPLEMENTED
-  BadDataNeighborOrientationCheckTest.cpp # NEEDS TEST IMPLEMENTED
+  BadDataNeighborOrientationCheckTest.cpp 
   NeighborOrientationCorrelationTest.cpp
 )
 set(DISABLED_TESTS
@@ -52,8 +52,6 @@ set(DISABLED_TESTS
   # ImportEbsdMontageTest.cpp    # MISSING 1 or more Parameter Implementations
   # ImportH5EspritDataTest.cpp    # MISSING 1 or more Parameter Implementations
   # ImportH5OimDataTest.cpp    # MISSING 1 or more Parameter Implementations
-  NeighborOrientationCorrelationTest.cpp
-
   # OrientationUtilityTest.cpp    # MISSING 1 or more Parameter Implementations
   ReadAngDataTest.cpp
   ReadCtfDataTest.cpp
