@@ -236,7 +236,7 @@ Result<> NeighborOrientationCorrelation::operator()()
               {
                 phase1 = crystalStructures[cellPhases[neighbor2]];
                 quat1 = QuatF(quats[neighbor2 * 4], quats[neighbor2 * 4 + 1], quats[neighbor2 * 4 + 2], quats[neighbor2 * 4 + 3]);
-                quat2 = QuatF(quats[neighbor2 * 4], quats[neighbor2 * 4 + 1], quats[neighbor2 * 4 + 2], quats[neighbor2 * 4 + 3]);
+                quat2 = QuatF(quats[neighbor * 4], quats[neighbor * 4 + 1], quats[neighbor * 4 + 2], quats[neighbor * 4 + 3]);
                 axisAngle = OrientationD(0.0, 0.0, 0.0, std::numeric_limits<double>::max());
                 if(cellPhases[neighbor2] == cellPhases[neighbor] && cellPhases[neighbor2] > 0)
                 {
