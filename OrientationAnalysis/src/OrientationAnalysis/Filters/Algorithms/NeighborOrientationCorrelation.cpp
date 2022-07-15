@@ -38,14 +38,17 @@ public:
 
   void operator()() const
   {
-    size_t progIncrement = static_cast<size_t>(m_TotalPoints / 50);
-    size_t prog = 1;
+    int32_t progInt = 0;
+    auto start = std::chrono::steady_clock::now();
     for(size_t i = 0; i < m_TotalPoints; i++)
     {
-      if(i > prog)
+      auto now = std::chrono::steady_clock::now();
+      //// Only send updates every 1 second
+      if(std::chrono::duration_cast<std::chrono::milliseconds>(now - start).count() > 1000)
       {
-        prog = prog + progIncrement;
-        m_FilterAlg->updateProgress(fmt::format("Processing {}: {}% completed", m_DataArrayPtr->getName(), progIncrement));
+        progInt = static_cast<float>(i) / static_cast<float>(m_TotalPoints) * 100.0f;
+        m_FilterAlg->updateProgress(fmt::format("Processing {}: {}% completed", m_DataArrayPtr->getName(), progInt));
+        start = std::chrono::steady_clock::now();
       }
       int64_t neighbor = m_BestNeighbor[i];
       if(neighbor != -1)
@@ -84,7 +87,7 @@ const std::atomic_bool& NeighborOrientationCorrelation::getCancel()
 // -----------------------------------------------------------------------------
 void NeighborOrientationCorrelation::updateProgress(const std::string& progMessage)
 {
-  m_MessageHandler({IFilter::Message::Type::Progress, progMessage});
+  m_MessageHandler({IFilter::Message::Type::Info, progMessage});
 }
 
 // -----------------------------------------------------------------------------
@@ -143,17 +146,17 @@ Result<> NeighborOrientationCorrelation::operator()()
       break;
     }
 
-    int64_t progIncrement = static_cast<int64_t>(totalPoints / 100);
-    int64_t prog = 1;
     int64_t progressInt = 0;
+    auto start = std::chrono::steady_clock::now();
     for(size_t i = 0; i < totalPoints; i++)
     {
-      if(int64_t(i) > prog)
+      auto now = std::chrono::steady_clock::now();
+      if(std::chrono::duration_cast<std::chrono::milliseconds>(now - start).count() > 1000)
       {
         progressInt = static_cast<int64_t>((static_cast<float>(i) / totalPoints) * 100.0f);
-        std::string ss = fmt::format("Level '{}' of '{}' || Processing Data '{}'", (startLevel - currentLevel) + 1, startLevel - m_InputValues->Level, progressInt);
+        std::string ss = fmt::format("Level '{}' of '{}' || Processing Data '{}'% completed", (startLevel - currentLevel) + 1, startLevel - m_InputValues->Level, progressInt);
         m_MessageHandler({IFilter::Message::Type::Info, ss});
-        prog = prog + progIncrement;
+        start = std::chrono::steady_clock::now();
       }
 
       if(confidenceIndex[i] < m_InputValues->MinConfidence)
@@ -360,17 +363,17 @@ Result<> NeighborOrientationCorrelation::operator()()
     else
 #endif
     {
-      progIncrement = static_cast<int64_t>(totalPoints / 100);
-      prog = 1;
       progressInt = 0;
+      start = std::chrono::steady_clock::now();
       for(size_t i = 0; i < totalPoints; i++)
       {
-        if(int64_t(i) > prog)
+        auto now = std::chrono::steady_clock::now();
+        if(std::chrono::duration_cast<std::chrono::milliseconds>(now - start).count() > 1000)
         {
           progressInt = static_cast<int64_t>(((float)i / totalPoints) * 100.0f);
-          std::string ss = fmt::format("Level '{}' of '{}' || Copying Data '{}'", (startLevel - currentLevel) + 2, startLevel - m_InputValues->Level, progressInt);
+          std::string ss = fmt::format("Level '{}' of '{}' || Copying Data '{}'% completed", (startLevel - currentLevel) + 2, startLevel - m_InputValues->Level, progressInt);
           m_MessageHandler({IFilter::Message::Type::Info, ss});
-          prog = prog + progIncrement;
+          start = std::chrono::steady_clock::now();
         }
         neighbor = bestNeighbor[i];
         if(neighbor != -1)
