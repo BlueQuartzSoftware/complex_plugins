@@ -79,8 +79,19 @@ Result<> BadDataNeighborOrientationCheck::operator()()
 
   std::vector<int32_t> neighborCount(totalPoints, 0);
 
+  int64_t progressInt = 0;
+  auto start = std::chrono::steady_clock::now();
   for(size_t i = 0; i < totalPoints; i++)
   {
+    auto now = std::chrono::steady_clock::now();
+    if(std::chrono::duration_cast<std::chrono::milliseconds>(now - start).count() > 1000)
+    {
+      progressInt = static_cast<int64_t>((static_cast<float>(i) / totalPoints) * 100.0f);
+      std::string ss = fmt::format("Processing Data '{}'% completed", progressInt);
+      m_MessageHandler({IFilter::Message::Type::Info, ss});
+      start = std::chrono::steady_clock::now();
+    }
+
     if(!maskCompare->isTrue(i))
     {
       column = i % dims[0];
@@ -134,17 +145,31 @@ Result<> BadDataNeighborOrientationCheck::operator()()
     }
   }
 
-  int32_t currentLevel = 6;
+  const int32_t startLevel = 6;
+  int32_t currentLevel = startLevel;
   int32_t counter = 0;
 
   while(currentLevel > m_InputValues->NumberOfNeighbors)
   {
     counter = 1;
+    int32_t loopNumber = 0;
     while(counter > 0)
     {
       counter = 0;
+      progressInt = 0;
+      start = std::chrono::steady_clock::now();
       for(size_t i = 0; i < totalPoints; i++)
       {
+        auto now = std::chrono::steady_clock::now();
+        if(std::chrono::duration_cast<std::chrono::milliseconds>(now - start).count() > 1000)
+        {
+          progressInt = static_cast<int64_t>((static_cast<float>(i) / totalPoints) * 100.0f);
+          std::string ss =
+              fmt::format("Level '{}' of '{}' || Processing Data ('{}') '{}'% completed", (startLevel - currentLevel) + 1, startLevel - m_InputValues->NumberOfNeighbors, loopNumber, progressInt);
+          m_MessageHandler({IFilter::Message::Type::Info, ss});
+          start = std::chrono::steady_clock::now();
+        }
+
         if(neighborCount[i] >= currentLevel && !maskCompare->isTrue(i))
         {
           maskCompare->setValue(i, true);
@@ -198,6 +223,7 @@ Result<> BadDataNeighborOrientationCheck::operator()()
           }
         }
       }
+      ++loopNumber;
     }
     currentLevel = currentLevel - 1;
   }
