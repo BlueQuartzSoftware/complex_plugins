@@ -24,11 +24,9 @@ const std::atomic_bool& LocalDislocationDensityCalculator::getCancel()
   return m_ShouldCancel;
 }
 
-
 // -----------------------------------------------------------------------------
 Result<> LocalDislocationDensityCalculator::operator()()
 {
-
 
   return {};
 }

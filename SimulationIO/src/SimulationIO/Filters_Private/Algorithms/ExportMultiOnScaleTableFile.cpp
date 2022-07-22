@@ -24,11 +24,9 @@ const std::atomic_bool& ExportMultiOnScaleTableFile::getCancel()
   return m_ShouldCancel;
 }
 
-
 // -----------------------------------------------------------------------------
 Result<> ExportMultiOnScaleTableFile::operator()()
 {
-
 
   return {};
 }

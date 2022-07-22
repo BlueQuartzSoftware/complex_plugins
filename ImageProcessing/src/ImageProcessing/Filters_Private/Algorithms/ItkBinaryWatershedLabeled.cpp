@@ -24,11 +24,9 @@ const std::atomic_bool& ItkBinaryWatershedLabeled::getCancel()
   return m_ShouldCancel;
 }
 
-
 // -----------------------------------------------------------------------------
 Result<> ItkBinaryWatershedLabeled::operator()()
 {
-
 
   return {};
 }

@@ -24,11 +24,9 @@ const std::atomic_bool& InsertTransformationPhases::getCancel()
   return m_ShouldCancel;
 }
 
-
 // -----------------------------------------------------------------------------
 Result<> InsertTransformationPhases::operator()()
 {
-
 
   return {};
 }

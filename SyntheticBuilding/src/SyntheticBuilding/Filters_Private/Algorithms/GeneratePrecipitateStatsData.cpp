@@ -24,11 +24,9 @@ const std::atomic_bool& GeneratePrecipitateStatsData::getCancel()
   return m_ShouldCancel;
 }
 
-
 // -----------------------------------------------------------------------------
 Result<> GeneratePrecipitateStatsData::operator()()
 {
-
 
   return {};
 }

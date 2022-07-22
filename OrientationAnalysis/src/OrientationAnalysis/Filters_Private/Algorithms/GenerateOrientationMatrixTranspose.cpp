@@ -24,11 +24,9 @@ const std::atomic_bool& GenerateOrientationMatrixTranspose::getCancel()
   return m_ShouldCancel;
 }
 
-
 // -----------------------------------------------------------------------------
 Result<> GenerateOrientationMatrixTranspose::operator()()
 {
-
 
   return {};
 }

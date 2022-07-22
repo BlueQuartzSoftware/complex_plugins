@@ -24,11 +24,9 @@ const std::atomic_bool& FindFeatureNeighborCAxisMisalignments::getCancel()
   return m_ShouldCancel;
 }
 
-
 // -----------------------------------------------------------------------------
 Result<> FindFeatureNeighborCAxisMisalignments::operator()()
 {
-
 
   return {};
 }

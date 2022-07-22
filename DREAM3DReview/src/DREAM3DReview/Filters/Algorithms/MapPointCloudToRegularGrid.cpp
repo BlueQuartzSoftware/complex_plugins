@@ -24,11 +24,9 @@ const std::atomic_bool& MapPointCloudToRegularGrid::getCancel()
   return m_ShouldCancel;
 }
 
-
 // -----------------------------------------------------------------------------
 Result<> MapPointCloudToRegularGrid::operator()()
 {
-
 
   return {};
 }

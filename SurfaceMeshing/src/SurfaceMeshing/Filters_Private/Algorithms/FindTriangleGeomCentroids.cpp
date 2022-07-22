@@ -24,11 +24,9 @@ const std::atomic_bool& FindTriangleGeomCentroids::getCancel()
   return m_ShouldCancel;
 }
 
-
 // -----------------------------------------------------------------------------
 Result<> FindTriangleGeomCentroids::operator()()
 {
-
 
   return {};
 }

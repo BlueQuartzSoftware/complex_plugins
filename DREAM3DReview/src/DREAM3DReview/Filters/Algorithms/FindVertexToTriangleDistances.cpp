@@ -24,11 +24,9 @@ const std::atomic_bool& FindVertexToTriangleDistances::getCancel()
   return m_ShouldCancel;
 }
 
-
 // -----------------------------------------------------------------------------
 Result<> FindVertexToTriangleDistances::operator()()
 {
-
 
   return {};
 }

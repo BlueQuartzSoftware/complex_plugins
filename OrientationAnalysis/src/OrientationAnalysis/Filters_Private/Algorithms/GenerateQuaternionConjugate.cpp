@@ -24,11 +24,9 @@ const std::atomic_bool& GenerateQuaternionConjugate::getCancel()
   return m_ShouldCancel;
 }
 
-
 // -----------------------------------------------------------------------------
 Result<> GenerateQuaternionConjugate::operator()()
 {
-
 
   return {};
 }

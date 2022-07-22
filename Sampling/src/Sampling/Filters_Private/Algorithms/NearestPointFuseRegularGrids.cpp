@@ -24,11 +24,9 @@ const std::atomic_bool& NearestPointFuseRegularGrids::getCancel()
   return m_ShouldCancel;
 }
 
-
 // -----------------------------------------------------------------------------
 Result<> NearestPointFuseRegularGrids::operator()()
 {
-
 
   return {};
 }

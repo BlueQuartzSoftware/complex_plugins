@@ -24,11 +24,9 @@ const std::atomic_bool& GenerateEnsembleStatistics::getCancel()
   return m_ShouldCancel;
 }
 
-
 // -----------------------------------------------------------------------------
 Result<> GenerateEnsembleStatistics::operator()()
 {
-
 
   return {};
 }

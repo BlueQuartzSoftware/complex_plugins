@@ -24,11 +24,9 @@ const std::atomic_bool& ExtractInternalSurfacesFromTriangleGeometry::getCancel()
   return m_ShouldCancel;
 }
 
-
 // -----------------------------------------------------------------------------
 Result<> ExtractInternalSurfacesFromTriangleGeometry::operator()()
 {
-
 
   return {};
 }

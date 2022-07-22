@@ -24,11 +24,9 @@ const std::atomic_bool& LinkFeatureMapToElementArray::getCancel()
   return m_ShouldCancel;
 }
 
-
 // -----------------------------------------------------------------------------
 Result<> LinkFeatureMapToElementArray::operator()()
 {
-
 
   return {};
 }

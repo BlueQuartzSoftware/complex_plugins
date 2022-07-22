@@ -24,11 +24,9 @@ const std::atomic_bool& ItkConvertArrayTo8BitImage::getCancel()
   return m_ShouldCancel;
 }
 
-
 // -----------------------------------------------------------------------------
 Result<> ItkConvertArrayTo8BitImage::operator()()
 {
-
 
   return {};
 }

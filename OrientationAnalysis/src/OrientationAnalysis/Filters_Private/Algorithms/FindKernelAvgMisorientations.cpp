@@ -24,11 +24,9 @@ const std::atomic_bool& FindKernelAvgMisorientations::getCancel()
   return m_ShouldCancel;
 }
 
-
 // -----------------------------------------------------------------------------
 Result<> FindKernelAvgMisorientations::operator()()
 {
-
 
   return {};
 }

@@ -24,11 +24,9 @@ const std::atomic_bool& GenerateMisorientationColors::getCancel()
   return m_ShouldCancel;
 }
 
-
 // -----------------------------------------------------------------------------
 Result<> GenerateMisorientationColors::operator()()
 {
-
 
   return {};
 }

@@ -24,11 +24,9 @@ const std::atomic_bool& ImportAxioVisionV4Montage::getCancel()
   return m_ShouldCancel;
 }
 
-
 // -----------------------------------------------------------------------------
 Result<> ImportAxioVisionV4Montage::operator()()
 {
-
 
   return {};
 }

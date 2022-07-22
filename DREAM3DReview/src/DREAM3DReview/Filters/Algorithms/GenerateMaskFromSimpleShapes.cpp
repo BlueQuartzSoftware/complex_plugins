@@ -24,11 +24,9 @@ const std::atomic_bool& GenerateMaskFromSimpleShapes::getCancel()
   return m_ShouldCancel;
 }
 
-
 // -----------------------------------------------------------------------------
 Result<> GenerateMaskFromSimpleShapes::operator()()
 {
-
 
   return {};
 }

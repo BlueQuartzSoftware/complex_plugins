@@ -24,11 +24,9 @@ const std::atomic_bool& ComputeMomentInvariants2D::getCancel()
   return m_ShouldCancel;
 }
 
-
 // -----------------------------------------------------------------------------
 Result<> ComputeMomentInvariants2D::operator()()
 {
-
 
   return {};
 }

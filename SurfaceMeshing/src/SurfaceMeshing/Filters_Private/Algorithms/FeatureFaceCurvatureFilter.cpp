@@ -24,11 +24,9 @@ const std::atomic_bool& FeatureFaceCurvatureFilter::getCancel()
   return m_ShouldCancel;
 }
 
-
 // -----------------------------------------------------------------------------
 Result<> FeatureFaceCurvatureFilter::operator()()
 {
-
 
   return {};
 }

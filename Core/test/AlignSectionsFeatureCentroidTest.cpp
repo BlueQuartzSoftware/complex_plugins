@@ -80,7 +80,6 @@ void CompareDataArrays(const IDataArray& left, const IDataArray& right)
   }
 }
 
-
 struct make_shared_enabler : public complex::Application
 {
 };
@@ -533,4 +532,3 @@ TEST_CASE("Core::AlignSectionsFeatureCentroidFilter: Instantiation and Parameter
     REQUIRE(err >= 0);
   }
 }
-

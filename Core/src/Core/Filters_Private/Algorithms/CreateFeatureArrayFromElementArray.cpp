@@ -24,11 +24,9 @@ const std::atomic_bool& CreateFeatureArrayFromElementArray::getCancel()
   return m_ShouldCancel;
 }
 
-
 // -----------------------------------------------------------------------------
 Result<> CreateFeatureArrayFromElementArray::operator()()
 {
-
 
   return {};
 }

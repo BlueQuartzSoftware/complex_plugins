@@ -24,11 +24,9 @@ const std::atomic_bool& FindTriangleGeomNeighbors::getCancel()
   return m_ShouldCancel;
 }
 
-
 // -----------------------------------------------------------------------------
 Result<> FindTriangleGeomNeighbors::operator()()
 {
-
 
   return {};
 }

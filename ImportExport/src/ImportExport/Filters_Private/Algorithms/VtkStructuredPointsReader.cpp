@@ -24,11 +24,9 @@ const std::atomic_bool& VtkStructuredPointsReader::getCancel()
   return m_ShouldCancel;
 }
 
-
 // -----------------------------------------------------------------------------
 Result<> VtkStructuredPointsReader::operator()()
 {
-
 
   return {};
 }

@@ -24,11 +24,9 @@ const std::atomic_bool& FindFeatureSignedDistanceFields::getCancel()
   return m_ShouldCancel;
 }
 
-
 // -----------------------------------------------------------------------------
 Result<> FindFeatureSignedDistanceFields::operator()()
 {
-
 
   return {};
 }

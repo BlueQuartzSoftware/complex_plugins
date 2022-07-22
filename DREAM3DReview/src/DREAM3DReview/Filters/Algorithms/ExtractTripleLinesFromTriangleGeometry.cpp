@@ -24,11 +24,9 @@ const std::atomic_bool& ExtractTripleLinesFromTriangleGeometry::getCancel()
   return m_ShouldCancel;
 }
 
-
 // -----------------------------------------------------------------------------
 Result<> ExtractTripleLinesFromTriangleGeometry::operator()()
 {
-
 
   return {};
 }

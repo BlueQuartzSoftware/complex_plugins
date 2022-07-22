@@ -24,11 +24,9 @@ const std::atomic_bool& PointSampleTriangleGeometry::getCancel()
   return m_ShouldCancel;
 }
 
-
 // -----------------------------------------------------------------------------
 Result<> PointSampleTriangleGeometry::operator()()
 {
-
 
   return {};
 }
