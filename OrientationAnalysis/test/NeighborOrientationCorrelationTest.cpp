@@ -88,7 +88,7 @@ struct make_shared_enabler : public complex::Application
 {
 };
 
-TEST_CASE("OrientationAnalysis::NeighborOrientationCorrelationFilter: Instantiation and Parameter Check", "[OrientationAnalysis][NeighborOrientationCorrelationFilter]")
+TEST_CASE("OrientationAnalysis::NeighborOrientationCorrelationFilter: Small IN100 Pipeline", "[OrientationAnalysis][NeighborOrientationCorrelationFilter]")
 {
   std::shared_ptr<make_shared_enabler> app = std::make_shared<make_shared_enabler>();
   app->loadPlugins(unit_test::k_BuildDir.view(), true);
@@ -152,11 +152,11 @@ TEST_CASE("OrientationAnalysis::NeighborOrientationCorrelationFilter: Instantiat
 
     // Preflight the filter and check result
     auto preflightResult = filter->preflight(exemplarDataStructure, args);
-    REQUIRE(preflightResult.outputActions.valid());
+    COMPLEX_RESULT_REQUIRE_VALID(preflightResult.outputActions);
 
     // Execute the filter and check the result
     auto executeResult = filter->execute(exemplarDataStructure, args);
-    REQUIRE(executeResult.result.valid());
+    COMPLEX_RESULT_REQUIRE_VALID(executeResult.result);
   }
 
   DataStructure dataStructure;

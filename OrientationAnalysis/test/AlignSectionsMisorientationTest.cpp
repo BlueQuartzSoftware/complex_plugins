@@ -27,7 +27,7 @@ namespace fs = std::filesystem;
 
 using namespace complex;
 
-constexpr float EPSILON = 0.000001;
+constexpr float EPSILON = 0.00001;
 
 /**
  * Read H5Ebsd File
@@ -67,7 +67,7 @@ struct make_shared_enabler : public complex::Application
 {
 };
 
-TEST_CASE("OrientationAnalysis::AlignSectionsMisorientation_1", "[OrientationAnalysis][AlignSectionsMisorientation]")
+TEST_CASE("OrientationAnalysis::AlignSectionsMisorientation Small IN100 Pipeline", "[OrientationAnalysis][AlignSectionsMisorientation]")
 {
   std::shared_ptr<make_shared_enabler> app = std::make_shared<make_shared_enabler>();
   app->loadPlugins(unit_test::k_BuildDir.view(), true);
@@ -129,11 +129,11 @@ TEST_CASE("OrientationAnalysis::AlignSectionsMisorientation_1", "[OrientationAna
 
     // Preflight the filter and check result
     auto preflightResult = filter->preflight(exemplarDataStructure, args);
-    REQUIRE(preflightResult.outputActions.valid());
+    COMPLEX_RESULT_REQUIRE_VALID(preflightResult.outputActions);
 
     // Execute the filter and check the result
     auto executeResult = filter->execute(exemplarDataStructure, args);
-    REQUIRE(executeResult.result.valid());
+    COMPLEX_RESULT_REQUIRE_VALID(executeResult.result);
   }
 
   // Read Exemplar Shifts File

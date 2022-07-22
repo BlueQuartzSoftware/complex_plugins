@@ -22,6 +22,8 @@ namespace fs = std::filesystem;
 
 using namespace complex;
 
+constexpr float EPSILON = 0.00001;
+
 /**
  * Read H5Ebsd File
  * MultiThreshold Objects
@@ -67,14 +69,14 @@ void CompareDataArrays(const IDataArray& left, const IDataArray& right)
   const auto& newDataStore = right.getIDataStoreRefAs<AbstractDataStore<T>>();
   usize start = 0;
   usize end = oldDataStore.getSize();
-  bool same = true;
-  usize badIndex = 0;
   for(usize i = start; i < end; i++)
   {
     if(oldDataStore[i] != newDataStore[i])
     {
-      badIndex = i;
-      REQUIRE(oldDataStore[badIndex] == newDataStore[badIndex]);
+      auto oldVal = oldDataStore[i];
+      auto newVal = newDataStore[i];
+      float diff = std::fabs(static_cast<float>(oldVal - newVal));
+      REQUIRE(diff < EPSILON);
       break;
     }
   }
@@ -84,7 +86,7 @@ struct make_shared_enabler : public complex::Application
 {
 };
 
-TEST_CASE("Core::AlignSectionsFeatureCentroidFilter: Instantiation and Parameter Check", "[Reconstruction][AlignSectionsFeatureCentroidFilter]")
+TEST_CASE("Core::AlignSectionsFeatureCentroidFilter: Small IN100 Pipeline", "[Reconstruction][AlignSectionsFeatureCentroidFilter]")
 {
   std::shared_ptr<make_shared_enabler> app = std::make_shared<make_shared_enabler>();
   app->loadPlugins(unit_test::k_BuildDir.view(), true);
@@ -150,11 +152,11 @@ TEST_CASE("Core::AlignSectionsFeatureCentroidFilter: Instantiation and Parameter
 
     // Preflight the filter and check result
     auto preflightResult = filter->preflight(exemplarDataStructure, args);
-    REQUIRE(preflightResult.outputActions.valid());
+    COMPLEX_RESULT_REQUIRE_VALID(preflightResult.outputActions);
 
     // Execute the filter and check the result
     auto executeResult = filter->execute(exemplarDataStructure, args);
-    REQUIRE(executeResult.result.valid());
+    COMPLEX_RESULT_REQUIRE_VALID(executeResult.result);
   }
 
   // Read Exemplar Shifts File

@@ -68,15 +68,12 @@ void CompareDataArrays(const IDataArray& left, const IDataArray& right)
   const auto& newDataStore = right.getIDataStoreRefAs<AbstractDataStore<T>>();
   usize start = 0;
   usize end = oldDataStore.getSize();
-  bool same = true;
-  usize badIndex = 0;
   for(usize i = start; i < end; i++)
   {
     if(oldDataStore[i] != newDataStore[i])
     {
-      badIndex = i;
-      auto oldVal = oldDataStore[badIndex];
-      auto newVal = newDataStore[badIndex];
+      auto oldVal = oldDataStore[i];
+      auto newVal = newDataStore[i];
       float diff = std::fabs(static_cast<float>(oldVal - newVal));
       REQUIRE(diff < EPSILON);
       break;
@@ -88,7 +85,7 @@ struct make_shared_enabler : public complex::Application
 {
 };
 
-TEST_CASE("OrientationAnalysis::BadDataNeighborOrientationCheckFilter: Instantiation and Parameter Check", "[OrientationAnalysis][BadDataNeighborOrientationCheckFilter]")
+TEST_CASE("OrientationAnalysis::BadDataNeighborOrientationCheckFilter: Small IN100 Pipeline", "[OrientationAnalysis][BadDataNeighborOrientationCheckFilter]")
 {
   std::shared_ptr<make_shared_enabler> app = std::make_shared<make_shared_enabler>();
   app->loadPlugins(unit_test::k_BuildDir.view(), true);
@@ -152,11 +149,11 @@ TEST_CASE("OrientationAnalysis::BadDataNeighborOrientationCheckFilter: Instantia
 
     // Preflight the filter and check result
     auto preflightResult = filter->preflight(exemplarDataStructure, args);
-    REQUIRE(preflightResult.outputActions.valid());
+    COMPLEX_RESULT_REQUIRE_VALID(preflightResult.outputActions);
 
     // Execute the filter and check the result
     auto executeResult = filter->execute(exemplarDataStructure, args);
-    REQUIRE(executeResult.result.valid());
+    COMPLEX_RESULT_REQUIRE_VALID(executeResult.result);
   }
 
   DataStructure dataStructure;

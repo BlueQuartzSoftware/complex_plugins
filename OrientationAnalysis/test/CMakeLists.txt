@@ -6,15 +6,15 @@
 #------------------------------------------------------------------------------
 # Define the list of unit test source files
 set(${PLUGIN_NAME}UnitTest_SRCS
+  AlignSectionsMisorientationTest.cpp
+  BadDataNeighborOrientationCheckTest.cpp
   ConvertOrientationsTest.cpp
-  GenerateFZQuaternionsTest.cpp
   EBSDSegmentFeaturesFilterTest.cpp   # NEEDS TEST IMPLEMENTED
   FindAvgOrientationsTest.cpp         # NEEDS TEST IMPLEMENTED
+  GenerateFZQuaternionsTest.cpp
   GenerateIPFColorsTest.cpp           # NEEDS TEST IMPLEMENTED
-  RotateEulerRefFrameTest.cpp         # NEEDS TEST IMPLEMENTED
-  AlignSectionsMisorientationTest.cpp
-  BadDataNeighborOrientationCheckTest.cpp 
   NeighborOrientationCorrelationTest.cpp
+  RotateEulerRefFrameTest.cpp         # NEEDS TEST IMPLEMENTED
 )
 set(DISABLED_TESTS
 
@@ -63,6 +63,8 @@ set(DISABLED_TESTS
   WritePoleFigureTest.cpp
   WriteStatsGenOdfAngleFileTest.cpp
 )
+
+file(TO_CMAKE_PATH "${DREAM3D_DATA_DIR}" DREAM3D_DATA_DIR_NORM)
 
 create_complex_plugin_unit_test(PLUGIN_NAME ${PLUGIN_NAME}
   FILTER_LIST ${${PLUGIN_NAME}UnitTest_SRCS})
