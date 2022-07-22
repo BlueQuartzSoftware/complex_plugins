@@ -16,9 +16,9 @@
 #include "complex/Parameters/Dream3dImportParameter.hpp"
 #include "complex/Parameters/FileSystemPathParameter.hpp"
 #include "complex/Parameters/NumericTypeParameter.hpp"
+#include "complex/UnitTest/UnitTestCommon.hpp"
 #include "complex/Utilities/ArrayThreshold.hpp"
 #include "complex/Utilities/Parsing/HDF5/H5FileWriter.hpp"
-#include "complex/UnitTest/UnitTestCommon.hpp"
 
 #include "EbsdLib/IO/TSL/AngConstants.h"
 
@@ -26,6 +26,8 @@
 namespace fs = std::filesystem;
 
 using namespace complex;
+
+constexpr float EPSILON = 0.000001;
 
 /**
  * Read H5Ebsd File
@@ -52,7 +54,10 @@ void CompareDataArrays(const IDataArray& left, const IDataArray& right)
   {
     if(oldDataStore[i] != newDataStore[i])
     {
-      REQUIRE(oldDataStore[i] == newDataStore[i]);
+      auto oldVal = oldDataStore[i];
+      auto newVal = newDataStore[i];
+      float diff = std::fabs(static_cast<float>(oldVal - newVal));
+      REQUIRE(diff < EPSILON);
       break;
     }
   }
