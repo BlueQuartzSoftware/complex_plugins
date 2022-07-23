@@ -92,7 +92,7 @@ void runImportTextFilter(const std::string k_InputFileName, complex::NumericType
   COMPLEX_RESULT_REQUIRE_VALID(executeResult.result);
 }
 
-TEST_CASE("OrientationAnalysis::FindAvgOrientations: Invalid preflight", "[OrientationAnalysis][FindAvgOrientations]")
+TEST_CASE("OrientationAnalysis::FindAvgOrientations", "[OrientationAnalysis][FindAvgOrientations]")
 {
   // Instantiate an "Application" instance to load plugins
   std::shared_ptr<make_shared_enabler> app = std::make_shared<make_shared_enabler>();

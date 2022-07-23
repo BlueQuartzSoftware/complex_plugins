@@ -28,12 +28,11 @@ of doing that.
 #include "complex/Core/Application.hpp"
 #include "complex/Parameters/ArraySelectionParameter.hpp"
 #include "complex/Parameters/ChoicesParameter.hpp"
-#include "complex/Parameters/NumberParameter.hpp"
-#include "complex/Parameters/VectorParameter.hpp"
 #include "complex/Parameters/FileSystemPathParameter.hpp"
+#include "complex/Parameters/NumberParameter.hpp"
 #include "complex/Parameters/NumericTypeParameter.hpp"
+#include "complex/Parameters/VectorParameter.hpp"
 #include "complex/UnitTest/UnitTestCommon.hpp"
-
 
 #include "OrientationAnalysis/Filters/RotateEulerRefFrameFilter.hpp"
 #include "OrientationAnalysis/OrientationAnalysis_test_dirs.hpp"
@@ -43,12 +42,11 @@ namespace fs = std::filesystem;
 
 using namespace complex;
 
-
 struct make_shared_enabler : public complex::Application
 {
 };
 
-TEST_CASE("OrientationAnalysis::RotateEulerRefFrame: Instantiation and Parameter Check", "[OrientationAnalysis]")
+TEST_CASE("OrientationAnalysis::RotateEulerRefFrame", "[OrientationAnalysis]")
 {
   // Instantiate an "Application" instance to load plugins
   std::shared_ptr<make_shared_enabler> app = std::make_shared<make_shared_enabler>();
@@ -86,7 +84,6 @@ TEST_CASE("OrientationAnalysis::RotateEulerRefFrame: Instantiation and Parameter
   const FilterHandle k_ImportTextFilterHandle(k_ImportTextFilterId, k_ComplexCorePluginId);
 
   DataStructure dataStructure;
-
 
   // Run the "Import Text" Filter to import the data for the EulerAngles and EulersRotated
   {
