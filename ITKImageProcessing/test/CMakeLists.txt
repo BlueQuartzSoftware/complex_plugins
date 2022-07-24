@@ -1,17 +1,37 @@
 # ------------------------------------------------------------------------------
 # Define the list of unit test source files
 set(${PLUGIN_NAME}UnitTest_SRCS
-  ITKImageReaderTest.cpp
-  ITKImageWriterTest.cpp
-
   ITKAbsImageTest.cpp
   ITKAcosImageTest.cpp
+  ITKAdaptiveHistogramEqualizationImageTest.cpp
   ITKAsinImageTest.cpp
   ITKAtanImageTest.cpp
+  ITKBinaryContourImageTest.cpp
+  ITKBinaryThresholdImageTest.cpp
+  ITKClosingByReconstructionImageTest.cpp
+  ITKCosImageTest.cpp
+  ITKGradientMagnitudeImageTest.cpp
+  ITKGrayscaleFillholeImageTest.cpp
+  ITKImageReaderTest.cpp
+  ITKImageWriterTest.cpp
+  ITKImportImageStackTest.cpp
+  ITKInvertIntensityImageTest.cpp
+  ITKLog10ImageTest.cpp
+  ITKLogImageTest.cpp
+  ITKMaskImageTest.cpp
+  ITKMedianImageTest.cpp
+  ITKNormalizeImageTest.cpp
+  ITKOpeningByReconstructionImageTest.cpp
+  ITKOtsuMultipleThresholdsImageTest.cpp
+  ITKSignedMaurerDistanceMapImageTest.cpp
+  ITKSinImageTest.cpp
+  ITKSqrtImageTest.cpp
+  ITKTanImageTest.cpp
+
 
   # ITKBilateralImageTest.cpp
   # ITKBinaryClosingByReconstructionImageTest.cpp
-  ITKBinaryContourImageTest.cpp
+
 
   # ITKBinaryDilateImageTest.cpp
   # ITKBinaryErodeImageTest.cpp
@@ -22,8 +42,7 @@ set(${PLUGIN_NAME}UnitTest_SRCS
   # ITKBinaryThinningImageTest.cpp
   # ITKBinomialBlurImageTest.cpp
   # ITKBlackTopHatImageTest.cpp
-  ITKClosingByReconstructionImageTest.cpp
-  ITKCosImageTest.cpp
+
 
   # ITKDilateObjectMorphologyImageTest.cpp
   # ITKErodeObjectMorphologyImageTest.cpp
@@ -31,7 +50,7 @@ set(${PLUGIN_NAME}UnitTest_SRCS
   # ITKExpNegativeImageTest.cpp
   # ITKGrayscaleDilateImageTest.cpp
   # ITKGrayscaleErodeImageTest.cpp
-  ITKGrayscaleFillholeImageTest.cpp
+
 
   # ITKGrayscaleGrindPeakImageTest.cpp
   # ITKGrayscaleMorphologicalClosingImageTest.cpp
@@ -40,12 +59,11 @@ set(${PLUGIN_NAME}UnitTest_SRCS
   # ITKHMaximaImageTest.cpp
   # ITKHMinimaImageTest.cpp
   # ITKIntensityWindowingImageTest.cpp
-  ITKInvertIntensityImageTest.cpp
+
 
   # ITKLabelContourImageTest.cpp
   # ITKLaplacianSharpeningImageTest.cpp
-  ITKLog10ImageTest.cpp
-  ITKLogImageTest.cpp
+
 
   # ITKMaximumProjectionImageTest.cpp
   # ITKMedianProjectionImageTest.cpp
@@ -53,20 +71,16 @@ set(${PLUGIN_NAME}UnitTest_SRCS
   # ITKMorphologicalGradientImageTest.cpp
   # ITKMultiScaleHessianBasedObjectnessImageTest.cpp
   # ITKNotImageTest.cpp
-  ITKOpeningByReconstructionImageTest.cpp
 
   # ITKRelabelComponentImageTest.cpp
   # ITKSaltAndPepperNoiseImageTest.cpp
   # ITKShiftScaleImageTest.cpp
   # ITKShotNoiseImageTest.cpp
   # ITKSigmoidImageTest.cpp
-  ITKSinImageTest.cpp
 
   # ITKSpeckleNoiseImageTest.cpp
-  ITKSqrtImageTest.cpp
 
   # ITKSquareImageTest.cpp
-  ITKTanImageTest.cpp
 
   # ITKThresholdImageTest.cpp
   # ITKValuedRegionalMaximaImageTest.cpp
@@ -79,14 +93,12 @@ set(${PLUGIN_NAME}UnitTest_SRCS
   # ITKApproximateSignedDistanceMapImageTest.cpp
   # ITKGradientAnisotropicDiffusionImageTest.cpp
   # ITKCurvatureAnisotropicDiffusionImageTest.cpp
-  ITKBinaryThresholdImageTest.cpp
 
   # ITKBoundedReciprocalImageTest.cpp
   # ITKConnectedComponentImageTest.cpp
   # ITKCurvatureFlowImageTest.cpp
   # ITKDanielssonDistanceMapImageTest.cpp
   # ITKDoubleThresholdImageTest.cpp
-  ITKGradientMagnitudeImageTest.cpp
 
   # ITKGradientMagnitudeRecursiveGaussianImageTest.cpp
   # ITKIsoContourDistanceImageTest.cpp
@@ -94,15 +106,12 @@ set(${PLUGIN_NAME}UnitTest_SRCS
   # ITKMeanProjectionImageTest.cpp
   # ITKMinMaxCurvatureFlowImageTest.cpp
   # ITKMorphologicalWatershedFromMarkersImageTest.cpp
-  ITKNormalizeImageTest.cpp
 
   # ITKNormalizeToConstantImageTest.cpp
-  ITKOtsuMultipleThresholdsImageTest.cpp
 
   # ITKRegionalMaximaImageTest.cpp
   # ITKRegionalMinimaImageTest.cpp
   # ITKSignedDanielssonDistanceMapImageTest.cpp
-  ITKSignedMaurerDistanceMapImageTest.cpp
 
   # ITKSmoothingRecursiveGaussianImageTest.cpp
   # ITKStandardDeviationProjectionImageTest.cpp
@@ -115,13 +124,10 @@ set(${PLUGIN_NAME}UnitTest_SRCS
   # -----------------------------------------------------------------------------
   # ITKRescaleIntensityImageTest.cpp
   # ITKBoxMeanImageTest.cpp
-  ITKAdaptiveHistogramEqualizationImageTest.cpp
-  ITKMedianImageTest.cpp
+
 
   # ITKDiscreteGaussianImageTest.cpp
-  ITKMaskImageTest.cpp
 
-  ITKImportImageStackTest.cpp
 )
 
 set(${PLUGIN_NAME}UnitTest_SRCS_Disabled
