@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Reconstruction/Reconstruction_export.hpp"
+#include "OrientationAnalysis/OrientationAnalysis_export.hpp"
 
 #include "complex/DataStructure/DataPath.hpp"
 #include "complex/DataStructure/DataStructure.hpp"
@@ -30,7 +30,7 @@
 namespace complex
 {
 
-struct RECONSTRUCTION_EXPORT MergeTwinsInputValues
+struct ORIENTATIONANALYSIS_EXPORT MergeTwinsInputValues
 {
   bool UseNonContiguousNeighbors;
   DataPath NonContiguousNeighborListArrayPath;
@@ -53,7 +53,7 @@ struct RECONSTRUCTION_EXPORT MergeTwinsInputValues
  * where a bool mask array specifies.
  */
 
-class RECONSTRUCTION_EXPORT MergeTwins
+class ORIENTATIONANALYSIS_EXPORT MergeTwins
 {
 public:
   MergeTwins(DataStructure& dataStructure, const IFilter::MessageHandler& mesgHandler, const std::atomic_bool& shouldCancel, MergeTwinsInputValues* inputValues);

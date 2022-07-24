@@ -37,6 +37,7 @@ set(FilterList
   GenerateIPFColorsFilter
   BadDataNeighborOrientationCheckFilter
   NeighborOrientationCorrelationFilter
+  MergeTwinsFilter
 )
 
 set(STUB_FILTERS
@@ -144,6 +145,7 @@ set(filter_algorithms
   GenerateIPFColors
   BadDataNeighborOrientationCheck
   NeighborOrientationCorrelation
+  MergeTwins
 )
 
 foreach(algorithm ${filter_algorithms})
