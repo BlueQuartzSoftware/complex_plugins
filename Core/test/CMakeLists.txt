@@ -10,6 +10,7 @@ set(${PLUGIN_NAME}UnitTest_SRCS
   ConvertColorToGrayScaleTest.cpp
   FillBadDataTest.cpp # NEEDS TEST IMPLEMENTED
   FindFeatureCentroidsFilterTest.cpp
+  FindShapesFilterTest.cpp
   ResampleImageGeomFilterTest.cpp # NEEDS TEST IMPLEMENTED
   RotateSampleRefFrameTest.cpp
 )

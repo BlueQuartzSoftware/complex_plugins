@@ -1,5 +1,5 @@
 /**
- * This file is auto generated from the original StatsToolbox/FindShapes
+ * This file is auto generated from the original StatsToolbox/FindShapesFilter
  * runtime information. These are the steps that need to be taken to utilize this
  * unit test in the proper way.
  *
@@ -15,7 +15,7 @@
  * NOTE the format of the ```TEST_CASE``` macro. Please stick to this format to
  * allow easier parsing of the unit tests.
  *
- * When you start working on this unit test remove "[FindShapes][.][UNIMPLEMENTED]"
+ * When you start working on this unit test remove "[FindShapesFilter][.][UNIMPLEMENTED]"
  * from the TEST_CASE macro. This will enable this unit test to be run by default
  * and report errors.
  */
@@ -26,27 +26,27 @@
 #include "complex/Parameters/ArraySelectionParameter.hpp"
 #include "complex/Parameters/DataGroupSelectionParameter.hpp"
 
-#include "StatsToolbox/Filters/FindShapes.hpp"
-#include "StatsToolbox/StatsToolbox_test_dirs.hpp"
+#include "Core/Filters/FindShapesFilter.hpp"
+#include "Core/Core_test_dirs.hpp"
 
 using namespace complex;
 
-TEST_CASE("StatsToolbox::FindShapes: Instantiation and Parameter Check", "[StatsToolbox][FindShapes][.][UNIMPLEMENTED][!mayfail]")
+TEST_CASE("Core::FindShapesFilter", "[StatsToolbox][FindShapesFilter]")
 {
   // Instantiate the filter, a DataStructure object and an Arguments Object
-  FindShapes filter;
+  FindShapesFilter filter;
   DataStructure ds;
   Arguments args;
 
   // Create default Parameters for the filter.
-  args.insertOrAssign(FindShapes::k_FeatureIdsArrayPath_Key, std::make_any<DataPath>(DataPath{}));
-  args.insertOrAssign(FindShapes::k_CellFeatureAttributeMatrixName_Key, std::make_any<DataPath>(DataPath{}));
-  args.insertOrAssign(FindShapes::k_CentroidsArrayPath_Key, std::make_any<DataPath>(DataPath{}));
-  args.insertOrAssign(FindShapes::k_Omega3sArrayName_Key, std::make_any<DataPath>(DataPath{}));
-  args.insertOrAssign(FindShapes::k_AxisLengthsArrayName_Key, std::make_any<DataPath>(DataPath{}));
-  args.insertOrAssign(FindShapes::k_AxisEulerAnglesArrayName_Key, std::make_any<DataPath>(DataPath{}));
-  args.insertOrAssign(FindShapes::k_AspectRatiosArrayName_Key, std::make_any<DataPath>(DataPath{}));
-  args.insertOrAssign(FindShapes::k_VolumesArrayName_Key, std::make_any<DataPath>(DataPath{}));
+  args.insertOrAssign(FindShapesFilter::k_FeatureIdsArrayPath_Key, std::make_any<DataPath>(DataPath{}));
+  args.insertOrAssign(FindShapesFilter::k_CellFeatureAttributeMatrixName_Key, std::make_any<DataPath>(DataPath{}));
+  args.insertOrAssign(FindShapesFilter::k_CentroidsArrayPath_Key, std::make_any<DataPath>(DataPath{}));
+  args.insertOrAssign(FindShapesFilter::k_Omega3sArrayName_Key, std::make_any<DataPath>(DataPath{}));
+  args.insertOrAssign(FindShapesFilter::k_AxisLengthsArrayName_Key, std::make_any<DataPath>(DataPath{}));
+  args.insertOrAssign(FindShapesFilter::k_AxisEulerAnglesArrayName_Key, std::make_any<DataPath>(DataPath{}));
+  args.insertOrAssign(FindShapesFilter::k_AspectRatiosArrayName_Key, std::make_any<DataPath>(DataPath{}));
+  args.insertOrAssign(FindShapesFilter::k_VolumesArrayName_Key, std::make_any<DataPath>(DataPath{}));
 
   // Preflight the filter and check result
   auto preflightResult = filter.preflight(ds, args);
@@ -56,13 +56,3 @@ TEST_CASE("StatsToolbox::FindShapes: Instantiation and Parameter Check", "[Stats
   auto executeResult = filter.execute(ds, args);
   REQUIRE(executeResult.result.valid());
 }
-
-// TEST_CASE("StatsToolbox::FindShapes: Valid filter execution")
-//{
-//
-//}
-
-// TEST_CASE("StatsToolbox::FindShapes: InValid filter execution")
-//{
-//
-//}

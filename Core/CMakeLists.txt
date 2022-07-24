@@ -10,6 +10,7 @@ set(FilterList
   ConvertColorToGrayScaleFilter
   FillBadDataFilter
   FindFeatureCentroidsFilter
+  FindShapesFilter
   ResampleImageGeomFilter
   RotateSampleRefFrameFilter
 )
@@ -72,6 +73,7 @@ set(filter_algorithms
   ConvertColorToGrayScale
   FillBadData
   FindFeatureCentroids
+  FindShapes
   ResampleImageGeom
 )
 

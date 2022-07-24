@@ -1,72 +1,80 @@
-#include "FindShapes.hpp"
+#include "FindShapesFilter.hpp"
+
+#include "Core/Filters/Algorithms/FindShapes.hpp"
+
 
 #include "complex/DataStructure/DataPath.hpp"
 #include "complex/Parameters/ArrayCreationParameter.hpp"
 #include "complex/Parameters/ArraySelectionParameter.hpp"
 #include "complex/Parameters/DataGroupSelectionParameter.hpp"
+#include "complex/Parameters/GeometrySelectionParameter.hpp"
 
 using namespace complex;
 
 namespace complex
 {
 //------------------------------------------------------------------------------
-std::string FindShapes::name() const
+std::string FindShapesFilter::name() const
 {
-  return FilterTraits<FindShapes>::name.str();
+  return FilterTraits<FindShapesFilter>::name.str();
 }
 
 //------------------------------------------------------------------------------
-std::string FindShapes::className() const
+std::string FindShapesFilter::className() const
 {
-  return FilterTraits<FindShapes>::className;
+  return FilterTraits<FindShapesFilter>::className;
 }
 
 //------------------------------------------------------------------------------
-Uuid FindShapes::uuid() const
+Uuid FindShapesFilter::uuid() const
 {
-  return FilterTraits<FindShapes>::uuid;
+  return FilterTraits<FindShapesFilter>::uuid;
 }
 
 //------------------------------------------------------------------------------
-std::string FindShapes::humanName() const
+std::string FindShapesFilter::humanName() const
 {
   return "Find Feature Shapes";
 }
 
 //------------------------------------------------------------------------------
-std::vector<std::string> FindShapes::defaultTags() const
+std::vector<std::string> FindShapesFilter::defaultTags() const
 {
   return {"#Statistics", "#Morphological"};
 }
 
 //------------------------------------------------------------------------------
-Parameters FindShapes::parameters() const
+Parameters FindShapesFilter::parameters() const
 {
   Parameters params;
   // Create the parameter descriptors that are needed for this filter
-  params.insertSeparator(Parameters::Separator{"Cell Data"});
+  params.insertSeparator(Parameters::Separator{"Required Input Cell Data"});
+  params.insert(
+      std::make_unique<GeometrySelectionParameter>(k_SelectedImageGeometry_Key, "Selected Image Geometry", "", DataPath{}, GeometrySelectionParameter::AllowedTypes{AbstractGeometry::Type::Image}));
   params.insert(std::make_unique<ArraySelectionParameter>(k_FeatureIdsArrayPath_Key, "Feature Ids", "", DataPath({"FeatureIds"}), ArraySelectionParameter::AllowedTypes{DataType::int32}));
-  params.insertSeparator(Parameters::Separator{"Cell Feature Data"});
-  params.insert(std::make_unique<DataGroupSelectionParameter>(k_CellFeatureAttributeMatrixName_Key, "Cell Feature Attribute Matrix", "", DataPath{}));
-  params.insert(std::make_unique<ArraySelectionParameter>(k_CentroidsArrayPath_Key, "Centroids", "", DataPath{}, ArraySelectionParameter::AllowedTypes{}));
-  params.insertSeparator(Parameters::Separator{"Cell Feature Data"});
-  params.insert(std::make_unique<ArrayCreationParameter>(k_Omega3sArrayName_Key, "Omega3s", "", DataPath{}));
-  params.insert(std::make_unique<ArrayCreationParameter>(k_AxisLengthsArrayName_Key, "Axis Lengths", "", DataPath{}));
-  params.insert(std::make_unique<ArrayCreationParameter>(k_AxisEulerAnglesArrayName_Key, "Axis Euler Angles", "", DataPath{}));
-  params.insert(std::make_unique<ArrayCreationParameter>(k_AspectRatiosArrayName_Key, "Aspect Ratios", "", DataPath{}));
-  params.insert(std::make_unique<ArrayCreationParameter>(k_VolumesArrayName_Key, "Volumes", "", DataPath{}));
+
+  params.insertSeparator(Parameters::Separator{"Required Input Feature Data"});
+  params.insert(std::make_unique<DataGroupSelectionParameter>(k_CellFeatureAttributeMatrixName_Key, "Cell Feature Attribute Matrix", "", DataPath({"Feature Data"})));
+  params.insert(std::make_unique<ArraySelectionParameter>(k_CentroidsArrayPath_Key, "Centroids", "", DataPath({"Centroids"}), ArraySelectionParameter::AllowedTypes{DataType::float32}));
+
+  params.insertSeparator(Parameters::Separator{"Created Feature Data"});
+  params.insert(std::make_unique<ArrayCreationParameter>(k_Omega3sArrayName_Key, "Omega3s", "", DataPath({"Omega3s"})));
+  params.insert(std::make_unique<ArrayCreationParameter>(k_AxisLengthsArrayName_Key, "Axis Lengths", "", DataPath({"AxisLengths"})));
+  params.insert(std::make_unique<ArrayCreationParameter>(k_AxisEulerAnglesArrayName_Key, "Axis Euler Angles", "", DataPath({"AxisEulerAngles"})));
+  params.insert(std::make_unique<ArrayCreationParameter>(k_AspectRatiosArrayName_Key, "Aspect Ratios", "", DataPath({"AspectRatios"})));
+  params.insert(std::make_unique<ArrayCreationParameter>(k_VolumesArrayName_Key, "Volumes", "", DataPath({"Volumes"})));
 
   return params;
 }
 
 //------------------------------------------------------------------------------
-IFilter::UniquePointer FindShapes::clone() const
+IFilter::UniquePointer FindShapesFilter::clone() const
 {
-  return std::make_unique<FindShapes>();
+  return std::make_unique<FindShapesFilter>();
 }
 
 //------------------------------------------------------------------------------
-IFilter::PreflightResult FindShapes::preflightImpl(const DataStructure& dataStructure, const Arguments& filterArgs, const MessageHandler& messageHandler, const std::atomic_bool& shouldCancel) const
+IFilter::PreflightResult FindShapesFilter::preflightImpl(const DataStructure& dataStructure, const Arguments& filterArgs, const MessageHandler& messageHandler, const std::atomic_bool& shouldCancel) const
 {
   /****************************************************************************
    * Write any preflight sanity checking codes in this function
@@ -129,25 +137,20 @@ IFilter::PreflightResult FindShapes::preflightImpl(const DataStructure& dataStru
 }
 
 //------------------------------------------------------------------------------
-Result<> FindShapes::executeImpl(DataStructure& dataStructure, const Arguments& filterArgs, const PipelineFilter* pipelineNode, const MessageHandler& messageHandler,
+Result<> FindShapesFilter::executeImpl(DataStructure& dataStructure, const Arguments& filterArgs, const PipelineFilter* pipelineNode, const MessageHandler& messageHandler,
                                  const std::atomic_bool& shouldCancel) const
 {
-  /****************************************************************************
-   * Extract the actual input values from the 'filterArgs' object
-   ***************************************************************************/
-  auto pFeatureIdsArrayPathValue = filterArgs.value<DataPath>(k_FeatureIdsArrayPath_Key);
-  auto pCellFeatureAttributeMatrixNameValue = filterArgs.value<DataPath>(k_CellFeatureAttributeMatrixName_Key);
-  auto pCentroidsArrayPathValue = filterArgs.value<DataPath>(k_CentroidsArrayPath_Key);
-  auto pOmega3sArrayNameValue = filterArgs.value<DataPath>(k_Omega3sArrayName_Key);
-  auto pAxisLengthsArrayNameValue = filterArgs.value<DataPath>(k_AxisLengthsArrayName_Key);
-  auto pAxisEulerAnglesArrayNameValue = filterArgs.value<DataPath>(k_AxisEulerAnglesArrayName_Key);
-  auto pAspectRatiosArrayNameValue = filterArgs.value<DataPath>(k_AspectRatiosArrayName_Key);
-  auto pVolumesArrayNameValue = filterArgs.value<DataPath>(k_VolumesArrayName_Key);
+  FindShapesInputValues inputValues;
 
-  /****************************************************************************
-   * Write your algorithm implementation in this function
-   ***************************************************************************/
+  inputValues.FeatureIdsArrayPath = filterArgs.value<DataPath>(k_FeatureIdsArrayPath_Key);
+  inputValues.CellFeatureAttributeMatrixName = filterArgs.value<DataPath>(k_CellFeatureAttributeMatrixName_Key);
+  inputValues.CentroidsArrayPath = filterArgs.value<DataPath>(k_CentroidsArrayPath_Key);
+  inputValues.Omega3sArrayName = filterArgs.value<DataPath>(k_Omega3sArrayName_Key);
+  inputValues.AxisLengthsArrayName = filterArgs.value<DataPath>(k_AxisLengthsArrayName_Key);
+  inputValues.AxisEulerAnglesArrayName = filterArgs.value<DataPath>(k_AxisEulerAnglesArrayName_Key);
+  inputValues.AspectRatiosArrayName = filterArgs.value<DataPath>(k_AspectRatiosArrayName_Key);
+  inputValues.VolumesArrayName = filterArgs.value<DataPath>(k_VolumesArrayName_Key);
 
-  return {};
+  return FindShapes(dataStructure, messageHandler, shouldCancel, &inputValues)();
 }
 } // namespace complex

@@ -1,6 +1,6 @@
 #pragma once
 
-#include "StatsToolbox/StatsToolbox_export.hpp"
+#include "Core/Core_export.hpp"
 
 #include "complex/DataStructure/DataPath.hpp"
 #include "complex/DataStructure/DataStructure.hpp"
@@ -25,7 +25,7 @@
 namespace complex
 {
 
-struct STATSTOOLBOX_EXPORT FindShapesInputValues
+struct CORE_EXPORT FindShapesInputValues
 {
   DataPath FeatureIdsArrayPath;
   DataPath CellFeatureAttributeMatrixName;
@@ -43,7 +43,7 @@ struct STATSTOOLBOX_EXPORT FindShapesInputValues
  * where a bool mask array specifies.
  */
 
-class STATSTOOLBOX_EXPORT FindShapes
+class CORE_EXPORT FindShapes
 {
 public:
   FindShapes(DataStructure& dataStructure, const IFilter::MessageHandler& mesgHandler, const std::atomic_bool& shouldCancel, FindShapesInputValues* inputValues);
