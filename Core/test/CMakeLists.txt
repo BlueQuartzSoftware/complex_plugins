@@ -6,11 +6,12 @@
 # ------------------------------------------------------------------------------
 # Define the list of unit test source files
 set(${PLUGIN_NAME}UnitTest_SRCS
-  RotateSampleRefFrameTest.cpp
-  ResampleImageGeomFilterTest.cpp # NEEDS TEST IMPLEMENTED
-  FillBadDataTest.cpp # NEEDS TEST IMPLEMENTED
-  AlignSectionsFeatureCentroidTest.cpp
+  AlignSectionsFeatureCentroidTest.cpp 
   ConvertColorToGrayScaleTest.cpp
+  FillBadDataTest.cpp # NEEDS TEST IMPLEMENTED
+  FindFeatureCentroidsFilterTest.cpp
+  ResampleImageGeomFilterTest.cpp # NEEDS TEST IMPLEMENTED
+  RotateSampleRefFrameTest.cpp
 )
 
 file(TO_CMAKE_PATH "${DREAM3D_DATA_DIR}" DREAM3D_DATA_DIR_NORM)

@@ -6,11 +6,12 @@ set(PLUGIN_NAME "Core")
 # These are all the filters in the plugin. All filters should be kept in the
 # Core/src/Core/Filters/ directory.
 set(FilterList
-  RotateSampleRefFrameFilter
-  ResampleImageGeomFilter
-  FillBadDataFilter
   AlignSectionsFeatureCentroidFilter
   ConvertColorToGrayScaleFilter
+  FillBadDataFilter
+  FindFeatureCentroidsFilter
+  ResampleImageGeomFilter
+  RotateSampleRefFrameFilter
 )
 
 set(STUB_FILTERS
@@ -67,10 +68,11 @@ source_group(TREE "${${PLUGIN_NAME}_SOURCE_DIR}/src/${PLUGIN_NAME}" PREFIX ${PLU
 # This should be integrated with the `create_complex_plugin` function call
 # ------------------------------------------------------------------------------
 set(filter_algorithms
-  ResampleImageGeom
-  FillBadData
   AlignSectionsFeatureCentroid
   ConvertColorToGrayScale
+  FillBadData
+  FindFeatureCentroids
+  ResampleImageGeom
 )
 
 foreach(algorithm ${filter_algorithms})

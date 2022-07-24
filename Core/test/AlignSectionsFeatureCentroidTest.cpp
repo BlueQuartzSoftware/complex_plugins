@@ -311,7 +311,7 @@ TEST_CASE("Core::AlignSectionsFeatureCentroidFilter: Small IN100 Pipeline", "[Re
 
     // Create default Parameters for the filter.
     args.insertOrAssign(k_WriteAlignmentShifts_Key, std::make_any<bool>(true));
-    args.insertOrAssign(k_AlignmentShiftFileName_Key, std::make_any<FileSystemPathParameter::ValueType>(fs::path(fmt::format("{}/AlignSectionsMisorientation_1.txt", unit_test::k_BinaryDir))));
+    args.insertOrAssign(k_AlignmentShiftFileName_Key, std::make_any<FileSystemPathParameter::ValueType>(fs::path(fmt::format("{}/AlignSectionsMisorientation_1.txt", unit_test::k_BinaryTestOutputDir))));
 
     args.insertOrAssign(k_MisorientationTolerance_Key, std::make_any<float32>(5.0F));
 
@@ -382,7 +382,7 @@ TEST_CASE("Core::AlignSectionsFeatureCentroidFilter: Small IN100 Pipeline", "[Re
     Arguments args;
     // Create default Parameters for the filter.
     args.insertOrAssign(k_WriteAlignmentShifts_Key, std::make_any<bool>(true));
-    args.insertOrAssign(k_AlignmentShiftFileName_Key, std::make_any<FileSystemPathParameter::ValueType>(fs::path(fmt::format("{}/AlignSectionsFeatureCentroid_1.txt", unit_test::k_BinaryDir))));
+    args.insertOrAssign(k_AlignmentShiftFileName_Key, std::make_any<FileSystemPathParameter::ValueType>(fs::path(fmt::format("{}/AlignSectionsFeatureCentroid_1.txt", unit_test::k_BinaryTestOutputDir))));
     args.insertOrAssign(k_UseReferenceSlice_Key, std::make_any<bool>(true));
     args.insertOrAssign(k_ReferenceSlice_Key, std::make_any<int32>(0));
     args.insertOrAssign(k_GoodVoxelsArrayPath_Key, std::make_any<DataPath>(k_MaskArrayPath));
@@ -414,7 +414,7 @@ TEST_CASE("Core::AlignSectionsFeatureCentroidFilter: Small IN100 Pipeline", "[Re
     REQUIRE(nullptr != filter);
 
     Arguments args;
-    args.insertOrAssign(k_InputFileKey, std::make_any<FileSystemPathParameter::ValueType>(fs::path(fmt::format("{}/AlignSectionsFeatureCentroid_1.txt", unit_test::k_BinaryDir))));
+    args.insertOrAssign(k_InputFileKey, std::make_any<FileSystemPathParameter::ValueType>(fs::path(fmt::format("{}/AlignSectionsFeatureCentroid_1.txt", unit_test::k_BinaryTestOutputDir))));
     args.insertOrAssign(k_ScalarTypeKey, std::make_any<NumericTypeParameter::ValueType>(complex::NumericType::int32));
     args.insertOrAssign(k_NTuplesKey, std::make_any<uint64>(116));
     args.insertOrAssign(k_NCompKey, std::make_any<uint64>(6));
@@ -527,7 +527,7 @@ TEST_CASE("Core::AlignSectionsFeatureCentroidFilter: Small IN100 Pipeline", "[Re
   }
 
   {
-    Result<H5::FileWriter> result = H5::FileWriter::CreateFile(fmt::format("{}/align_sections_feature_centroid.dream3d", unit_test::k_BinaryDir));
+    Result<H5::FileWriter> result = H5::FileWriter::CreateFile(fmt::format("{}/align_sections_feature_centroid.dream3d", unit_test::k_BinaryTestOutputDir));
     H5::FileWriter fileWriter = std::move(result.value());
 
     herr_t err = dataStructure.writeHdf5(fileWriter);
