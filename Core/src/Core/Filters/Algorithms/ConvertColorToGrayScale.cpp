@@ -75,6 +75,7 @@ public:
   {
     convert(range.min(), range.max());
   }
+
 private:
   const UInt8Array& m_ImageData;
   UInt8Array& m_FlatImageData;
@@ -110,12 +111,12 @@ public:
   {
     convert(range.min(), range.max());
   }
+
 private:
   const UInt8Array& m_ImageData;
   UInt8Array& m_FlatImageData;
   size_t numComp;
   int32_t m_Channel;
-
 };
 
 class ParallelWrapper

@@ -112,7 +112,8 @@ IFilter::PreflightResult ConvertColorToGrayScaleFilter::preflightImpl(const Data
 
   if(pConversionAlgorithmValue > 3)
   {
-    return {nonstd::make_unexpected(std::vector<Error>{Error{-10701, fmt::format("Conversion Algorithm choice is invalid. Valid values are 0=Luminosity, 1=Average, 2=Lightness, 3=SingleChannel. Value supplied is {}", pConversionAlgorithmValue)}})};
+    return {nonstd::make_unexpected(std::vector<Error>{Error{
+        -10701, fmt::format("Conversion Algorithm choice is invalid. Valid values are 0=Luminosity, 1=Average, 2=Lightness, 3=SingleChannel. Value supplied is {}", pConversionAlgorithmValue)}})};
   }
 
   if(pConversionAlgorithmValue == 3 && pColorChannelValue > 3)

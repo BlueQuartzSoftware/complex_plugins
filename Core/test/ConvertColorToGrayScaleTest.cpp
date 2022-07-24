@@ -101,7 +101,6 @@ TEST_CASE("Core::ConvertColorToGrayScale: Instantiation and Parameter Check", "[
 
 #include <QtCore/QDebug>
 
-#include "SIMPLib/SIMPLib.h"
 #include "SIMPLib/Common/SIMPLArray.hpp"
 #include "SIMPLib/CoreFilters/ConvertColorToGrayScale.h"
 #include "SIMPLib/DataArrays/DataArray.hpp"
@@ -117,6 +116,7 @@ TEST_CASE("Core::ConvertColorToGrayScale: Instantiation and Parameter Check", "[
 #include "SIMPLib/Geometry/VertexGeom.h"
 #include "SIMPLib/Plugin/ISIMPLibPlugin.h"
 #include "SIMPLib/Plugin/SIMPLibPluginLoader.h"
+#include "SIMPLib/SIMPLib.h"
 #include "SIMPLib/Testing/SIMPLTestFileLocations.h"
 #include "SIMPLib/Testing/UnitTestSupport.hpp"
 
@@ -545,6 +545,5 @@ public:
     DREAM3D_REGISTER_TEST(RunTest(9, Algorithms::SINGLE_CHANNEL, {0.2125f, 0.7154f, 0.0721f}, 2))
   }
 };
-
 
 #endif

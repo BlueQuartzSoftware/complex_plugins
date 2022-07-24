@@ -9,14 +9,14 @@
 #include "complex/Parameters/ArrayThresholdsParameter.hpp"
 #include "complex/Parameters/BoolParameter.hpp"
 #include "complex/Parameters/ChoicesParameter.hpp"
-#include "complex/Parameters/StringParameter.hpp"
+#include "complex/Parameters/DataGroupCreationParameter.hpp"
 #include "complex/Parameters/Dream3dImportParameter.hpp"
 #include "complex/Parameters/FileSystemPathParameter.hpp"
-#include "complex/Parameters/MultiArraySelectionParameter.hpp"
 #include "complex/Parameters/GeometrySelectionParameter.hpp"
+#include "complex/Parameters/MultiArraySelectionParameter.hpp"
 #include "complex/Parameters/NumberParameter.hpp"
-#include "complex/Parameters/DataGroupCreationParameter.hpp"
 #include "complex/Parameters/NumericTypeParameter.hpp"
+#include "complex/Parameters/StringParameter.hpp"
 #include "complex/Parameters/VectorParameter.hpp"
 #include "complex/UnitTest/UnitTestCommon.hpp"
 #include "complex/Utilities/Parsing/HDF5/H5FileWriter.hpp"
@@ -90,7 +90,6 @@ TEST_CASE("ITKAdaptiveHistogramEqualizationImageFilter(defaults)", "[ITKImagePro
     COMPLEX_RESULT_REQUIRE_VALID(executeResult.result);
   }
 
-
   inputDataPath = inputGeometryPath.createChildPath(fmt::format("GrayScale_{}", ITKTestBase::k_InputDataPath));
   {
 
@@ -104,23 +103,20 @@ TEST_CASE("ITKAdaptiveHistogramEqualizationImageFilter(defaults)", "[ITKImagePro
     args.insertOrAssign(ITKAdaptiveHistogramEqualizationImage::k_Beta_Key, std::make_any<Float32Parameter::ValueType>(0.5));
     args.insertOrAssign(ITKAdaptiveHistogramEqualizationImage::k_Radius_Key, std::make_any<VectorFloat32Parameter::ValueType>({10.0F, 19.0F, 10.0F}));
 
-
     auto preflightResult = filter.preflight(dataStructure, args);
     COMPLEX_RESULT_REQUIRE_VALID(preflightResult.outputActions);
 
     auto executeResult = filter.execute(dataStructure, args);
     COMPLEX_RESULT_REQUIRE_VALID(executeResult.result);
 
-    fs::path baselineFilePath =
-        fs::path(unit_test::k_SourceDir.view()) / complex::unit_test::k_DataDir.view() / "JSONFilters/Baseline/BasicFilters/ITKAdaptiveHistogramEqualizationFilterTest.png";
+    fs::path baselineFilePath = fs::path(unit_test::k_SourceDir.view()) / complex::unit_test::k_DataDir.view() / "JSONFilters/Baseline/BasicFilters/ITKAdaptiveHistogramEqualizationFilterTest.png";
     DataPath baselineGeometryPath({ITKTestBase::k_BaselineGeometryPath});
     DataPath baseLineCellDataPath = baselineGeometryPath.createChildPath(ITKTestBase::k_ImageCellDataPath);
     DataPath baselineDataPath = baseLineCellDataPath.createChildPath(ITKTestBase::k_BaselineDataPath);
     Result<> readBaselineResult = ITKTestBase::ReadImage(dataStructure, baselineFilePath, baselineGeometryPath, baseLineCellDataPath, baselineDataPath);
     Result<> compareResult = ITKTestBase::CompareImages(dataStructure, baselineGeometryPath, baselineDataPath, inputGeometryPath, outputDataPath, 2e-3);
-  //  COMPLEX_RESULT_REQUIRE_VALID(compareResult);
+    //  COMPLEX_RESULT_REQUIRE_VALID(compareResult);
   }
-
 
   {
     Result<H5::FileWriter> result = H5::FileWriter::CreateFile(fmt::format("{}/adaptive_histogram_equalization.dream3d", unit_test::k_BinaryDir));
@@ -129,7 +125,6 @@ TEST_CASE("ITKAdaptiveHistogramEqualizationImageFilter(defaults)", "[ITKImagePro
     herr_t err = dataStructure.writeHdf5(fileWriter);
     REQUIRE(err >= 0);
   }
-
 }
 
 TEST_CASE("ITKAdaptiveHistogramEqualizationImageFilter(histo)", "[ITKImageProcessing][ITKAdaptiveHistogramEqualizationImage][histo]")
