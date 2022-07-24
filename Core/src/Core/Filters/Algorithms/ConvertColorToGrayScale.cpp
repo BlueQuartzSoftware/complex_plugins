@@ -89,7 +89,7 @@ public:
   SingleChannelImpl(const UInt8Array& data, UInt8Array& outputData, size_t numComp, int32_t channel)
   : m_ImageData(data)
   , m_FlatImageData(outputData)
-  , numComp(numComp)
+  , m_NumComp(numComp)
   , m_Channel(channel)
   {
   }
@@ -103,7 +103,7 @@ public:
   {
     for(size_t i = start; i < end; i++)
     {
-      m_FlatImageData[i] = static_cast<uint8_t>((m_ImageData[numComp * i + static_cast<size_t>(m_Channel)]));
+      m_FlatImageData[i] = static_cast<uint8_t>((m_ImageData[m_NumComp * i + static_cast<size_t>(m_Channel)]));
     }
   }
 
@@ -115,7 +115,7 @@ public:
 private:
   const UInt8Array& m_ImageData;
   UInt8Array& m_FlatImageData;
-  size_t numComp;
+  size_t m_NumComp;
   int32_t m_Channel;
 };
 
