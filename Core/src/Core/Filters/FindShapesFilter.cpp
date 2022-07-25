@@ -2,8 +2,9 @@
 
 #include "Core/Filters/Algorithms/FindShapes.hpp"
 
-
+#include "complex/DataStructure/DataGroup.hpp"
 #include "complex/DataStructure/DataPath.hpp"
+#include "complex/Filter/Actions/CreateArrayAction.hpp"
 #include "complex/Parameters/ArrayCreationParameter.hpp"
 #include "complex/Parameters/ArraySelectionParameter.hpp"
 #include "complex/Parameters/DataGroupSelectionParameter.hpp"
@@ -51,18 +52,18 @@ Parameters FindShapesFilter::parameters() const
   params.insertSeparator(Parameters::Separator{"Required Input Cell Data"});
   params.insert(
       std::make_unique<GeometrySelectionParameter>(k_SelectedImageGeometry_Key, "Selected Image Geometry", "", DataPath{}, GeometrySelectionParameter::AllowedTypes{AbstractGeometry::Type::Image}));
-  params.insert(std::make_unique<ArraySelectionParameter>(k_FeatureIdsArrayPath_Key, "Feature Ids", "", DataPath({"FeatureIds"}), ArraySelectionParameter::AllowedTypes{DataType::int32}));
+  params.insert(std::make_unique<ArraySelectionParameter>(k_FeatureIdsArrayPath_Key, "Cell Feature Ids", "", DataPath({"FeatureIds"}), ArraySelectionParameter::AllowedTypes{DataType::int32}));
 
   params.insertSeparator(Parameters::Separator{"Required Input Feature Data"});
   params.insert(std::make_unique<DataGroupSelectionParameter>(k_CellFeatureAttributeMatrixName_Key, "Cell Feature Attribute Matrix", "", DataPath({"Feature Data"})));
-  params.insert(std::make_unique<ArraySelectionParameter>(k_CentroidsArrayPath_Key, "Centroids", "", DataPath({"Centroids"}), ArraySelectionParameter::AllowedTypes{DataType::float32}));
+  params.insert(std::make_unique<ArraySelectionParameter>(k_CentroidsArrayPath_Key, "Feature Centroids", "", DataPath({"Centroids"}), ArraySelectionParameter::AllowedTypes{DataType::float32}));
 
   params.insertSeparator(Parameters::Separator{"Created Feature Data"});
   params.insert(std::make_unique<ArrayCreationParameter>(k_Omega3sArrayName_Key, "Omega3s", "", DataPath({"Omega3s"})));
   params.insert(std::make_unique<ArrayCreationParameter>(k_AxisLengthsArrayName_Key, "Axis Lengths", "", DataPath({"AxisLengths"})));
   params.insert(std::make_unique<ArrayCreationParameter>(k_AxisEulerAnglesArrayName_Key, "Axis Euler Angles", "", DataPath({"AxisEulerAngles"})));
   params.insert(std::make_unique<ArrayCreationParameter>(k_AspectRatiosArrayName_Key, "Aspect Ratios", "", DataPath({"AspectRatios"})));
-  params.insert(std::make_unique<ArrayCreationParameter>(k_VolumesArrayName_Key, "Volumes", "", DataPath({"Volumes"})));
+  params.insert(std::make_unique<ArrayCreationParameter>(k_VolumesArrayName_Key, "Volumes", "", DataPath({"Shape Volumes"})));
 
   return params;
 }
@@ -74,7 +75,8 @@ IFilter::UniquePointer FindShapesFilter::clone() const
 }
 
 //------------------------------------------------------------------------------
-IFilter::PreflightResult FindShapesFilter::preflightImpl(const DataStructure& dataStructure, const Arguments& filterArgs, const MessageHandler& messageHandler, const std::atomic_bool& shouldCancel) const
+IFilter::PreflightResult FindShapesFilter::preflightImpl(const DataStructure& dataStructure, const Arguments& filterArgs, const MessageHandler& messageHandler,
+                                                         const std::atomic_bool& shouldCancel) const
 {
   /****************************************************************************
    * Write any preflight sanity checking codes in this function
@@ -85,14 +87,14 @@ IFilter::PreflightResult FindShapesFilter::preflightImpl(const DataStructure& da
    * otherwise passed into the filter. These are here for your convenience. If you
    * do not need some of them remove them.
    */
-  auto pFeatureIdsArrayPathValue = filterArgs.value<DataPath>(k_FeatureIdsArrayPath_Key);
-  auto pCellFeatureAttributeMatrixNameValue = filterArgs.value<DataPath>(k_CellFeatureAttributeMatrixName_Key);
-  auto pCentroidsArrayPathValue = filterArgs.value<DataPath>(k_CentroidsArrayPath_Key);
-  auto pOmega3sArrayNameValue = filterArgs.value<DataPath>(k_Omega3sArrayName_Key);
-  auto pAxisLengthsArrayNameValue = filterArgs.value<DataPath>(k_AxisLengthsArrayName_Key);
-  auto pAxisEulerAnglesArrayNameValue = filterArgs.value<DataPath>(k_AxisEulerAnglesArrayName_Key);
-  auto pAspectRatiosArrayNameValue = filterArgs.value<DataPath>(k_AspectRatiosArrayName_Key);
-  auto pVolumesArrayNameValue = filterArgs.value<DataPath>(k_VolumesArrayName_Key);
+  auto pFeatureIdsArrayPath = filterArgs.value<DataPath>(k_FeatureIdsArrayPath_Key);
+  auto featureAttrMatrixPath = filterArgs.value<DataPath>(k_CellFeatureAttributeMatrixName_Key);
+  auto pCentroidsArrayPath = filterArgs.value<DataPath>(k_CentroidsArrayPath_Key);
+  auto pOmega3sArrayPath = filterArgs.value<DataPath>(k_Omega3sArrayName_Key);
+  auto pAxisLengthsArrayPath = filterArgs.value<DataPath>(k_AxisLengthsArrayName_Key);
+  auto pAxisEulerAnglesArrayPath = filterArgs.value<DataPath>(k_AxisEulerAnglesArrayName_Key);
+  auto pAspectRatiosArrayPath = filterArgs.value<DataPath>(k_AspectRatiosArrayName_Key);
+  auto pVolumesArrayPath = filterArgs.value<DataPath>(k_VolumesArrayName_Key);
 
   // Declare the preflightResult variable that will be populated with the results
   // of the preflight. The PreflightResult type contains the output Actions and
@@ -111,26 +113,59 @@ IFilter::PreflightResult FindShapesFilter::preflightImpl(const DataStructure& da
   // the std::vector<PreflightValue> object.
   std::vector<PreflightValue> preflightUpdatedValues;
 
-  // If the filter needs to pass back some updated values via a key:value string:string set of values
-  // you can declare and update that string here.
-  // None found in this filter based on the filter parameters
+  IDataStore::ShapeType tupleShape;
 
-  // If this filter makes changes to the DataStructure in the form of
-  // creating/deleting/moving/renaming DataGroups, Geometries, DataArrays then you
-  // will need to use one of the `*Actions` classes located in complex/Filter/Actions
-  // to relay that information to the preflight and execute methods. This is done by
-  // creating an instance of the Action class and then storing it in the resultOutputActions variable.
-  // This is done through a `push_back()` method combined with a `std::move()`. For the
-  // newly initiated to `std::move` once that code is executed what was once inside the Action class
-  // instance variable is *no longer there*. The memory has been moved. If you try to access that
-  // variable after this line you will probably get a crash or have subtle bugs. To ensure that this
-  // does not happen we suggest using braces `{}` to scope each of the action's declaration and store
-  // so that the programmer is not tempted to use the action instance past where it should be used.
-  // You have to create your own Actions class if there isn't something specific for your filter's needs
+  // Feature Data:
+  // Validating the Feature Attribute Matrix and trying to find a child of the Group
+  // that is an IDataArray subclass, so we can get the proper tuple shape
+  const auto* featureAttrMatrix = dataStructure.getDataAs<DataGroup>(featureAttrMatrixPath);
+  if(featureAttrMatrix == nullptr)
+  {
+    return {nonstd::make_unexpected(std::vector<Error>{Error{-12800, "Feature Attribute Matrix Path is NOT a DataGroup"}})};
+  }
+  const auto& featureAttrMatrixChildren = featureAttrMatrix->getDataMap();
+  bool childDataArrayFound = false;
+  for(const auto& child : featureAttrMatrixChildren)
+  {
+    if(child.second->getDataObjectType() == DataObject::Type::DataArray)
+    {
+      const auto* childDataArray = dynamic_cast<IDataArray*>(child.second.get());
+      tupleShape = childDataArray->getIDataStore()->getTupleShape();
+      childDataArrayFound = true;
+      break;
+    }
+  }
+  // We must find a child IDataArray subclass to get the tuple shape correct.
+  if(!childDataArrayFound)
+  {
+    return {nonstd::make_unexpected(std::vector<Error>{Error{-12801, "Feature Attribute Matrix does not have a child IDataArray"}})};
+  }
 
-  // Store the preflight updated value(s) into the preflightUpdatedValues vector using
-  // the appropriate methods.
-  // None found based on the filter parameters
+  // Create the CreateArrayAction within a scope so that we do not accidentally use the variable is it is getting "moved"
+  {
+    auto createFeatureCentroidsAction = std::make_unique<CreateArrayAction>(DataType::float32, tupleShape, std::vector<usize>{1ULL}, pOmega3sArrayPath);
+    resultOutputActions.value().actions.push_back(std::move(createFeatureCentroidsAction));
+  }
+  // Create the CreateArrayAction within a scope so that we do not accidentally use the variable is it is getting "moved"
+  {
+    auto createFeatureCentroidsAction = std::make_unique<CreateArrayAction>(DataType::float32, tupleShape, std::vector<usize>{3ULL}, pAxisLengthsArrayPath);
+    resultOutputActions.value().actions.push_back(std::move(createFeatureCentroidsAction));
+  }
+  // Create the CreateArrayAction within a scope so that we do not accidentally use the variable is it is getting "moved"
+  {
+    auto createFeatureCentroidsAction = std::make_unique<CreateArrayAction>(DataType::float32, tupleShape, std::vector<usize>{3ULL}, pAxisEulerAnglesArrayPath);
+    resultOutputActions.value().actions.push_back(std::move(createFeatureCentroidsAction));
+  }
+  // Create the CreateArrayAction within a scope so that we do not accidentally use the variable is it is getting "moved"
+  {
+    auto createFeatureCentroidsAction = std::make_unique<CreateArrayAction>(DataType::float32, tupleShape, std::vector<usize>{2ULL}, pAspectRatiosArrayPath);
+    resultOutputActions.value().actions.push_back(std::move(createFeatureCentroidsAction));
+  }
+  // Create the CreateArrayAction within a scope so that we do not accidentally use the variable is it is getting "moved"
+  {
+    auto createFeatureCentroidsAction = std::make_unique<CreateArrayAction>(DataType::float32, tupleShape, std::vector<usize>{1ULL}, pVolumesArrayPath);
+    resultOutputActions.value().actions.push_back(std::move(createFeatureCentroidsAction));
+  }
 
   // Return both the resultOutputActions and the preflightUpdatedValues via std::move()
   return {std::move(resultOutputActions), std::move(preflightUpdatedValues)};
@@ -138,18 +173,19 @@ IFilter::PreflightResult FindShapesFilter::preflightImpl(const DataStructure& da
 
 //------------------------------------------------------------------------------
 Result<> FindShapesFilter::executeImpl(DataStructure& dataStructure, const Arguments& filterArgs, const PipelineFilter* pipelineNode, const MessageHandler& messageHandler,
-                                 const std::atomic_bool& shouldCancel) const
+                                       const std::atomic_bool& shouldCancel) const
 {
   FindShapesInputValues inputValues;
 
   inputValues.FeatureIdsArrayPath = filterArgs.value<DataPath>(k_FeatureIdsArrayPath_Key);
-  inputValues.CellFeatureAttributeMatrixName = filterArgs.value<DataPath>(k_CellFeatureAttributeMatrixName_Key);
+  inputValues.FeatureAttributeMatrixPath = filterArgs.value<DataPath>(k_CellFeatureAttributeMatrixName_Key);
   inputValues.CentroidsArrayPath = filterArgs.value<DataPath>(k_CentroidsArrayPath_Key);
-  inputValues.Omega3sArrayName = filterArgs.value<DataPath>(k_Omega3sArrayName_Key);
-  inputValues.AxisLengthsArrayName = filterArgs.value<DataPath>(k_AxisLengthsArrayName_Key);
-  inputValues.AxisEulerAnglesArrayName = filterArgs.value<DataPath>(k_AxisEulerAnglesArrayName_Key);
-  inputValues.AspectRatiosArrayName = filterArgs.value<DataPath>(k_AspectRatiosArrayName_Key);
-  inputValues.VolumesArrayName = filterArgs.value<DataPath>(k_VolumesArrayName_Key);
+  inputValues.Omega3sArrayPath = filterArgs.value<DataPath>(k_Omega3sArrayName_Key);
+  inputValues.AxisLengthsArrayPath = filterArgs.value<DataPath>(k_AxisLengthsArrayName_Key);
+  inputValues.AxisEulerAnglesArrayPath = filterArgs.value<DataPath>(k_AxisEulerAnglesArrayName_Key);
+  inputValues.AspectRatiosArrayPath = filterArgs.value<DataPath>(k_AspectRatiosArrayName_Key);
+  inputValues.VolumesArrayPath = filterArgs.value<DataPath>(k_VolumesArrayName_Key);
+  inputValues.ImageGeometryPath = filterArgs.value<DataPath>(k_SelectedImageGeometry_Key);
 
   return FindShapes(dataStructure, messageHandler, shouldCancel, &inputValues)();
 }

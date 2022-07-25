@@ -1,3 +1,9 @@
+# ------------------------------------------------------------------------------
+# Required EbsdLib and H5Support
+# ------------------------------------------------------------------------------
+find_package(H5Support REQUIRED)
+find_package(EbsdLib REQUIRED)
+
 include("${complex_SOURCE_DIR}/cmake/Plugin.cmake")
 
 set(PLUGIN_NAME "Core")
@@ -43,7 +49,8 @@ target_sources(${PLUGIN_NAME}
 )
 source_group(TREE "${${PLUGIN_NAME}_SOURCE_DIR}/src/${PLUGIN_NAME}"
   PREFIX ${PLUGIN_NAME}
-  FILES "${${PLUGIN_NAME}_SOURCE_DIR}/src/${PLUGIN_NAME}/Utilities/CoreUtilities.hpp")
+  FILES "${${PLUGIN_NAME}_SOURCE_DIR}/src/${PLUGIN_NAME}/Utilities/CoreUtilities.hpp"
+)
 
 # ------------------------------------------------------------------------------
 # Include filters that need to be compiled but not available to the general user
@@ -88,13 +95,20 @@ foreach(algorithm ${filter_algorithms})
   )
 endforeach()
 
+
+# ------------------------------------------------------------------------------
+# If there are additional libraries that this plugin needs to link against you
+# can use the target_link_libraries() cmake call
+# ------------------------------------------------------------------------------
+target_link_libraries(${PLUGIN_NAME} PUBLIC EbsdLib::EbsdLib)
+
 # ------------------------------------------------------------------------------
 # If there are additional include directories that are needed for this plugin
 # you can use the target_include_directories(.....) cmake call
-# target_include_directories(${PLUGIN_NAME}
-# PUBLIC
-# additional include directories here
-# )
+ target_include_directories(${PLUGIN_NAME}
+  PUBLIC
+    ${Eigen_INCLUDE_DIRS} ${EbsdLib_INCLUDE_DIRS}
+ )
 
 # ------------------------------------------------------------------------------
 # Add in the unit tests for the filters included in this plugin

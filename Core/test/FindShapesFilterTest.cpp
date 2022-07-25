@@ -26,8 +26,8 @@
 #include "complex/Parameters/ArraySelectionParameter.hpp"
 #include "complex/Parameters/DataGroupSelectionParameter.hpp"
 
-#include "Core/Filters/FindShapesFilter.hpp"
 #include "Core/Core_test_dirs.hpp"
+#include "Core/Filters/FindShapesFilter.hpp"
 
 using namespace complex;
 
