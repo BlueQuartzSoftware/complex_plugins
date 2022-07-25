@@ -132,8 +132,8 @@ Result<> FindShapes::operator()()
 
   size_t numfeatures = centroids.getNumberOfTuples();
 
-  m_FeatureMoments.resize(numfeatures * 6);
-  m_FeatureEigenVals.resize(numfeatures * 3);
+  m_FeatureMoments.assign(numfeatures * 6, 0.0F);
+  m_FeatureEigenVals.assign(numfeatures * 3, 0.0F);
 
   // this is a temp array that is used during the calculations
   m_EFVec.resize(numfeatures * 9);
@@ -185,16 +185,6 @@ void FindShapes::find_moments()
   float modZRes = spacing[2] * static_cast<float>(m_ScaleFactor);
 
   size_t numfeatures = centroids.getNumberOfTuples();
-
-  for(size_t i = 0; i < numfeatures; i++)
-  {
-    m_FeatureMoments[6 * i + 0] = 0.0;
-    m_FeatureMoments[6 * i + 1] = 0.0;
-    m_FeatureMoments[6 * i + 2] = 0.0;
-    m_FeatureMoments[6 * i + 3] = 0.0;
-    m_FeatureMoments[6 * i + 4] = 0.0;
-    m_FeatureMoments[6 * i + 5] = 0.0;
-  }
 
   float x = 0.0f, y = 0.0f, z = 0.0f, x1 = 0.0f, x2 = 0.0f, y1 = 0.0f, y2 = 0.0f, z1 = 0.0f, z2 = 0.0f;
   float xdist1 = 0.0f, xdist2 = 0.0f, xdist3 = 0.0f, xdist4 = 0.0f, xdist5 = 0.0f, xdist6 = 0.0f, xdist7 = 0.0f, xdist8 = 0.0f;
@@ -319,7 +309,7 @@ void FindShapes::find_moments()
     m_EFVec[featureId * 9 + 4] = col(1).real();
     m_EFVec[featureId * 9 + 7] = col(2).real();
 
-    // The the smallest into the 1rst column
+    // The smallest into the 1rst column
     col = eigenVectors.col(idxs[2]);
     m_EFVec[featureId * 9 + 0] = col(0).real();
     m_EFVec[featureId * 9 + 3] = col(1).real();
