@@ -13,36 +13,11 @@ namespace fs = std::filesystem;
 
 #include "Core/Core_test_dirs.hpp"
 #include "Core/Filters/FindFeatureCentroidsFilter.hpp"
+#include "CoreTestUtilities.hpp"
 
 using namespace complex;
 
-constexpr float EPSILON = 0.00001;
-
-template <typename T>
-void CompareDataArrays(const IDataArray& left, const IDataArray& right)
-{
-  const auto& oldDataStore = left.getIDataStoreRefAs<AbstractDataStore<T>>();
-  const auto& newDataStore = right.getIDataStoreRefAs<AbstractDataStore<T>>();
-  usize start = 0;
-  usize end = oldDataStore.getSize();
-  for(usize i = start; i < end; i++)
-  {
-    if(oldDataStore[i] != newDataStore[i])
-    {
-      auto oldVal = oldDataStore[i];
-      auto newVal = newDataStore[i];
-      float diff = std::fabs(static_cast<float>(oldVal - newVal));
-      REQUIRE(diff < EPSILON);
-      break;
-    }
-  }
-}
-
-struct make_shared_enabler : public complex::Application
-{
-};
-
-TEST_CASE("Generic::FindFeatureCentroidsFilter", "[Generic][FindFeatureCentroidsFilter]")
+TEST_CASE("Core::FindFeatureCentroidsFilter", "[Core][FindFeatureCentroidsFilter]")
 {
   std::shared_ptr<make_shared_enabler> app = std::make_shared<make_shared_enabler>();
   app->loadPlugins(unit_test::k_BuildDir.view(), true);
@@ -125,7 +100,6 @@ TEST_CASE("Generic::FindFeatureCentroidsFilter", "[Generic][FindFeatureCentroids
   {
     Result<H5::FileWriter> result = H5::FileWriter::CreateFile(fmt::format("{}/find_feature_centroids.dream3d", unit_test::k_BinaryTestOutputDir));
     H5::FileWriter fileWriter = std::move(result.value());
-
     herr_t err = dataStructure.writeHdf5(fileWriter);
     REQUIRE(err >= 0);
   }

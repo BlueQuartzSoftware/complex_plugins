@@ -18,11 +18,9 @@
 namespace fs = std::filesystem;
 
 #include "Core/Core_test_dirs.hpp"
-#include "Core/Filters/AlignSectionsFeatureCentroidFilter.hpp"
+#include "CoreTestUtilities.hpp"
 
 using namespace complex;
-
-constexpr float EPSILON = 0.00001;
 
 /**
  * Read H5Ebsd File
@@ -62,31 +60,7 @@ inline const std::string MaterialName("MaterialName");
 } // namespace EnsembleData
 } // namespace EbsdLib
 
-template <typename T>
-void CompareDataArrays(const IDataArray& left, const IDataArray& right)
-{
-  const auto& oldDataStore = left.getIDataStoreRefAs<AbstractDataStore<T>>();
-  const auto& newDataStore = right.getIDataStoreRefAs<AbstractDataStore<T>>();
-  usize start = 0;
-  usize end = oldDataStore.getSize();
-  for(usize i = start; i < end; i++)
-  {
-    if(oldDataStore[i] != newDataStore[i])
-    {
-      auto oldVal = oldDataStore[i];
-      auto newVal = newDataStore[i];
-      float diff = std::fabs(static_cast<float>(oldVal - newVal));
-      REQUIRE(diff < EPSILON);
-      break;
-    }
-  }
-}
-
-struct make_shared_enabler : public complex::Application
-{
-};
-
-TEST_CASE("Core::AlignSectionsFeatureCentroidFilter: Small IN100 Pipeline", "[Reconstruction][AlignSectionsFeatureCentroidFilter]")
+TEST_CASE("Core::AlignSectionsFeatureCentroidFilter: Small IN100 Pipeline", "[Core][AlignSectionsFeatureCentroidFilter]")
 {
   std::shared_ptr<make_shared_enabler> app = std::make_shared<make_shared_enabler>();
   app->loadPlugins(unit_test::k_BuildDir.view(), true);

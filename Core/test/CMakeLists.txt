@@ -28,12 +28,9 @@ create_complex_plugin_unit_test(PLUGIN_NAME ${PLUGIN_NAME}
 # ------------------------------------------------------------------------------
 # If there are additional source files that need to be compiled for this plugin
 # can use the target_sources(...) cmake call
-# target_sources(${PLUGIN_NAME}UnitTest
-# PUBLIC
-# additional header files
-# PRIVATE
-# additional source files
-# )
+ target_sources(${PLUGIN_NAME}UnitTest
+  PRIVATE ${${PLUGIN_NAME}_SOURCE_DIR}/test/${PLUGIN_NAME}TestUtilities.hpp
+ )
 
 # ------------------------------------------------------------------------------
 # If there are additional include directories that are needed for this plugin

@@ -78,15 +78,6 @@ IFilter::UniquePointer FindShapesFilter::clone() const
 IFilter::PreflightResult FindShapesFilter::preflightImpl(const DataStructure& dataStructure, const Arguments& filterArgs, const MessageHandler& messageHandler,
                                                          const std::atomic_bool& shouldCancel) const
 {
-  /****************************************************************************
-   * Write any preflight sanity checking codes in this function
-   ***************************************************************************/
-
-  /**
-   * These are the values that were gathered from the UI or the pipeline file or
-   * otherwise passed into the filter. These are here for your convenience. If you
-   * do not need some of them remove them.
-   */
   auto pFeatureIdsArrayPath = filterArgs.value<DataPath>(k_FeatureIdsArrayPath_Key);
   auto featureAttrMatrixPath = filterArgs.value<DataPath>(k_CellFeatureAttributeMatrixName_Key);
   auto pCentroidsArrayPath = filterArgs.value<DataPath>(k_CentroidsArrayPath_Key);
@@ -113,33 +104,14 @@ IFilter::PreflightResult FindShapesFilter::preflightImpl(const DataStructure& da
   // the std::vector<PreflightValue> object.
   std::vector<PreflightValue> preflightUpdatedValues;
 
-  IDataStore::ShapeType tupleShape;
+  // Get the Centroids Feature Array and get its TupleShape
+  const auto* centroids = dataStructure.getDataAs<Float32Array>(pCentroidsArrayPath);
+  if(nullptr == centroids)
+  {
+    return {nonstd::make_unexpected(std::vector<Error>{Error{-12801, "Centroids Feature Data Array is not of the correct type"}})};
+  }
 
-  // Feature Data:
-  // Validating the Feature Attribute Matrix and trying to find a child of the Group
-  // that is an IDataArray subclass, so we can get the proper tuple shape
-  const auto* featureAttrMatrix = dataStructure.getDataAs<DataGroup>(featureAttrMatrixPath);
-  if(featureAttrMatrix == nullptr)
-  {
-    return {nonstd::make_unexpected(std::vector<Error>{Error{-12800, "Feature Attribute Matrix Path is NOT a DataGroup"}})};
-  }
-  const auto& featureAttrMatrixChildren = featureAttrMatrix->getDataMap();
-  bool childDataArrayFound = false;
-  for(const auto& child : featureAttrMatrixChildren)
-  {
-    if(child.second->getDataObjectType() == DataObject::Type::DataArray)
-    {
-      const auto* childDataArray = dynamic_cast<IDataArray*>(child.second.get());
-      tupleShape = childDataArray->getIDataStore()->getTupleShape();
-      childDataArrayFound = true;
-      break;
-    }
-  }
-  // We must find a child IDataArray subclass to get the tuple shape correct.
-  if(!childDataArrayFound)
-  {
-    return {nonstd::make_unexpected(std::vector<Error>{Error{-12801, "Feature Attribute Matrix does not have a child IDataArray"}})};
-  }
+  IDataStore::ShapeType tupleShape = centroids->getIDataStore()->getTupleShape();
 
   // Create the CreateArrayAction within a scope so that we do not accidentally use the variable is it is getting "moved"
   {
