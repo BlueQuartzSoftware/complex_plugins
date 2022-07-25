@@ -66,7 +66,7 @@ public:
   {
     for(size_t i = start; i < end; i++)
     {
-      auto minmax = std::minmax_element(m_ImageData.begin() + (i * m_NumComp), m_ImageData.begin() + (i * m_NumComp + (m_NumComp - 1)));
+      auto minmax = std::minmax_element(m_ImageData.begin() + (i * m_NumComp), m_ImageData.begin() + (i * m_NumComp + 3));
       m_FlatImageData[i] = static_cast<uint8_t>(roundf(static_cast<float>(static_cast<int16_t>(*(minmax.first)) + static_cast<int16_t>(*(minmax.second))) / 2.0f));
     }
   }
