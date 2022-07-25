@@ -8,7 +8,6 @@
 #include "complex/UnitTest/UnitTestCommon.hpp"
 #include "complex/Utilities/Parsing/HDF5/H5FileWriter.hpp"
 
-
 #include <filesystem>
 namespace fs = std::filesystem;
 
@@ -39,11 +38,9 @@ void CompareDataArrays(const IDataArray& left, const IDataArray& right)
   }
 }
 
-
 struct make_shared_enabler : public complex::Application
 {
 };
-
 
 TEST_CASE("Generic::FindFeatureCentroidsFilter", "[Generic][FindFeatureCentroidsFilter]")
 {
@@ -132,6 +129,4 @@ TEST_CASE("Generic::FindFeatureCentroidsFilter", "[Generic][FindFeatureCentroids
     herr_t err = dataStructure.writeHdf5(fileWriter);
     REQUIRE(err >= 0);
   }
-
 }
-

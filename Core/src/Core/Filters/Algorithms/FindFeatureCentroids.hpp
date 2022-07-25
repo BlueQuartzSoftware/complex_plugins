@@ -25,7 +25,6 @@ struct CORE_EXPORT FindFeatureCentroidsInputValues
   DataPath CentroidsArrayPath;
   DataPath ImageGeometryPath;
   DataPath FeatureAttributeMatrixPath;
-
 };
 
 /**

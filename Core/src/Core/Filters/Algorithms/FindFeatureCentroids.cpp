@@ -32,14 +32,13 @@ Result<> FindFeatureCentroids::operator()()
   const auto& imageGeom = m_DataStructure.getDataRefAs<ImageGeom>(m_InputValues->ImageGeometryPath);
   auto& centroids = m_DataStructure.getDataRefAs<Float32Array>(m_InputValues->CentroidsArrayPath);
 
-
   size_t totalFeatures = centroids.getNumberOfTuples();
 
   size_t xPoints = imageGeom.getNumXPoints();
   size_t yPoints = imageGeom.getNumYPoints();
   size_t zPoints = imageGeom.getNumZPoints();
 
-  //Copy the Coords into an array and then compute the sum
+  // Copy the Coords into an array and then compute the sum
 
   std::vector<double> sum(totalFeatures * 3, 0.0);
   std::vector<double> center(totalFeatures * 3, 0.0);
@@ -57,7 +56,7 @@ Result<> FindFeatureCentroids::operator()()
 
         complex::Point3Dd voxel_center = imageGeom.getCoords(k, j, i); // Get the voxel center based on XYZ index from Image Geom
 
-        //Kahan Sum for X Coord
+        // Kahan Sum for X Coord
         size_t featureId_idx = featureId * 3ULL;
         auto componentValue = static_cast<double>(voxel_center[0] - center[featureId_idx]);
         double temp = sum[featureId_idx] + componentValue;
@@ -65,15 +64,15 @@ Result<> FindFeatureCentroids::operator()()
         sum[featureId_idx] = temp;
         count[featureId_idx]++;
 
-        //Kahan Sum for Y Coord
-        featureId_idx  = featureId * 3ULL + 1;
+        // Kahan Sum for Y Coord
+        featureId_idx = featureId * 3ULL + 1;
         componentValue = static_cast<double>(voxel_center[1] - center[featureId_idx]);
         temp = sum[featureId_idx] + componentValue;
         center[featureId_idx] = (temp - sum[featureId_idx]) - componentValue;
         sum[featureId_idx] = temp;
         count[featureId_idx]++;
 
-        //Kahan Sum for Z Coord
+        // Kahan Sum for Z Coord
         featureId_idx = featureId * 3ULL + 2;
         componentValue = static_cast<double>(voxel_center[2] - center[featureId_idx]);
         temp = sum[featureId_idx] + componentValue;

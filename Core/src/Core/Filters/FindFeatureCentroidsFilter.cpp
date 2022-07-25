@@ -148,7 +148,7 @@ Result<> FindFeatureCentroidsFilter::executeImpl(DataStructure& dataStructure, c
   inputValues.CentroidsArrayPath = filterArgs.value<DataPath>(k_CentroidsArrayPath_Key);
   inputValues.FeatureAttributeMatrixPath = filterArgs.value<DataPath>(k_FeatureAttributeMatrix_Key);
   inputValues.ImageGeometryPath = filterArgs.value<DataPath>(k_SelectedImageGeometry_Key);
-  
+
   return FindFeatureCentroids(dataStructure, messageHandler, shouldCancel, &inputValues)();
 }
 } // namespace complex
