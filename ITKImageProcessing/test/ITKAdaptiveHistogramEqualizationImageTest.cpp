@@ -1,8 +1,8 @@
 #include <catch2/catch.hpp>
 
 #include "ITKImageProcessing/Common/sitkCommon.hpp"
-// Something ITK from "ITKImageProcessing/Common/sitkCommon.hpp" is including a windows header
-// that define "CreateFile" which causes issues with complex::H5::FileWriter::CreateFile
+// Something in ITK from "ITKImageProcessing/Common/sitkCommon.hpp" is including a windows header
+// that defines "CreateFile" which causes issues with complex::H5::FileWriter::CreateFile
 #undef CreateFile
 
 #include "ITKImageProcessing/Filters/ITKAdaptiveHistogramEqualizationImage.hpp"
