@@ -17,7 +17,7 @@ namespace fs = std::filesystem;
 
 using namespace complex;
 
-TEST_CASE("ITKGradientMagnitudeImageFilter(default)", "[ITKImageProcessing][ITKGradientMagnitudeImage][default]")
+TEST_CASE("ITKImageProcessing::ITKGradientMagnitudeImageFilter(default)", "[ITKImageProcessing][ITKGradientMagnitudeImage][default]")
 {
   DataStructure ds;
   ITKGradientMagnitudeImage filter;

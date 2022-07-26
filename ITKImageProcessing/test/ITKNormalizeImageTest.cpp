@@ -14,7 +14,7 @@ namespace fs = std::filesystem;
 
 using namespace complex;
 
-TEST_CASE("ITKNormalizeImageFilter(defaults)", "[ITKImageProcessing][ITKNormalizeImage][defaults]")
+TEST_CASE("ITKImageProcessing::ITKNormalizeImageFilter(defaults)", "[ITKImageProcessing][ITKNormalizeImage][defaults]")
 {
   DataStructure ds;
   ITKNormalizeImage filter;
@@ -53,7 +53,7 @@ TEST_CASE("ITKNormalizeImageFilter(defaults)", "[ITKImageProcessing][ITKNormaliz
 // This test fails because the filter needs a scalar image.
 // SimpleITK does an extra conversion step automatically that we don't do.
 // In the original ITKImageProcessing, there were no test cases at all.
-TEST_CASE("ITKNormalizeImageFilter(vector)", "[.][ITKImageProcessing][ITKNormalizeImage][vector][!mayfail]")
+TEST_CASE("ITKImageProcessing::ITKNormalizeImageFilter(vector)", "[.][ITKImageProcessing][ITKNormalizeImage][vector][!mayfail]")
 {
   DataStructure ds;
   ITKNormalizeImage filter;

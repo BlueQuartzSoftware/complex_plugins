@@ -15,7 +15,7 @@ namespace fs = std::filesystem;
 
 using namespace complex;
 
-TEST_CASE("ITKAbsImageFilter(float)", "[ITKImageProcessing][ITKAbsImage][float]")
+TEST_CASE("ITKImageProcessing::ITKAbsImageFilter(float)", "[ITKImageProcessing][ITKAbsImage][float]")
 {
   DataStructure ds;
   ITKAbsImage filter;
@@ -51,7 +51,7 @@ TEST_CASE("ITKAbsImageFilter(float)", "[ITKImageProcessing][ITKAbsImage][float]"
   COMPLEX_RESULT_REQUIRE_VALID(compareResult);
 }
 
-TEST_CASE("ITKAbsImageFilter(short)", "[ITKImageProcessing][ITKAbsImage][short]")
+TEST_CASE("ITKImageProcessing::ITKAbsImageFilter(short)", "[ITKImageProcessing][ITKAbsImage][short]")
 {
   DataStructure ds;
   ITKAbsImage filter;
