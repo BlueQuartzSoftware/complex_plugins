@@ -100,7 +100,8 @@ TEST_CASE("ITKAdaptiveHistogramEqualizationImageFilter(defaults)", "[ITKImagePro
 
   // Read Input Image
   {
-    fs::path inputFilePath = fs::path(unit_test::k_SourceDir.view()) / unit_test::k_DataDir.view() / "JSONFilters" / "Input/sf4.png";
+    fs::path inputFilePath = fs::path(unit_test::k_DataDir.view()) / "JSONFilters" / "Input/sf4.png";
+    REQUIRE(fs::exists(inputFilePath));
     Result<> imageReadResult = ITKTestBase::ReadImage(dataStructure, inputFilePath, inputGeometryPath, cellDataPath, inputDataPath);
     COMPLEX_RESULT_REQUIRE_VALID(imageReadResult);
   }
