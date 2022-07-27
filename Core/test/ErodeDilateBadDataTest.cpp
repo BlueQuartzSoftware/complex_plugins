@@ -1,5 +1,5 @@
 /**
- * This file is auto generated from the original Processing/ErodeDilateBadData
+ * This file is auto generated from the original Processing/ErodeDilateBadDataFilter
  * runtime information. These are the steps that need to be taken to utilize this
  * unit test in the proper way.
  *
@@ -15,7 +15,7 @@
  * NOTE the format of the ```TEST_CASE``` macro. Please stick to this format to
  * allow easier parsing of the unit tests.
  *
- * When you start working on this unit test remove "[ErodeDilateBadData][.][UNIMPLEMENTED]"
+ * When you start working on this unit test remove "[ErodeDilateBadDataFilter][.][UNIMPLEMENTED]"
  * from the TEST_CASE macro. This will enable this unit test to be run by default
  * and report errors.
  */
@@ -28,26 +28,26 @@
 #include "complex/Parameters/MultiArraySelectionParameter.hpp"
 #include "complex/Parameters/NumberParameter.hpp"
 
-#include "Processing/Filters/ErodeDilateBadData.hpp"
-#include "Processing/Processing_test_dirs.hpp"
+#include "Core/Filters/ErodeDilateBadDataFilter.hpp"
+#include "Core/Core_test_dirs.hpp"
 
 using namespace complex;
 
-TEST_CASE("Processing::ErodeDilateBadData: Instantiation and Parameter Check", "[Processing][ErodeDilateBadData][.][UNIMPLEMENTED][!mayfail]")
+TEST_CASE("Processing::ErodeDilateBadDataFilter", "[Processing][ErodeDilateBadDataFilter]")
 {
   // Instantiate the filter, a DataStructure object and an Arguments Object
-  ErodeDilateBadData filter;
+  ErodeDilateBadDataFilter filter;
   DataStructure ds;
   Arguments args;
 
   // Create default Parameters for the filter.
-  args.insertOrAssign(ErodeDilateBadData::k_Direction_Key, std::make_any<ChoicesParameter::ValueType>(0));
-  args.insertOrAssign(ErodeDilateBadData::k_NumIterations_Key, std::make_any<int32>(1234356));
-  args.insertOrAssign(ErodeDilateBadData::k_XDirOn_Key, std::make_any<bool>(false));
-  args.insertOrAssign(ErodeDilateBadData::k_YDirOn_Key, std::make_any<bool>(false));
-  args.insertOrAssign(ErodeDilateBadData::k_ZDirOn_Key, std::make_any<bool>(false));
-  args.insertOrAssign(ErodeDilateBadData::k_FeatureIdsArrayPath_Key, std::make_any<DataPath>(DataPath{}));
-  args.insertOrAssign(ErodeDilateBadData::k_IgnoredDataArrayPaths_Key,
+  args.insertOrAssign(ErodeDilateBadDataFilter::k_Direction_Key, std::make_any<ChoicesParameter::ValueType>(0));
+  args.insertOrAssign(ErodeDilateBadDataFilter::k_NumIterations_Key, std::make_any<int32>(1234356));
+  args.insertOrAssign(ErodeDilateBadDataFilter::k_XDirOn_Key, std::make_any<bool>(false));
+  args.insertOrAssign(ErodeDilateBadDataFilter::k_YDirOn_Key, std::make_any<bool>(false));
+  args.insertOrAssign(ErodeDilateBadDataFilter::k_ZDirOn_Key, std::make_any<bool>(false));
+  args.insertOrAssign(ErodeDilateBadDataFilter::k_FeatureIdsArrayPath_Key, std::make_any<DataPath>(DataPath{}));
+  args.insertOrAssign(ErodeDilateBadDataFilter::k_IgnoredDataArrayPaths_Key,
                       std::make_any<MultiArraySelectionParameter::ValueType>(MultiArraySelectionParameter::ValueType{DataPath(), DataPath(), DataPath()}));
 
   // Preflight the filter and check result
@@ -59,12 +59,12 @@ TEST_CASE("Processing::ErodeDilateBadData: Instantiation and Parameter Check", "
   REQUIRE(executeResult.result.valid());
 }
 
-// TEST_CASE("Processing::ErodeDilateBadData: Valid filter execution")
+// TEST_CASE("Processing::ErodeDilateBadDataFilter: Valid filter execution")
 //{
 //
 //}
 
-// TEST_CASE("Processing::ErodeDilateBadData: InValid filter execution")
+// TEST_CASE("Processing::ErodeDilateBadDataFilter: InValid filter execution")
 //{
 //
 //}

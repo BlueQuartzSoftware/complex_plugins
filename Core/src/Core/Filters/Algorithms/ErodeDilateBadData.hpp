@@ -1,30 +1,17 @@
 #pragma once
 
-#include "Processing/Processing_export.hpp"
+#include "Core/Core_export.hpp"
 
 #include "complex/DataStructure/DataPath.hpp"
 #include "complex/DataStructure/DataStructure.hpp"
 #include "complex/Filter/IFilter.hpp"
-
-/**
-* This is example code to put in the Execute Method of the filter.
-  ErodeDilateBadDataInputValues inputValues;
-
-  inputValues.Direction = filterArgs.value<ChoicesParameter::ValueType>(k_Direction_Key);
-  inputValues.NumIterations = filterArgs.value<int32>(k_NumIterations_Key);
-  inputValues.XDirOn = filterArgs.value<bool>(k_XDirOn_Key);
-  inputValues.YDirOn = filterArgs.value<bool>(k_YDirOn_Key);
-  inputValues.ZDirOn = filterArgs.value<bool>(k_ZDirOn_Key);
-  inputValues.FeatureIdsArrayPath = filterArgs.value<DataPath>(k_FeatureIdsArrayPath_Key);
-  inputValues.IgnoredDataArrayPaths = filterArgs.value<MultiArraySelectionParameter::ValueType>(k_IgnoredDataArrayPaths_Key);
-
-  return ErodeDilateBadData(dataStructure, messageHandler, shouldCancel, &inputValues)();
-*/
+#include "complex/Parameters/ChoicesParameter.hpp"
+#include "complex/Parameters/MultiArraySelectionParameter.hpp"
 
 namespace complex
 {
 
-struct PROCESSING_EXPORT ErodeDilateBadDataInputValues
+struct CORE_EXPORT ErodeDilateBadDataInputValues
 {
   ChoicesParameter::ValueType Direction;
   int32 NumIterations;
@@ -41,7 +28,7 @@ struct PROCESSING_EXPORT ErodeDilateBadDataInputValues
  * where a bool mask array specifies.
  */
 
-class PROCESSING_EXPORT ErodeDilateBadData
+class CORE_EXPORT ErodeDilateBadData
 {
 public:
   ErodeDilateBadData(DataStructure& dataStructure, const IFilter::MessageHandler& mesgHandler, const std::atomic_bool& shouldCancel, ErodeDilateBadDataInputValues* inputValues);

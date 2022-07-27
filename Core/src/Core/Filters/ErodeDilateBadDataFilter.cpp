@@ -1,4 +1,7 @@
-#include "ErodeDilateBadData.hpp"
+#include "ErodeDilateBadDataFilter.hpp"
+
+#include "Core/Filters/Algorithms/ErodeDilateBadData.hpp"
+
 
 #include "complex/DataStructure/DataPath.hpp"
 #include "complex/Parameters/ArraySelectionParameter.hpp"
@@ -7,42 +10,44 @@
 #include "complex/Parameters/MultiArraySelectionParameter.hpp"
 #include "complex/Parameters/NumberParameter.hpp"
 
+
+
 using namespace complex;
 
 namespace complex
 {
 //------------------------------------------------------------------------------
-std::string ErodeDilateBadData::name() const
+std::string ErodeDilateBadDataFilter::name() const
 {
-  return FilterTraits<ErodeDilateBadData>::name.str();
+  return FilterTraits<ErodeDilateBadDataFilter>::name.str();
 }
 
 //------------------------------------------------------------------------------
-std::string ErodeDilateBadData::className() const
+std::string ErodeDilateBadDataFilter::className() const
 {
-  return FilterTraits<ErodeDilateBadData>::className;
+  return FilterTraits<ErodeDilateBadDataFilter>::className;
 }
 
 //------------------------------------------------------------------------------
-Uuid ErodeDilateBadData::uuid() const
+Uuid ErodeDilateBadDataFilter::uuid() const
 {
-  return FilterTraits<ErodeDilateBadData>::uuid;
+  return FilterTraits<ErodeDilateBadDataFilter>::uuid;
 }
 
 //------------------------------------------------------------------------------
-std::string ErodeDilateBadData::humanName() const
+std::string ErodeDilateBadDataFilter::humanName() const
 {
   return "Erode/Dilate Bad Data";
 }
 
 //------------------------------------------------------------------------------
-std::vector<std::string> ErodeDilateBadData::defaultTags() const
+std::vector<std::string> ErodeDilateBadDataFilter::defaultTags() const
 {
-  return {"#Processing", "#Cleanup"};
+  return {"#Processing", "#Cleanup", "Erode", "Dilate"};
 }
 
 //------------------------------------------------------------------------------
-Parameters ErodeDilateBadData::parameters() const
+Parameters ErodeDilateBadDataFilter::parameters() const
 {
   Parameters params;
   // Create the parameter descriptors that are needed for this filter
@@ -60,13 +65,13 @@ Parameters ErodeDilateBadData::parameters() const
 }
 
 //------------------------------------------------------------------------------
-IFilter::UniquePointer ErodeDilateBadData::clone() const
+IFilter::UniquePointer ErodeDilateBadDataFilter::clone() const
 {
-  return std::make_unique<ErodeDilateBadData>();
+  return std::make_unique<ErodeDilateBadDataFilter>();
 }
 
 //------------------------------------------------------------------------------
-IFilter::PreflightResult ErodeDilateBadData::preflightImpl(const DataStructure& dataStructure, const Arguments& filterArgs, const MessageHandler& messageHandler,
+IFilter::PreflightResult ErodeDilateBadDataFilter::preflightImpl(const DataStructure& dataStructure, const Arguments& filterArgs, const MessageHandler& messageHandler,
                                                            const std::atomic_bool& shouldCancel) const
 {
   /****************************************************************************
@@ -129,24 +134,19 @@ IFilter::PreflightResult ErodeDilateBadData::preflightImpl(const DataStructure& 
 }
 
 //------------------------------------------------------------------------------
-Result<> ErodeDilateBadData::executeImpl(DataStructure& dataStructure, const Arguments& filterArgs, const PipelineFilter* pipelineNode, const MessageHandler& messageHandler,
+Result<> ErodeDilateBadDataFilter::executeImpl(DataStructure& dataStructure, const Arguments& filterArgs, const PipelineFilter* pipelineNode, const MessageHandler& messageHandler,
                                          const std::atomic_bool& shouldCancel) const
 {
-  /****************************************************************************
-   * Extract the actual input values from the 'filterArgs' object
-   ***************************************************************************/
-  auto pDirectionValue = filterArgs.value<ChoicesParameter::ValueType>(k_Direction_Key);
-  auto pNumIterationsValue = filterArgs.value<int32>(k_NumIterations_Key);
-  auto pXDirOnValue = filterArgs.value<bool>(k_XDirOn_Key);
-  auto pYDirOnValue = filterArgs.value<bool>(k_YDirOn_Key);
-  auto pZDirOnValue = filterArgs.value<bool>(k_ZDirOn_Key);
-  auto pFeatureIdsArrayPathValue = filterArgs.value<DataPath>(k_FeatureIdsArrayPath_Key);
-  auto pIgnoredDataArrayPathsValue = filterArgs.value<MultiArraySelectionParameter::ValueType>(k_IgnoredDataArrayPaths_Key);
+  ErodeDilateBadDataInputValues inputValues;
 
-  /****************************************************************************
-   * Write your algorithm implementation in this function
-   ***************************************************************************/
+  inputValues.Direction = filterArgs.value<ChoicesParameter::ValueType>(k_Direction_Key);
+  inputValues.NumIterations = filterArgs.value<int32>(k_NumIterations_Key);
+  inputValues.XDirOn = filterArgs.value<bool>(k_XDirOn_Key);
+  inputValues.YDirOn = filterArgs.value<bool>(k_YDirOn_Key);
+  inputValues.ZDirOn = filterArgs.value<bool>(k_ZDirOn_Key);
+  inputValues.FeatureIdsArrayPath = filterArgs.value<DataPath>(k_FeatureIdsArrayPath_Key);
+  inputValues.IgnoredDataArrayPaths = filterArgs.value<MultiArraySelectionParameter::ValueType>(k_IgnoredDataArrayPaths_Key);
 
-  return {};
+  return ErodeDilateBadData(dataStructure, messageHandler, shouldCancel, &inputValues)();
 }
 } // namespace complex
