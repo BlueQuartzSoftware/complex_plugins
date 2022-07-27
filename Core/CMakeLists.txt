@@ -7,6 +7,7 @@ find_package(EbsdLib REQUIRED)
 include("${complex_SOURCE_DIR}/cmake/Plugin.cmake")
 
 set(PLUGIN_NAME "Core")
+set(${PLUGIN_NAME}_SOURCE_DIR ${CMAKE_CURRENT_LIST_DIR})
 
 # ------------------------------------------------------------------------------
 # These are all the filters in the plugin. All filters should be kept in the
