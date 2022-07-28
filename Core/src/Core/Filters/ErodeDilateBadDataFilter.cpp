@@ -2,20 +2,22 @@
 
 #include "Core/Filters/Algorithms/ErodeDilateBadData.hpp"
 
-
+#include "complex/Parameters/GeometrySelectionParameter.hpp"
 #include "complex/DataStructure/DataPath.hpp"
 #include "complex/Parameters/ArraySelectionParameter.hpp"
 #include "complex/Parameters/BoolParameter.hpp"
 #include "complex/Parameters/ChoicesParameter.hpp"
 #include "complex/Parameters/MultiArraySelectionParameter.hpp"
 #include "complex/Parameters/NumberParameter.hpp"
-
-
+#include "complex/Parameters/DataGroupSelectionParameter.hpp"
 
 using namespace complex;
 
+
 namespace complex
 {
+
+
 //------------------------------------------------------------------------------
 std::string ErodeDilateBadDataFilter::name() const
 {
@@ -51,15 +53,24 @@ Parameters ErodeDilateBadDataFilter::parameters() const
 {
   Parameters params;
   // Create the parameter descriptors that are needed for this filter
-  params.insert(std::make_unique<ChoicesParameter>(k_Direction_Key, "Operation", "", 0, ChoicesParameter::Choices{"Option 1", "Option 2", "Option 3"}));
-  params.insert(std::make_unique<Int32Parameter>(k_NumIterations_Key, "Number of Iterations", "", 1234356));
+  params.insertSeparator(Parameters::Separator{"Input Parameters"});
+
+  params.insert(std::make_unique<ChoicesParameter>(k_Operation_Key, "Operation", "", 0ULL, ::k_OperationChoices));
+  params.insert(std::make_unique<Int32Parameter>(k_NumIterations_Key, "Number of Iterations", "", 2));
   params.insert(std::make_unique<BoolParameter>(k_XDirOn_Key, "X Direction", "", false));
   params.insert(std::make_unique<BoolParameter>(k_YDirOn_Key, "Y Direction", "", false));
   params.insert(std::make_unique<BoolParameter>(k_ZDirOn_Key, "Z Direction", "", false));
-  params.insertSeparator(Parameters::Separator{"Cell Data"});
-  params.insert(std::make_unique<ArraySelectionParameter>(k_FeatureIdsArrayPath_Key, "Feature Ids", "", DataPath({"FeatureIds"}), ArraySelectionParameter::AllowedTypes{DataType::int32}));
+
+  params.insertSeparator(Parameters::Separator{"Required Cell Data"});
+  std::make_unique<GeometrySelectionParameter>(k_SelectedImageGeometry_Key, "Selected Image Geometry", "", DataPath{}, GeometrySelectionParameter::AllowedTypes{AbstractGeometry::Type::Image});
+  params.insert(std::make_unique<ArraySelectionParameter>(k_FeatureIdsArrayPath_Key, "Cell Feature Ids", "", DataPath({"FeatureIds"}), ArraySelectionParameter::AllowedTypes{DataType::int32}));
+
   params.insert(std::make_unique<MultiArraySelectionParameter>(k_IgnoredDataArrayPaths_Key, "Attribute Arrays to Ignore", "",
                                                                MultiArraySelectionParameter::ValueType{DataPath(), DataPath(), DataPath()}, MultiArraySelectionParameter::AllowedTypes{}));
+
+  params.insertSeparator(Parameters::Separator{"Required Feature Data"});
+  params.insert(std::make_unique<DataGroupSelectionParameter>(k_SelectedFeatureDataGroup_Key, "Feature Data Group", "Data Group that contains *only* Feature data", DataPath{}));
+
 
   return params;
 }
@@ -74,16 +85,7 @@ IFilter::UniquePointer ErodeDilateBadDataFilter::clone() const
 IFilter::PreflightResult ErodeDilateBadDataFilter::preflightImpl(const DataStructure& dataStructure, const Arguments& filterArgs, const MessageHandler& messageHandler,
                                                            const std::atomic_bool& shouldCancel) const
 {
-  /****************************************************************************
-   * Write any preflight sanity checking codes in this function
-   ***************************************************************************/
-
-  /**
-   * These are the values that were gathered from the UI or the pipeline file or
-   * otherwise passed into the filter. These are here for your convenience. If you
-   * do not need some of them remove them.
-   */
-  auto pDirectionValue = filterArgs.value<ChoicesParameter::ValueType>(k_Direction_Key);
+  auto pOperationValue = filterArgs.value<ChoicesParameter::ValueType>(k_Operation_Key);
   auto pNumIterationsValue = filterArgs.value<int32>(k_NumIterations_Key);
   auto pXDirOnValue = filterArgs.value<bool>(k_XDirOn_Key);
   auto pYDirOnValue = filterArgs.value<bool>(k_YDirOn_Key);
@@ -108,26 +110,10 @@ IFilter::PreflightResult ErodeDilateBadDataFilter::preflightImpl(const DataStruc
   // the std::vector<PreflightValue> object.
   std::vector<PreflightValue> preflightUpdatedValues;
 
-  // If the filter needs to pass back some updated values via a key:value string:string set of values
-  // you can declare and update that string here.
-  // None found in this filter based on the filter parameters
-
-  // If this filter makes changes to the DataStructure in the form of
-  // creating/deleting/moving/renaming DataGroups, Geometries, DataArrays then you
-  // will need to use one of the `*Actions` classes located in complex/Filter/Actions
-  // to relay that information to the preflight and execute methods. This is done by
-  // creating an instance of the Action class and then storing it in the resultOutputActions variable.
-  // This is done through a `push_back()` method combined with a `std::move()`. For the
-  // newly initiated to `std::move` once that code is executed what was once inside the Action class
-  // instance variable is *no longer there*. The memory has been moved. If you try to access that
-  // variable after this line you will probably get a crash or have subtle bugs. To ensure that this
-  // does not happen we suggest using braces `{}` to scope each of the action's declaration and store
-  // so that the programmer is not tempted to use the action instance past where it should be used.
-  // You have to create your own Actions class if there isn't something specific for your filter's needs
-
-  // Store the preflight updated value(s) into the preflightUpdatedValues vector using
-  // the appropriate methods.
-  // None found based on the filter parameters
+  if(pOperationValue != ::k_ErodeIndex && pOperationValue != ::k_DilateIndex)
+  {
+    MakeErrorResult(-16700, fmt::format("Operation Selection must be 0 (Erode) or 1 (Dilate). {} was passed into the filter. ", pOperationValue));
+  }
 
   // Return both the resultOutputActions and the preflightUpdatedValues via std::move()
   return {std::move(resultOutputActions), std::move(preflightUpdatedValues)};
@@ -139,13 +125,15 @@ Result<> ErodeDilateBadDataFilter::executeImpl(DataStructure& dataStructure, con
 {
   ErodeDilateBadDataInputValues inputValues;
 
-  inputValues.Direction = filterArgs.value<ChoicesParameter::ValueType>(k_Direction_Key);
+  inputValues.Operation = filterArgs.value<ChoicesParameter::ValueType>(k_Operation_Key);
   inputValues.NumIterations = filterArgs.value<int32>(k_NumIterations_Key);
   inputValues.XDirOn = filterArgs.value<bool>(k_XDirOn_Key);
   inputValues.YDirOn = filterArgs.value<bool>(k_YDirOn_Key);
   inputValues.ZDirOn = filterArgs.value<bool>(k_ZDirOn_Key);
   inputValues.FeatureIdsArrayPath = filterArgs.value<DataPath>(k_FeatureIdsArrayPath_Key);
   inputValues.IgnoredDataArrayPaths = filterArgs.value<MultiArraySelectionParameter::ValueType>(k_IgnoredDataArrayPaths_Key);
+  inputValues.InputImageGeometry = filterArgs.value<DataPath>(k_SelectedImageGeometry_Key);
+  inputValues.FeatureDataPath = filterArgs.value<DataPath>(k_SelectedFeatureDataGroup_Key);
 
   return ErodeDilateBadData(dataStructure, messageHandler, shouldCancel, &inputValues)();
 }

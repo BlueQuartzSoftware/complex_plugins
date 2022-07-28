@@ -8,18 +8,30 @@
 #include "complex/Parameters/ChoicesParameter.hpp"
 #include "complex/Parameters/MultiArraySelectionParameter.hpp"
 
+
+namespace {
+const std::string k_ErodeString("Erode");
+const std::string k_DilateString("Dilate");
+const complex::ChoicesParameter::Choices k_OperationChoices = {k_ErodeString, k_DilateString};
+
+const complex::ChoicesParameter::ValueType k_ErodeIndex = 0ULL;
+const complex::ChoicesParameter::ValueType k_DilateIndex = 1ULL;
+}
+
 namespace complex
 {
 
 struct CORE_EXPORT ErodeDilateBadDataInputValues
 {
-  ChoicesParameter::ValueType Direction;
+  ChoicesParameter::ValueType Operation;
   int32 NumIterations;
   bool XDirOn;
   bool YDirOn;
   bool ZDirOn;
   DataPath FeatureIdsArrayPath;
   MultiArraySelectionParameter::ValueType IgnoredDataArrayPaths;
+  DataPath InputImageGeometry;
+  DataPath FeatureDataPath;
 };
 
 /**
@@ -27,7 +39,6 @@ struct CORE_EXPORT ErodeDilateBadDataInputValues
  * @brief This filter replaces values in the target array with a user specified value
  * where a bool mask array specifies.
  */
-
 class CORE_EXPORT ErodeDilateBadData
 {
 public:
@@ -42,6 +53,7 @@ public:
   Result<> operator()();
 
   const std::atomic_bool& getCancel();
+  void updateProgress(const std::string& progMessage);
 
 private:
   DataStructure& m_DataStructure;

@@ -41,7 +41,7 @@ TEST_CASE("Processing::ErodeDilateBadDataFilter", "[Processing][ErodeDilateBadDa
   Arguments args;
 
   // Create default Parameters for the filter.
-  args.insertOrAssign(ErodeDilateBadDataFilter::k_Direction_Key, std::make_any<ChoicesParameter::ValueType>(0));
+  args.insertOrAssign(ErodeDilateBadDataFilter::k_Operation_Key, std::make_any<ChoicesParameter::ValueType>(0));
   args.insertOrAssign(ErodeDilateBadDataFilter::k_NumIterations_Key, std::make_any<int32>(1234356));
   args.insertOrAssign(ErodeDilateBadDataFilter::k_XDirOn_Key, std::make_any<bool>(false));
   args.insertOrAssign(ErodeDilateBadDataFilter::k_YDirOn_Key, std::make_any<bool>(false));
