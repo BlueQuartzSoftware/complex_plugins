@@ -23,6 +23,21 @@ public:
   WriteASCIIDataFilter& operator=(const WriteASCIIDataFilter&) = delete;
   WriteASCIIDataFilter& operator=(WriteASCIIDataFilter&&) noexcept = delete;
 
+  enum class OutputStyle : uint64
+  {
+    MultipleFiles = 0,
+    SingleFile = 1
+  };
+
+  enum class Delimiter : uint64
+  {
+    Space = 0,
+    Semicolon = 1,
+    Comma = 2,
+    Colon = 3,
+    Tab = 4
+  };
+
   // Parameter Keys
   static inline constexpr StringLiteral k_OutputStyle_Key = "OutputStyle";
   static inline constexpr StringLiteral k_OutputPath_Key = "OutputPath";

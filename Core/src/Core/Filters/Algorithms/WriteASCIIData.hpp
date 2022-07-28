@@ -44,14 +44,14 @@ public:
   Result<> operator()();
 
   const std::atomic_bool& getCancel();
+  void updateProgress(const std::string& progMessage);
 
 private:
   DataStructure& m_DataStructure;
   const WriteASCIIDataInputValues* m_InputValues = nullptr;
   const std::atomic_bool& m_ShouldCancel;
   const IFilter::MessageHandler& m_MessageHandler;
-  void WriteASCIIData::updateProgress(const std::string& progMessage);
-  std::string WriteASCIIData::getFilePath(const DataObject& selectedArrayPtr);
+  std::string getFilePath(const DataObject& selectedArrayPtr);
 };
 
 } // namespace complex
