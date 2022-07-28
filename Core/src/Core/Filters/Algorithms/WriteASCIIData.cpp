@@ -11,18 +11,18 @@
 #include <chrono>
 
 using namespace complex;
-namespace // defining constant expressions for buffer speed
+namespace // define constant expression for buffer speed
 {
 constexpr int64 k_MaxComponents = 21000000;
 } // namespace
 
-namespace // once logic has been verified try using buffer flush instead to speed up processing
+namespace
 {
 template <typename T>
 class WriteOutASCIIData
 {
 public:
-  WriteOutASCIIData(WriteASCIIData* filter, complex::DataArray<T>& inputData, int32 maxValPerLine, char delimiter, std::string filePath)
+  WriteOutASCIIData(WriteASCIIData* filter, complex::DataArray<T>& inputData, int32 maxValPerLine, char delimiter, std::string filePath) //add float functionality and review comments and write unit test
   : m_Filter(filter)
   , m_InputData(inputData)
   , m_MaxValPerLine(maxValPerLine)
@@ -32,7 +32,6 @@ public:
   }
   ~WriteOutASCIIData() = default;
 
-  // function should just print
   void execute()
   {
     int32 recCount = 0;
@@ -46,13 +45,12 @@ public:
     for(size_t tup = 0; tup < numTuples; tup++)
     {
       auto now = std::chrono::steady_clock::now();
-      // Only send updates every 1 second
+      // send updates every 1 second
       if(std::chrono::duration_cast<std::chrono::milliseconds>(now - start).count() > 1000)
       {
         std::string message = fmt::format("Processing {}: {}% completed", m_InputData.getName(), static_cast<int32>(100 * (static_cast<float>(tup) / static_cast<float>(numTuples))));
+        // std::string message = fmt::format("Processing {} completed", tup - lastTup);  // switch message if you need to calculate processing speeds and uncomment lastTup (lines 44 and 54)
         m_Filter->updateProgress(message);
-        //std::string message = fmt::format("Processing {} completed", tup - lastTup);
-        //m_Filter->updateProgress(message); // switch if you need to calculate processing speeds lastTup
         //lastTup = tup;
         start = std::chrono::steady_clock::now();
       }
@@ -76,7 +74,11 @@ public:
         stsm << "\n";
         count = 0;
       }
-      if(recCount >= k_MaxComponents) // k_MaxComponents = 21,000,000
+      else
+      {
+        stsm << m_Delimiter;
+      }  
+      if(recCount >= k_MaxComponents) // k_MaxComponents = 21,000,000 (essentially flushes buffer every 1 second)
       {
         fout << stsm.str(); 
         stsm.flush();
@@ -172,7 +174,6 @@ Result<> WriteASCIIData::operator()()
   auto selectedDataArrayPaths = m_InputValues->selectedDataArrayPaths;
   int32 count = 0; // used to dispaly progress to user (declared here to avoid duplication)
   std::string filePath = "";
-  //if multi file
   if(static_cast <WriteASCIIDataFilter::OutputStyle>(m_InputValues->outputStyle) == WriteASCIIDataFilter::OutputStyle::MultipleFiles) // MultipleFiles = 0
   {
     for(const auto& selectedArrayPath : selectedDataArrayPaths)
@@ -182,7 +183,7 @@ Result<> WriteASCIIData::operator()()
         return {};
       }
       auto& oldSelectedArray = m_DataStructure.getDataRefAs<IDataArray>(selectedArrayPath);
-      m_MessageHandler(fmt::format("Now Writing: {}", oldSelectedArray.getName())); // progress display
+      m_MessageHandler(fmt::format("Now Writing: {}", oldSelectedArray.getName()));
       filePath = getFilePath(oldSelectedArray);
       DataType type = oldSelectedArray.getDataType();
       switch(type)
@@ -238,7 +239,6 @@ Result<> WriteASCIIData::operator()()
       count++;
     }
   }
-  //if single file
   else if(static_cast<WriteASCIIDataFilter::OutputStyle>(m_InputValues->outputStyle) == WriteASCIIDataFilter::OutputStyle::SingleFile) // SingleFile = 1
   {
     for(const auto& selectedArrayPath : selectedDataArrayPaths)
@@ -247,7 +247,7 @@ Result<> WriteASCIIData::operator()()
       {
         return {};
       }
-      m_MessageHandler(fmt::format("Generating Header Number: {}", count + 1)); //progress display
+      m_MessageHandler(fmt::format("Generating Header Number: {}", count + 1));
       auto& selectedArrayPtr = m_DataStructure.getDataRefAs<IDataArray>(selectedArrayPath);
       if(count == 0) // initialize file path
       {
@@ -273,7 +273,7 @@ Result<> WriteASCIIData::operator()()
         return {};
       }
       auto& oldSelectedArray = m_DataStructure.getDataRefAs<IDataArray>(selectedArrayPath);
-      m_MessageHandler(fmt::format("Now Writing: {}", oldSelectedArray.getName())); // progress display
+      m_MessageHandler(fmt::format("Now Writing: {}", oldSelectedArray.getName()));
       DataType type = oldSelectedArray.getDataType();
       switch(type)
       {
@@ -338,12 +338,12 @@ std::string WriteASCIIData::getFilePath(const DataObject& selectedArrayPtr)
   std::string name = selectedArrayPtr.getName();
   std::string extension = m_InputValues->fileExtension;
 
-  std::string fullPath = m_InputValues->outputPath.string() + "/" + name + extension; // this is correct formatting but vector parameters need to be fixed
+  std::string fullPath = m_InputValues->outputPath.string() + "/" + name + extension;
 
   std::ofstream fout (fullPath, std::ofstream::out);  // test name resolution and create file
   if(!fout.is_open()) 
   {
-    MakeErrorResult(-11025, fmt::format("Error opening path {}", fullPath)); // remember to adjust the error codes correctly
+    MakeErrorResult(-11025, fmt::format("Error opening path {}", fullPath));
     return "";
   }
   fout.close();
