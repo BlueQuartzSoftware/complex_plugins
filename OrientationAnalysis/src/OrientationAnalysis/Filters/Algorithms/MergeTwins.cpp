@@ -249,8 +249,11 @@ Result<> MergeTwins::operator()()
   UInt32Array& laueClasses = m_DataStructure.getDataRefAs<UInt32Array>(m_InputValues->CrystalStructuresArrayPath);
   Int32Array& featureIds = m_DataStructure.getDataRefAs<Int32Array>(m_InputValues->FeatureIdsArrayPath);
   Int32Array& cellParentIds = m_DataStructure.getDataRefAs<Int32Array>(m_InputValues->CellParentIdsArrayName);
+  cellParentIds.fill(-1);
   Int32Array& featureParentIds = m_DataStructure.getDataRefAs<Int32Array>(m_InputValues->FeatureParentIdsArrayName);
   featureParentIds.fill(-1);
+  BoolArray& active = m_DataStructure.getDataRefAs<BoolArray>(m_InputValues->ActiveArrayName);
+  active.fill(true);
 
   for(size_t i = 1; i < laueClasses.getSize(); i++)
   {
@@ -265,7 +268,6 @@ Result<> MergeTwins::operator()()
 
   executeGroupFeatures();
 
-  BoolArray& active = m_DataStructure.getDataRefAs<BoolArray>(m_InputValues->ActiveArrayName);
   size_t totalFeatures = active.getNumberOfTuples();
   if(totalFeatures < 2)
   {
