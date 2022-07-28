@@ -156,7 +156,7 @@ IFilter::PreflightResult MergeTwinsFilter::preflightImpl(const DataStructure& da
   }
   dataArrayPaths.push_back(pFeaturePhasesArrayPathValue);
 
-  auto featureParentIdsAction = std::make_unique<CreateArrayAction>(DataType::int32, std::vector<usize>{phases->getNumberOfTuples()}, cDims, pFeatureParentIdsArrayNameValue);
+  auto featureParentIdsAction = std::make_unique<CreateArrayAction>(DataType::int32, phases->getIDataStore()->getTupleShape(), cDims, pFeatureParentIdsArrayNameValue);
   resultOutputActions.value().actions.push_back(std::move(featureParentIdsAction));
 
   cDims[0] = 4;
