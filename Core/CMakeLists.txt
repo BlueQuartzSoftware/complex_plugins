@@ -8,6 +8,7 @@ set(FilterList
   RotateSampleRefFrameFilter
   ResampleImageGeomFilter
   FillBadDataFilter
+  WriteASCIIDataFilter
 )
 
 set(STUB_FILTERS
@@ -68,6 +69,7 @@ source_group(TREE "${${PLUGIN_NAME}_SOURCE_DIR}/src/${PLUGIN_NAME}" PREFIX ${PLU
 set(filter_algorithms
   ResampleImageGeom
   FillBadData
+  WriteASCIIData
 )
 
 foreach(algorithm ${filter_algorithms})
