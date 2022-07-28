@@ -12,15 +12,18 @@
 #include "complex/Parameters/GeometrySelectionParameter.hpp"
 #include "complex/Parameters/NumericTypeParameter.hpp"
 #include "complex/UnitTest/UnitTestCommon.hpp"
+#include "complex/Utilities/Parsing/HDF5/H5FileReader.hpp"
 #include "complex/Utilities/Parsing/HDF5/H5FileWriter.hpp"
 
 #include <filesystem>
 namespace fs = std::filesystem;
 
 #include "Core/Core_test_dirs.hpp"
-#include "CoreTestUtilities.hpp"
+#include "Core/Filters/AlignSectionsFeatureCentroidFilter.hpp"
 
 using namespace complex;
+
+constexpr float EPSILON = 0.00001;
 
 /**
  * Read H5Ebsd File
@@ -60,7 +63,31 @@ inline const std::string MaterialName("MaterialName");
 } // namespace EnsembleData
 } // namespace EbsdLib
 
-TEST_CASE("Core::AlignSectionsFeatureCentroidFilter: Small IN100 Pipeline", "[Core][AlignSectionsFeatureCentroidFilter]")
+template <typename T>
+void CompareDataArrays(const IDataArray& left, const IDataArray& right)
+{
+  const auto& oldDataStore = left.getIDataStoreRefAs<AbstractDataStore<T>>();
+  const auto& newDataStore = right.getIDataStoreRefAs<AbstractDataStore<T>>();
+  usize start = 0;
+  usize end = oldDataStore.getSize();
+  for(usize i = start; i < end; i++)
+  {
+    if(oldDataStore[i] != newDataStore[i])
+    {
+      auto oldVal = oldDataStore[i];
+      auto newVal = newDataStore[i];
+      float diff = std::fabs(static_cast<float>(oldVal - newVal));
+      REQUIRE(diff < EPSILON);
+      break;
+    }
+  }
+}
+
+struct make_shared_enabler : public complex::Application
+{
+};
+
+TEST_CASE("Core::AlignSectionsFeatureCentroidFilter: Small IN100 Pipeline", "[Reconstruction][AlignSectionsFeatureCentroidFilter]")
 {
   std::shared_ptr<make_shared_enabler> app = std::make_shared<make_shared_enabler>();
   app->loadPlugins(unit_test::k_BuildDir.view(), true);
@@ -112,27 +139,37 @@ TEST_CASE("Core::AlignSectionsFeatureCentroidFilter: Small IN100 Pipeline", "[Co
 
   DataStructure exemplarDataStructure;
   // Read Exemplar DREAM3D File Filter
+#if 1
   {
-    constexpr StringLiteral k_ImportFileData = "Import_File_Data";
-
-    auto filter = filterList->createFilter(k_ImportDream3dFilterHandle);
-    REQUIRE(nullptr != filter);
-
-    Dream3dImportParameter::ImportData parameter;
-    parameter.FilePath = fs::path(fmt::format("{}/TestFiles/align_sections_feature_centroid.dream3d", unit_test::k_DREAM3DDataDir));
-
-    Arguments args;
-    args.insertOrAssign(k_ImportFileData, std::make_any<Dream3dImportParameter::ImportData>(parameter));
-
-    // Preflight the filter and check result
-    auto preflightResult = filter->preflight(exemplarDataStructure, args);
-    COMPLEX_RESULT_REQUIRE_VALID(preflightResult.outputActions);
-
-    // Execute the filter and check the result
-    auto executeResult = filter->execute(exemplarDataStructure, args);
-    COMPLEX_RESULT_REQUIRE_VALID(executeResult.result);
+    auto exemplarFilePath = fs::path(fmt::format("{}/TestFiles/align_sections_feature_centroid.dream3d", unit_test::k_DREAM3DDataDir));
+    REQUIRE(fs::exists(exemplarFilePath));
+    H5::FileReader exemplarReader(exemplarFilePath);
+    H5::ErrorType h5Error = 0;
+    exemplarDataStructure = DataStructure::readFromHdf5(exemplarReader, h5Error);
+    REQUIRE(h5Error >= 0);
   }
+#else
+    {
+      constexpr StringLiteral k_ImportFileData = "Import_File_Data";
 
+      auto filter = filterList->createFilter(k_ImportDream3dFilterHandle);
+      REQUIRE(nullptr != filter);
+
+      Dream3dImportParameter::ImportData parameter;
+      parameter.FilePath = fs::path(fmt::format("{}/TestFiles/align_sections_feature_centroid.dream3d", unit_test::k_DREAM3DDataDir));
+
+      Arguments args;
+      args.insertOrAssign(k_ImportFileData, std::make_any<Dream3dImportParameter::ImportData>(parameter));
+
+      // Preflight the filter and check result
+      auto preflightResult = filter->preflight(exemplarDataStructure, args);
+      COMPLEX_RESULT_REQUIRE_VALID(preflightResult.outputActions);
+
+      // Execute the filter and check the result
+      auto executeResult = filter->execute(exemplarDataStructure, args);
+      COMPLEX_RESULT_REQUIRE_VALID(executeResult.result);
+    }
+#endif
   // Read Exemplar Shifts File
   {
     static constexpr StringLiteral k_InputFileKey = "input_file";
@@ -285,8 +322,7 @@ TEST_CASE("Core::AlignSectionsFeatureCentroidFilter: Small IN100 Pipeline", "[Co
 
     // Create default Parameters for the filter.
     args.insertOrAssign(k_WriteAlignmentShifts_Key, std::make_any<bool>(true));
-    args.insertOrAssign(k_AlignmentShiftFileName_Key,
-                        std::make_any<FileSystemPathParameter::ValueType>(fs::path(fmt::format("{}/AlignSectionsMisorientation_1.txt", unit_test::k_BinaryTestOutputDir))));
+    args.insertOrAssign(k_AlignmentShiftFileName_Key, std::make_any<FileSystemPathParameter::ValueType>(fs::path(fmt::format("{}/AlignSectionsMisorientation_1.txt", unit_test::k_BinaryDir))));
 
     args.insertOrAssign(k_MisorientationTolerance_Key, std::make_any<float32>(5.0F));
 
@@ -357,8 +393,7 @@ TEST_CASE("Core::AlignSectionsFeatureCentroidFilter: Small IN100 Pipeline", "[Co
     Arguments args;
     // Create default Parameters for the filter.
     args.insertOrAssign(k_WriteAlignmentShifts_Key, std::make_any<bool>(true));
-    args.insertOrAssign(k_AlignmentShiftFileName_Key,
-                        std::make_any<FileSystemPathParameter::ValueType>(fs::path(fmt::format("{}/AlignSectionsFeatureCentroid_1.txt", unit_test::k_BinaryTestOutputDir))));
+    args.insertOrAssign(k_AlignmentShiftFileName_Key, std::make_any<FileSystemPathParameter::ValueType>(fs::path(fmt::format("{}/AlignSectionsFeatureCentroid_1.txt", unit_test::k_BinaryDir))));
     args.insertOrAssign(k_UseReferenceSlice_Key, std::make_any<bool>(true));
     args.insertOrAssign(k_ReferenceSlice_Key, std::make_any<int32>(0));
     args.insertOrAssign(k_GoodVoxelsArrayPath_Key, std::make_any<DataPath>(k_MaskArrayPath));
@@ -390,7 +425,7 @@ TEST_CASE("Core::AlignSectionsFeatureCentroidFilter: Small IN100 Pipeline", "[Co
     REQUIRE(nullptr != filter);
 
     Arguments args;
-    args.insertOrAssign(k_InputFileKey, std::make_any<FileSystemPathParameter::ValueType>(fs::path(fmt::format("{}/AlignSectionsFeatureCentroid_1.txt", unit_test::k_BinaryTestOutputDir))));
+    args.insertOrAssign(k_InputFileKey, std::make_any<FileSystemPathParameter::ValueType>(fs::path(fmt::format("{}/AlignSectionsFeatureCentroid_1.txt", unit_test::k_BinaryDir))));
     args.insertOrAssign(k_ScalarTypeKey, std::make_any<NumericTypeParameter::ValueType>(complex::NumericType::int32));
     args.insertOrAssign(k_NTuplesKey, std::make_any<uint64>(116));
     args.insertOrAssign(k_NCompKey, std::make_any<uint64>(6));
@@ -503,7 +538,7 @@ TEST_CASE("Core::AlignSectionsFeatureCentroidFilter: Small IN100 Pipeline", "[Co
   }
 
   {
-    Result<H5::FileWriter> result = H5::FileWriter::CreateFile(fmt::format("{}/align_sections_feature_centroid.dream3d", unit_test::k_BinaryTestOutputDir));
+    Result<H5::FileWriter> result = H5::FileWriter::CreateFile(fmt::format("{}/align_sections_feature_centroid.dream3d", unit_test::k_BinaryDir));
     H5::FileWriter fileWriter = std::move(result.value());
 
     herr_t err = dataStructure.writeHdf5(fileWriter);
