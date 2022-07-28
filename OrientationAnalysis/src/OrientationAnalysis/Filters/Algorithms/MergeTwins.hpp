@@ -45,6 +45,7 @@ struct ORIENTATIONANALYSIS_EXPORT MergeTwinsInputValues
   DataPath NewCellFeatureAttributeMatrixName;
   DataPath FeatureParentIdsArrayName;
   DataPath ActiveArrayName;
+  bool RandomizeParentIds = true;
 };
 
 /**
@@ -67,6 +68,13 @@ public:
   Result<> operator()();
 
   const std::atomic_bool& getCancel();
+
+  void characterize_twins();
+  int getSeed(int32 newFid);
+  bool determineGrouping(int32 referenceFeature, int32 neighborFeature, int32 newFid);
+  bool growPatch(int32 currentPatch);
+  bool growGrouping(int32 referenceFeature, int32 neighborFeature, int32 newFid);
+  void executeGroupFeatures();
 
 private:
   DataStructure& m_DataStructure;
