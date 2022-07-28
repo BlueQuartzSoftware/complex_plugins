@@ -3,24 +3,17 @@
 #include "complex/DataStructure/DataArray.hpp"
 #include "complex/DataStructure/DataPath.hpp"
 #include "complex/Common/Types.hpp"
+#include "Core/Filters/WriteASCIIDataFilter.hpp"
 
 #include <fstream>
+#include <sstream>
 #include <string>
 #include <chrono>
 
 using namespace complex;
-namespace // defining constant expressions for choices parameters
+namespace // defining constant expressions for buffer speed
 {
-// delimiter choices
-constexpr int64 k_Comma = 0;
-constexpr int64 k_Semicolon = 1;
-constexpr int64 k_Space = 2;
-constexpr int64 k_Colon = 3;
-constexpr int64 k_Tab = 4;
-
-// output type choices
-constexpr int64 k_MultipleFiles = 0;
-constexpr int64 k_SingleFile = 1;
+constexpr int64 k_MaxComponents = 21000000;
 } // namespace
 
 namespace // once logic has been verified try using buffer flush instead to speed up processing
@@ -43,41 +36,55 @@ public:
   void execute()
   {
     int32 recCount = 0;
-    int32 count = 0 
+    int32 count = 0;
     auto start = std::chrono::steady_clock::now();
-    std::ofstream fout(filePath, std::ios_base::app);  // open precreated file in append mode
-    for(auto tuple : m_InputData)
+    std::ofstream fout(m_FilePath, std::ios_base::app);  // open precreated file in append mode
+    std::stringstream stsm;
+    size_t numTuples = m_InputData.getNumberOfTuples();
+    size_t numComp = m_InputData.getNumberOfComponents();
+    //size_t lastTup = 0;
+    for(size_t tup = 0; tup < numTuples; tup++)
     {
       auto now = std::chrono::steady_clock::now();
       // Only send updates every 1 second
       if(std::chrono::duration_cast<std::chrono::milliseconds>(now - start).count() > 1000)
       {
-        std::string message = fmt::format("Processing {}: {}% completed", m_InputData.getName(), static_cast<int32>(100 * (static_cast<float>(count) / static_cast<float>(m_InputData.getSize()))));
+        std::string message = fmt::format("Processing {}: {}% completed", m_InputData.getName(), static_cast<int32>(100 * (static_cast<float>(tup) / static_cast<float>(numTuples))));
         m_Filter->updateProgress(message);
+        //std::string message = fmt::format("Processing {} completed", tup - lastTup);
+        //m_Filter->updateProgress(message); // switch if you need to calculate processing speeds lastTup
+        //lastTup = tup;
         start = std::chrono::steady_clock::now();
       }
       if(m_Filter->getCancel())
       {
         return;
       }
-      for(auto element : tuple)
+      for(size_t comp = 0; comp < numComp; comp++)
       {
-        fout << element;
-
+        stsm << m_InputData[tup * numComp + comp];
         recCount++;
-
-        if(recCount >= m_MaxValPerLine)
+        
+        if(comp != numComp - 1)
         {
-          fout << m_Delimiter;
-          recCount = 0;
-        }
-        else
-        {
-          fout << m_Delimiter;
+          stsm << m_Delimiter;
         }
       }
-      count++;
+
+      if(count >= m_MaxValPerLine)
+      {
+        stsm << "\n";
+        count = 0;
+      }
+      if(recCount >= k_MaxComponents) // k_MaxComponents = 21,000,000
+      {
+        fout << stsm.str(); 
+        stsm.flush();
+        recCount = 0;
+      }
     }
+    fout << stsm.str();
+    stsm.flush();
     fout.close();
   }
 
@@ -89,7 +96,7 @@ public:
 private:
   WriteASCIIData* m_Filter = nullptr;
   complex::DataArray<T>& m_InputData;
-  int32 m_MaxValPerLine = 0;
+  int32 m_MaxValPerLine = 1;
   char m_Delimiter = ' ';
   std::string m_FilePath = {};
 };
@@ -120,31 +127,31 @@ const std::atomic_bool& WriteASCIIData::getCancel()
 // -----------------------------------------------------------------------------
 Result<> WriteASCIIData::operator()()
 {
-  const auto del = m_InputValues->delimiter;
+  const auto del = static_cast <WriteASCIIDataFilter::Delimiter>(m_InputValues->delimiter);
   char delimiter = ' ';
   switch(del)
   {
-  case k_Comma: //0
-  {
-    delimiter = ',';
-    break;
-  }
-  case k_Semicolon: //1
-  {
-    delimiter = ';';
-    break;
-  }
-  case k_Space: //2
+  case WriteASCIIDataFilter::Delimiter::Space: // 0
   {
     delimiter = ' ';
     break;
   }
-  case k_Colon: //3
+  case WriteASCIIDataFilter::Delimiter::Semicolon: // 1
+  {
+    delimiter = ';';
+    break;
+  }
+  case WriteASCIIDataFilter::Delimiter::Comma: // 2
+  {
+    delimiter = ',';
+    break;
+  }
+  case WriteASCIIDataFilter::Delimiter::Colon: // 3
   {
     delimiter = ':';
     break;
   }
-  case k_Tab: //4
+  case WriteASCIIDataFilter::Delimiter::Tab: // 4
   {
     delimiter = '\t';
     break;
@@ -166,7 +173,7 @@ Result<> WriteASCIIData::operator()()
   int32 count = 0; // used to dispaly progress to user (declared here to avoid duplication)
   std::string filePath = "";
   //if multi file
-  if (m_InputValues->outputStyle == k_MultipleFiles) // k_MultipleFiles = 0
+  if(static_cast <WriteASCIIDataFilter::OutputStyle>(m_InputValues->outputStyle) == WriteASCIIDataFilter::OutputStyle::MultipleFiles) // MultipleFiles = 0
   {
     for(const auto& selectedArrayPath : selectedDataArrayPaths)
     {
@@ -181,47 +188,47 @@ Result<> WriteASCIIData::operator()()
       switch(type)
       {
       case DataType::boolean: {
-        WriteOutASCIIData<bool>(this, m_DataStructure.getDataRefAs<DataArray<bool>>(selectedArrayPath), maxValPerLine, delimiter, filePath);
+        WriteOutASCIIData<bool>(this, m_DataStructure.getDataRefAs<DataArray<bool>>(selectedArrayPath), maxValPerLine, delimiter, filePath).execute();
         break;
       }
       case DataType::int8: {
-        WriteOutASCIIData<int8>(this, m_DataStructure.getDataRefAs<DataArray<int8>>(selectedArrayPath), maxValPerLine, delimiter, filePath);
+        WriteOutASCIIData<int8>(this, m_DataStructure.getDataRefAs<DataArray<int8>>(selectedArrayPath), maxValPerLine, delimiter, filePath).execute();
         break;
       }
       case DataType::int16: {
-        WriteOutASCIIData<int16>(this, m_DataStructure.getDataRefAs<DataArray<int16>>(selectedArrayPath), maxValPerLine, delimiter, filePath);
+        WriteOutASCIIData<int16>(this, m_DataStructure.getDataRefAs<DataArray<int16>>(selectedArrayPath), maxValPerLine, delimiter, filePath).execute();
         break;
       }
       case DataType::int32: {
-        WriteOutASCIIData<int32>(this, m_DataStructure.getDataRefAs<DataArray<int32>>(selectedArrayPath), maxValPerLine, delimiter, filePath);
+        WriteOutASCIIData<int32>(this, m_DataStructure.getDataRefAs<DataArray<int32>>(selectedArrayPath), maxValPerLine, delimiter, filePath).execute();
         break;
       }
       case DataType::int64: {
-        WriteOutASCIIData<int64>(this, m_DataStructure.getDataRefAs<DataArray<int64>>(selectedArrayPath), maxValPerLine, delimiter, filePath);
+        WriteOutASCIIData<int64>(this, m_DataStructure.getDataRefAs<DataArray<int64>>(selectedArrayPath), maxValPerLine, delimiter, filePath).execute();
         break;
       }
       case DataType::uint8: {
-        WriteOutASCIIData<uint8>(this, m_DataStructure.getDataRefAs<DataArray<uint8>>(selectedArrayPath), maxValPerLine, delimiter, filePath);
+        WriteOutASCIIData<uint8>(this, m_DataStructure.getDataRefAs<DataArray<uint8>>(selectedArrayPath), maxValPerLine, delimiter, filePath).execute();
         break;
       }
       case DataType::uint16: {
-        WriteOutASCIIData<uint16>(this, m_DataStructure.getDataRefAs<DataArray<uint16>>(selectedArrayPath), maxValPerLine, delimiter, filePath);
+        WriteOutASCIIData<uint16>(this, m_DataStructure.getDataRefAs<DataArray<uint16>>(selectedArrayPath), maxValPerLine, delimiter, filePath).execute();
         break;
       }
       case DataType::uint32: {
-        WriteOutASCIIData<uint32>(this, m_DataStructure.getDataRefAs<DataArray<uint32>>(selectedArrayPath), maxValPerLine, delimiter, filePath);
+        WriteOutASCIIData<uint32>(this, m_DataStructure.getDataRefAs<DataArray<uint32>>(selectedArrayPath), maxValPerLine, delimiter, filePath).execute();
         break;
       }
       case DataType::uint64: {
-        WriteOutASCIIData<uint64>(this, m_DataStructure.getDataRefAs<DataArray<uint64>>(selectedArrayPath), maxValPerLine, delimiter, filePath);
+        WriteOutASCIIData<uint64>(this, m_DataStructure.getDataRefAs<DataArray<uint64>>(selectedArrayPath), maxValPerLine, delimiter, filePath).execute();
         break;
       }
       case DataType::float32: {
-        WriteOutASCIIData<float32>(this, m_DataStructure.getDataRefAs<DataArray<float32>>(selectedArrayPath), maxValPerLine, delimiter, filePath);
+        WriteOutASCIIData<float32>(this, m_DataStructure.getDataRefAs<DataArray<float32>>(selectedArrayPath), maxValPerLine, delimiter, filePath).execute();
         break;
       }
       case DataType::float64: {
-        WriteOutASCIIData<float64>(this, m_DataStructure.getDataRefAs<DataArray<float64>>(selectedArrayPath), maxValPerLine, delimiter, filePath);
+        WriteOutASCIIData<float64>(this, m_DataStructure.getDataRefAs<DataArray<float64>>(selectedArrayPath), maxValPerLine, delimiter, filePath).execute();
         break;
       }
       default: {
@@ -232,7 +239,7 @@ Result<> WriteASCIIData::operator()()
     }
   }
   //if single file
-  else if (m_InputValues->outputStyle == k_SingleFile) // k_SingleFile = 1
+  else if(static_cast<WriteASCIIDataFilter::OutputStyle>(m_InputValues->outputStyle) == WriteASCIIDataFilter::OutputStyle::SingleFile) // SingleFile = 1
   {
     for(const auto& selectedArrayPath : selectedDataArrayPaths)
     {
@@ -271,47 +278,47 @@ Result<> WriteASCIIData::operator()()
       switch(type)
       {
       case DataType::boolean: {
-        WriteOutASCIIData<bool>(this, m_DataStructure.getDataRefAs<DataArray<bool>>(selectedArrayPath), maxValPerLine, delimiter, filePath);
+        WriteOutASCIIData<bool>(this, m_DataStructure.getDataRefAs<DataArray<bool>>(selectedArrayPath), maxValPerLine, delimiter, filePath).execute();
         break;
       }
       case DataType::int8: {
-        WriteOutASCIIData<int8>(this, m_DataStructure.getDataRefAs<DataArray<int8>>(selectedArrayPath), maxValPerLine, delimiter, filePath);
+        WriteOutASCIIData<int8>(this, m_DataStructure.getDataRefAs<DataArray<int8>>(selectedArrayPath), maxValPerLine, delimiter, filePath).execute();
         break;
       }
       case DataType::int16: {
-        WriteOutASCIIData<int16>(this, m_DataStructure.getDataRefAs<DataArray<int16>>(selectedArrayPath), maxValPerLine, delimiter, filePath);
+        WriteOutASCIIData<int16>(this, m_DataStructure.getDataRefAs<DataArray<int16>>(selectedArrayPath), maxValPerLine, delimiter, filePath).execute();
         break;
       }
       case DataType::int32: {
-        WriteOutASCIIData<int32>(this, m_DataStructure.getDataRefAs<DataArray<int32>>(selectedArrayPath), maxValPerLine, delimiter, filePath);
+        WriteOutASCIIData<int32>(this, m_DataStructure.getDataRefAs<DataArray<int32>>(selectedArrayPath), maxValPerLine, delimiter, filePath).execute();
         break;
       }
       case DataType::int64: {
-        WriteOutASCIIData<int64>(this, m_DataStructure.getDataRefAs<DataArray<int64>>(selectedArrayPath), maxValPerLine, delimiter, filePath);
+        WriteOutASCIIData<int64>(this, m_DataStructure.getDataRefAs<DataArray<int64>>(selectedArrayPath), maxValPerLine, delimiter, filePath).execute();
         break;
       }
       case DataType::uint8: {
-        WriteOutASCIIData<uint8>(this, m_DataStructure.getDataRefAs<DataArray<uint8>>(selectedArrayPath), maxValPerLine, delimiter, filePath);
+        WriteOutASCIIData<uint8>(this, m_DataStructure.getDataRefAs<DataArray<uint8>>(selectedArrayPath), maxValPerLine, delimiter, filePath).execute();
         break;
       }
       case DataType::uint16: {
-        WriteOutASCIIData<uint16>(this, m_DataStructure.getDataRefAs<DataArray<uint16>>(selectedArrayPath), maxValPerLine, delimiter, filePath);
+        WriteOutASCIIData<uint16>(this, m_DataStructure.getDataRefAs<DataArray<uint16>>(selectedArrayPath), maxValPerLine, delimiter, filePath).execute();
         break;
       }
       case DataType::uint32: {
-        WriteOutASCIIData<uint32>(this, m_DataStructure.getDataRefAs<DataArray<uint32>>(selectedArrayPath), maxValPerLine, delimiter, filePath);
+        WriteOutASCIIData<uint32>(this, m_DataStructure.getDataRefAs<DataArray<uint32>>(selectedArrayPath), maxValPerLine, delimiter, filePath).execute();
         break;
       }
       case DataType::uint64: {
-        WriteOutASCIIData<uint64>(this, m_DataStructure.getDataRefAs<DataArray<uint64>>(selectedArrayPath), maxValPerLine, delimiter, filePath);
+        WriteOutASCIIData<uint64>(this, m_DataStructure.getDataRefAs<DataArray<uint64>>(selectedArrayPath), maxValPerLine, delimiter, filePath).execute();
         break;
       }
       case DataType::float32: {
-        WriteOutASCIIData<float32>(this, m_DataStructure.getDataRefAs<DataArray<float32>>(selectedArrayPath), maxValPerLine, delimiter, filePath);
+        WriteOutASCIIData<float32>(this, m_DataStructure.getDataRefAs<DataArray<float32>>(selectedArrayPath), maxValPerLine, delimiter, filePath).execute();
         break;
       }
       case DataType::float64: {
-        WriteOutASCIIData<float64>(this, m_DataStructure.getDataRefAs<DataArray<float64>>(selectedArrayPath), maxValPerLine, delimiter, filePath);
+        WriteOutASCIIData<float64>(this, m_DataStructure.getDataRefAs<DataArray<float64>>(selectedArrayPath), maxValPerLine, delimiter, filePath).execute();
         break;
       }
       default: {
@@ -331,7 +338,7 @@ std::string WriteASCIIData::getFilePath(const DataObject& selectedArrayPtr)
   std::string name = selectedArrayPtr.getName();
   std::string extension = m_InputValues->fileExtension;
 
-  std::string fullPath = m_InputValues->outputPath.string() + name + extension; // this is correct formatting but vector parameters need to be fixed
+  std::string fullPath = m_InputValues->outputPath.string() + "/" + name + extension; // this is correct formatting but vector parameters need to be fixed
 
   std::ofstream fout (fullPath, std::ofstream::out);  // test name resolution and create file
   if(!fout.is_open()) 
