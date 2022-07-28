@@ -79,7 +79,7 @@ Parameters MergeTwinsFilter::parameters() const
       std::make_unique<ArraySelectionParameter>(k_CrystalStructuresArrayPath_Key, "Crystal Structures", "", DataPath({"CrystalStructures"}), ArraySelectionParameter::AllowedTypes{DataType::uint32}));
 
   params.insertSeparator(Parameters::Separator{"Created Element Data"});
-  params.insert(std::make_unique<ArrayCreationParameter>(k_CellParentIdsArrayName_Key, "Parent Ids", "", DataPath({"Parent Ids"})));
+  params.insert(std::make_unique<ArrayCreationParameter>(k_CellParentIdsArrayName_Key, "Parent Ids", "", DataPath({"ParentIds"})));
 
   params.insertSeparator(Parameters::Separator{"Created Feature Data"});
   params.insert(std::make_unique<DataGroupCreationParameter>(k_NewCellFeatureAttributeMatrixName_Key, "Feature Attribute Matrix", "", DataPath({"NewGrain Data"})));
