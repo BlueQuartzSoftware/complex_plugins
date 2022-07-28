@@ -10,11 +10,8 @@ set(FilterList
   ResampleImageGeomFilter
   FillBadDataFilter
   WriteASCIIDataFilter
-<<<<<<< HEAD
-=======
   AlignSectionsFeatureCentroidFilter
   ConvertColorToGrayScaleFilter
->>>>>>> 0aae19acbc8ed0ebe883c03f91445cd212edd624
 )
 
 set(STUB_FILTERS
@@ -74,11 +71,8 @@ set(filter_algorithms
   ResampleImageGeom
   FillBadData
   WriteASCIIData
-<<<<<<< HEAD
-=======
   AlignSectionsFeatureCentroid
   ConvertColorToGrayScale
->>>>>>> 0aae19acbc8ed0ebe883c03f91445cd212edd624
 )
 
 foreach(algorithm ${filter_algorithms})
