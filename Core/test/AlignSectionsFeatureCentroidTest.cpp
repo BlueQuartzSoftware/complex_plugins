@@ -149,26 +149,26 @@ TEST_CASE("Core::AlignSectionsFeatureCentroidFilter: Small IN100 Pipeline", "[Re
     REQUIRE(h5Error >= 0);
   }
 #else
-    {
-      constexpr StringLiteral k_ImportFileData = "Import_File_Data";
+  {
+    constexpr StringLiteral k_ImportFileData = "Import_File_Data";
 
-      auto filter = filterList->createFilter(k_ImportDream3dFilterHandle);
-      REQUIRE(nullptr != filter);
+    auto filter = filterList->createFilter(k_ImportDream3dFilterHandle);
+    REQUIRE(nullptr != filter);
 
-      Dream3dImportParameter::ImportData parameter;
-      parameter.FilePath = fs::path(fmt::format("{}/TestFiles/align_sections_feature_centroid.dream3d", unit_test::k_DREAM3DDataDir));
+    Dream3dImportParameter::ImportData parameter;
+    parameter.FilePath = fs::path(fmt::format("{}/TestFiles/align_sections_feature_centroid.dream3d", unit_test::k_DREAM3DDataDir));
 
-      Arguments args;
-      args.insertOrAssign(k_ImportFileData, std::make_any<Dream3dImportParameter::ImportData>(parameter));
+    Arguments args;
+    args.insertOrAssign(k_ImportFileData, std::make_any<Dream3dImportParameter::ImportData>(parameter));
 
-      // Preflight the filter and check result
-      auto preflightResult = filter->preflight(exemplarDataStructure, args);
-      COMPLEX_RESULT_REQUIRE_VALID(preflightResult.outputActions);
+    // Preflight the filter and check result
+    auto preflightResult = filter->preflight(exemplarDataStructure, args);
+    COMPLEX_RESULT_REQUIRE_VALID(preflightResult.outputActions);
 
-      // Execute the filter and check the result
-      auto executeResult = filter->execute(exemplarDataStructure, args);
-      COMPLEX_RESULT_REQUIRE_VALID(executeResult.result);
-    }
+    // Execute the filter and check the result
+    auto executeResult = filter->execute(exemplarDataStructure, args);
+    COMPLEX_RESULT_REQUIRE_VALID(executeResult.result);
+  }
 #endif
   // Read Exemplar Shifts File
   {
