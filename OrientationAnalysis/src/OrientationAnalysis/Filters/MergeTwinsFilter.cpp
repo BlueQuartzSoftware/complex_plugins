@@ -189,10 +189,11 @@ Result<> MergeTwinsFilter::executeImpl(DataStructure& dataStructure, const Argum
                                        const std::atomic_bool& shouldCancel) const
 {
   MergeTwinsInputValues inputValues;
+  GroupFeaturesInputValues groupInputValues;
 
-  inputValues.UseNonContiguousNeighbors = filterArgs.value<bool>(k_UseNonContiguousNeighbors_Key);
-  inputValues.NonContiguousNeighborListArrayPath = filterArgs.value<DataPath>(k_NonContiguousNeighborListArrayPath_Key);
-  inputValues.ContiguousNeighborListArrayPath = filterArgs.value<DataPath>(k_ContiguousNeighborListArrayPath_Key);
+  groupInputValues.UseNonContiguousNeighbors = filterArgs.value<bool>(k_UseNonContiguousNeighbors_Key);
+  groupInputValues.NonContiguousNeighborListArrayPath = filterArgs.value<DataPath>(k_NonContiguousNeighborListArrayPath_Key);
+  groupInputValues.ContiguousNeighborListArrayPath = filterArgs.value<DataPath>(k_ContiguousNeighborListArrayPath_Key);
   inputValues.AxisTolerance = filterArgs.value<float32>(k_AxisTolerance_Key);
   inputValues.AngleTolerance = filterArgs.value<float32>(k_AngleTolerance_Key);
   inputValues.FeaturePhasesArrayPath = filterArgs.value<DataPath>(k_FeaturePhasesArrayPath_Key);
@@ -204,6 +205,6 @@ Result<> MergeTwinsFilter::executeImpl(DataStructure& dataStructure, const Argum
   inputValues.FeatureParentIdsArrayName = filterArgs.value<DataPath>(k_FeatureParentIdsArrayName_Key);
   inputValues.ActiveArrayName = filterArgs.value<DataPath>(k_ActiveArrayName_Key);
 
-  return MergeTwins(dataStructure, messageHandler, shouldCancel, &inputValues)();
+  return MergeTwins(dataStructure, messageHandler, shouldCancel, &inputValues, &groupInputValues)();
 }
 } // namespace complex

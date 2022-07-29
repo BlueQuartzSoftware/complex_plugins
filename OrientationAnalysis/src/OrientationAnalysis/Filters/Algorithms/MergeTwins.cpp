@@ -17,22 +17,15 @@
 using namespace complex;
 
 // -----------------------------------------------------------------------------
-MergeTwins::MergeTwins(DataStructure& dataStructure, const IFilter::MessageHandler& mesgHandler, const std::atomic_bool& shouldCancel, MergeTwinsInputValues* inputValues)
-: m_DataStructure(dataStructure)
+MergeTwins::MergeTwins(DataStructure& dataStructure, const IFilter::MessageHandler& mesgHandler, const std::atomic_bool& shouldCancel, MergeTwinsInputValues* inputValues,
+                       GroupFeaturesInputValues* groupInputValues)
+: GroupFeatures(dataStructure, mesgHandler, shouldCancel, groupInputValues)
 , m_InputValues(inputValues)
-, m_ShouldCancel(shouldCancel)
-, m_MessageHandler(mesgHandler)
 {
 }
 
 // -----------------------------------------------------------------------------
 MergeTwins::~MergeTwins() noexcept = default;
-
-// -----------------------------------------------------------------------------
-const std::atomic_bool& MergeTwins::getCancel()
-{
-  return m_ShouldCancel;
-}
 
 // -----------------------------------------------------------------------------
 void MergeTwins::characterize_twins()
@@ -131,115 +124,6 @@ bool MergeTwins::determineGrouping(int32 referenceFeature, int32 neighborFeature
 }
 
 // -----------------------------------------------------------------------------
-bool MergeTwins::growPatch(int32_t currentPatch)
-{
-  return false;
-}
-
-// -----------------------------------------------------------------------------
-bool MergeTwins::growGrouping(int32_t referenceFeature, int32_t neighborFeature, int32_t newFid)
-{
-  return false;
-}
-
-// -----------------------------------------------------------------------------
-void MergeTwins::executeGroupFeatures()
-{
-  NeighborList<int32>& neighborlist = m_DataStructure.getDataRefAs<NeighborList<int32>>(m_InputValues->ContiguousNeighborListArrayPath);
-  NeighborList<int32>* nonContigNeighList = nullptr;
-  if(m_InputValues->UseNonContiguousNeighbors)
-  {
-    nonContigNeighList = m_DataStructure.getDataAs<NeighborList<int32>>(m_InputValues->NonContiguousNeighborListArrayPath);
-  }
-
-  std::vector<int32> grouplist;
-
-  int32 parentcount = 0;
-  int32 seed = 0;
-  int32 list1size = 0, list2size = 0, listsize = 0;
-  int32 neigh = 0;
-  bool patchGrouping = false;
-
-  while(seed >= 0)
-  {
-    parentcount++;
-    seed = getSeed(parentcount);
-    if(seed >= 0)
-    {
-      grouplist.push_back(seed);
-      for(std::vector<int32>::size_type j = 0; j < grouplist.size(); j++)
-      {
-        int32 firstfeature = grouplist[j];
-        list1size = int32(neighborlist[firstfeature].size());
-        if(m_InputValues->UseNonContiguousNeighbors)
-        {
-          list2size = nonContigNeighList->getListSize(firstfeature);
-        }
-        for(int32 k = 0; k < 2; k++)
-        {
-          if(patchGrouping)
-          {
-            k = 1;
-          }
-          if(k == 0)
-          {
-            listsize = list1size;
-          }
-          else if(k == 1)
-          {
-            listsize = list2size;
-          }
-          for(int32 l = 0; l < listsize; l++)
-          {
-            if(k == 0)
-            {
-              neigh = neighborlist[firstfeature][l];
-            }
-            else if(k == 1)
-            {
-              neigh = nonContigNeighList->getListReference(firstfeature)[l];
-            }
-            if(neigh != firstfeature)
-            {
-              if(determineGrouping(firstfeature, neigh, parentcount))
-              {
-                if(!patchGrouping)
-                {
-                  grouplist.push_back(neigh);
-                }
-              }
-            }
-          }
-        }
-      }
-      if(patchGrouping)
-      {
-        if(growPatch(parentcount))
-        {
-          for(std::vector<int32_t>::size_type j = 0; j < grouplist.size(); j++)
-          {
-            int32_t firstfeature = grouplist[j];
-            listsize = int32_t(neighborlist[firstfeature].size());
-            for(int32_t l = 0; l < listsize; l++)
-            {
-              neigh = neighborlist[firstfeature][l];
-              if(neigh != firstfeature)
-              {
-                if(growGrouping(firstfeature, neigh, parentcount))
-                {
-                  grouplist.push_back(neigh);
-                }
-              }
-            }
-          }
-        }
-      }
-    }
-    grouplist.clear();
-  }
-}
-
-// -----------------------------------------------------------------------------
 Result<> MergeTwins::operator()()
 {
   Result result = {};
@@ -266,7 +150,7 @@ Result<> MergeTwins::operator()()
 
   featureParentIds[0] = 0; // set feature 0 to be parent 0
 
-  executeGroupFeatures();
+  GroupFeatures::execute();
 
   size_t totalFeatures = active.getNumberOfTuples();
   if(totalFeatures < 2)

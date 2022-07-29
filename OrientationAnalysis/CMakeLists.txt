@@ -146,6 +146,7 @@ set(filter_algorithms
   BadDataNeighborOrientationCheck
   NeighborOrientationCorrelation
   MergeTwins
+  GroupFeatures
 )
 
 foreach(algorithm ${filter_algorithms})
