@@ -9,6 +9,8 @@
 #include <sstream>
 #include <string>
 #include <chrono>
+#include <type_traits>
+#include <limits>
 
 using namespace complex;
 namespace // define constant expression for buffer speed
@@ -22,7 +24,7 @@ template <typename T>
 class WriteOutASCIIData
 {
 public:
-  WriteOutASCIIData(WriteASCIIData* filter, complex::DataArray<T>& inputData, int32 maxValPerLine, char delimiter, std::string filePath) //add float functionality and review comments and write unit test
+  WriteOutASCIIData(WriteASCIIData* filter, complex::DataArray<T>& inputData, int32 maxValPerLine, char delimiter, std::string filePath) // write unit test
   : m_Filter(filter)
   , m_InputData(inputData)
   , m_MaxValPerLine(maxValPerLine)
@@ -39,6 +41,14 @@ public:
     auto start = std::chrono::steady_clock::now();
     std::ofstream fout(m_FilePath, std::ios_base::app);  // open precreated file in append mode
     std::stringstream stsm;
+    if(std::is_same<T, float32>::value)
+    {
+      stsm.precision(std::numeric_limits<float>::digits10);
+    }
+    if(std::is_same<T, float64>::value)
+    {
+      stsm.precision(std::numeric_limits<double>::digits10);
+    }
     size_t numTuples = m_InputData.getNumberOfTuples();
     size_t numComp = m_InputData.getNumberOfComponents();
     //size_t lastTup = 0;
@@ -68,7 +78,7 @@ public:
           stsm << m_Delimiter;
         }
       }
-
+      count++;
       if(count >= m_MaxValPerLine)
       {
         stsm << "\n";
@@ -88,11 +98,6 @@ public:
     fout << stsm.str();
     stsm.flush();
     fout.close();
-  }
-
-  void operator()()const 
-  {
-    execute()
   }
 
 private:
