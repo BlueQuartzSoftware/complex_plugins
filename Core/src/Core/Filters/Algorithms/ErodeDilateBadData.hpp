@@ -8,15 +8,15 @@
 #include "complex/Parameters/ChoicesParameter.hpp"
 #include "complex/Parameters/MultiArraySelectionParameter.hpp"
 
-
-namespace {
+namespace
+{
 const std::string k_ErodeString("Erode");
 const std::string k_DilateString("Dilate");
 const complex::ChoicesParameter::Choices k_OperationChoices = {k_ErodeString, k_DilateString};
 
 const complex::ChoicesParameter::ValueType k_ErodeIndex = 0ULL;
 const complex::ChoicesParameter::ValueType k_DilateIndex = 1ULL;
-}
+} // namespace
 
 namespace complex
 {

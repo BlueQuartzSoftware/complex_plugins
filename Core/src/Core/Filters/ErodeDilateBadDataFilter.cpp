@@ -2,21 +2,19 @@
 
 #include "Core/Filters/Algorithms/ErodeDilateBadData.hpp"
 
-#include "complex/Parameters/GeometrySelectionParameter.hpp"
 #include "complex/DataStructure/DataPath.hpp"
 #include "complex/Parameters/ArraySelectionParameter.hpp"
 #include "complex/Parameters/BoolParameter.hpp"
 #include "complex/Parameters/ChoicesParameter.hpp"
+#include "complex/Parameters/DataGroupSelectionParameter.hpp"
+#include "complex/Parameters/GeometrySelectionParameter.hpp"
 #include "complex/Parameters/MultiArraySelectionParameter.hpp"
 #include "complex/Parameters/NumberParameter.hpp"
-#include "complex/Parameters/DataGroupSelectionParameter.hpp"
 
 using namespace complex;
 
-
 namespace complex
 {
-
 
 //------------------------------------------------------------------------------
 std::string ErodeDilateBadDataFilter::name() const
@@ -71,7 +69,6 @@ Parameters ErodeDilateBadDataFilter::parameters() const
   params.insertSeparator(Parameters::Separator{"Required Feature Data"});
   params.insert(std::make_unique<DataGroupSelectionParameter>(k_SelectedFeatureDataGroup_Key, "Feature Data Group", "Data Group that contains *only* Feature data", DataPath{}));
 
-
   return params;
 }
 
@@ -83,7 +80,7 @@ IFilter::UniquePointer ErodeDilateBadDataFilter::clone() const
 
 //------------------------------------------------------------------------------
 IFilter::PreflightResult ErodeDilateBadDataFilter::preflightImpl(const DataStructure& dataStructure, const Arguments& filterArgs, const MessageHandler& messageHandler,
-                                                           const std::atomic_bool& shouldCancel) const
+                                                                 const std::atomic_bool& shouldCancel) const
 {
   auto pOperationValue = filterArgs.value<ChoicesParameter::ValueType>(k_Operation_Key);
   auto pNumIterationsValue = filterArgs.value<int32>(k_NumIterations_Key);
@@ -121,7 +118,7 @@ IFilter::PreflightResult ErodeDilateBadDataFilter::preflightImpl(const DataStruc
 
 //------------------------------------------------------------------------------
 Result<> ErodeDilateBadDataFilter::executeImpl(DataStructure& dataStructure, const Arguments& filterArgs, const PipelineFilter* pipelineNode, const MessageHandler& messageHandler,
-                                         const std::atomic_bool& shouldCancel) const
+                                               const std::atomic_bool& shouldCancel) const
 {
   ErodeDilateBadDataInputValues inputValues;
 

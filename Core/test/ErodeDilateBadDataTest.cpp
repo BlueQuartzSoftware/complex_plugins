@@ -28,8 +28,8 @@
 #include "complex/Parameters/MultiArraySelectionParameter.hpp"
 #include "complex/Parameters/NumberParameter.hpp"
 
-#include "Core/Filters/ErodeDilateBadDataFilter.hpp"
 #include "Core/Core_test_dirs.hpp"
+#include "Core/Filters/ErodeDilateBadDataFilter.hpp"
 
 using namespace complex;
 
