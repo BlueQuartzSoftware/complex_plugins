@@ -10,6 +10,7 @@
 #include "complex/Parameters/FileSystemPathParameter.hpp"
 #include "complex/Parameters/GeometrySelectionParameter.hpp"
 #include "complex/UnitTest/UnitTestCommon.hpp"
+#include "complex/Utilities/Parsing/DREAM3D/Dream3dIO.hpp"
 #include "complex/Utilities/Parsing/HDF5/H5FileReader.hpp"
 
 #include "OrientationAnalysis/Filters/AlignSectionsMisorientationFilter.hpp"
@@ -109,10 +110,9 @@ TEST_CASE("Reconstruction::EBSDSegmentFeatures: Instantiation and Parameter Chec
   {
     auto exemplarFilePath = fs::path(fmt::format("{}/TestFiles/6_6_ebsd_segment_features.dream3d", unit_test::k_DREAM3DDataDir));
     REQUIRE(fs::exists(exemplarFilePath));
-    H5::FileReader exemplarReader(exemplarFilePath);
-    H5::ErrorType h5Error = 0;
-    exemplarDataStructure = DataStructure::readFromHdf5(exemplarReader, h5Error);
-    REQUIRE(h5Error >= 0);
+    auto exemplarResults = DREAM3D::ImportDataStructureFromFile(exemplarFilePath);
+    COMPLEX_RESULT_REQUIRE_VALID(exemplarResults);
+    exemplarDataStructure = exemplarResults.value();
   }
 
   DataStructure ds;
