@@ -9,7 +9,7 @@ set(${PLUGIN_NAME}UnitTest_SRCS
   AlignSectionsMisorientationTest.cpp
   BadDataNeighborOrientationCheckTest.cpp
   ConvertOrientationsTest.cpp
-  EBSDSegmentFeaturesFilterTest.cpp   # NEEDS TEST IMPLEMENTED
+  EBSDSegmentFeaturesFilterTest.cpp   
   FindAvgOrientationsTest.cpp
   GenerateFZQuaternionsTest.cpp
   GenerateIPFColorsTest.cpp
@@ -17,7 +17,6 @@ set(${PLUGIN_NAME}UnitTest_SRCS
   RotateEulerRefFrameTest.cpp
   MergeTwinsTest.cpp
 )
-
 set(DISABLED_TESTS
 
   # ConvertHexGridToSquareGridTest.cpp    # MISSING 1 or more Parameter Implementations
