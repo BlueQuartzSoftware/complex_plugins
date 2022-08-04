@@ -1,70 +1,169 @@
-/**
- * This file is auto generated from the original Processing/ErodeDilateBadDataFilter
- * runtime information. These are the steps that need to be taken to utilize this
- * unit test in the proper way.
- *
- * 1: Validate each of the default parameters that gets created.
- * 2: Inspect the actual filter to determine if the filter in its default state
- * would pass or fail BOTH the preflight() and execute() methods
- * 3: UPDATE the ```REQUIRE(result.result.valid());``` code to have the proper
- *
- * 4: Add additional unit tests to actually test each code path within the filter
- *
- * There are some example Catch2 ```TEST_CASE``` sections for your inspiration.
- *
- * NOTE the format of the ```TEST_CASE``` macro. Please stick to this format to
- * allow easier parsing of the unit tests.
- *
- * When you start working on this unit test remove "[ErodeDilateBadDataFilter][.][UNIMPLEMENTED]"
- * from the TEST_CASE macro. This will enable this unit test to be run by default
- * and report errors.
- */
-
 #include <catch2/catch.hpp>
 
-#include "complex/Parameters/ArraySelectionParameter.hpp"
+#include "complex/Core/Application.hpp"
 #include "complex/Parameters/BoolParameter.hpp"
-#include "complex/Parameters/ChoicesParameter.hpp"
+#include "complex/Parameters/GeometrySelectionParameter.hpp"
 #include "complex/Parameters/MultiArraySelectionParameter.hpp"
-#include "complex/Parameters/NumberParameter.hpp"
+#include "complex/Parameters/VectorParameter.hpp"
+#include "complex/UnitTest/UnitTestCommon.hpp"
+#include "complex/Utilities/Parsing/HDF5/H5FileReader.hpp"
+#include "complex/Utilities/Parsing/HDF5/H5FileWriter.hpp"
+
+#include <filesystem>
+namespace fs = std::filesystem;
+
+#include "complex_plugins/Utilities/TestUtilities.hpp"
+#include "complex_plugins/Utilities/SmallIN100Utilties.hpp"
 
 #include "Core/Core_test_dirs.hpp"
 #include "Core/Filters/ErodeDilateBadDataFilter.hpp"
 
+/**
+ * @brief Test Setup
+ *
+ * Read SmallIN100.dream3d
+ * Crop Image Geometry (X: 0-max, Y: 0-max. Z:0-1)
+ * Threshold Objects (CI>01., IQ>120)
+ * Convert Orientations Representation (Eulers->Quaternions)
+ * Identify Sample
+ * EbsdSegmentFeatures
+ * ErodeDilateBadData
+ */
+
 using namespace complex;
 
-TEST_CASE("Processing::ErodeDilateBadDataFilter", "[Processing][ErodeDilateBadDataFilter]")
+TEST_CASE("Core::ErodeDilateBadDataFilter: Small IN100 Pipeline", "[Core][ErodeDilateBadDataFilter]")
 {
-  // Instantiate the filter, a DataStructure object and an Arguments Object
-  ErodeDilateBadDataFilter filter;
-  DataStructure ds;
-  Arguments args;
+  std::shared_ptr<make_shared_enabler> app = std::make_shared<make_shared_enabler>();
+  app->loadPlugins(unit_test::k_BuildDir.view(), true);
+  auto* filterList = Application::Instance()->getFilterList();
 
-  // Create default Parameters for the filter.
-  args.insertOrAssign(ErodeDilateBadDataFilter::k_Operation_Key, std::make_any<ChoicesParameter::ValueType>(0));
-  args.insertOrAssign(ErodeDilateBadDataFilter::k_NumIterations_Key, std::make_any<int32>(1234356));
-  args.insertOrAssign(ErodeDilateBadDataFilter::k_XDirOn_Key, std::make_any<bool>(false));
-  args.insertOrAssign(ErodeDilateBadDataFilter::k_YDirOn_Key, std::make_any<bool>(false));
-  args.insertOrAssign(ErodeDilateBadDataFilter::k_ZDirOn_Key, std::make_any<bool>(false));
-  args.insertOrAssign(ErodeDilateBadDataFilter::k_FeatureIdsArrayPath_Key, std::make_any<DataPath>(DataPath{}));
-  args.insertOrAssign(ErodeDilateBadDataFilter::k_IgnoredDataArrayPaths_Key,
-                      std::make_any<MultiArraySelectionParameter::ValueType>(MultiArraySelectionParameter::ValueType{DataPath(), DataPath(), DataPath()}));
+  // Read Exemplar DREAM3D File Filter
+  auto exemplarFilePath = fs::path(fmt::format("{}/TestFiles/6_6_erode_dilate_bad_data.dream3d", unit_test::k_DREAM3DDataDir));
+  DataStructure exemplarDataStructure = complex::LoadDataStructure(exemplarFilePath);
 
-  // Preflight the filter and check result
-  auto preflightResult = filter.preflight(ds, args);
-  REQUIRE(preflightResult.outputActions.valid());
+  // Read the Small IN100 Data set
+  auto baseDataFilePath = fs::path(fmt::format("{}/TestFiles/Small_IN100.dream3d", unit_test::k_DREAM3DDataDir));
+  DataStructure dataStructure = LoadDataStructure(baseDataFilePath);
 
-  // Execute the filter and check the result
-  auto executeResult = filter.execute(ds, args);
-  REQUIRE(executeResult.result.valid());
+  const std::string k_OrigDataContainer("Original DataContainer");
+  const DataPath k_OrigDataContainerPath({k_OrigDataContainer});
+  // Rename Data Object
+  {
+    auto filter = filterList->createFilter(k_RenameDataObjectFilterHandle);
+    REQUIRE(nullptr != filter);
+
+    // Parameter Keys
+    constexpr StringLiteral k_DataObject_Key = "data_object";
+    constexpr StringLiteral k_NewName_Key = "new_name";
+
+    Arguments args;
+    args.insertOrAssign(k_DataObject_Key, std::make_any<DataPath>(k_DataContainerPath));
+    args.insertOrAssign(k_NewName_Key, std::make_any<std::string>(k_OrigDataContainer));
+
+    // Preflight the filter and check result
+    auto preflightResult = filter->preflight(dataStructure, args);
+    REQUIRE(preflightResult.outputActions.valid());
+
+    // Execute the filter and check the result
+    auto executeResult = filter->execute(dataStructure, args);
+    REQUIRE(executeResult.result.valid());
+  }
+
+  // Crop Geometry (Image)
+  {
+    const DataPath k_OrigCellAttributeMatrix = k_OrigDataContainerPath.createChildPath("CellData");
+
+    const DataPath k_OrigConfidenceIndexArrayPath = k_OrigCellAttributeMatrix.createChildPath(k_ConfidenceIndex);
+    const DataPath k_OrigEulersArrayPath = k_OrigCellAttributeMatrix.createChildPath("EulerAngles");
+    const DataPath k_OrigImageQualityArrayPath = k_OrigCellAttributeMatrix.createChildPath(k_ImageQuality);
+    const DataPath k_OrigPhasesArrayPath = k_OrigCellAttributeMatrix.createChildPath(k_Phases);
+
+    auto filter = filterList->createFilter(k_CropImageGeometryFilterHandle);
+    REQUIRE(nullptr != filter);
+
+    // Parameter Keys
+    constexpr StringLiteral k_MinVoxel_Key = "min_voxel";
+    constexpr StringLiteral k_MaxVoxel_Key = "max_voxel";
+    constexpr StringLiteral k_UpdateOrigin_Key = "update_origin";
+    constexpr StringLiteral k_ImageGeom_Key = "image_geom";
+    constexpr StringLiteral k_NewImageGeom_Key = "new_image_geom";
+    constexpr StringLiteral k_VoxelArrays_Key = "voxel_arrays";
+    constexpr StringLiteral k_RenumberFeatures_Key = "renumber_features";
+    //    constexpr StringLiteral k_FeatureIds_Key = "feature_ids";
+    constexpr StringLiteral k_CreatedCellData_Key = "new_cell_data_name";
+
+    Arguments args;
+    // Create default Parameters for the filter.
+    args.insertOrAssign(k_ImageGeom_Key, std::make_any<DataPath>(k_OrigDataContainerPath));
+    args.insertOrAssign(k_NewImageGeom_Key, std::make_any<DataPath>(k_DataContainerPath));
+    args.insertOrAssign(k_MinVoxel_Key, std::make_any<VectorUInt64Parameter::ValueType>({0ULL, 0ULL, 116ULL}));
+    args.insertOrAssign(k_MaxVoxel_Key, std::make_any<VectorUInt64Parameter::ValueType>({188ULL, 200ULL, 116ULL}));
+    args.insertOrAssign(k_UpdateOrigin_Key, std::make_any<BoolParameter::ValueType>(false));
+    args.insertOrAssign(k_VoxelArrays_Key,
+                        std::make_any<MultiArraySelectionParameter::ValueType>({k_OrigConfidenceIndexArrayPath, k_OrigEulersArrayPath, k_OrigImageQualityArrayPath, k_OrigPhasesArrayPath}));
+    args.insertOrAssign(k_RenumberFeatures_Key, std::make_any<BoolParameter::ValueType>(false));
+    args.insertOrAssign(k_CreatedCellData_Key, std::make_any<std::string>(k_CellData));
+
+    // Preflight the filter and check result
+    auto preflightResult = filter->preflight(dataStructure, args);
+    COMPLEX_RESULT_REQUIRE_VALID(preflightResult.outputActions)
+
+    // Execute the filter and check the result
+    auto executeResult = filter->execute(dataStructure, args);
+    COMPLEX_RESULT_REQUIRE_VALID(executeResult.result)
+  }
+
+  // Move the Ensemble AttributeMatrix from the original Image Geometry to the cropped Image Geometry
+  auto origDataContainerId =  dataStructure.getId(k_OrigDataContainerPath).value();
+  auto ensembleGroupId = dataStructure.getId(k_OrigDataContainerPath.createChildPath(k_EnsembleAttributeMatrix)).value();
+  auto dataContainerId = dataStructure.getId(k_DataContainerPath).value();
+
+  dataStructure.setAdditionalParent(ensembleGroupId, dataContainerId );
+  dataStructure.removeParent(ensembleGroupId, origDataContainerId);
+
+  // Write the DataStructure to an output file
+  WriteTestDataStructure(dataStructure, fmt::format("{}/Test_Output/erode_dilate_bad_data.dream3d", unit_test::k_BuildDir));
+
+  // Delete Data
+
+  // MultiThreshold Objects Filter (From ComplexCore Plugins)
+  SmallIn100::ExecuteMultiThresholdObjects(dataStructure, *filterList);
+
+  // Convert Orientations Filter (From OrientationAnalysis Plugin)
+  SmallIn100::ExecuteConvertOrientations(dataStructure, *filterList);
+
+  // Identify Sample Filter
+  SmallIn100::ExecuteIdentifySample(dataStructure, *filterList);
+
+  // Segment Features Misorientation
+  SmallIn100::ExecuteEbsdSegmentFeatures(dataStructure, *filterList);
+
+  // ErodeDilateBadDataFilter
+  {
+    ErodeDilateBadDataFilter filter;
+    Arguments args;
+
+    // Create default Parameters for the filter.
+    args.insertOrAssign(ErodeDilateBadDataFilter::k_Operation_Key, std::make_any<ChoicesParameter::ValueType>(1));
+    args.insertOrAssign(ErodeDilateBadDataFilter::k_NumIterations_Key, std::make_any<int32>(2));
+    args.insertOrAssign(ErodeDilateBadDataFilter::k_XDirOn_Key, std::make_any<bool>(true));
+    args.insertOrAssign(ErodeDilateBadDataFilter::k_YDirOn_Key, std::make_any<bool>(true));
+    args.insertOrAssign(ErodeDilateBadDataFilter::k_ZDirOn_Key, std::make_any<bool>(false));
+    args.insertOrAssign(ErodeDilateBadDataFilter::k_FeatureIdsArrayPath_Key, std::make_any<DataPath>(k_FeatureIdsArrayPath));
+    args.insertOrAssign(ErodeDilateBadDataFilter::k_IgnoredDataArrayPaths_Key, std::make_any<MultiArraySelectionParameter::ValueType>(MultiArraySelectionParameter::ValueType{}));
+    args.insertOrAssign(ErodeDilateBadDataFilter::k_SelectedImageGeometry_Key, std::make_any<DataPath>(k_DataContainerPath));
+    args.insertOrAssign(ErodeDilateBadDataFilter::k_SelectedFeatureDataGroup_Key, std::make_any<DataPath>(k_CellFeatureAttributeMatrix));
+
+    // Preflight the filter and check result
+    auto preflightResult = filter.preflight(dataStructure, args);
+    COMPLEX_RESULT_REQUIRE_VALID(preflightResult.outputActions)
+
+    // Execute the filter and check the result
+    auto executeResult = filter.execute(dataStructure, args);
+    COMPLEX_RESULT_REQUIRE_VALID(executeResult.result)
+  }
+
+  CompareExemplarToGeneratedData(dataStructure, exemplarDataStructure, k_CellAttributeMatrix, k_ExemplarDataContainer);
+
 }
-
-// TEST_CASE("Processing::ErodeDilateBadDataFilter: Valid filter execution")
-//{
-//
-//}
-
-// TEST_CASE("Processing::ErodeDilateBadDataFilter: InValid filter execution")
-//{
-//
-//}

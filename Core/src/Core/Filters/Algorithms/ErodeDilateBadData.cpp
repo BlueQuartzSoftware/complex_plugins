@@ -242,24 +242,6 @@ Result<> ErodeDilateBadData::operator()()
     {
       parallelTask.execute(ErodeDilateBadDataTransferDataImpl(this, totalPoints, m_InputValues->Operation, m_FeatureIds, m_Neighbors, voxelArray));
     }
-
-    //    for(size_t j = 0; j < totalPoints; j++)
-    //    {
-    //      featureName = m_FeatureIds[j];
-    //      int32_t neighbor = m_Neighbors[j];
-    //      if(neighbor >= 0)
-    //      {
-    //        if((featureName == 0 && m_FeatureIds[neighbor] > 0 && m_InputValues->Operation == k_DilateIndex) || (featureName > 0 && m_FeatureIds[neighbor] == 0 && m_InputValues->Operation ==
-    //        k_ErodeIndex))
-    //        {
-    //          for(const auto& arrayName : voxelArrayNames)
-    //          {
-    //            IDataArray::Pointer p = m->getAttributeMatrix(attrMatName)->getAttributeArray(arrayName);
-    //            p->copyTuple(neighbor, j);
-    //          }
-    //        }
-    //      }
-    //    }
   }
 
   return {};
