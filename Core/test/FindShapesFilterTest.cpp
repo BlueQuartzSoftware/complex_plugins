@@ -14,8 +14,6 @@ namespace fs = std::filesystem;
 
 using namespace complex;
 
-
-
 TEST_CASE("Core::FindShapesFilter", "[Core][FindShapesFilter]")
 {
   // Read the Small IN100 Data set
@@ -78,5 +76,4 @@ TEST_CASE("Core::FindShapesFilter", "[Core][FindShapesFilter]")
 
   // Write the DataStructure out to the file system
   WriteTestDataStructure(dataStructure, fs::path(fmt::format("{}/find_shapes.dream3d", unit_test::k_BinaryDir)));
-
 }

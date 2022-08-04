@@ -12,8 +12,8 @@
 #include <filesystem>
 namespace fs = std::filesystem;
 
-#include "complex_plugins/Utilities/TestUtilities.hpp"
 #include "complex_plugins/Utilities/SmallIN100Utilties.hpp"
+#include "complex_plugins/Utilities/TestUtilities.hpp"
 
 #include "Core/Core_test_dirs.hpp"
 #include "Core/Filters/ErodeDilateBadDataFilter.hpp"
@@ -115,11 +115,11 @@ TEST_CASE("Core::ErodeDilateBadDataFilter: Small IN100 Pipeline", "[Core][ErodeD
   }
 
   // Move the Ensemble AttributeMatrix from the original Image Geometry to the cropped Image Geometry
-  auto origDataContainerId =  dataStructure.getId(k_OrigDataContainerPath).value();
+  auto origDataContainerId = dataStructure.getId(k_OrigDataContainerPath).value();
   auto ensembleGroupId = dataStructure.getId(k_OrigDataContainerPath.createChildPath(k_EnsembleAttributeMatrix)).value();
   auto dataContainerId = dataStructure.getId(k_DataContainerPath).value();
 
-  dataStructure.setAdditionalParent(ensembleGroupId, dataContainerId );
+  dataStructure.setAdditionalParent(ensembleGroupId, dataContainerId);
   dataStructure.removeParent(ensembleGroupId, origDataContainerId);
 
   // Write the DataStructure to an output file
@@ -165,5 +165,4 @@ TEST_CASE("Core::ErodeDilateBadDataFilter: Small IN100 Pipeline", "[Core][ErodeD
   }
 
   CompareExemplarToGeneratedData(dataStructure, exemplarDataStructure, k_CellAttributeMatrix, k_ExemplarDataContainer);
-
 }

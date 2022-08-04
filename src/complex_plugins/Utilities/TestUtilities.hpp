@@ -5,7 +5,6 @@
 #include "complex/Core/Application.hpp"
 #include "complex/DataStructure/AbstractDataStore.hpp"
 #include "complex/DataStructure/IDataArray.hpp"
-#include "complex/Core/Application.hpp"
 #include "complex/Parameters/ArraySelectionParameter.hpp"
 #include "complex/Parameters/ArrayThresholdsParameter.hpp"
 #include "complex/Parameters/BoolParameter.hpp"
@@ -92,8 +91,6 @@ const FilterHandle k_IdentifySampleFilterHandle(k_IdentifySampleFilterId, k_Comp
 const Uuid k_CopyDataGroupFilterId = *Uuid::FromString("ac8d51d8-9167-5628-a060-95a8863a76b1");
 const FilterHandle k_CopyDataGroupFilterHandle(k_CopyDataGroupFilterId, k_ComplexCorePluginId);
 
-
-
 const Uuid k_OrientationAnalysisPluginId = *Uuid::FromString("c09cf01b-014e-5adb-84eb-ea76fc79eeb1");
 // Make sure we can instantiate the Convert Orientations
 const Uuid k_ConvertOrientationsFilterId = *Uuid::FromString("e5629880-98c4-5656-82b8-c9fe2b9744de");
@@ -111,13 +108,11 @@ const FilterHandle k_NeighborOrientationCorrelationFilterHandle(k_NeighborOrient
 const Uuid k_BadDataNeighborOrientationCheckFilterId = *Uuid::FromString("f4a7c2df-e9b0-5da9-b745-a862666d6c99");
 const FilterHandle k_BadDataNeighborOrientationCheckFilterHandle(k_BadDataNeighborOrientationCheckFilterId, k_OrientationAnalysisPluginId);
 
-
 const Uuid k_CorePluginId = *Uuid::FromString("65a0a3fc-8c93-5405-8ac6-182e7f313a69");
 
 // Make sure we can instantiate the Align Sections Feature Centroid
 const Uuid k_AlignSectionsFeatureCentroidFilterId = *Uuid::FromString("886f8b46-51b6-5682-a289-6febd10b7ef0");
 const FilterHandle k_AlignSectionsFeatureCentroidFilterHandle(k_AlignSectionsFeatureCentroidFilterId, k_CorePluginId);
-
 
 const Uuid k_FindFeaturePhasesObjectsId = *Uuid::FromString("6334ce16-cea5-5643-83b5-9573805873fa");
 const FilterHandle k_FindNFeaturePhasesFilterHandle(k_FindFeaturePhasesObjectsId, k_ComplexCorePluginId);
@@ -147,7 +142,6 @@ void CompareDataArrays(const IDataArray& left, const IDataArray& right)
 struct make_shared_enabler : public complex::Application
 {
 };
-
 
 inline DataStructure LoadDataStructure(const fs::path& filepath)
 {
@@ -256,6 +250,5 @@ inline void CompareExemplarToGeneratedData(const DataStructure& dataStructure, c
     }
   }
 }
-
 
 } // namespace complex

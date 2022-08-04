@@ -14,12 +14,11 @@
 #include "complex/UnitTest/UnitTestCommon.hpp"
 #include "complex/Utilities/Parsing/HDF5/H5FileReader.hpp"
 
-
 #include <filesystem>
 namespace fs = std::filesystem;
 
-#include "complex_plugins/Utilities/TestUtilities.hpp"
 #include "complex_plugins/Utilities/SmallIN100Utilties.hpp"
+#include "complex_plugins/Utilities/TestUtilities.hpp"
 
 using namespace complex;
 
@@ -88,11 +87,11 @@ TEST_CASE("OrientationAnalysis::AlignSectionsMisorientation Small IN100 Pipeline
     COMPLEX_RESULT_REQUIRE_VALID(executeResult.result)
   }
 
-   // MultiThreshold Objects Filter (From ComplexCore Plugins)
-   SmallIn100::ExecuteMultiThresholdObjects(dataStructure, *filterList);
+  // MultiThreshold Objects Filter (From ComplexCore Plugins)
+  SmallIn100::ExecuteMultiThresholdObjects(dataStructure, *filterList);
 
-   // Convert Orientations Filter (From OrientationAnalysis Plugin)
-   SmallIn100::ExecuteConvertOrientations(dataStructure, *filterList);
+  // Convert Orientations Filter (From OrientationAnalysis Plugin)
+  SmallIn100::ExecuteConvertOrientations(dataStructure, *filterList);
 
   // Align Sections Misorientation Filter (From OrientationAnalysis Plugin)
   {
@@ -261,7 +260,6 @@ TEST_CASE("OrientationAnalysis::AlignSectionsMisorientation Small IN100 Pipeline
   }
 
   WriteTestDataStructure(dataStructure, fmt::format("{}/align_sections_misorientation.dream3d", unit_test::k_BinaryDir));
-
 }
 
 #if 0

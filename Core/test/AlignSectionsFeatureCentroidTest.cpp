@@ -16,14 +16,12 @@
 #include <filesystem>
 namespace fs = std::filesystem;
 
-
-#include "complex_plugins/Utilities/TestUtilities.hpp"
 #include "complex_plugins/Utilities/SmallIN100Utilties.hpp"
+#include "complex_plugins/Utilities/TestUtilities.hpp"
 
 #include "Core/Core_test_dirs.hpp"
 
 using namespace complex;
-
 
 /**
  * Read H5Ebsd File
