@@ -91,14 +91,17 @@ TEST_CASE("Core::ErodeDilateBadDataFilter: Small IN100 Pipeline", "[Core][ErodeD
     constexpr StringLiteral k_VoxelArrays_Key = "voxel_arrays";
     constexpr StringLiteral k_RenumberFeatures_Key = "renumber_features";
     //    constexpr StringLiteral k_FeatureIds_Key = "feature_ids";
-    constexpr StringLiteral k_CreatedCellData_Key = "new_cell_data_name";
+    constexpr StringLiteral k_CreatedCellData_Key = "new_features_group_name";
 
     Arguments args;
     // Create default Parameters for the filter.
+    VectorUInt64Parameter::ValueType minValues = {0, 0, 116};
+    VectorUInt64Parameter::ValueType maxValues = {188, 200, 116};
+
     args.insertOrAssign(k_ImageGeom_Key, std::make_any<DataPath>(k_OrigDataContainerPath));
     args.insertOrAssign(k_NewImageGeom_Key, std::make_any<DataPath>(k_DataContainerPath));
-    args.insertOrAssign(k_MinVoxel_Key, std::make_any<VectorUInt64Parameter::ValueType>({0ULL, 0ULL, 116ULL}));
-    args.insertOrAssign(k_MaxVoxel_Key, std::make_any<VectorUInt64Parameter::ValueType>({188ULL, 200ULL, 116ULL}));
+    args.insertOrAssign(k_MinVoxel_Key, std::make_any<VectorUInt64Parameter::ValueType>(minValues));
+    args.insertOrAssign(k_MaxVoxel_Key, std::make_any<VectorUInt64Parameter::ValueType>(maxValues));
     args.insertOrAssign(k_UpdateOrigin_Key, std::make_any<BoolParameter::ValueType>(false));
     args.insertOrAssign(k_VoxelArrays_Key,
                         std::make_any<MultiArraySelectionParameter::ValueType>({k_OrigConfidenceIndexArrayPath, k_OrigEulersArrayPath, k_OrigImageQualityArrayPath, k_OrigPhasesArrayPath}));
