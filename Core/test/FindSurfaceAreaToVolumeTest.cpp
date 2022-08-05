@@ -26,24 +26,24 @@
 #include "complex/Parameters/ArraySelectionParameter.hpp"
 #include "complex/Parameters/BoolParameter.hpp"
 
-#include "StatsToolbox/Filters/FindSurfaceAreaToVolume.hpp"
-#include "StatsToolbox/StatsToolbox_test_dirs.hpp"
+#include "Core/Filters/FindSurfaceAreaToVolumeFilter.hpp"
+#include "Core/Core_test_dirs.hpp"
 
 using namespace complex;
 
 TEST_CASE("StatsToolbox::FindSurfaceAreaToVolume: Instantiation and Parameter Check", "[StatsToolbox][FindSurfaceAreaToVolume][.][UNIMPLEMENTED][!mayfail]")
 {
   // Instantiate the filter, a DataStructure object and an Arguments Object
-  FindSurfaceAreaToVolume filter;
+  FindSurfaceAreaToVolumeFilter filter;
   DataStructure ds;
   Arguments args;
 
   // Create default Parameters for the filter.
-  args.insertOrAssign(FindSurfaceAreaToVolume::k_FeatureIdsArrayPath_Key, std::make_any<DataPath>(DataPath{}));
-  args.insertOrAssign(FindSurfaceAreaToVolume::k_NumCellsArrayPath_Key, std::make_any<DataPath>(DataPath{}));
-  args.insertOrAssign(FindSurfaceAreaToVolume::k_SurfaceAreaVolumeRatioArrayName_Key, std::make_any<DataPath>(DataPath{}));
-  args.insertOrAssign(FindSurfaceAreaToVolume::k_CalculateSphericity_Key, std::make_any<bool>(false));
-  args.insertOrAssign(FindSurfaceAreaToVolume::k_SphericityArrayName_Key, std::make_any<DataPath>(DataPath{}));
+  args.insertOrAssign(FindSurfaceAreaToVolumeFilter::k_FeatureIdsArrayPath_Key, std::make_any<DataPath>(DataPath{}));
+  args.insertOrAssign(FindSurfaceAreaToVolumeFilter::k_NumCellsArrayPath_Key, std::make_any<DataPath>(DataPath{}));
+  args.insertOrAssign(FindSurfaceAreaToVolumeFilter::k_SurfaceAreaVolumeRatioArrayName_Key, std::make_any<DataPath>(DataPath{}));
+  args.insertOrAssign(FindSurfaceAreaToVolumeFilter::k_CalculateSphericity_Key, std::make_any<bool>(false));
+  args.insertOrAssign(FindSurfaceAreaToVolumeFilter::k_SphericityArrayName_Key, std::make_any<DataPath>(DataPath{}));
 
   // Preflight the filter and check result
   auto preflightResult = filter.preflight(ds, args);

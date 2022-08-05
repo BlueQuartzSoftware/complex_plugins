@@ -1,5 +1,5 @@
 /**
- * This file is auto generated from the original StatsToolbox/FindEuclideanDistMap
+ * This file is auto generated from the original StatsToolbox/FindEuclideanDistMapFilter
  * runtime information. These are the steps that need to be taken to utilize this
  * unit test in the proper way.
  *
@@ -15,7 +15,7 @@
  * NOTE the format of the ```TEST_CASE``` macro. Please stick to this format to
  * allow easier parsing of the unit tests.
  *
- * When you start working on this unit test remove "[FindEuclideanDistMap][.][UNIMPLEMENTED]"
+ * When you start working on this unit test remove "[FindEuclideanDistMapFilter][.][UNIMPLEMENTED]"
  * from the TEST_CASE macro. This will enable this unit test to be run by default
  * and report errors.
  */
@@ -26,29 +26,29 @@
 #include "complex/Parameters/ArraySelectionParameter.hpp"
 #include "complex/Parameters/BoolParameter.hpp"
 
-#include "StatsToolbox/Filters/FindEuclideanDistMap.hpp"
-#include "StatsToolbox/StatsToolbox_test_dirs.hpp"
+#include "Core/Filters/FindEuclideanDistMapFilter.hpp"
+#include "Core/Core_test_dirs.hpp"
 
 using namespace complex;
 
-TEST_CASE("StatsToolbox::FindEuclideanDistMap: Instantiation and Parameter Check", "[StatsToolbox][FindEuclideanDistMap][.][UNIMPLEMENTED][!mayfail]")
+TEST_CASE("StatsToolbox::FindEuclideanDistMapFilter: Instantiation and Parameter Check", "[StatsToolbox][FindEuclideanDistMapFilter][.][UNIMPLEMENTED][!mayfail]")
 {
   // Instantiate the filter, a DataStructure object and an Arguments Object
-  FindEuclideanDistMap filter;
+  FindEuclideanDistMapFilter filter;
   DataStructure ds;
   Arguments args;
 
   // Create default Parameters for the filter.
-  args.insertOrAssign(FindEuclideanDistMap::k_CalcManhattanDist_Key, std::make_any<bool>(false));
-  args.insertOrAssign(FindEuclideanDistMap::k_DoBoundaries_Key, std::make_any<bool>(false));
-  args.insertOrAssign(FindEuclideanDistMap::k_DoTripleLines_Key, std::make_any<bool>(false));
-  args.insertOrAssign(FindEuclideanDistMap::k_DoQuadPoints_Key, std::make_any<bool>(false));
-  args.insertOrAssign(FindEuclideanDistMap::k_SaveNearestNeighbors_Key, std::make_any<bool>(false));
-  args.insertOrAssign(FindEuclideanDistMap::k_FeatureIdsArrayPath_Key, std::make_any<DataPath>(DataPath{}));
-  args.insertOrAssign(FindEuclideanDistMap::k_GBDistancesArrayName_Key, std::make_any<DataPath>(DataPath{}));
-  args.insertOrAssign(FindEuclideanDistMap::k_TJDistancesArrayName_Key, std::make_any<DataPath>(DataPath{}));
-  args.insertOrAssign(FindEuclideanDistMap::k_QPDistancesArrayName_Key, std::make_any<DataPath>(DataPath{}));
-  args.insertOrAssign(FindEuclideanDistMap::k_NearestNeighborsArrayName_Key, std::make_any<DataPath>(DataPath{}));
+  args.insertOrAssign(FindEuclideanDistMapFilter::k_CalcManhattanDist_Key, std::make_any<bool>(false));
+  args.insertOrAssign(FindEuclideanDistMapFilter::k_DoBoundaries_Key, std::make_any<bool>(false));
+  args.insertOrAssign(FindEuclideanDistMapFilter::k_DoTripleLines_Key, std::make_any<bool>(false));
+  args.insertOrAssign(FindEuclideanDistMapFilter::k_DoQuadPoints_Key, std::make_any<bool>(false));
+  args.insertOrAssign(FindEuclideanDistMapFilter::k_SaveNearestNeighbors_Key, std::make_any<bool>(false));
+  args.insertOrAssign(FindEuclideanDistMapFilter::k_FeatureIdsArrayPath_Key, std::make_any<DataPath>(DataPath{}));
+  args.insertOrAssign(FindEuclideanDistMapFilter::k_GBDistancesArrayName_Key, std::make_any<DataPath>(DataPath{}));
+  args.insertOrAssign(FindEuclideanDistMapFilter::k_TJDistancesArrayName_Key, std::make_any<DataPath>(DataPath{}));
+  args.insertOrAssign(FindEuclideanDistMapFilter::k_QPDistancesArrayName_Key, std::make_any<DataPath>(DataPath{}));
+  args.insertOrAssign(FindEuclideanDistMapFilter::k_NearestNeighborsArrayName_Key, std::make_any<DataPath>(DataPath{}));
 
   // Preflight the filter and check result
   auto preflightResult = filter.preflight(ds, args);
@@ -59,12 +59,12 @@ TEST_CASE("StatsToolbox::FindEuclideanDistMap: Instantiation and Parameter Check
   REQUIRE(executeResult.result.valid());
 }
 
-// TEST_CASE("StatsToolbox::FindEuclideanDistMap: Valid filter execution")
+// TEST_CASE("StatsToolbox::FindEuclideanDistMapFilter: Valid filter execution")
 //{
 //
 //}
 
-// TEST_CASE("StatsToolbox::FindEuclideanDistMap: InValid filter execution")
+// TEST_CASE("StatsToolbox::FindEuclideanDistMapFilter: InValid filter execution")
 //{
 //
 //}

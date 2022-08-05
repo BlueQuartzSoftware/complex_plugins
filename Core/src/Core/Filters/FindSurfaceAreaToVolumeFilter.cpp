@@ -1,4 +1,4 @@
-#include "FindSurfaceAreaToVolume.hpp"
+#include "FindSurfaceAreaToVolumeFilter.hpp"
 
 #include "complex/DataStructure/DataPath.hpp"
 #include "complex/Parameters/ArrayCreationParameter.hpp"
@@ -10,37 +10,37 @@ using namespace complex;
 namespace complex
 {
 //------------------------------------------------------------------------------
-std::string FindSurfaceAreaToVolume::name() const
+std::string FindSurfaceAreaToVolumeFilter::name() const
 {
-  return FilterTraits<FindSurfaceAreaToVolume>::name.str();
+  return FilterTraits<FindSurfaceAreaToVolumeFilter>::name.str();
 }
 
 //------------------------------------------------------------------------------
-std::string FindSurfaceAreaToVolume::className() const
+std::string FindSurfaceAreaToVolumeFilter::className() const
 {
-  return FilterTraits<FindSurfaceAreaToVolume>::className;
+  return FilterTraits<FindSurfaceAreaToVolumeFilter>::className;
 }
 
 //------------------------------------------------------------------------------
-Uuid FindSurfaceAreaToVolume::uuid() const
+Uuid FindSurfaceAreaToVolumeFilter::uuid() const
 {
-  return FilterTraits<FindSurfaceAreaToVolume>::uuid;
+  return FilterTraits<FindSurfaceAreaToVolumeFilter>::uuid;
 }
 
 //------------------------------------------------------------------------------
-std::string FindSurfaceAreaToVolume::humanName() const
+std::string FindSurfaceAreaToVolumeFilter::humanName() const
 {
   return "Find Surface Area to Volume & Sphericity";
 }
 
 //------------------------------------------------------------------------------
-std::vector<std::string> FindSurfaceAreaToVolume::defaultTags() const
+std::vector<std::string> FindSurfaceAreaToVolumeFilter::defaultTags() const
 {
   return {"#Statistics", "#Morphological"};
 }
 
 //------------------------------------------------------------------------------
-Parameters FindSurfaceAreaToVolume::parameters() const
+Parameters FindSurfaceAreaToVolumeFilter::parameters() const
 {
   Parameters params;
   // Create the parameter descriptors that are needed for this filter
@@ -59,13 +59,13 @@ Parameters FindSurfaceAreaToVolume::parameters() const
 }
 
 //------------------------------------------------------------------------------
-IFilter::UniquePointer FindSurfaceAreaToVolume::clone() const
+IFilter::UniquePointer FindSurfaceAreaToVolumeFilter::clone() const
 {
-  return std::make_unique<FindSurfaceAreaToVolume>();
+  return std::make_unique<FindSurfaceAreaToVolumeFilter>();
 }
 
 //------------------------------------------------------------------------------
-IFilter::PreflightResult FindSurfaceAreaToVolume::preflightImpl(const DataStructure& dataStructure, const Arguments& filterArgs, const MessageHandler& messageHandler,
+IFilter::PreflightResult FindSurfaceAreaToVolumeFilter::preflightImpl(const DataStructure& dataStructure, const Arguments& filterArgs, const MessageHandler& messageHandler,
                                                                 const std::atomic_bool& shouldCancel) const
 {
   /****************************************************************************
@@ -126,7 +126,7 @@ IFilter::PreflightResult FindSurfaceAreaToVolume::preflightImpl(const DataStruct
 }
 
 //------------------------------------------------------------------------------
-Result<> FindSurfaceAreaToVolume::executeImpl(DataStructure& dataStructure, const Arguments& filterArgs, const PipelineFilter* pipelineNode, const MessageHandler& messageHandler,
+Result<> FindSurfaceAreaToVolumeFilter::executeImpl(DataStructure& dataStructure, const Arguments& filterArgs, const PipelineFilter* pipelineNode, const MessageHandler& messageHandler,
                                               const std::atomic_bool& shouldCancel) const
 {
   /****************************************************************************

@@ -1,6 +1,6 @@
 #pragma once
 
-#include "StatsToolbox/StatsToolbox_export.hpp"
+#include "Core/Core_export.hpp"
 
 #include "complex/Filter/FilterTraits.hpp"
 #include "complex/Filter/IFilter.hpp"
@@ -8,20 +8,20 @@
 namespace complex
 {
 /**
- * @class FindNeighborhoods
+ * @class FindNeighborhoodsFilter
  * @brief This filter will ....
  */
-class STATSTOOLBOX_EXPORT FindNeighborhoods : public IFilter
+class CORE_EXPORT FindNeighborhoodsFilter : public IFilter
 {
 public:
-  FindNeighborhoods() = default;
-  ~FindNeighborhoods() noexcept override = default;
+  FindNeighborhoodsFilter() = default;
+  ~FindNeighborhoodsFilter() noexcept override = default;
 
-  FindNeighborhoods(const FindNeighborhoods&) = delete;
-  FindNeighborhoods(FindNeighborhoods&&) noexcept = delete;
+  FindNeighborhoodsFilter(const FindNeighborhoodsFilter&) = delete;
+  FindNeighborhoodsFilter(FindNeighborhoodsFilter&&) noexcept = delete;
 
-  FindNeighborhoods& operator=(const FindNeighborhoods&) = delete;
-  FindNeighborhoods& operator=(FindNeighborhoods&&) noexcept = delete;
+  FindNeighborhoodsFilter& operator=(const FindNeighborhoodsFilter&) = delete;
+  FindNeighborhoodsFilter& operator=(FindNeighborhoodsFilter&&) noexcept = delete;
 
   // Parameter Keys
   static inline constexpr StringLiteral k_MultiplesOfAverage_Key = "MultiplesOfAverage";
@@ -97,4 +97,4 @@ protected:
 };
 } // namespace complex
 
-COMPLEX_DEF_FILTER_TRAITS(complex, FindNeighborhoods, "924c10e3-2f39-4c08-9d7a-7fe029f74f6d");
+COMPLEX_DEF_FILTER_TRAITS(complex, FindNeighborhoodsFilter, "924c10e3-2f39-4c08-9d7a-7fe029f74f6d");

@@ -1,5 +1,5 @@
 /**
- * This file is auto generated from the original OrientationAnalysis/FindFeatureReferenceMisorientations
+ * This file is auto generated from the original OrientationAnalysis/FindFeatureReferenceMisorientationsFilter
  * runtime information. These are the steps that need to be taken to utilize this
  * unit test in the proper way.
  *
@@ -15,7 +15,7 @@
  * NOTE the format of the ```TEST_CASE``` macro. Please stick to this format to
  * allow easier parsing of the unit tests.
  *
- * When you start working on this unit test remove "[FindFeatureReferenceMisorientations][.][UNIMPLEMENTED]"
+ * When you start working on this unit test remove "[FindFeatureReferenceMisorientationsFilter][.][UNIMPLEMENTED]"
  * from the TEST_CASE macro. This will enable this unit test to be run by default
  * and report errors.
  */
@@ -25,27 +25,27 @@
 #include "complex/Parameters/ArrayCreationParameter.hpp"
 #include "complex/Parameters/ArraySelectionParameter.hpp"
 
-#include "OrientationAnalysis/Filters/FindFeatureReferenceMisorientations.hpp"
+#include "OrientationAnalysis/Filters/FindFeatureReferenceMisorientationsFilter.hpp"
 #include "OrientationAnalysis/OrientationAnalysis_test_dirs.hpp"
 
 using namespace complex;
 
-TEST_CASE("OrientationAnalysis::FindFeatureReferenceMisorientations: Instantiation and Parameter Check", "[OrientationAnalysis][FindFeatureReferenceMisorientations][.][UNIMPLEMENTED][!mayfail]")
+TEST_CASE("OrientationAnalysis::FindFeatureReferenceMisorientationsFilter: Instantiation and Parameter Check", "[OrientationAnalysis][FindFeatureReferenceMisorientationsFilter][.][UNIMPLEMENTED][!mayfail]")
 {
   // Instantiate the filter, a DataStructure object and an Arguments Object
-  FindFeatureReferenceMisorientations filter;
+  FindFeatureReferenceMisorientationsFilter filter;
   DataStructure ds;
   Arguments args;
 
   // Create default Parameters for the filter.
-  args.insertOrAssign(FindFeatureReferenceMisorientations::k_FeatureIdsArrayPath_Key, std::make_any<DataPath>(DataPath{}));
-  args.insertOrAssign(FindFeatureReferenceMisorientations::k_CellPhasesArrayPath_Key, std::make_any<DataPath>(DataPath{}));
-  args.insertOrAssign(FindFeatureReferenceMisorientations::k_QuatsArrayPath_Key, std::make_any<DataPath>(DataPath{}));
-  args.insertOrAssign(FindFeatureReferenceMisorientations::k_GBEuclideanDistancesArrayPath_Key, std::make_any<DataPath>(DataPath{}));
-  args.insertOrAssign(FindFeatureReferenceMisorientations::k_AvgQuatsArrayPath_Key, std::make_any<DataPath>(DataPath{}));
-  args.insertOrAssign(FindFeatureReferenceMisorientations::k_CrystalStructuresArrayPath_Key, std::make_any<DataPath>(DataPath{}));
-  args.insertOrAssign(FindFeatureReferenceMisorientations::k_FeatureReferenceMisorientationsArrayName_Key, std::make_any<DataPath>(DataPath{}));
-  args.insertOrAssign(FindFeatureReferenceMisorientations::k_FeatureAvgMisorientationsArrayName_Key, std::make_any<DataPath>(DataPath{}));
+  args.insertOrAssign(FindFeatureReferenceMisorientationsFilter::k_FeatureIdsArrayPath_Key, std::make_any<DataPath>(DataPath{}));
+  args.insertOrAssign(FindFeatureReferenceMisorientationsFilter::k_CellPhasesArrayPath_Key, std::make_any<DataPath>(DataPath{}));
+  args.insertOrAssign(FindFeatureReferenceMisorientationsFilter::k_QuatsArrayPath_Key, std::make_any<DataPath>(DataPath{}));
+  args.insertOrAssign(FindFeatureReferenceMisorientationsFilter::k_GBEuclideanDistancesArrayPath_Key, std::make_any<DataPath>(DataPath{}));
+  args.insertOrAssign(FindFeatureReferenceMisorientationsFilter::k_AvgQuatsArrayPath_Key, std::make_any<DataPath>(DataPath{}));
+  args.insertOrAssign(FindFeatureReferenceMisorientationsFilter::k_CrystalStructuresArrayPath_Key, std::make_any<DataPath>(DataPath{}));
+  args.insertOrAssign(FindFeatureReferenceMisorientationsFilter::k_FeatureReferenceMisorientationsArrayName_Key, std::make_any<DataPath>(DataPath{}));
+  args.insertOrAssign(FindFeatureReferenceMisorientationsFilter::k_FeatureAvgMisorientationsArrayName_Key, std::make_any<DataPath>(DataPath{}));
 
   // Preflight the filter and check result
   auto preflightResult = filter.preflight(ds, args);
@@ -56,12 +56,12 @@ TEST_CASE("OrientationAnalysis::FindFeatureReferenceMisorientations: Instantiati
   REQUIRE(executeResult.result.valid());
 }
 
-// TEST_CASE("OrientationAnalysis::FindFeatureReferenceMisorientations: Valid filter execution")
+// TEST_CASE("OrientationAnalysis::FindFeatureReferenceMisorientationsFilter: Valid filter execution")
 //{
 //
 //}
 
-// TEST_CASE("OrientationAnalysis::FindFeatureReferenceMisorientations: InValid filter execution")
+// TEST_CASE("OrientationAnalysis::FindFeatureReferenceMisorientationsFilter: InValid filter execution")
 //{
 //
 //}

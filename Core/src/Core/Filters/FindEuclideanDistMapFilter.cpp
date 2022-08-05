@@ -1,4 +1,4 @@
-#include "FindEuclideanDistMap.hpp"
+#include "FindEuclideanDistMapFilter.hpp"
 
 #include "complex/DataStructure/DataPath.hpp"
 #include "complex/Parameters/ArrayCreationParameter.hpp"
@@ -10,37 +10,37 @@ using namespace complex;
 namespace complex
 {
 //------------------------------------------------------------------------------
-std::string FindEuclideanDistMap::name() const
+std::string FindEuclideanDistMapFilter::name() const
 {
-  return FilterTraits<FindEuclideanDistMap>::name.str();
+  return FilterTraits<FindEuclideanDistMapFilter>::name.str();
 }
 
 //------------------------------------------------------------------------------
-std::string FindEuclideanDistMap::className() const
+std::string FindEuclideanDistMapFilter::className() const
 {
-  return FilterTraits<FindEuclideanDistMap>::className;
+  return FilterTraits<FindEuclideanDistMapFilter>::className;
 }
 
 //------------------------------------------------------------------------------
-Uuid FindEuclideanDistMap::uuid() const
+Uuid FindEuclideanDistMapFilter::uuid() const
 {
-  return FilterTraits<FindEuclideanDistMap>::uuid;
+  return FilterTraits<FindEuclideanDistMapFilter>::uuid;
 }
 
 //------------------------------------------------------------------------------
-std::string FindEuclideanDistMap::humanName() const
+std::string FindEuclideanDistMapFilter::humanName() const
 {
   return "Find Euclidean Distance Map";
 }
 
 //------------------------------------------------------------------------------
-std::vector<std::string> FindEuclideanDistMap::defaultTags() const
+std::vector<std::string> FindEuclideanDistMapFilter::defaultTags() const
 {
   return {"#Statistics", "#Morphological"};
 }
 
 //------------------------------------------------------------------------------
-Parameters FindEuclideanDistMap::parameters() const
+Parameters FindEuclideanDistMapFilter::parameters() const
 {
   Parameters params;
   // Create the parameter descriptors that are needed for this filter
@@ -66,13 +66,13 @@ Parameters FindEuclideanDistMap::parameters() const
 }
 
 //------------------------------------------------------------------------------
-IFilter::UniquePointer FindEuclideanDistMap::clone() const
+IFilter::UniquePointer FindEuclideanDistMapFilter::clone() const
 {
-  return std::make_unique<FindEuclideanDistMap>();
+  return std::make_unique<FindEuclideanDistMapFilter>();
 }
 
 //------------------------------------------------------------------------------
-IFilter::PreflightResult FindEuclideanDistMap::preflightImpl(const DataStructure& dataStructure, const Arguments& filterArgs, const MessageHandler& messageHandler,
+IFilter::PreflightResult FindEuclideanDistMapFilter::preflightImpl(const DataStructure& dataStructure, const Arguments& filterArgs, const MessageHandler& messageHandler,
                                                              const std::atomic_bool& shouldCancel) const
 {
   /****************************************************************************
@@ -138,7 +138,7 @@ IFilter::PreflightResult FindEuclideanDistMap::preflightImpl(const DataStructure
 }
 
 //------------------------------------------------------------------------------
-Result<> FindEuclideanDistMap::executeImpl(DataStructure& dataStructure, const Arguments& filterArgs, const PipelineFilter* pipelineNode, const MessageHandler& messageHandler,
+Result<> FindEuclideanDistMapFilter::executeImpl(DataStructure& dataStructure, const Arguments& filterArgs, const PipelineFilter* pipelineNode, const MessageHandler& messageHandler,
                                            const std::atomic_bool& shouldCancel) const
 {
   /****************************************************************************
