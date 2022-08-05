@@ -31,7 +31,7 @@
 
 using namespace complex;
 
-TEST_CASE("StatsToolbox::FindEuclideanDistMapFilter: Instantiation and Parameter Check", "[StatsToolbox][FindEuclideanDistMapFilter][.][UNIMPLEMENTED][!mayfail]")
+TEST_CASE("Core::FindEuclideanDistMapFilter: Instantiation and Parameter Check", "[Core][FindEuclideanDistMapFilter]")
 {
   // Instantiate the filter, a DataStructure object and an Arguments Object
   FindEuclideanDistMapFilter filter;

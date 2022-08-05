@@ -32,7 +32,7 @@
 
 using namespace complex;
 
-TEST_CASE("OrientationAnalysis::FindSchmidsFilter: Instantiation and Parameter Check", "[OrientationAnalysis][FindSchmidsFilter][.][UNIMPLEMENTED][!mayfail]")
+TEST_CASE("OrientationAnalysis::FindSchmidsFilter: Instantiation and Parameter Check", "[OrientationAnalysis][FindSchmidsFilter]")
 {
   // Instantiate the filter, a DataStructure object and an Arguments Object
   FindSchmidsFilter filter;
