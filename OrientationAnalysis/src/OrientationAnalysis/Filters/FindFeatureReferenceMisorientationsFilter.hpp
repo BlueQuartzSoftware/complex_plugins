@@ -8,20 +8,20 @@
 namespace complex
 {
 /**
- * @class FindFeatureReferenceMisorientations
+ * @class FindFeatureReferenceMisorientationsFilter
  * @brief This filter will ....
  */
-class ORIENTATIONANALYSIS_EXPORT FindFeatureReferenceMisorientations : public IFilter
+class ORIENTATIONANALYSIS_EXPORT FindFeatureReferenceMisorientationsFilter : public IFilter
 {
 public:
-  FindFeatureReferenceMisorientations() = default;
-  ~FindFeatureReferenceMisorientations() noexcept override = default;
+  FindFeatureReferenceMisorientationsFilter() = default;
+  ~FindFeatureReferenceMisorientationsFilter() noexcept override = default;
 
-  FindFeatureReferenceMisorientations(const FindFeatureReferenceMisorientations&) = delete;
-  FindFeatureReferenceMisorientations(FindFeatureReferenceMisorientations&&) noexcept = delete;
+  FindFeatureReferenceMisorientationsFilter(const FindFeatureReferenceMisorientationsFilter&) = delete;
+  FindFeatureReferenceMisorientationsFilter(FindFeatureReferenceMisorientationsFilter&&) noexcept = delete;
 
-  FindFeatureReferenceMisorientations& operator=(const FindFeatureReferenceMisorientations&) = delete;
-  FindFeatureReferenceMisorientations& operator=(FindFeatureReferenceMisorientations&&) noexcept = delete;
+  FindFeatureReferenceMisorientationsFilter& operator=(const FindFeatureReferenceMisorientationsFilter&) = delete;
+  FindFeatureReferenceMisorientationsFilter& operator=(FindFeatureReferenceMisorientationsFilter&&) noexcept = delete;
 
   // Parameter Keys
   static inline constexpr StringLiteral k_ReferenceOrientation_Key = "ReferenceOrientation";
@@ -100,4 +100,5 @@ protected:
 };
 } // namespace complex
 
-COMPLEX_DEF_FILTER_TRAITS(complex, FindFeatureReferenceMisorientations, "24b54daf-3bf5-4331-93f6-03a49f719bf1");
+COMPLEX_DEF_FILTER_TRAITS(complex, FindFeatureReferenceMisorientationsFilter, "24b54daf-3bf5-4331-93f6-03a49f719bf1");
+

@@ -1,80 +1,83 @@
-#include "FindFeatureReferenceMisorientations.hpp"
+#include "FindSchmidsFilter.hpp"
 
 #include "complex/DataStructure/DataPath.hpp"
 #include "complex/Parameters/ArrayCreationParameter.hpp"
 #include "complex/Parameters/ArraySelectionParameter.hpp"
-#include "complex/Parameters/ChoicesParameter.hpp"
+#include "complex/Parameters/BoolParameter.hpp"
+#include "complex/Parameters/VectorParameter.hpp"
 
 using namespace complex;
 
 namespace complex
 {
 //------------------------------------------------------------------------------
-std::string FindFeatureReferenceMisorientations::name() const
+std::string FindSchmidsFilter::name() const
 {
-  return FilterTraits<FindFeatureReferenceMisorientations>::name.str();
+  return FilterTraits<FindSchmidsFilter>::name.str();
 }
 
 //------------------------------------------------------------------------------
-std::string FindFeatureReferenceMisorientations::className() const
+std::string FindSchmidsFilter::className() const
 {
-  return FilterTraits<FindFeatureReferenceMisorientations>::className;
+  return FilterTraits<FindSchmidsFilter>::className;
 }
 
 //------------------------------------------------------------------------------
-Uuid FindFeatureReferenceMisorientations::uuid() const
+Uuid FindSchmidsFilter::uuid() const
 {
-  return FilterTraits<FindFeatureReferenceMisorientations>::uuid;
+  return FilterTraits<FindSchmidsFilter>::uuid;
 }
 
 //------------------------------------------------------------------------------
-std::string FindFeatureReferenceMisorientations::humanName() const
+std::string FindSchmidsFilter::humanName() const
 {
-  return "Find Feature Reference Misorientations";
+  return "Find Schmid Factors";
 }
 
 //------------------------------------------------------------------------------
-std::vector<std::string> FindFeatureReferenceMisorientations::defaultTags() const
+std::vector<std::string> FindSchmidsFilter::defaultTags() const
 {
   return {"#Statistics", "#Crystallography"};
 }
 
 //------------------------------------------------------------------------------
-Parameters FindFeatureReferenceMisorientations::parameters() const
+Parameters FindSchmidsFilter::parameters() const
 {
   Parameters params;
   // Create the parameter descriptors that are needed for this filter
-  params.insertLinkableParameter(
-      std::make_unique<ChoicesParameter>(k_ReferenceOrientation_Key, "Reference Orientation", "", 0, ChoicesParameter::Choices{"Average Orientation", "Orientation at Feature Centroid"}));
-  params.insertSeparator(Parameters::Separator{"Cell Data"});
-  params.insert(std::make_unique<ArraySelectionParameter>(k_FeatureIdsArrayPath_Key, "Feature Ids", "", DataPath({"FeatureIds"}), ArraySelectionParameter::AllowedTypes{DataType::int32}));
-  params.insert(std::make_unique<ArraySelectionParameter>(k_CellPhasesArrayPath_Key, "Cell Phases", "", DataPath({"Phases"}), ArraySelectionParameter::AllowedTypes{DataType::int32}));
-  params.insert(std::make_unique<ArraySelectionParameter>(k_QuatsArrayPath_Key, "Quaternions", "", DataPath{}, ArraySelectionParameter::AllowedTypes{}));
-  params.insert(std::make_unique<ArraySelectionParameter>(k_GBEuclideanDistancesArrayPath_Key, "Boundary Euclidean Distances", "", DataPath{}, ArraySelectionParameter::AllowedTypes{}));
-  params.insertSeparator(Parameters::Separator{"Cell Feature Data"});
+  params.insert(std::make_unique<VectorFloat32Parameter>(k_LoadingDirection_Key, "Loading Direction", "", std::vector<float32>(3), std::vector<std::string>(3)));
+  params.insertLinkableParameter(std::make_unique<BoolParameter>(k_StoreAngleComponents_Key, "Store Angle Components of Schmid Factor", "", false));
+  params.insertLinkableParameter(std::make_unique<BoolParameter>(k_OverrideSystem_Key, "Override Default Slip System", "", false));
+  params.insert(std::make_unique<VectorFloat32Parameter>(k_SlipPlane_Key, "Slip Plane", "", std::vector<float32>(3), std::vector<std::string>(3)));
+  params.insert(std::make_unique<VectorFloat32Parameter>(k_SlipDirection_Key, "Slip Direction", "", std::vector<float32>(3), std::vector<std::string>(3)));
+  params.insertSeparator(Parameters::Separator{"Feature Data"});
+  params.insert(std::make_unique<ArraySelectionParameter>(k_FeaturePhasesArrayPath_Key, "Phases", "", DataPath{}, ArraySelectionParameter::AllowedTypes{}));
   params.insert(std::make_unique<ArraySelectionParameter>(k_AvgQuatsArrayPath_Key, "Average Quaternions", "", DataPath{}, ArraySelectionParameter::AllowedTypes{}));
-  params.insertSeparator(Parameters::Separator{"Cell Ensemble Data"});
+  params.insertSeparator(Parameters::Separator{"Ensemble Data"});
   params.insert(std::make_unique<ArraySelectionParameter>(k_CrystalStructuresArrayPath_Key, "Crystal Structures", "", DataPath{}, ArraySelectionParameter::AllowedTypes{}));
-  params.insertSeparator(Parameters::Separator{"Cell Data"});
-  params.insert(std::make_unique<ArrayCreationParameter>(k_FeatureReferenceMisorientationsArrayName_Key, "Feature Reference Misorientations", "", DataPath{}));
-  params.insertSeparator(Parameters::Separator{"Cell Feature Data"});
-  params.insert(std::make_unique<ArrayCreationParameter>(k_FeatureAvgMisorientationsArrayName_Key, "Average Misorientations", "", DataPath{}));
+  params.insertSeparator(Parameters::Separator{"Feature Data"});
+  params.insert(std::make_unique<ArrayCreationParameter>(k_SchmidsArrayName_Key, "Schmids", "", DataPath{}));
+  params.insert(std::make_unique<ArrayCreationParameter>(k_SlipSystemsArrayName_Key, "Slip Systems", "", DataPath{}));
+  params.insert(std::make_unique<ArrayCreationParameter>(k_PolesArrayName_Key, "Poles", "", DataPath{}));
+  params.insert(std::make_unique<ArrayCreationParameter>(k_PhisArrayName_Key, "Phis", "", DataPath{}));
+  params.insert(std::make_unique<ArrayCreationParameter>(k_LambdasArrayName_Key, "Lambdas", "", DataPath{}));
   // Associate the Linkable Parameter(s) to the children parameters that they control
-  params.linkParameters(k_ReferenceOrientation_Key, k_GBEuclideanDistancesArrayPath_Key, 1);
-  params.linkParameters(k_ReferenceOrientation_Key, k_AvgQuatsArrayPath_Key, 0);
+  params.linkParameters(k_StoreAngleComponents_Key, k_PhisArrayName_Key, true);
+  params.linkParameters(k_StoreAngleComponents_Key, k_LambdasArrayName_Key, true);
+  params.linkParameters(k_OverrideSystem_Key, k_SlipPlane_Key, true);
+  params.linkParameters(k_OverrideSystem_Key, k_SlipDirection_Key, true);
 
   return params;
 }
 
 //------------------------------------------------------------------------------
-IFilter::UniquePointer FindFeatureReferenceMisorientations::clone() const
+IFilter::UniquePointer FindSchmidsFilter::clone() const
 {
-  return std::make_unique<FindFeatureReferenceMisorientations>();
+  return std::make_unique<FindSchmidsFilter>();
 }
 
 //------------------------------------------------------------------------------
-IFilter::PreflightResult FindFeatureReferenceMisorientations::preflightImpl(const DataStructure& dataStructure, const Arguments& filterArgs, const MessageHandler& messageHandler,
-                                                                            const std::atomic_bool& shouldCancel) const
+IFilter::PreflightResult FindSchmidsFilter::preflightImpl(const DataStructure& dataStructure, const Arguments& filterArgs, const MessageHandler& messageHandler, const std::atomic_bool& shouldCancel) const
 {
   /****************************************************************************
    * Write any preflight sanity checking codes in this function
@@ -85,15 +88,19 @@ IFilter::PreflightResult FindFeatureReferenceMisorientations::preflightImpl(cons
    * otherwise passed into the filter. These are here for your convenience. If you
    * do not need some of them remove them.
    */
-  auto pReferenceOrientationValue = filterArgs.value<ChoicesParameter::ValueType>(k_ReferenceOrientation_Key);
-  auto pFeatureIdsArrayPathValue = filterArgs.value<DataPath>(k_FeatureIdsArrayPath_Key);
-  auto pCellPhasesArrayPathValue = filterArgs.value<DataPath>(k_CellPhasesArrayPath_Key);
-  auto pQuatsArrayPathValue = filterArgs.value<DataPath>(k_QuatsArrayPath_Key);
-  auto pGBEuclideanDistancesArrayPathValue = filterArgs.value<DataPath>(k_GBEuclideanDistancesArrayPath_Key);
+  auto pLoadingDirectionValue = filterArgs.value<VectorFloat32Parameter::ValueType>(k_LoadingDirection_Key);
+  auto pStoreAngleComponentsValue = filterArgs.value<bool>(k_StoreAngleComponents_Key);
+  auto pOverrideSystemValue = filterArgs.value<bool>(k_OverrideSystem_Key);
+  auto pSlipPlaneValue = filterArgs.value<VectorFloat32Parameter::ValueType>(k_SlipPlane_Key);
+  auto pSlipDirectionValue = filterArgs.value<VectorFloat32Parameter::ValueType>(k_SlipDirection_Key);
+  auto pFeaturePhasesArrayPathValue = filterArgs.value<DataPath>(k_FeaturePhasesArrayPath_Key);
   auto pAvgQuatsArrayPathValue = filterArgs.value<DataPath>(k_AvgQuatsArrayPath_Key);
   auto pCrystalStructuresArrayPathValue = filterArgs.value<DataPath>(k_CrystalStructuresArrayPath_Key);
-  auto pFeatureReferenceMisorientationsArrayNameValue = filterArgs.value<DataPath>(k_FeatureReferenceMisorientationsArrayName_Key);
-  auto pFeatureAvgMisorientationsArrayNameValue = filterArgs.value<DataPath>(k_FeatureAvgMisorientationsArrayName_Key);
+  auto pSchmidsArrayNameValue = filterArgs.value<DataPath>(k_SchmidsArrayName_Key);
+  auto pSlipSystemsArrayNameValue = filterArgs.value<DataPath>(k_SlipSystemsArrayName_Key);
+  auto pPolesArrayNameValue = filterArgs.value<DataPath>(k_PolesArrayName_Key);
+  auto pPhisArrayNameValue = filterArgs.value<DataPath>(k_PhisArrayName_Key);
+  auto pLambdasArrayNameValue = filterArgs.value<DataPath>(k_LambdasArrayName_Key);
 
   // Declare the preflightResult variable that will be populated with the results
   // of the preflight. The PreflightResult type contains the output Actions and
@@ -138,21 +145,25 @@ IFilter::PreflightResult FindFeatureReferenceMisorientations::preflightImpl(cons
 }
 
 //------------------------------------------------------------------------------
-Result<> FindFeatureReferenceMisorientations::executeImpl(DataStructure& dataStructure, const Arguments& filterArgs, const PipelineFilter* pipelineNode, const MessageHandler& messageHandler,
-                                                          const std::atomic_bool& shouldCancel) const
+Result<> FindSchmidsFilter::executeImpl(DataStructure& dataStructure, const Arguments& filterArgs, const PipelineFilter* pipelineNode, const MessageHandler& messageHandler,
+                                  const std::atomic_bool& shouldCancel) const
 {
   /****************************************************************************
    * Extract the actual input values from the 'filterArgs' object
    ***************************************************************************/
-  auto pReferenceOrientationValue = filterArgs.value<ChoicesParameter::ValueType>(k_ReferenceOrientation_Key);
-  auto pFeatureIdsArrayPathValue = filterArgs.value<DataPath>(k_FeatureIdsArrayPath_Key);
-  auto pCellPhasesArrayPathValue = filterArgs.value<DataPath>(k_CellPhasesArrayPath_Key);
-  auto pQuatsArrayPathValue = filterArgs.value<DataPath>(k_QuatsArrayPath_Key);
-  auto pGBEuclideanDistancesArrayPathValue = filterArgs.value<DataPath>(k_GBEuclideanDistancesArrayPath_Key);
+  auto pLoadingDirectionValue = filterArgs.value<VectorFloat32Parameter::ValueType>(k_LoadingDirection_Key);
+  auto pStoreAngleComponentsValue = filterArgs.value<bool>(k_StoreAngleComponents_Key);
+  auto pOverrideSystemValue = filterArgs.value<bool>(k_OverrideSystem_Key);
+  auto pSlipPlaneValue = filterArgs.value<VectorFloat32Parameter::ValueType>(k_SlipPlane_Key);
+  auto pSlipDirectionValue = filterArgs.value<VectorFloat32Parameter::ValueType>(k_SlipDirection_Key);
+  auto pFeaturePhasesArrayPathValue = filterArgs.value<DataPath>(k_FeaturePhasesArrayPath_Key);
   auto pAvgQuatsArrayPathValue = filterArgs.value<DataPath>(k_AvgQuatsArrayPath_Key);
   auto pCrystalStructuresArrayPathValue = filterArgs.value<DataPath>(k_CrystalStructuresArrayPath_Key);
-  auto pFeatureReferenceMisorientationsArrayNameValue = filterArgs.value<DataPath>(k_FeatureReferenceMisorientationsArrayName_Key);
-  auto pFeatureAvgMisorientationsArrayNameValue = filterArgs.value<DataPath>(k_FeatureAvgMisorientationsArrayName_Key);
+  auto pSchmidsArrayNameValue = filterArgs.value<DataPath>(k_SchmidsArrayName_Key);
+  auto pSlipSystemsArrayNameValue = filterArgs.value<DataPath>(k_SlipSystemsArrayName_Key);
+  auto pPolesArrayNameValue = filterArgs.value<DataPath>(k_PolesArrayName_Key);
+  auto pPhisArrayNameValue = filterArgs.value<DataPath>(k_PhisArrayName_Key);
+  auto pLambdasArrayNameValue = filterArgs.value<DataPath>(k_LambdasArrayName_Key);
 
   /****************************************************************************
    * Write your algorithm implementation in this function

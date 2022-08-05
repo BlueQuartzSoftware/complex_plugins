@@ -8,20 +8,20 @@
 namespace complex
 {
 /**
- * @class FindMisorientations
+ * @class FindMisorientationsFilter
  * @brief This filter will ....
  */
-class ORIENTATIONANALYSIS_EXPORT FindMisorientations : public IFilter
+class ORIENTATIONANALYSIS_EXPORT FindMisorientationsFilter : public IFilter
 {
 public:
-  FindMisorientations() = default;
-  ~FindMisorientations() noexcept override = default;
+  FindMisorientationsFilter() = default;
+  ~FindMisorientationsFilter() noexcept override = default;
 
-  FindMisorientations(const FindMisorientations&) = delete;
-  FindMisorientations(FindMisorientations&&) noexcept = delete;
+  FindMisorientationsFilter(const FindMisorientationsFilter&) = delete;
+  FindMisorientationsFilter(FindMisorientationsFilter&&) noexcept = delete;
 
-  FindMisorientations& operator=(const FindMisorientations&) = delete;
-  FindMisorientations& operator=(FindMisorientations&&) noexcept = delete;
+  FindMisorientationsFilter& operator=(const FindMisorientationsFilter&) = delete;
+  FindMisorientationsFilter& operator=(FindMisorientationsFilter&&) noexcept = delete;
 
   // Parameter Keys
   static inline constexpr StringLiteral k_FindAvgMisors_Key = "FindAvgMisors";
@@ -98,4 +98,4 @@ protected:
 };
 } // namespace complex
 
-COMPLEX_DEF_FILTER_TRAITS(complex, FindMisorientations, "0b68fe25-b5ef-4805-ae32-20acb8d4e823");
+COMPLEX_DEF_FILTER_TRAITS(complex, FindMisorientationsFilter, "0b68fe25-b5ef-4805-ae32-20acb8d4e823");

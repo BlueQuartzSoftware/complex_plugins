@@ -8,28 +8,35 @@
 namespace complex
 {
 /**
- * @class FindKernelAvgMisorientations
+ * @class FindSchmidsFilter
  * @brief This filter will ....
  */
-class ORIENTATIONANALYSIS_EXPORT FindKernelAvgMisorientations : public IFilter
+class ORIENTATIONANALYSIS_EXPORT FindSchmidsFilter : public IFilter
 {
 public:
-  FindKernelAvgMisorientations() = default;
-  ~FindKernelAvgMisorientations() noexcept override = default;
+  FindSchmidsFilter() = default;
+  ~FindSchmidsFilter() noexcept override = default;
 
-  FindKernelAvgMisorientations(const FindKernelAvgMisorientations&) = delete;
-  FindKernelAvgMisorientations(FindKernelAvgMisorientations&&) noexcept = delete;
+  FindSchmidsFilter(const FindSchmidsFilter&) = delete;
+  FindSchmidsFilter(FindSchmidsFilter&&) noexcept = delete;
 
-  FindKernelAvgMisorientations& operator=(const FindKernelAvgMisorientations&) = delete;
-  FindKernelAvgMisorientations& operator=(FindKernelAvgMisorientations&&) noexcept = delete;
+  FindSchmidsFilter& operator=(const FindSchmidsFilter&) = delete;
+  FindSchmidsFilter& operator=(FindSchmidsFilter&&) noexcept = delete;
 
   // Parameter Keys
-  static inline constexpr StringLiteral k_KernelSize_Key = "KernelSize";
-  static inline constexpr StringLiteral k_FeatureIdsArrayPath_Key = "FeatureIdsArrayPath";
-  static inline constexpr StringLiteral k_CellPhasesArrayPath_Key = "CellPhasesArrayPath";
-  static inline constexpr StringLiteral k_QuatsArrayPath_Key = "QuatsArrayPath";
+  static inline constexpr StringLiteral k_LoadingDirection_Key = "LoadingDirection";
+  static inline constexpr StringLiteral k_StoreAngleComponents_Key = "StoreAngleComponents";
+  static inline constexpr StringLiteral k_OverrideSystem_Key = "OverrideSystem";
+  static inline constexpr StringLiteral k_SlipPlane_Key = "SlipPlane";
+  static inline constexpr StringLiteral k_SlipDirection_Key = "SlipDirection";
+  static inline constexpr StringLiteral k_FeaturePhasesArrayPath_Key = "FeaturePhasesArrayPath";
+  static inline constexpr StringLiteral k_AvgQuatsArrayPath_Key = "AvgQuatsArrayPath";
   static inline constexpr StringLiteral k_CrystalStructuresArrayPath_Key = "CrystalStructuresArrayPath";
-  static inline constexpr StringLiteral k_KernelAverageMisorientationsArrayName_Key = "KernelAverageMisorientationsArrayName";
+  static inline constexpr StringLiteral k_SchmidsArrayName_Key = "SchmidsArrayName";
+  static inline constexpr StringLiteral k_SlipSystemsArrayName_Key = "SlipSystemsArrayName";
+  static inline constexpr StringLiteral k_PolesArrayName_Key = "PolesArrayName";
+  static inline constexpr StringLiteral k_PhisArrayName_Key = "PhisArrayName";
+  static inline constexpr StringLiteral k_LambdasArrayName_Key = "LambdasArrayName";
 
   /**
    * @brief Returns the name of the filter.
@@ -97,4 +104,4 @@ protected:
 };
 } // namespace complex
 
-COMPLEX_DEF_FILTER_TRAITS(complex, FindKernelAvgMisorientations, "61cfc9c1-aa0e-452b-b9ef-d3b9e6268035");
+COMPLEX_DEF_FILTER_TRAITS(complex, FindSchmidsFilter, "b4681855-0a3d-4237-97f2-5aec509115c4");
