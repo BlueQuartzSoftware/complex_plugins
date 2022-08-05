@@ -6,6 +6,8 @@
 #include "complex/Parameters/BoolParameter.hpp"
 #include "complex/Parameters/VectorParameter.hpp"
 
+#include "OrientationAnalysis/Filters/Algorithms/FindSchmids.hpp"
+
 using namespace complex;
 
 namespace complex
@@ -148,27 +150,22 @@ IFilter::PreflightResult FindSchmidsFilter::preflightImpl(const DataStructure& d
 Result<> FindSchmidsFilter::executeImpl(DataStructure& dataStructure, const Arguments& filterArgs, const PipelineFilter* pipelineNode, const MessageHandler& messageHandler,
                                   const std::atomic_bool& shouldCancel) const
 {
-  /****************************************************************************
-   * Extract the actual input values from the 'filterArgs' object
-   ***************************************************************************/
-  auto pLoadingDirectionValue = filterArgs.value<VectorFloat32Parameter::ValueType>(k_LoadingDirection_Key);
-  auto pStoreAngleComponentsValue = filterArgs.value<bool>(k_StoreAngleComponents_Key);
-  auto pOverrideSystemValue = filterArgs.value<bool>(k_OverrideSystem_Key);
-  auto pSlipPlaneValue = filterArgs.value<VectorFloat32Parameter::ValueType>(k_SlipPlane_Key);
-  auto pSlipDirectionValue = filterArgs.value<VectorFloat32Parameter::ValueType>(k_SlipDirection_Key);
-  auto pFeaturePhasesArrayPathValue = filterArgs.value<DataPath>(k_FeaturePhasesArrayPath_Key);
-  auto pAvgQuatsArrayPathValue = filterArgs.value<DataPath>(k_AvgQuatsArrayPath_Key);
-  auto pCrystalStructuresArrayPathValue = filterArgs.value<DataPath>(k_CrystalStructuresArrayPath_Key);
-  auto pSchmidsArrayNameValue = filterArgs.value<DataPath>(k_SchmidsArrayName_Key);
-  auto pSlipSystemsArrayNameValue = filterArgs.value<DataPath>(k_SlipSystemsArrayName_Key);
-  auto pPolesArrayNameValue = filterArgs.value<DataPath>(k_PolesArrayName_Key);
-  auto pPhisArrayNameValue = filterArgs.value<DataPath>(k_PhisArrayName_Key);
-  auto pLambdasArrayNameValue = filterArgs.value<DataPath>(k_LambdasArrayName_Key);
+  FindSchmidsInputValues inputValues;
 
-  /****************************************************************************
-   * Write your algorithm implementation in this function
-   ***************************************************************************/
+  inputValues.LoadingDirection = filterArgs.value<VectorFloat32Parameter::ValueType>(k_LoadingDirection_Key);
+  inputValues.StoreAngleComponents = filterArgs.value<bool>(k_StoreAngleComponents_Key);
+  inputValues.OverrideSystem = filterArgs.value<bool>(k_OverrideSystem_Key);
+  inputValues.SlipPlane = filterArgs.value<VectorFloat32Parameter::ValueType>(k_SlipPlane_Key);
+  inputValues.SlipDirection = filterArgs.value<VectorFloat32Parameter::ValueType>(k_SlipDirection_Key);
+  inputValues.FeaturePhasesArrayPath = filterArgs.value<DataPath>(k_FeaturePhasesArrayPath_Key);
+  inputValues.AvgQuatsArrayPath = filterArgs.value<DataPath>(k_AvgQuatsArrayPath_Key);
+  inputValues.CrystalStructuresArrayPath = filterArgs.value<DataPath>(k_CrystalStructuresArrayPath_Key);
+  inputValues.SchmidsArrayName = filterArgs.value<DataPath>(k_SchmidsArrayName_Key);
+  inputValues.SlipSystemsArrayName = filterArgs.value<DataPath>(k_SlipSystemsArrayName_Key);
+  inputValues.PolesArrayName = filterArgs.value<DataPath>(k_PolesArrayName_Key);
+  inputValues.PhisArrayName = filterArgs.value<DataPath>(k_PhisArrayName_Key);
+  inputValues.LambdasArrayName = filterArgs.value<DataPath>(k_LambdasArrayName_Key);
 
-  return {};
+  return FindSchmids(dataStructure, messageHandler, shouldCancel, &inputValues)();
 }
 } // namespace complex

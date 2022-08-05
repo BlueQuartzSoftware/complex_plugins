@@ -5,6 +5,8 @@
 #include "complex/Parameters/ArraySelectionParameter.hpp"
 #include "complex/Parameters/BoolParameter.hpp"
 
+#include "Core/Filters/Algorithms/FindEuclideanDistMap.hpp"
+
 using namespace complex;
 
 namespace complex
@@ -141,24 +143,19 @@ IFilter::PreflightResult FindEuclideanDistMapFilter::preflightImpl(const DataStr
 Result<> FindEuclideanDistMapFilter::executeImpl(DataStructure& dataStructure, const Arguments& filterArgs, const PipelineFilter* pipelineNode, const MessageHandler& messageHandler,
                                            const std::atomic_bool& shouldCancel) const
 {
-  /****************************************************************************
-   * Extract the actual input values from the 'filterArgs' object
-   ***************************************************************************/
-  auto pCalcManhattanDistValue = filterArgs.value<bool>(k_CalcManhattanDist_Key);
-  auto pDoBoundariesValue = filterArgs.value<bool>(k_DoBoundaries_Key);
-  auto pDoTripleLinesValue = filterArgs.value<bool>(k_DoTripleLines_Key);
-  auto pDoQuadPointsValue = filterArgs.value<bool>(k_DoQuadPoints_Key);
-  auto pSaveNearestNeighborsValue = filterArgs.value<bool>(k_SaveNearestNeighbors_Key);
-  auto pFeatureIdsArrayPathValue = filterArgs.value<DataPath>(k_FeatureIdsArrayPath_Key);
-  auto pGBDistancesArrayNameValue = filterArgs.value<DataPath>(k_GBDistancesArrayName_Key);
-  auto pTJDistancesArrayNameValue = filterArgs.value<DataPath>(k_TJDistancesArrayName_Key);
-  auto pQPDistancesArrayNameValue = filterArgs.value<DataPath>(k_QPDistancesArrayName_Key);
-  auto pNearestNeighborsArrayNameValue = filterArgs.value<DataPath>(k_NearestNeighborsArrayName_Key);
+  FindEuclideanDistMapInputValues inputValues;
 
-  /****************************************************************************
-   * Write your algorithm implementation in this function
-   ***************************************************************************/
+  inputValues.CalcManhattanDist = filterArgs.value<bool>(k_CalcManhattanDist_Key);
+  inputValues.DoBoundaries = filterArgs.value<bool>(k_DoBoundaries_Key);
+  inputValues.DoTripleLines = filterArgs.value<bool>(k_DoTripleLines_Key);
+  inputValues.DoQuadPoints = filterArgs.value<bool>(k_DoQuadPoints_Key);
+  inputValues.SaveNearestNeighbors = filterArgs.value<bool>(k_SaveNearestNeighbors_Key);
+  inputValues.FeatureIdsArrayPath = filterArgs.value<DataPath>(k_FeatureIdsArrayPath_Key);
+  inputValues.GBDistancesArrayName = filterArgs.value<DataPath>(k_GBDistancesArrayName_Key);
+  inputValues.TJDistancesArrayName = filterArgs.value<DataPath>(k_TJDistancesArrayName_Key);
+  inputValues.QPDistancesArrayName = filterArgs.value<DataPath>(k_QPDistancesArrayName_Key);
+  inputValues.NearestNeighborsArrayName = filterArgs.value<DataPath>(k_NearestNeighborsArrayName_Key);
 
-  return {};
+  return FindEuclideanDistMap(dataStructure, messageHandler, shouldCancel, &inputValues)();
 }
 } // namespace complex
