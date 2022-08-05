@@ -5,6 +5,9 @@
 #include "complex/Parameters/ArraySelectionParameter.hpp"
 #include "complex/Parameters/NumberParameter.hpp"
 
+#include "Core/Filters/Algorithms/FindNeighborhoods.hpp"
+
+
 using namespace complex;
 
 namespace complex
@@ -128,20 +131,15 @@ IFilter::PreflightResult FindNeighborhoodsFilter::preflightImpl(const DataStruct
 Result<> FindNeighborhoodsFilter::executeImpl(DataStructure& dataStructure, const Arguments& filterArgs, const PipelineFilter* pipelineNode, const MessageHandler& messageHandler,
                                         const std::atomic_bool& shouldCancel) const
 {
-  /****************************************************************************
-   * Extract the actual input values from the 'filterArgs' object
-   ***************************************************************************/
-  auto pMultiplesOfAverageValue = filterArgs.value<float32>(k_MultiplesOfAverage_Key);
-  auto pEquivalentDiametersArrayPathValue = filterArgs.value<DataPath>(k_EquivalentDiametersArrayPath_Key);
-  auto pFeaturePhasesArrayPathValue = filterArgs.value<DataPath>(k_FeaturePhasesArrayPath_Key);
-  auto pCentroidsArrayPathValue = filterArgs.value<DataPath>(k_CentroidsArrayPath_Key);
-  auto pNeighborhoodsArrayNameValue = filterArgs.value<DataPath>(k_NeighborhoodsArrayName_Key);
-  auto pNeighborhoodListArrayNameValue = filterArgs.value<DataPath>(k_NeighborhoodListArrayName_Key);
+  FindNeighborhoodsInputValues inputValues;
 
-  /****************************************************************************
-   * Write your algorithm implementation in this function
-   ***************************************************************************/
+  inputValues.MultiplesOfAverage = filterArgs.value<float32>(k_MultiplesOfAverage_Key);
+  inputValues.EquivalentDiametersArrayPath = filterArgs.value<DataPath>(k_EquivalentDiametersArrayPath_Key);
+  inputValues.FeaturePhasesArrayPath = filterArgs.value<DataPath>(k_FeaturePhasesArrayPath_Key);
+  inputValues.CentroidsArrayPath = filterArgs.value<DataPath>(k_CentroidsArrayPath_Key);
+  inputValues.NeighborhoodsArrayName = filterArgs.value<DataPath>(k_NeighborhoodsArrayName_Key);
+  inputValues.NeighborhoodListArrayName = filterArgs.value<DataPath>(k_NeighborhoodListArrayName_Key);
 
-  return {};
+  return FindNeighborhoods(dataStructure, messageHandler, shouldCancel, &inputValues)();
 }
 } // namespace complex

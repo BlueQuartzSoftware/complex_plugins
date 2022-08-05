@@ -5,6 +5,8 @@
 #include "complex/Parameters/ArraySelectionParameter.hpp"
 #include "complex/Parameters/BoolParameter.hpp"
 
+#include "Core/Filters/Algorithms/FindSurfaceAreaToVolume.hpp"
+
 using namespace complex;
 
 namespace complex
@@ -129,19 +131,14 @@ IFilter::PreflightResult FindSurfaceAreaToVolumeFilter::preflightImpl(const Data
 Result<> FindSurfaceAreaToVolumeFilter::executeImpl(DataStructure& dataStructure, const Arguments& filterArgs, const PipelineFilter* pipelineNode, const MessageHandler& messageHandler,
                                               const std::atomic_bool& shouldCancel) const
 {
-  /****************************************************************************
-   * Extract the actual input values from the 'filterArgs' object
-   ***************************************************************************/
-  auto pFeatureIdsArrayPathValue = filterArgs.value<DataPath>(k_FeatureIdsArrayPath_Key);
-  auto pNumCellsArrayPathValue = filterArgs.value<DataPath>(k_NumCellsArrayPath_Key);
-  auto pSurfaceAreaVolumeRatioArrayNameValue = filterArgs.value<DataPath>(k_SurfaceAreaVolumeRatioArrayName_Key);
-  auto pCalculateSphericityValue = filterArgs.value<bool>(k_CalculateSphericity_Key);
-  auto pSphericityArrayNameValue = filterArgs.value<DataPath>(k_SphericityArrayName_Key);
+  FindSurfaceAreaToVolumeInputValues inputValues;
 
-  /****************************************************************************
-   * Write your algorithm implementation in this function
-   ***************************************************************************/
+  inputValues.FeatureIdsArrayPath = filterArgs.value<DataPath>(k_FeatureIdsArrayPath_Key);
+  inputValues.NumCellsArrayPath = filterArgs.value<DataPath>(k_NumCellsArrayPath_Key);
+  inputValues.SurfaceAreaVolumeRatioArrayName = filterArgs.value<DataPath>(k_SurfaceAreaVolumeRatioArrayName_Key);
+  inputValues.CalculateSphericity = filterArgs.value<bool>(k_CalculateSphericity_Key);
+  inputValues.SphericityArrayName = filterArgs.value<DataPath>(k_SphericityArrayName_Key);
 
-  return {};
+  return FindSurfaceAreaToVolume(dataStructure, messageHandler, shouldCancel, &inputValues)();
 }
 } // namespace complex

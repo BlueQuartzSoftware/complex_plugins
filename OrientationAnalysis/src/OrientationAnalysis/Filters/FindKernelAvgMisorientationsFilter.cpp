@@ -5,6 +5,9 @@
 #include "complex/Parameters/ArraySelectionParameter.hpp"
 #include "complex/Parameters/VectorParameter.hpp"
 
+#include "OrientationAnalysis/Filters/Algorithms/FindKernelAvgMisorientations.hpp"
+
+
 using namespace complex;
 
 namespace complex
@@ -129,20 +132,15 @@ IFilter::PreflightResult FindKernelAvgMisorientationsFilter::preflightImpl(const
 Result<> FindKernelAvgMisorientationsFilter::executeImpl(DataStructure& dataStructure, const Arguments& filterArgs, const PipelineFilter* pipelineNode, const MessageHandler& messageHandler,
                                                    const std::atomic_bool& shouldCancel) const
 {
-  /****************************************************************************
-   * Extract the actual input values from the 'filterArgs' object
-   ***************************************************************************/
-  auto pKernelSizeValue = filterArgs.value<VectorInt32Parameter::ValueType>(k_KernelSize_Key);
-  auto pFeatureIdsArrayPathValue = filterArgs.value<DataPath>(k_FeatureIdsArrayPath_Key);
-  auto pCellPhasesArrayPathValue = filterArgs.value<DataPath>(k_CellPhasesArrayPath_Key);
-  auto pQuatsArrayPathValue = filterArgs.value<DataPath>(k_QuatsArrayPath_Key);
-  auto pCrystalStructuresArrayPathValue = filterArgs.value<DataPath>(k_CrystalStructuresArrayPath_Key);
-  auto pKernelAverageMisorientationsArrayNameValue = filterArgs.value<DataPath>(k_KernelAverageMisorientationsArrayName_Key);
+  FindKernelAvgMisorientationsInputValues inputValues;
 
-  /****************************************************************************
-   * Write your algorithm implementation in this function
-   ***************************************************************************/
+  inputValues.KernelSize = filterArgs.value<VectorInt32Parameter::ValueType>(k_KernelSize_Key);
+  inputValues.FeatureIdsArrayPath = filterArgs.value<DataPath>(k_FeatureIdsArrayPath_Key);
+  inputValues.CellPhasesArrayPath = filterArgs.value<DataPath>(k_CellPhasesArrayPath_Key);
+  inputValues.QuatsArrayPath = filterArgs.value<DataPath>(k_QuatsArrayPath_Key);
+  inputValues.CrystalStructuresArrayPath = filterArgs.value<DataPath>(k_CrystalStructuresArrayPath_Key);
+  inputValues.KernelAverageMisorientationsArrayName = filterArgs.value<DataPath>(k_KernelAverageMisorientationsArrayName_Key);
 
-  return {};
+  return FindKernelAvgMisorientations(dataStructure, messageHandler, shouldCancel, &inputValues)();
 }
 } // namespace complex

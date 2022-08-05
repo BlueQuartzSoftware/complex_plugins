@@ -5,6 +5,8 @@
 #include "complex/Parameters/ArraySelectionParameter.hpp"
 #include "complex/Parameters/ChoicesParameter.hpp"
 
+#include "OrientationAnalysis/Filters/Algorithms/FindFeatureReferenceMisorientations.hpp"
+
 using namespace complex;
 
 namespace complex
@@ -141,23 +143,18 @@ IFilter::PreflightResult FindFeatureReferenceMisorientationsFilter::preflightImp
 Result<> FindFeatureReferenceMisorientationsFilter::executeImpl(DataStructure& dataStructure, const Arguments& filterArgs, const PipelineFilter* pipelineNode, const MessageHandler& messageHandler,
                                                           const std::atomic_bool& shouldCancel) const
 {
-  /****************************************************************************
-   * Extract the actual input values from the 'filterArgs' object
-   ***************************************************************************/
-  auto pReferenceOrientationValue = filterArgs.value<ChoicesParameter::ValueType>(k_ReferenceOrientation_Key);
-  auto pFeatureIdsArrayPathValue = filterArgs.value<DataPath>(k_FeatureIdsArrayPath_Key);
-  auto pCellPhasesArrayPathValue = filterArgs.value<DataPath>(k_CellPhasesArrayPath_Key);
-  auto pQuatsArrayPathValue = filterArgs.value<DataPath>(k_QuatsArrayPath_Key);
-  auto pGBEuclideanDistancesArrayPathValue = filterArgs.value<DataPath>(k_GBEuclideanDistancesArrayPath_Key);
-  auto pAvgQuatsArrayPathValue = filterArgs.value<DataPath>(k_AvgQuatsArrayPath_Key);
-  auto pCrystalStructuresArrayPathValue = filterArgs.value<DataPath>(k_CrystalStructuresArrayPath_Key);
-  auto pFeatureReferenceMisorientationsArrayNameValue = filterArgs.value<DataPath>(k_FeatureReferenceMisorientationsArrayName_Key);
-  auto pFeatureAvgMisorientationsArrayNameValue = filterArgs.value<DataPath>(k_FeatureAvgMisorientationsArrayName_Key);
+  FindFeatureReferenceMisorientationsInputValues inputValues;
 
-  /****************************************************************************
-   * Write your algorithm implementation in this function
-   ***************************************************************************/
+  inputValues.ReferenceOrientation = filterArgs.value<ChoicesParameter::ValueType>(k_ReferenceOrientation_Key);
+  inputValues.FeatureIdsArrayPath = filterArgs.value<DataPath>(k_FeatureIdsArrayPath_Key);
+  inputValues.CellPhasesArrayPath = filterArgs.value<DataPath>(k_CellPhasesArrayPath_Key);
+  inputValues.QuatsArrayPath = filterArgs.value<DataPath>(k_QuatsArrayPath_Key);
+  inputValues.GBEuclideanDistancesArrayPath = filterArgs.value<DataPath>(k_GBEuclideanDistancesArrayPath_Key);
+  inputValues.AvgQuatsArrayPath = filterArgs.value<DataPath>(k_AvgQuatsArrayPath_Key);
+  inputValues.CrystalStructuresArrayPath = filterArgs.value<DataPath>(k_CrystalStructuresArrayPath_Key);
+  inputValues.FeatureReferenceMisorientationsArrayName = filterArgs.value<DataPath>(k_FeatureReferenceMisorientationsArrayName_Key);
+  inputValues.FeatureAvgMisorientationsArrayName = filterArgs.value<DataPath>(k_FeatureAvgMisorientationsArrayName_Key);
 
-  return {};
+  return FindFeatureReferenceMisorientations(dataStructure, messageHandler, shouldCancel, &inputValues)();
 }
 } // namespace complex
