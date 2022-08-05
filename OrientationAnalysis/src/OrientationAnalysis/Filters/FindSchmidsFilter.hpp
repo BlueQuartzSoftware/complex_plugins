@@ -8,29 +8,35 @@
 namespace complex
 {
 /**
- * @class FindMisorientations
+ * @class FindSchmidsFilter
  * @brief This filter will ....
  */
-class ORIENTATIONANALYSIS_EXPORT FindMisorientations : public IFilter
+class ORIENTATIONANALYSIS_EXPORT FindSchmidsFilter : public IFilter
 {
 public:
-  FindMisorientations() = default;
-  ~FindMisorientations() noexcept override = default;
+  FindSchmidsFilter() = default;
+  ~FindSchmidsFilter() noexcept override = default;
 
-  FindMisorientations(const FindMisorientations&) = delete;
-  FindMisorientations(FindMisorientations&&) noexcept = delete;
+  FindSchmidsFilter(const FindSchmidsFilter&) = delete;
+  FindSchmidsFilter(FindSchmidsFilter&&) noexcept = delete;
 
-  FindMisorientations& operator=(const FindMisorientations&) = delete;
-  FindMisorientations& operator=(FindMisorientations&&) noexcept = delete;
+  FindSchmidsFilter& operator=(const FindSchmidsFilter&) = delete;
+  FindSchmidsFilter& operator=(FindSchmidsFilter&&) noexcept = delete;
 
   // Parameter Keys
-  static inline constexpr StringLiteral k_FindAvgMisors_Key = "FindAvgMisors";
-  static inline constexpr StringLiteral k_NeighborListArrayPath_Key = "NeighborListArrayPath";
-  static inline constexpr StringLiteral k_AvgQuatsArrayPath_Key = "AvgQuatsArrayPath";
+  static inline constexpr StringLiteral k_LoadingDirection_Key = "LoadingDirection";
+  static inline constexpr StringLiteral k_StoreAngleComponents_Key = "StoreAngleComponents";
+  static inline constexpr StringLiteral k_OverrideSystem_Key = "OverrideSystem";
+  static inline constexpr StringLiteral k_SlipPlane_Key = "SlipPlane";
+  static inline constexpr StringLiteral k_SlipDirection_Key = "SlipDirection";
   static inline constexpr StringLiteral k_FeaturePhasesArrayPath_Key = "FeaturePhasesArrayPath";
+  static inline constexpr StringLiteral k_AvgQuatsArrayPath_Key = "AvgQuatsArrayPath";
   static inline constexpr StringLiteral k_CrystalStructuresArrayPath_Key = "CrystalStructuresArrayPath";
-  static inline constexpr StringLiteral k_MisorientationListArrayName_Key = "MisorientationListArrayName";
-  static inline constexpr StringLiteral k_AvgMisorientationsArrayName_Key = "AvgMisorientationsArrayName";
+  static inline constexpr StringLiteral k_SchmidsArrayName_Key = "SchmidsArrayName";
+  static inline constexpr StringLiteral k_SlipSystemsArrayName_Key = "SlipSystemsArrayName";
+  static inline constexpr StringLiteral k_PolesArrayName_Key = "PolesArrayName";
+  static inline constexpr StringLiteral k_PhisArrayName_Key = "PhisArrayName";
+  static inline constexpr StringLiteral k_LambdasArrayName_Key = "LambdasArrayName";
 
   /**
    * @brief Returns the name of the filter.
@@ -98,4 +104,4 @@ protected:
 };
 } // namespace complex
 
-COMPLEX_DEF_FILTER_TRAITS(complex, FindMisorientations, "286dd493-4fea-54f4-b59e-459dd13bbe57");
+COMPLEX_DEF_FILTER_TRAITS(complex, FindSchmidsFilter, "e67ca06a-176f-58fc-a676-d6ee5553511a");

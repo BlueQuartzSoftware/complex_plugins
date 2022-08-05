@@ -1,78 +1,80 @@
-#include "FindNeighbors.hpp"
+#include "FindFeatureReferenceMisorientationsFilter.hpp"
 
 #include "complex/DataStructure/DataPath.hpp"
 #include "complex/Parameters/ArrayCreationParameter.hpp"
 #include "complex/Parameters/ArraySelectionParameter.hpp"
-#include "complex/Parameters/BoolParameter.hpp"
-#include "complex/Parameters/DataGroupSelectionParameter.hpp"
+#include "complex/Parameters/ChoicesParameter.hpp"
 
 using namespace complex;
 
 namespace complex
 {
 //------------------------------------------------------------------------------
-std::string FindNeighbors::name() const
+std::string FindFeatureReferenceMisorientationsFilter::name() const
 {
-  return FilterTraits<FindNeighbors>::name.str();
+  return FilterTraits<FindFeatureReferenceMisorientationsFilter>::name.str();
 }
 
 //------------------------------------------------------------------------------
-std::string FindNeighbors::className() const
+std::string FindFeatureReferenceMisorientationsFilter::className() const
 {
-  return FilterTraits<FindNeighbors>::className;
+  return FilterTraits<FindFeatureReferenceMisorientationsFilter>::className;
 }
 
 //------------------------------------------------------------------------------
-Uuid FindNeighbors::uuid() const
+Uuid FindFeatureReferenceMisorientationsFilter::uuid() const
 {
-  return FilterTraits<FindNeighbors>::uuid;
+  return FilterTraits<FindFeatureReferenceMisorientationsFilter>::uuid;
 }
 
 //------------------------------------------------------------------------------
-std::string FindNeighbors::humanName() const
+std::string FindFeatureReferenceMisorientationsFilter::humanName() const
 {
-  return "Find Feature Neighbors";
+  return "Find Feature Reference Misorientations";
 }
 
 //------------------------------------------------------------------------------
-std::vector<std::string> FindNeighbors::defaultTags() const
+std::vector<std::string> FindFeatureReferenceMisorientationsFilter::defaultTags() const
 {
-  return {"#Statistics", "#Morphological"};
+  return {"#Statistics", "#Crystallography"};
 }
 
 //------------------------------------------------------------------------------
-Parameters FindNeighbors::parameters() const
+Parameters FindFeatureReferenceMisorientationsFilter::parameters() const
 {
   Parameters params;
   // Create the parameter descriptors that are needed for this filter
-  params.insertLinkableParameter(std::make_unique<BoolParameter>(k_StoreBoundaryCells_Key, "Store Boundary Cells Array", "", false));
-  params.insertLinkableParameter(std::make_unique<BoolParameter>(k_StoreSurfaceFeatures_Key, "Store Surface Features Array", "", false));
+  params.insertLinkableParameter(
+      std::make_unique<ChoicesParameter>(k_ReferenceOrientation_Key, "Reference Orientation", "", 0, ChoicesParameter::Choices{"Average Orientation", "Orientation at Feature Centroid"}));
   params.insertSeparator(Parameters::Separator{"Cell Data"});
   params.insert(std::make_unique<ArraySelectionParameter>(k_FeatureIdsArrayPath_Key, "Feature Ids", "", DataPath({"FeatureIds"}), ArraySelectionParameter::AllowedTypes{DataType::int32}));
+  params.insert(std::make_unique<ArraySelectionParameter>(k_CellPhasesArrayPath_Key, "Cell Phases", "", DataPath({"Phases"}), ArraySelectionParameter::AllowedTypes{DataType::int32}));
+  params.insert(std::make_unique<ArraySelectionParameter>(k_QuatsArrayPath_Key, "Quaternions", "", DataPath{}, ArraySelectionParameter::AllowedTypes{}));
+  params.insert(std::make_unique<ArraySelectionParameter>(k_GBEuclideanDistancesArrayPath_Key, "Boundary Euclidean Distances", "", DataPath{}, ArraySelectionParameter::AllowedTypes{}));
   params.insertSeparator(Parameters::Separator{"Cell Feature Data"});
-  params.insert(std::make_unique<DataGroupSelectionParameter>(k_CellFeatureAttributeMatrixPath_Key, "Cell Feature Attribute Matrix", "", DataPath{}));
+  params.insert(std::make_unique<ArraySelectionParameter>(k_AvgQuatsArrayPath_Key, "Average Quaternions", "", DataPath{}, ArraySelectionParameter::AllowedTypes{}));
+  params.insertSeparator(Parameters::Separator{"Cell Ensemble Data"});
+  params.insert(std::make_unique<ArraySelectionParameter>(k_CrystalStructuresArrayPath_Key, "Crystal Structures", "", DataPath{}, ArraySelectionParameter::AllowedTypes{}));
   params.insertSeparator(Parameters::Separator{"Cell Data"});
-  params.insert(std::make_unique<ArrayCreationParameter>(k_BoundaryCellsArrayName_Key, "Boundary Cells", "", DataPath{}));
+  params.insert(std::make_unique<ArrayCreationParameter>(k_FeatureReferenceMisorientationsArrayName_Key, "Feature Reference Misorientations", "", DataPath{}));
   params.insertSeparator(Parameters::Separator{"Cell Feature Data"});
-  params.insert(std::make_unique<ArrayCreationParameter>(k_NumNeighborsArrayName_Key, "Number of Neighbors", "", DataPath{}));
-  params.insert(std::make_unique<ArrayCreationParameter>(k_NeighborListArrayName_Key, "Neighbor List", "", DataPath{}));
-  params.insert(std::make_unique<ArrayCreationParameter>(k_SharedSurfaceAreaListArrayName_Key, "Shared Surface Area List", "", DataPath{}));
-  params.insert(std::make_unique<ArrayCreationParameter>(k_SurfaceFeaturesArrayName_Key, "Surface Features", "", DataPath{}));
+  params.insert(std::make_unique<ArrayCreationParameter>(k_FeatureAvgMisorientationsArrayName_Key, "Average Misorientations", "", DataPath{}));
   // Associate the Linkable Parameter(s) to the children parameters that they control
-  params.linkParameters(k_StoreBoundaryCells_Key, k_BoundaryCellsArrayName_Key, true);
-  params.linkParameters(k_StoreSurfaceFeatures_Key, k_SurfaceFeaturesArrayName_Key, true);
+  params.linkParameters(k_ReferenceOrientation_Key, k_GBEuclideanDistancesArrayPath_Key, 1);
+  params.linkParameters(k_ReferenceOrientation_Key, k_AvgQuatsArrayPath_Key, 0);
 
   return params;
 }
 
 //------------------------------------------------------------------------------
-IFilter::UniquePointer FindNeighbors::clone() const
+IFilter::UniquePointer FindFeatureReferenceMisorientationsFilter::clone() const
 {
-  return std::make_unique<FindNeighbors>();
+  return std::make_unique<FindFeatureReferenceMisorientationsFilter>();
 }
 
 //------------------------------------------------------------------------------
-IFilter::PreflightResult FindNeighbors::preflightImpl(const DataStructure& dataStructure, const Arguments& filterArgs, const MessageHandler& messageHandler, const std::atomic_bool& shouldCancel) const
+IFilter::PreflightResult FindFeatureReferenceMisorientationsFilter::preflightImpl(const DataStructure& dataStructure, const Arguments& filterArgs, const MessageHandler& messageHandler,
+                                                                            const std::atomic_bool& shouldCancel) const
 {
   /****************************************************************************
    * Write any preflight sanity checking codes in this function
@@ -83,15 +85,15 @@ IFilter::PreflightResult FindNeighbors::preflightImpl(const DataStructure& dataS
    * otherwise passed into the filter. These are here for your convenience. If you
    * do not need some of them remove them.
    */
-  auto pStoreBoundaryCellsValue = filterArgs.value<bool>(k_StoreBoundaryCells_Key);
-  auto pStoreSurfaceFeaturesValue = filterArgs.value<bool>(k_StoreSurfaceFeatures_Key);
+  auto pReferenceOrientationValue = filterArgs.value<ChoicesParameter::ValueType>(k_ReferenceOrientation_Key);
   auto pFeatureIdsArrayPathValue = filterArgs.value<DataPath>(k_FeatureIdsArrayPath_Key);
-  auto pCellFeatureAttributeMatrixPathValue = filterArgs.value<DataPath>(k_CellFeatureAttributeMatrixPath_Key);
-  auto pBoundaryCellsArrayNameValue = filterArgs.value<DataPath>(k_BoundaryCellsArrayName_Key);
-  auto pNumNeighborsArrayNameValue = filterArgs.value<DataPath>(k_NumNeighborsArrayName_Key);
-  auto pNeighborListArrayNameValue = filterArgs.value<DataPath>(k_NeighborListArrayName_Key);
-  auto pSharedSurfaceAreaListArrayNameValue = filterArgs.value<DataPath>(k_SharedSurfaceAreaListArrayName_Key);
-  auto pSurfaceFeaturesArrayNameValue = filterArgs.value<DataPath>(k_SurfaceFeaturesArrayName_Key);
+  auto pCellPhasesArrayPathValue = filterArgs.value<DataPath>(k_CellPhasesArrayPath_Key);
+  auto pQuatsArrayPathValue = filterArgs.value<DataPath>(k_QuatsArrayPath_Key);
+  auto pGBEuclideanDistancesArrayPathValue = filterArgs.value<DataPath>(k_GBEuclideanDistancesArrayPath_Key);
+  auto pAvgQuatsArrayPathValue = filterArgs.value<DataPath>(k_AvgQuatsArrayPath_Key);
+  auto pCrystalStructuresArrayPathValue = filterArgs.value<DataPath>(k_CrystalStructuresArrayPath_Key);
+  auto pFeatureReferenceMisorientationsArrayNameValue = filterArgs.value<DataPath>(k_FeatureReferenceMisorientationsArrayName_Key);
+  auto pFeatureAvgMisorientationsArrayNameValue = filterArgs.value<DataPath>(k_FeatureAvgMisorientationsArrayName_Key);
 
   // Declare the preflightResult variable that will be populated with the results
   // of the preflight. The PreflightResult type contains the output Actions and
@@ -136,21 +138,21 @@ IFilter::PreflightResult FindNeighbors::preflightImpl(const DataStructure& dataS
 }
 
 //------------------------------------------------------------------------------
-Result<> FindNeighbors::executeImpl(DataStructure& dataStructure, const Arguments& filterArgs, const PipelineFilter* pipelineNode, const MessageHandler& messageHandler,
-                                    const std::atomic_bool& shouldCancel) const
+Result<> FindFeatureReferenceMisorientationsFilter::executeImpl(DataStructure& dataStructure, const Arguments& filterArgs, const PipelineFilter* pipelineNode, const MessageHandler& messageHandler,
+                                                          const std::atomic_bool& shouldCancel) const
 {
   /****************************************************************************
    * Extract the actual input values from the 'filterArgs' object
    ***************************************************************************/
-  auto pStoreBoundaryCellsValue = filterArgs.value<bool>(k_StoreBoundaryCells_Key);
-  auto pStoreSurfaceFeaturesValue = filterArgs.value<bool>(k_StoreSurfaceFeatures_Key);
+  auto pReferenceOrientationValue = filterArgs.value<ChoicesParameter::ValueType>(k_ReferenceOrientation_Key);
   auto pFeatureIdsArrayPathValue = filterArgs.value<DataPath>(k_FeatureIdsArrayPath_Key);
-  auto pCellFeatureAttributeMatrixPathValue = filterArgs.value<DataPath>(k_CellFeatureAttributeMatrixPath_Key);
-  auto pBoundaryCellsArrayNameValue = filterArgs.value<DataPath>(k_BoundaryCellsArrayName_Key);
-  auto pNumNeighborsArrayNameValue = filterArgs.value<DataPath>(k_NumNeighborsArrayName_Key);
-  auto pNeighborListArrayNameValue = filterArgs.value<DataPath>(k_NeighborListArrayName_Key);
-  auto pSharedSurfaceAreaListArrayNameValue = filterArgs.value<DataPath>(k_SharedSurfaceAreaListArrayName_Key);
-  auto pSurfaceFeaturesArrayNameValue = filterArgs.value<DataPath>(k_SurfaceFeaturesArrayName_Key);
+  auto pCellPhasesArrayPathValue = filterArgs.value<DataPath>(k_CellPhasesArrayPath_Key);
+  auto pQuatsArrayPathValue = filterArgs.value<DataPath>(k_QuatsArrayPath_Key);
+  auto pGBEuclideanDistancesArrayPathValue = filterArgs.value<DataPath>(k_GBEuclideanDistancesArrayPath_Key);
+  auto pAvgQuatsArrayPathValue = filterArgs.value<DataPath>(k_AvgQuatsArrayPath_Key);
+  auto pCrystalStructuresArrayPathValue = filterArgs.value<DataPath>(k_CrystalStructuresArrayPath_Key);
+  auto pFeatureReferenceMisorientationsArrayNameValue = filterArgs.value<DataPath>(k_FeatureReferenceMisorientationsArrayName_Key);
+  auto pFeatureAvgMisorientationsArrayNameValue = filterArgs.value<DataPath>(k_FeatureAvgMisorientationsArrayName_Key);
 
   /****************************************************************************
    * Write your algorithm implementation in this function

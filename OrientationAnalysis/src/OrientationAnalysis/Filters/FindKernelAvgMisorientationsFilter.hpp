@@ -1,6 +1,6 @@
 #pragma once
 
-#include "StatsToolbox/StatsToolbox_export.hpp"
+#include "OrientationAnalysis/OrientationAnalysis_export.hpp"
 
 #include "complex/Filter/FilterTraits.hpp"
 #include "complex/Filter/IFilter.hpp"
@@ -8,25 +8,28 @@
 namespace complex
 {
 /**
- * @class FindDifferenceMap
+ * @class FindKernelAvgMisorientationsFilter
  * @brief This filter will ....
  */
-class STATSTOOLBOX_EXPORT FindDifferenceMap : public IFilter
+class ORIENTATIONANALYSIS_EXPORT FindKernelAvgMisorientationsFilter : public IFilter
 {
 public:
-  FindDifferenceMap() = default;
-  ~FindDifferenceMap() noexcept override = default;
+  FindKernelAvgMisorientationsFilter() = default;
+  ~FindKernelAvgMisorientationsFilter() noexcept override = default;
 
-  FindDifferenceMap(const FindDifferenceMap&) = delete;
-  FindDifferenceMap(FindDifferenceMap&&) noexcept = delete;
+  FindKernelAvgMisorientationsFilter(const FindKernelAvgMisorientationsFilter&) = delete;
+  FindKernelAvgMisorientationsFilter(FindKernelAvgMisorientationsFilter&&) noexcept = delete;
 
-  FindDifferenceMap& operator=(const FindDifferenceMap&) = delete;
-  FindDifferenceMap& operator=(FindDifferenceMap&&) noexcept = delete;
+  FindKernelAvgMisorientationsFilter& operator=(const FindKernelAvgMisorientationsFilter&) = delete;
+  FindKernelAvgMisorientationsFilter& operator=(FindKernelAvgMisorientationsFilter&&) noexcept = delete;
 
   // Parameter Keys
-  static inline constexpr StringLiteral k_FirstInputArrayPath_Key = "FirstInputArrayPath";
-  static inline constexpr StringLiteral k_SecondInputArrayPath_Key = "SecondInputArrayPath";
-  static inline constexpr StringLiteral k_DifferenceMapArrayPath_Key = "DifferenceMapArrayPath";
+  static inline constexpr StringLiteral k_KernelSize_Key = "KernelSize";
+  static inline constexpr StringLiteral k_FeatureIdsArrayPath_Key = "FeatureIdsArrayPath";
+  static inline constexpr StringLiteral k_CellPhasesArrayPath_Key = "CellPhasesArrayPath";
+  static inline constexpr StringLiteral k_QuatsArrayPath_Key = "QuatsArrayPath";
+  static inline constexpr StringLiteral k_CrystalStructuresArrayPath_Key = "CrystalStructuresArrayPath";
+  static inline constexpr StringLiteral k_KernelAverageMisorientationsArrayName_Key = "KernelAverageMisorientationsArrayName";
 
   /**
    * @brief Returns the name of the filter.
@@ -94,4 +97,4 @@ protected:
 };
 } // namespace complex
 
-COMPLEX_DEF_FILTER_TRAITS(complex, FindDifferenceMap, "29086169-20ce-52dc-b13e-824694d759aa");
+COMPLEX_DEF_FILTER_TRAITS(complex, FindKernelAvgMisorientationsFilter, "88d332c1-cf6c-52d3-a38d-22f6eae19fa6");

@@ -1,6 +1,6 @@
 #pragma once
 
-#include "StatsToolbox/StatsToolbox_export.hpp"
+#include "OrientationAnalysis/OrientationAnalysis_export.hpp"
 
 #include "complex/Filter/FilterTraits.hpp"
 #include "complex/Filter/IFilter.hpp"
@@ -8,31 +8,31 @@
 namespace complex
 {
 /**
- * @class FindNeighbors
+ * @class FindFeatureReferenceMisorientationsFilter
  * @brief This filter will ....
  */
-class STATSTOOLBOX_EXPORT FindNeighbors : public IFilter
+class ORIENTATIONANALYSIS_EXPORT FindFeatureReferenceMisorientationsFilter : public IFilter
 {
 public:
-  FindNeighbors() = default;
-  ~FindNeighbors() noexcept override = default;
+  FindFeatureReferenceMisorientationsFilter() = default;
+  ~FindFeatureReferenceMisorientationsFilter() noexcept override = default;
 
-  FindNeighbors(const FindNeighbors&) = delete;
-  FindNeighbors(FindNeighbors&&) noexcept = delete;
+  FindFeatureReferenceMisorientationsFilter(const FindFeatureReferenceMisorientationsFilter&) = delete;
+  FindFeatureReferenceMisorientationsFilter(FindFeatureReferenceMisorientationsFilter&&) noexcept = delete;
 
-  FindNeighbors& operator=(const FindNeighbors&) = delete;
-  FindNeighbors& operator=(FindNeighbors&&) noexcept = delete;
+  FindFeatureReferenceMisorientationsFilter& operator=(const FindFeatureReferenceMisorientationsFilter&) = delete;
+  FindFeatureReferenceMisorientationsFilter& operator=(FindFeatureReferenceMisorientationsFilter&&) noexcept = delete;
 
   // Parameter Keys
-  static inline constexpr StringLiteral k_StoreBoundaryCells_Key = "StoreBoundaryCells";
-  static inline constexpr StringLiteral k_StoreSurfaceFeatures_Key = "StoreSurfaceFeatures";
+  static inline constexpr StringLiteral k_ReferenceOrientation_Key = "ReferenceOrientation";
   static inline constexpr StringLiteral k_FeatureIdsArrayPath_Key = "FeatureIdsArrayPath";
-  static inline constexpr StringLiteral k_CellFeatureAttributeMatrixPath_Key = "CellFeatureAttributeMatrixPath";
-  static inline constexpr StringLiteral k_BoundaryCellsArrayName_Key = "BoundaryCellsArrayName";
-  static inline constexpr StringLiteral k_NumNeighborsArrayName_Key = "NumNeighborsArrayName";
-  static inline constexpr StringLiteral k_NeighborListArrayName_Key = "NeighborListArrayName";
-  static inline constexpr StringLiteral k_SharedSurfaceAreaListArrayName_Key = "SharedSurfaceAreaListArrayName";
-  static inline constexpr StringLiteral k_SurfaceFeaturesArrayName_Key = "SurfaceFeaturesArrayName";
+  static inline constexpr StringLiteral k_CellPhasesArrayPath_Key = "CellPhasesArrayPath";
+  static inline constexpr StringLiteral k_QuatsArrayPath_Key = "QuatsArrayPath";
+  static inline constexpr StringLiteral k_GBEuclideanDistancesArrayPath_Key = "GBEuclideanDistancesArrayPath";
+  static inline constexpr StringLiteral k_AvgQuatsArrayPath_Key = "AvgQuatsArrayPath";
+  static inline constexpr StringLiteral k_CrystalStructuresArrayPath_Key = "CrystalStructuresArrayPath";
+  static inline constexpr StringLiteral k_FeatureReferenceMisorientationsArrayName_Key = "FeatureReferenceMisorientationsArrayName";
+  static inline constexpr StringLiteral k_FeatureAvgMisorientationsArrayName_Key = "FeatureAvgMisorientationsArrayName";
 
   /**
    * @brief Returns the name of the filter.
@@ -100,4 +100,4 @@ protected:
 };
 } // namespace complex
 
-COMPLEX_DEF_FILTER_TRAITS(complex, FindNeighbors, "97cf66f8-7a9b-5ec2-83eb-f8c4c8a17bac");
+COMPLEX_DEF_FILTER_TRAITS(complex, FindFeatureReferenceMisorientationsFilter, "428e1f5b-e6d8-5e8b-ad68-56ff14ee0e8c");

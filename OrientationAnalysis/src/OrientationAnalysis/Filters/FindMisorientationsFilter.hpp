@@ -8,28 +8,29 @@
 namespace complex
 {
 /**
- * @class FindKernelAvgMisorientations
+ * @class FindMisorientationsFilter
  * @brief This filter will ....
  */
-class ORIENTATIONANALYSIS_EXPORT FindKernelAvgMisorientations : public IFilter
+class ORIENTATIONANALYSIS_EXPORT FindMisorientationsFilter : public IFilter
 {
 public:
-  FindKernelAvgMisorientations() = default;
-  ~FindKernelAvgMisorientations() noexcept override = default;
+  FindMisorientationsFilter() = default;
+  ~FindMisorientationsFilter() noexcept override = default;
 
-  FindKernelAvgMisorientations(const FindKernelAvgMisorientations&) = delete;
-  FindKernelAvgMisorientations(FindKernelAvgMisorientations&&) noexcept = delete;
+  FindMisorientationsFilter(const FindMisorientationsFilter&) = delete;
+  FindMisorientationsFilter(FindMisorientationsFilter&&) noexcept = delete;
 
-  FindKernelAvgMisorientations& operator=(const FindKernelAvgMisorientations&) = delete;
-  FindKernelAvgMisorientations& operator=(FindKernelAvgMisorientations&&) noexcept = delete;
+  FindMisorientationsFilter& operator=(const FindMisorientationsFilter&) = delete;
+  FindMisorientationsFilter& operator=(FindMisorientationsFilter&&) noexcept = delete;
 
   // Parameter Keys
-  static inline constexpr StringLiteral k_KernelSize_Key = "KernelSize";
-  static inline constexpr StringLiteral k_FeatureIdsArrayPath_Key = "FeatureIdsArrayPath";
-  static inline constexpr StringLiteral k_CellPhasesArrayPath_Key = "CellPhasesArrayPath";
-  static inline constexpr StringLiteral k_QuatsArrayPath_Key = "QuatsArrayPath";
+  static inline constexpr StringLiteral k_FindAvgMisors_Key = "FindAvgMisors";
+  static inline constexpr StringLiteral k_NeighborListArrayPath_Key = "NeighborListArrayPath";
+  static inline constexpr StringLiteral k_AvgQuatsArrayPath_Key = "AvgQuatsArrayPath";
+  static inline constexpr StringLiteral k_FeaturePhasesArrayPath_Key = "FeaturePhasesArrayPath";
   static inline constexpr StringLiteral k_CrystalStructuresArrayPath_Key = "CrystalStructuresArrayPath";
-  static inline constexpr StringLiteral k_KernelAverageMisorientationsArrayName_Key = "KernelAverageMisorientationsArrayName";
+  static inline constexpr StringLiteral k_MisorientationListArrayName_Key = "MisorientationListArrayName";
+  static inline constexpr StringLiteral k_AvgMisorientationsArrayName_Key = "AvgMisorientationsArrayName";
 
   /**
    * @brief Returns the name of the filter.
@@ -97,4 +98,4 @@ protected:
 };
 } // namespace complex
 
-COMPLEX_DEF_FILTER_TRAITS(complex, FindKernelAvgMisorientations, "88d332c1-cf6c-52d3-a38d-22f6eae19fa6");
+COMPLEX_DEF_FILTER_TRAITS(complex, FindMisorientationsFilter, "286dd493-4fea-54f4-b59e-459dd13bbe57");

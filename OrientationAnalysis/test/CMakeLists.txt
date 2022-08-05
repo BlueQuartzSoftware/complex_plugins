@@ -1,21 +1,26 @@
-#------------------------------------------------------------------------------
+# ------------------------------------------------------------------------------
 # If there are additional library packages that need to be found, this is where
 # to do that using the usual find_package(....) call
 # find_package(....)
 
-#------------------------------------------------------------------------------
+# ------------------------------------------------------------------------------
 # Define the list of unit test source files
 set(${PLUGIN_NAME}UnitTest_SRCS
   AlignSectionsMisorientationTest.cpp
   BadDataNeighborOrientationCheckTest.cpp
   ConvertOrientationsTest.cpp
-  EBSDSegmentFeaturesFilterTest.cpp   # NEEDS TEST IMPLEMENTED
+  EBSDSegmentFeaturesFilterTest.cpp # NEEDS TEST IMPLEMENTED
   FindAvgOrientationsTest.cpp
   GenerateFZQuaternionsTest.cpp
   GenerateIPFColorsTest.cpp
   NeighborOrientationCorrelationTest.cpp
   RotateEulerRefFrameTest.cpp
   MergeTwinsTest.cpp
+
+  FindFeatureReferenceMisorientationsTest.cpp
+  FindKernelAvgMisorientationsTest.cpp
+  FindMisorientationsTest.cpp
+  FindSchmidsTest.cpp
 )
 
 set(DISABLED_TESTS
@@ -35,13 +40,9 @@ set(DISABLED_TESTS
   FindDistsToCharactGBsTest.cpp
   FindFeatureNeighborCAxisMisalignmentsTest.cpp
   FindFeatureReferenceCAxisMisorientationsTest.cpp
-  FindFeatureReferenceMisorientationsTest.cpp
   FindGBCDTest.cpp
   FindGBCDMetricBasedTest.cpp
   FindGBPDMetricBasedTest.cpp
-  FindKernelAvgMisorientationsTest.cpp
-  FindMisorientationsTest.cpp
-  FindSchmidsTest.cpp
   FindSlipTransmissionMetricsTest.cpp
   FindTwinBoundariesTest.cpp
   FindTwinBoundarySchmidFactorsTest.cpp
