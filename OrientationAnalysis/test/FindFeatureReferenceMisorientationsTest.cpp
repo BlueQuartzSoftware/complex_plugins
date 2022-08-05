@@ -30,7 +30,7 @@
 
 using namespace complex;
 
-TEST_CASE("OrientationAnalysis::FindFeatureReferenceMisorientationsFilter: Instantiation and Parameter Check", "[OrientationAnalysis][FindFeatureReferenceMisorientationsFilter][.][UNIMPLEMENTED][!mayfail]")
+TEST_CASE("OrientationAnalysis::FindFeatureReferenceMisorientationsFilter: Instantiation and Parameter Check", "[OrientationAnalysis][FindFeatureReferenceMisorientationsFilter]")
 {
   // Instantiate the filter, a DataStructure object and an Arguments Object
   FindFeatureReferenceMisorientationsFilter filter;
