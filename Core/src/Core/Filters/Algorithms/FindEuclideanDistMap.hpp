@@ -1,6 +1,6 @@
 #pragma once
 
-#include "StatsToolbox/StatsToolbox_export.hpp"
+#include "Core/Core_export.hpp"
 
 #include "complex/DataStructure/DataPath.hpp"
 #include "complex/DataStructure/DataStructure.hpp"
@@ -27,7 +27,7 @@
 namespace complex
 {
 
-struct STATSTOOLBOX_EXPORT FindEuclideanDistMapInputValues
+struct CORE_EXPORT FindEuclideanDistMapInputValues
 {
   bool CalcManhattanDist;
   bool DoBoundaries;
@@ -47,7 +47,7 @@ struct STATSTOOLBOX_EXPORT FindEuclideanDistMapInputValues
  * where a bool mask array specifies.
  */
 
-class STATSTOOLBOX_EXPORT FindEuclideanDistMap
+class CORE_EXPORT FindEuclideanDistMap
 {
 public:
   FindEuclideanDistMap(DataStructure& dataStructure, const IFilter::MessageHandler& mesgHandler, const std::atomic_bool& shouldCancel, FindEuclideanDistMapInputValues* inputValues);

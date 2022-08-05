@@ -1,6 +1,6 @@
 #pragma once
 
-#include "StatsToolbox/StatsToolbox_export.hpp"
+#include "Core/Core_export.hpp"
 
 #include "complex/DataStructure/DataPath.hpp"
 #include "complex/DataStructure/DataStructure.hpp"
@@ -22,7 +22,7 @@
 namespace complex
 {
 
-struct STATSTOOLBOX_EXPORT FindSurfaceAreaToVolumeInputValues
+struct CORE_EXPORT FindSurfaceAreaToVolumeInputValues
 {
   DataPath FeatureIdsArrayPath;
   DataPath NumCellsArrayPath;
@@ -37,7 +37,7 @@ struct STATSTOOLBOX_EXPORT FindSurfaceAreaToVolumeInputValues
  * where a bool mask array specifies.
  */
 
-class STATSTOOLBOX_EXPORT FindSurfaceAreaToVolume
+class CORE_EXPORT FindSurfaceAreaToVolume
 {
 public:
   FindSurfaceAreaToVolume(DataStructure& dataStructure, const IFilter::MessageHandler& mesgHandler, const std::atomic_bool& shouldCancel, FindSurfaceAreaToVolumeInputValues* inputValues);

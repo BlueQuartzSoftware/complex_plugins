@@ -1,6 +1,6 @@
 #pragma once
 
-#include "StatsToolbox/StatsToolbox_export.hpp"
+#include "Core/Core_export.hpp"
 
 #include "complex/Filter/FilterTraits.hpp"
 #include "complex/Filter/IFilter.hpp"
@@ -8,20 +8,20 @@
 namespace complex
 {
 /**
- * @class FindEuclideanDistMap
+ * @class FindEuclideanDistMapFilter
  * @brief This filter will ....
  */
-class STATSTOOLBOX_EXPORT FindEuclideanDistMap : public IFilter
+class CORE_EXPORT FindEuclideanDistMapFilter : public IFilter
 {
 public:
-  FindEuclideanDistMap() = default;
-  ~FindEuclideanDistMap() noexcept override = default;
+  FindEuclideanDistMapFilter() = default;
+  ~FindEuclideanDistMapFilter() noexcept override = default;
 
-  FindEuclideanDistMap(const FindEuclideanDistMap&) = delete;
-  FindEuclideanDistMap(FindEuclideanDistMap&&) noexcept = delete;
+  FindEuclideanDistMapFilter(const FindEuclideanDistMapFilter&) = delete;
+  FindEuclideanDistMapFilter(FindEuclideanDistMapFilter&&) noexcept = delete;
 
-  FindEuclideanDistMap& operator=(const FindEuclideanDistMap&) = delete;
-  FindEuclideanDistMap& operator=(FindEuclideanDistMap&&) noexcept = delete;
+  FindEuclideanDistMapFilter& operator=(const FindEuclideanDistMapFilter&) = delete;
+  FindEuclideanDistMapFilter& operator=(FindEuclideanDistMapFilter&&) noexcept = delete;
 
   // Parameter Keys
   static inline constexpr StringLiteral k_CalcManhattanDist_Key = "CalcManhattanDist";
@@ -101,4 +101,4 @@ protected:
 };
 } // namespace complex
 
-COMPLEX_DEF_FILTER_TRAITS(complex, FindEuclideanDistMap, "933e4b2d-dd61-51c3-98be-00548ba783a3");
+COMPLEX_DEF_FILTER_TRAITS(complex, FindEuclideanDistMapFilter, "933e4b2d-dd61-51c3-98be-00548ba783a3");

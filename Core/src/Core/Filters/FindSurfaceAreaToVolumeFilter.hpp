@@ -1,6 +1,6 @@
 #pragma once
 
-#include "StatsToolbox/StatsToolbox_export.hpp"
+#include "Core/Core_export.hpp"
 
 #include "complex/Filter/FilterTraits.hpp"
 #include "complex/Filter/IFilter.hpp"
@@ -8,20 +8,20 @@
 namespace complex
 {
 /**
- * @class FindSurfaceAreaToVolume
+ * @class FindSurfaceAreaToVolumeFilter
  * @brief This filter will ....
  */
-class STATSTOOLBOX_EXPORT FindSurfaceAreaToVolume : public IFilter
+class CORE_EXPORT FindSurfaceAreaToVolumeFilter : public IFilter
 {
 public:
-  FindSurfaceAreaToVolume() = default;
-  ~FindSurfaceAreaToVolume() noexcept override = default;
+  FindSurfaceAreaToVolumeFilter() = default;
+  ~FindSurfaceAreaToVolumeFilter() noexcept override = default;
 
-  FindSurfaceAreaToVolume(const FindSurfaceAreaToVolume&) = delete;
-  FindSurfaceAreaToVolume(FindSurfaceAreaToVolume&&) noexcept = delete;
+  FindSurfaceAreaToVolumeFilter(const FindSurfaceAreaToVolumeFilter&) = delete;
+  FindSurfaceAreaToVolumeFilter(FindSurfaceAreaToVolumeFilter&&) noexcept = delete;
 
-  FindSurfaceAreaToVolume& operator=(const FindSurfaceAreaToVolume&) = delete;
-  FindSurfaceAreaToVolume& operator=(FindSurfaceAreaToVolume&&) noexcept = delete;
+  FindSurfaceAreaToVolumeFilter& operator=(const FindSurfaceAreaToVolumeFilter&) = delete;
+  FindSurfaceAreaToVolumeFilter& operator=(FindSurfaceAreaToVolumeFilter&&) noexcept = delete;
 
   // Parameter Keys
   static inline constexpr StringLiteral k_FeatureIdsArrayPath_Key = "FeatureIdsArrayPath";
@@ -96,4 +96,4 @@ protected:
 };
 } // namespace complex
 
-COMPLEX_DEF_FILTER_TRAITS(complex, FindSurfaceAreaToVolume, "5d586366-6b59-566e-8de1-57aa9ae8a91c");
+COMPLEX_DEF_FILTER_TRAITS(complex, FindSurfaceAreaToVolumeFilter, "5d586366-6b59-566e-8de1-57aa9ae8a91c");

@@ -1,6 +1,6 @@
 #pragma once
 
-#include "StatsToolbox/StatsToolbox_export.hpp"
+#include "Core/Core_export.hpp"
 
 #include "complex/DataStructure/DataPath.hpp"
 #include "complex/DataStructure/DataStructure.hpp"
@@ -23,7 +23,7 @@
 namespace complex
 {
 
-struct STATSTOOLBOX_EXPORT FindNeighborhoodsInputValues
+struct CORE_EXPORT FindNeighborhoodsInputValues
 {
   float32 MultiplesOfAverage;
   DataPath EquivalentDiametersArrayPath;
@@ -39,7 +39,7 @@ struct STATSTOOLBOX_EXPORT FindNeighborhoodsInputValues
  * where a bool mask array specifies.
  */
 
-class STATSTOOLBOX_EXPORT FindNeighborhoods
+class CORE_EXPORT FindNeighborhoods
 {
 public:
   FindNeighborhoods(DataStructure& dataStructure, const IFilter::MessageHandler& mesgHandler, const std::atomic_bool& shouldCancel, FindNeighborhoodsInputValues* inputValues);

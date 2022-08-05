@@ -1,4 +1,4 @@
-#include "FindNeighborhoods.hpp"
+#include "FindNeighborhoodsFilter.hpp"
 
 #include "complex/DataStructure/DataPath.hpp"
 #include "complex/Parameters/ArrayCreationParameter.hpp"
@@ -10,37 +10,37 @@ using namespace complex;
 namespace complex
 {
 //------------------------------------------------------------------------------
-std::string FindNeighborhoods::name() const
+std::string FindNeighborhoodsFilter::name() const
 {
-  return FilterTraits<FindNeighborhoods>::name.str();
+  return FilterTraits<FindNeighborhoodsFilter>::name.str();
 }
 
 //------------------------------------------------------------------------------
-std::string FindNeighborhoods::className() const
+std::string FindNeighborhoodsFilter::className() const
 {
-  return FilterTraits<FindNeighborhoods>::className;
+  return FilterTraits<FindNeighborhoodsFilter>::className;
 }
 
 //------------------------------------------------------------------------------
-Uuid FindNeighborhoods::uuid() const
+Uuid FindNeighborhoodsFilter::uuid() const
 {
-  return FilterTraits<FindNeighborhoods>::uuid;
+  return FilterTraits<FindNeighborhoodsFilter>::uuid;
 }
 
 //------------------------------------------------------------------------------
-std::string FindNeighborhoods::humanName() const
+std::string FindNeighborhoodsFilter::humanName() const
 {
   return "Find Feature Neighborhoods";
 }
 
 //------------------------------------------------------------------------------
-std::vector<std::string> FindNeighborhoods::defaultTags() const
+std::vector<std::string> FindNeighborhoodsFilter::defaultTags() const
 {
   return {"#Statistics", "#Morphological"};
 }
 
 //------------------------------------------------------------------------------
-Parameters FindNeighborhoods::parameters() const
+Parameters FindNeighborhoodsFilter::parameters() const
 {
   Parameters params;
   // Create the parameter descriptors that are needed for this filter
@@ -57,13 +57,13 @@ Parameters FindNeighborhoods::parameters() const
 }
 
 //------------------------------------------------------------------------------
-IFilter::UniquePointer FindNeighborhoods::clone() const
+IFilter::UniquePointer FindNeighborhoodsFilter::clone() const
 {
-  return std::make_unique<FindNeighborhoods>();
+  return std::make_unique<FindNeighborhoodsFilter>();
 }
 
 //------------------------------------------------------------------------------
-IFilter::PreflightResult FindNeighborhoods::preflightImpl(const DataStructure& dataStructure, const Arguments& filterArgs, const MessageHandler& messageHandler,
+IFilter::PreflightResult FindNeighborhoodsFilter::preflightImpl(const DataStructure& dataStructure, const Arguments& filterArgs, const MessageHandler& messageHandler,
                                                           const std::atomic_bool& shouldCancel) const
 {
   /****************************************************************************
@@ -125,7 +125,7 @@ IFilter::PreflightResult FindNeighborhoods::preflightImpl(const DataStructure& d
 }
 
 //------------------------------------------------------------------------------
-Result<> FindNeighborhoods::executeImpl(DataStructure& dataStructure, const Arguments& filterArgs, const PipelineFilter* pipelineNode, const MessageHandler& messageHandler,
+Result<> FindNeighborhoodsFilter::executeImpl(DataStructure& dataStructure, const Arguments& filterArgs, const PipelineFilter* pipelineNode, const MessageHandler& messageHandler,
                                         const std::atomic_bool& shouldCancel) const
 {
   /****************************************************************************

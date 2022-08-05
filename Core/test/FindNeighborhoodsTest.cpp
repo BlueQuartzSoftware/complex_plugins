@@ -26,25 +26,25 @@
 #include "complex/Parameters/ArraySelectionParameter.hpp"
 #include "complex/Parameters/NumberParameter.hpp"
 
-#include "StatsToolbox/Filters/FindNeighborhoods.hpp"
-#include "StatsToolbox/StatsToolbox_test_dirs.hpp"
+#include "Core/Filters/FindNeighborhoodsFilter.hpp"
+#include "Core/Core_test_dirs.hpp"
 
 using namespace complex;
 
 TEST_CASE("StatsToolbox::FindNeighborhoods: Instantiation and Parameter Check", "[StatsToolbox][FindNeighborhoods][.][UNIMPLEMENTED][!mayfail]")
 {
   // Instantiate the filter, a DataStructure object and an Arguments Object
-  FindNeighborhoods filter;
+  FindNeighborhoodsFilter filter;
   DataStructure ds;
   Arguments args;
 
   // Create default Parameters for the filter.
-  args.insertOrAssign(FindNeighborhoods::k_MultiplesOfAverage_Key, std::make_any<float32>(1.23345f));
-  args.insertOrAssign(FindNeighborhoods::k_EquivalentDiametersArrayPath_Key, std::make_any<DataPath>(DataPath{}));
-  args.insertOrAssign(FindNeighborhoods::k_FeaturePhasesArrayPath_Key, std::make_any<DataPath>(DataPath{}));
-  args.insertOrAssign(FindNeighborhoods::k_CentroidsArrayPath_Key, std::make_any<DataPath>(DataPath{}));
-  args.insertOrAssign(FindNeighborhoods::k_NeighborhoodsArrayName_Key, std::make_any<DataPath>(DataPath{}));
-  args.insertOrAssign(FindNeighborhoods::k_NeighborhoodListArrayName_Key, std::make_any<DataPath>(DataPath{}));
+  args.insertOrAssign(FindNeighborhoodsFilter::k_MultiplesOfAverage_Key, std::make_any<float32>(1.23345f));
+  args.insertOrAssign(FindNeighborhoodsFilter::k_EquivalentDiametersArrayPath_Key, std::make_any<DataPath>(DataPath{}));
+  args.insertOrAssign(FindNeighborhoodsFilter::k_FeaturePhasesArrayPath_Key, std::make_any<DataPath>(DataPath{}));
+  args.insertOrAssign(FindNeighborhoodsFilter::k_CentroidsArrayPath_Key, std::make_any<DataPath>(DataPath{}));
+  args.insertOrAssign(FindNeighborhoodsFilter::k_NeighborhoodsArrayName_Key, std::make_any<DataPath>(DataPath{}));
+  args.insertOrAssign(FindNeighborhoodsFilter::k_NeighborhoodListArrayName_Key, std::make_any<DataPath>(DataPath{}));
 
   // Preflight the filter and check result
   auto preflightResult = filter.preflight(ds, args);
