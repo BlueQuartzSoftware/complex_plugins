@@ -76,7 +76,7 @@ IFilter::UniquePointer FindFeatureReferenceMisorientationsFilter::clone() const
 
 //------------------------------------------------------------------------------
 IFilter::PreflightResult FindFeatureReferenceMisorientationsFilter::preflightImpl(const DataStructure& dataStructure, const Arguments& filterArgs, const MessageHandler& messageHandler,
-                                                                            const std::atomic_bool& shouldCancel) const
+                                                                                  const std::atomic_bool& shouldCancel) const
 {
   /****************************************************************************
    * Write any preflight sanity checking codes in this function
@@ -141,7 +141,7 @@ IFilter::PreflightResult FindFeatureReferenceMisorientationsFilter::preflightImp
 
 //------------------------------------------------------------------------------
 Result<> FindFeatureReferenceMisorientationsFilter::executeImpl(DataStructure& dataStructure, const Arguments& filterArgs, const PipelineFilter* pipelineNode, const MessageHandler& messageHandler,
-                                                          const std::atomic_bool& shouldCancel) const
+                                                                const std::atomic_bool& shouldCancel) const
 {
   FindFeatureReferenceMisorientationsInputValues inputValues;
 

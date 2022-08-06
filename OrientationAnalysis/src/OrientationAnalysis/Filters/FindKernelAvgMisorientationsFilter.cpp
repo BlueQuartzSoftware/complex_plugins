@@ -7,7 +7,6 @@
 
 #include "OrientationAnalysis/Filters/Algorithms/FindKernelAvgMisorientations.hpp"
 
-
 using namespace complex;
 
 namespace complex
@@ -68,7 +67,7 @@ IFilter::UniquePointer FindKernelAvgMisorientationsFilter::clone() const
 
 //------------------------------------------------------------------------------
 IFilter::PreflightResult FindKernelAvgMisorientationsFilter::preflightImpl(const DataStructure& dataStructure, const Arguments& filterArgs, const MessageHandler& messageHandler,
-                                                                     const std::atomic_bool& shouldCancel) const
+                                                                           const std::atomic_bool& shouldCancel) const
 {
   /****************************************************************************
    * Write any preflight sanity checking codes in this function
@@ -130,7 +129,7 @@ IFilter::PreflightResult FindKernelAvgMisorientationsFilter::preflightImpl(const
 
 //------------------------------------------------------------------------------
 Result<> FindKernelAvgMisorientationsFilter::executeImpl(DataStructure& dataStructure, const Arguments& filterArgs, const PipelineFilter* pipelineNode, const MessageHandler& messageHandler,
-                                                   const std::atomic_bool& shouldCancel) const
+                                                         const std::atomic_bool& shouldCancel) const
 {
   FindKernelAvgMisorientationsInputValues inputValues;
 

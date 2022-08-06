@@ -26,8 +26,8 @@
 #include "complex/Parameters/ArraySelectionParameter.hpp"
 #include "complex/Parameters/NumberParameter.hpp"
 
-#include "Core/Filters/FindNeighborhoodsFilter.hpp"
 #include "Core/Core_test_dirs.hpp"
+#include "Core/Filters/FindNeighborhoodsFilter.hpp"
 
 using namespace complex;
 

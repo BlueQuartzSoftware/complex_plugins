@@ -7,6 +7,7 @@
 #include "complex/Utilities/DataArrayUtilities.hpp"
 
 #include "EbsdLib/LaueOps/LaueOps.h"
+#include "Ebsdlib/Core/Orientation.hpp"
 
 using namespace complex;
 
