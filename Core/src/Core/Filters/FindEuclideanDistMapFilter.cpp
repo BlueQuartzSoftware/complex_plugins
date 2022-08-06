@@ -75,7 +75,7 @@ IFilter::UniquePointer FindEuclideanDistMapFilter::clone() const
 
 //------------------------------------------------------------------------------
 IFilter::PreflightResult FindEuclideanDistMapFilter::preflightImpl(const DataStructure& dataStructure, const Arguments& filterArgs, const MessageHandler& messageHandler,
-                                                             const std::atomic_bool& shouldCancel) const
+                                                                   const std::atomic_bool& shouldCancel) const
 {
   /****************************************************************************
    * Write any preflight sanity checking codes in this function
@@ -141,7 +141,7 @@ IFilter::PreflightResult FindEuclideanDistMapFilter::preflightImpl(const DataStr
 
 //------------------------------------------------------------------------------
 Result<> FindEuclideanDistMapFilter::executeImpl(DataStructure& dataStructure, const Arguments& filterArgs, const PipelineFilter* pipelineNode, const MessageHandler& messageHandler,
-                                           const std::atomic_bool& shouldCancel) const
+                                                 const std::atomic_bool& shouldCancel) const
 {
   FindEuclideanDistMapInputValues inputValues;
 

@@ -79,7 +79,8 @@ IFilter::UniquePointer FindSchmidsFilter::clone() const
 }
 
 //------------------------------------------------------------------------------
-IFilter::PreflightResult FindSchmidsFilter::preflightImpl(const DataStructure& dataStructure, const Arguments& filterArgs, const MessageHandler& messageHandler, const std::atomic_bool& shouldCancel) const
+IFilter::PreflightResult FindSchmidsFilter::preflightImpl(const DataStructure& dataStructure, const Arguments& filterArgs, const MessageHandler& messageHandler,
+                                                          const std::atomic_bool& shouldCancel) const
 {
   /****************************************************************************
    * Write any preflight sanity checking codes in this function
@@ -148,7 +149,7 @@ IFilter::PreflightResult FindSchmidsFilter::preflightImpl(const DataStructure& d
 
 //------------------------------------------------------------------------------
 Result<> FindSchmidsFilter::executeImpl(DataStructure& dataStructure, const Arguments& filterArgs, const PipelineFilter* pipelineNode, const MessageHandler& messageHandler,
-                                  const std::atomic_bool& shouldCancel) const
+                                        const std::atomic_bool& shouldCancel) const
 {
   FindSchmidsInputValues inputValues;
 

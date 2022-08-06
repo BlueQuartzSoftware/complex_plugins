@@ -68,7 +68,7 @@ IFilter::UniquePointer FindSurfaceAreaToVolumeFilter::clone() const
 
 //------------------------------------------------------------------------------
 IFilter::PreflightResult FindSurfaceAreaToVolumeFilter::preflightImpl(const DataStructure& dataStructure, const Arguments& filterArgs, const MessageHandler& messageHandler,
-                                                                const std::atomic_bool& shouldCancel) const
+                                                                      const std::atomic_bool& shouldCancel) const
 {
   /****************************************************************************
    * Write any preflight sanity checking codes in this function
@@ -129,7 +129,7 @@ IFilter::PreflightResult FindSurfaceAreaToVolumeFilter::preflightImpl(const Data
 
 //------------------------------------------------------------------------------
 Result<> FindSurfaceAreaToVolumeFilter::executeImpl(DataStructure& dataStructure, const Arguments& filterArgs, const PipelineFilter* pipelineNode, const MessageHandler& messageHandler,
-                                              const std::atomic_bool& shouldCancel) const
+                                                    const std::atomic_bool& shouldCancel) const
 {
   FindSurfaceAreaToVolumeInputValues inputValues;
 

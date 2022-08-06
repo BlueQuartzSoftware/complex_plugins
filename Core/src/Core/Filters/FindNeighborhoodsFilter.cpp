@@ -7,7 +7,6 @@
 
 #include "Core/Filters/Algorithms/FindNeighborhoods.hpp"
 
-
 using namespace complex;
 
 namespace complex
@@ -67,7 +66,7 @@ IFilter::UniquePointer FindNeighborhoodsFilter::clone() const
 
 //------------------------------------------------------------------------------
 IFilter::PreflightResult FindNeighborhoodsFilter::preflightImpl(const DataStructure& dataStructure, const Arguments& filterArgs, const MessageHandler& messageHandler,
-                                                          const std::atomic_bool& shouldCancel) const
+                                                                const std::atomic_bool& shouldCancel) const
 {
   /****************************************************************************
    * Write any preflight sanity checking codes in this function
@@ -129,7 +128,7 @@ IFilter::PreflightResult FindNeighborhoodsFilter::preflightImpl(const DataStruct
 
 //------------------------------------------------------------------------------
 Result<> FindNeighborhoodsFilter::executeImpl(DataStructure& dataStructure, const Arguments& filterArgs, const PipelineFilter* pipelineNode, const MessageHandler& messageHandler,
-                                        const std::atomic_bool& shouldCancel) const
+                                              const std::atomic_bool& shouldCancel) const
 {
   FindNeighborhoodsInputValues inputValues;
 

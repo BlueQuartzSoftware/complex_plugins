@@ -26,8 +26,8 @@
 #include "complex/Parameters/ArraySelectionParameter.hpp"
 #include "complex/Parameters/BoolParameter.hpp"
 
-#include "Core/Filters/FindEuclideanDistMapFilter.hpp"
 #include "Core/Core_test_dirs.hpp"
+#include "Core/Filters/FindEuclideanDistMapFilter.hpp"
 
 using namespace complex;
 

@@ -26,8 +26,8 @@
 #include "complex/Parameters/ArraySelectionParameter.hpp"
 #include "complex/Parameters/BoolParameter.hpp"
 
-#include "Core/Filters/FindSurfaceAreaToVolumeFilter.hpp"
 #include "Core/Core_test_dirs.hpp"
+#include "Core/Filters/FindSurfaceAreaToVolumeFilter.hpp"
 
 using namespace complex;
 
