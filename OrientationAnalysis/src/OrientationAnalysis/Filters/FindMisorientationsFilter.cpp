@@ -1,12 +1,15 @@
 #include "FindMisorientationsFilter.hpp"
 
+#include "complex/DataStructure/DataArray.hpp"
 #include "complex/DataStructure/DataPath.hpp"
+#include "complex/DataStructure/NeighborList.hpp"
+#include "complex/Filter/Actions/CreateArrayAction.hpp"
+#include "complex/Filter/Actions/CreateNeighborListAction.hpp"
 #include "complex/Parameters/ArrayCreationParameter.hpp"
 #include "complex/Parameters/ArraySelectionParameter.hpp"
 #include "complex/Parameters/BoolParameter.hpp"
 
 #include "OrientationAnalysis/Filters/Algorithms/FindMisorientations.hpp"
-
 
 using namespace complex;
 
@@ -39,7 +42,7 @@ std::string FindMisorientationsFilter::humanName() const
 //------------------------------------------------------------------------------
 std::vector<std::string> FindMisorientationsFilter::defaultTags() const
 {
-  return {"#Statistics", "#Crystallography"};
+  return {"#Statistics", "#Crystallography", "#Misorientation"};
 }
 
 //------------------------------------------------------------------------------
@@ -47,16 +50,24 @@ Parameters FindMisorientationsFilter::parameters() const
 {
   Parameters params;
   // Create the parameter descriptors that are needed for this filter
+  params.insertSeparator(Parameters::Separator{"Input Parameter"});
   params.insertLinkableParameter(std::make_unique<BoolParameter>(k_FindAvgMisors_Key, "Find Average Misorientation Per Feature", "", false));
-  params.insertSeparator(Parameters::Separator{"Feature Data"});
-  params.insert(std::make_unique<ArraySelectionParameter>(k_NeighborListArrayPath_Key, "Neighbor List", "", DataPath{}, ArraySelectionParameter::AllowedTypes{}));
-  params.insert(std::make_unique<ArraySelectionParameter>(k_AvgQuatsArrayPath_Key, "Average Quaternions", "", DataPath{}, ArraySelectionParameter::AllowedTypes{}));
-  params.insert(std::make_unique<ArraySelectionParameter>(k_FeaturePhasesArrayPath_Key, "Phases", "", DataPath{}, ArraySelectionParameter::AllowedTypes{}));
-  params.insertSeparator(Parameters::Separator{"Ensemble Data"});
-  params.insert(std::make_unique<ArraySelectionParameter>(k_CrystalStructuresArrayPath_Key, "Crystal Structures", "", DataPath{}, ArraySelectionParameter::AllowedTypes{}));
-  params.insertSeparator(Parameters::Separator{"Feature Data"});
-  params.insert(std::make_unique<ArrayCreationParameter>(k_MisorientationListArrayName_Key, "Misorientation List", "", DataPath{}));
-  params.insert(std::make_unique<ArrayCreationParameter>(k_AvgMisorientationsArrayName_Key, "Average Misorientations", "", DataPath{}));
+
+  params.insertSeparator(Parameters::Separator{"Input Feature Data"});
+  params.insert(std::make_unique<ArraySelectionParameter>(k_NeighborListArrayPath_Key, "Feature Neighbor List", "", DataPath({"DataContainer", "FeatureData", "NeighborList"}),
+                                                          ArraySelectionParameter::AllowedTypes{complex::DataType::int32}));
+  params.insert(std::make_unique<ArraySelectionParameter>(k_AvgQuatsArrayPath_Key, "Feature Average Quaternions", "", DataPath({"DataContainer", "FeatureData", "AvgQuats"}),
+                                                          ArraySelectionParameter::AllowedTypes{complex::DataType::float32}));
+  params.insert(std::make_unique<ArraySelectionParameter>(k_FeaturePhasesArrayPath_Key, "Feature Phases", "", DataPath({"DataContainer", "FeatureData", "Phases"}),
+                                                          ArraySelectionParameter::AllowedTypes{complex::DataType::int32}));
+
+  params.insertSeparator(Parameters::Separator{"Input Ensemble Data"});
+  params.insert(std::make_unique<ArraySelectionParameter>(k_CrystalStructuresArrayPath_Key, "Crystal Structures", "", DataPath({"DataContainer", "CellEnsembleData", "CrystalStructures"}),
+                                                          ArraySelectionParameter::AllowedTypes{DataType::uint32}));
+
+  params.insertSeparator(Parameters::Separator{"Created Feature Data"});
+  params.insert(std::make_unique<ArrayCreationParameter>(k_MisorientationListArrayName_Key, "Misorientation List", "", DataPath({"MisorientationList"})));
+  params.insert(std::make_unique<ArrayCreationParameter>(k_AvgMisorientationsArrayName_Key, "Average Misorientations", "", DataPath({"AvgMisorientations"})));
   // Associate the Linkable Parameter(s) to the children parameters that they control
   params.linkParameters(k_FindAvgMisors_Key, k_AvgMisorientationsArrayName_Key, true);
 
@@ -71,7 +82,7 @@ IFilter::UniquePointer FindMisorientationsFilter::clone() const
 
 //------------------------------------------------------------------------------
 IFilter::PreflightResult FindMisorientationsFilter::preflightImpl(const DataStructure& dataStructure, const Arguments& filterArgs, const MessageHandler& messageHandler,
-                                                            const std::atomic_bool& shouldCancel) const
+                                                                  const std::atomic_bool& shouldCancel) const
 {
   /****************************************************************************
    * Write any preflight sanity checking codes in this function
@@ -87,8 +98,8 @@ IFilter::PreflightResult FindMisorientationsFilter::preflightImpl(const DataStru
   auto pAvgQuatsArrayPathValue = filterArgs.value<DataPath>(k_AvgQuatsArrayPath_Key);
   auto pFeaturePhasesArrayPathValue = filterArgs.value<DataPath>(k_FeaturePhasesArrayPath_Key);
   auto pCrystalStructuresArrayPathValue = filterArgs.value<DataPath>(k_CrystalStructuresArrayPath_Key);
-  auto pMisorientationListArrayNameValue = filterArgs.value<DataPath>(k_MisorientationListArrayName_Key);
-  auto pAvgMisorientationsArrayNameValue = filterArgs.value<DataPath>(k_AvgMisorientationsArrayName_Key);
+  auto pMisorientationListArrayPath = filterArgs.value<DataPath>(k_MisorientationListArrayName_Key);
+  auto pAvgMisorientationsArrayPath = filterArgs.value<DataPath>(k_AvgMisorientationsArrayName_Key);
 
   // Declare the preflightResult variable that will be populated with the results
   // of the preflight. The PreflightResult type contains the output Actions and
@@ -96,10 +107,38 @@ IFilter::PreflightResult FindMisorientationsFilter::preflightImpl(const DataStru
   // through a user interface (UI).
   PreflightResult preflightResult;
 
+  std::vector<DataPath> dataArrayPaths;
+
+  // Validate the Quats is a 4 component array
+  const auto* avgQuats = dataStructure.getDataAs<Float32Array>(pAvgQuatsArrayPathValue);
+  if(avgQuats->getNumberOfComponents() != 4)
+  {
+    return {MakeErrorResult<OutputActions>(-34500, "Input Average Quaternions does not have 4 components.")};
+  }
+
+  dataArrayPaths.push_back(pAvgQuatsArrayPathValue);
+  dataArrayPaths.push_back(pFeaturePhasesArrayPathValue);
+  dataArrayPaths.push_back(pNeighborListArrayPathValue);
+
+  if(!dataStructure.validateNumberOfTuples(dataArrayPaths))
+  {
+    return {MakeErrorResult<OutputActions>(-34501, "Input DataArrays do not have matching tuple count")};
+  }
+
   // If your filter is making structural changes to the DataStructure then the filter
   // is going to create OutputActions subclasses that need to be returned. This will
   // store those actions.
   complex::Result<OutputActions> resultOutputActions;
+
+  if(pFindAvgMisorsValue)
+  {
+    auto createArrayAction = std::make_unique<CreateArrayAction>(complex::DataType::float32, avgQuats->getIDataStore()->getTupleShape(), std::vector<usize>{1}, pAvgMisorientationsArrayPath);
+    resultOutputActions.value().actions.push_back(std::move(createArrayAction));
+  }
+
+  // Create the NeighborList array
+  auto createArrayAction = std::make_unique<CreateNeighborListAction>(complex::DataType::float32, avgQuats->getNumberOfTuples(), pMisorientationListArrayPath);
+  resultOutputActions.value().actions.push_back(std::move(createArrayAction));
 
   // If your filter is going to pass back some `preflight updated values` then this is where you
   // would create the code to store those values in the appropriate object. Note that we
@@ -107,34 +146,13 @@ IFilter::PreflightResult FindMisorientationsFilter::preflightImpl(const DataStru
   // the std::vector<PreflightValue> object.
   std::vector<PreflightValue> preflightUpdatedValues;
 
-  // If the filter needs to pass back some updated values via a key:value string:string set of values
-  // you can declare and update that string here.
-  // None found in this filter based on the filter parameters
-
-  // If this filter makes changes to the DataStructure in the form of
-  // creating/deleting/moving/renaming DataGroups, Geometries, DataArrays then you
-  // will need to use one of the `*Actions` classes located in complex/Filter/Actions
-  // to relay that information to the preflight and execute methods. This is done by
-  // creating an instance of the Action class and then storing it in the resultOutputActions variable.
-  // This is done through a `push_back()` method combined with a `std::move()`. For the
-  // newly initiated to `std::move` once that code is executed what was once inside the Action class
-  // instance variable is *no longer there*. The memory has been moved. If you try to access that
-  // variable after this line you will probably get a crash or have subtle bugs. To ensure that this
-  // does not happen we suggest using braces `{}` to scope each of the action's declaration and store
-  // so that the programmer is not tempted to use the action instance past where it should be used.
-  // You have to create your own Actions class if there isn't something specific for your filter's needs
-
-  // Store the preflight updated value(s) into the preflightUpdatedValues vector using
-  // the appropriate methods.
-  // None found based on the filter parameters
-
   // Return both the resultOutputActions and the preflightUpdatedValues via std::move()
   return {std::move(resultOutputActions), std::move(preflightUpdatedValues)};
 }
 
 //------------------------------------------------------------------------------
 Result<> FindMisorientationsFilter::executeImpl(DataStructure& dataStructure, const Arguments& filterArgs, const PipelineFilter* pipelineNode, const MessageHandler& messageHandler,
-                                          const std::atomic_bool& shouldCancel) const
+                                                const std::atomic_bool& shouldCancel) const
 {
   FindMisorientationsInputValues inputValues;
 

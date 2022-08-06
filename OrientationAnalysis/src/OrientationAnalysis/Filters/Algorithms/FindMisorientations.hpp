@@ -6,21 +6,6 @@
 #include "complex/DataStructure/DataStructure.hpp"
 #include "complex/Filter/IFilter.hpp"
 
-/**
-* This is example code to put in the Execute Method of the filter.
-  FindMisorientationsInputValues inputValues;
-
-  inputValues.FindAvgMisors = filterArgs.value<bool>(k_FindAvgMisors_Key);
-  inputValues.NeighborListArrayPath = filterArgs.value<DataPath>(k_NeighborListArrayPath_Key);
-  inputValues.AvgQuatsArrayPath = filterArgs.value<DataPath>(k_AvgQuatsArrayPath_Key);
-  inputValues.FeaturePhasesArrayPath = filterArgs.value<DataPath>(k_FeaturePhasesArrayPath_Key);
-  inputValues.CrystalStructuresArrayPath = filterArgs.value<DataPath>(k_CrystalStructuresArrayPath_Key);
-  inputValues.MisorientationListArrayName = filterArgs.value<DataPath>(k_MisorientationListArrayName_Key);
-  inputValues.AvgMisorientationsArrayName = filterArgs.value<DataPath>(k_AvgMisorientationsArrayName_Key);
-
-  return FindMisorientations(dataStructure, messageHandler, shouldCancel, &inputValues)();
-*/
-
 namespace complex
 {
 
