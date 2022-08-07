@@ -44,6 +44,7 @@ const DataPath k_DataContainerPath({k_DataContainer});
 const std::string k_CellFeatureData("CellFeatureData");
 const std::string k_Centroids("Centroids");
 const std::string k_EulerAngles("EulerAngles");
+const std::string k_NumCells("NumElements");
 // Cell Level Group
 const std::string k_SmallIN100ScanData("EBSD Scan Data");
 const std::string k_CellData("CellData");
@@ -68,7 +69,8 @@ const DataPath k_CrystalStructuresArrayPath = k_CellEnsembleAttributeMatrixPath.
 
 const DataPath k_CellFeatureAttributeMatrix = k_DataContainerPath.createChildPath(k_GrainData);
 const DataPath k_ActiveArrayPath = k_CellFeatureAttributeMatrix.createChildPath(k_Active);
-
+const DataPath k_NumCellsPath = k_CellFeatureAttributeMatrix.createChildPath(k_NumCells);
+const DataPath k_FeaturePhasesPath = k_CellFeatureAttributeMatrix.createChildPath(k_Phases);
 // Make sure we can load the needed filters from the plugins
 const Uuid k_ComplexCorePluginId = *Uuid::FromString("05cc618b-781f-4ac0-b9ac-43f26ce1854f");
 // Make sure we can instantiate the MultiThreshold Objects Filter
@@ -92,6 +94,9 @@ const FilterHandle k_IdentifySampleFilterHandle(k_IdentifySampleFilterId, k_Comp
 // Make sure we can instantiate the CopyDataGroup
 const Uuid k_CopyDataGroupFilterId = *Uuid::FromString("ac8d51d8-9167-5628-a060-95a8863a76b1");
 const FilterHandle k_CopyDataGroupFilterHandle(k_CopyDataGroupFilterId, k_ComplexCorePluginId);
+// Make sure we can instantiate the RemoveMinimumSizeFeaturesFilter
+const Uuid k_RemoveMinimumSizeFeaturesFilterId = *Uuid::FromString("53ac1638-8934-57b8-b8e5-4b91cdda23ec");
+const FilterHandle k_RemoveMinimumSizeFeaturesFilterHandle(k_RemoveMinimumSizeFeaturesFilterId, k_ComplexCorePluginId);
 
 const Uuid k_OrientationAnalysisPluginId = *Uuid::FromString("c09cf01b-014e-5adb-84eb-ea76fc79eeb1");
 // Make sure we can instantiate the Convert Orientations

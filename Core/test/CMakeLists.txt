@@ -16,6 +16,7 @@ set(${PLUGIN_NAME}UnitTest_SRCS
   ErodeDilateBadDataTest.cpp
   WriteASCIIDataTest.cpp
   WriteBinaryDataTest.cpp
+  RemoveMinimumSizeFeaturesTest.cpp
   FindEuclideanDistMapTest.cpp
   FindNeighborhoodsTest.cpp
   FindSurfaceAreaToVolumeTest.cpp

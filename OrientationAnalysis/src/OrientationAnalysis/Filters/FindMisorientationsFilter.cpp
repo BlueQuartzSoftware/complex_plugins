@@ -8,6 +8,7 @@
 #include "complex/Parameters/ArrayCreationParameter.hpp"
 #include "complex/Parameters/ArraySelectionParameter.hpp"
 #include "complex/Parameters/BoolParameter.hpp"
+#include "complex/Parameters/NeighborListSelectionParameter.hpp"
 
 #include "OrientationAnalysis/Filters/Algorithms/FindMisorientations.hpp"
 
@@ -54,8 +55,8 @@ Parameters FindMisorientationsFilter::parameters() const
   params.insertLinkableParameter(std::make_unique<BoolParameter>(k_FindAvgMisors_Key, "Find Average Misorientation Per Feature", "", false));
 
   params.insertSeparator(Parameters::Separator{"Input Feature Data"});
-  params.insert(std::make_unique<ArraySelectionParameter>(k_NeighborListArrayPath_Key, "Feature Neighbor List", "", DataPath({"DataContainer", "FeatureData", "NeighborList"}),
-                                                          ArraySelectionParameter::AllowedTypes{complex::DataType::int32}));
+  params.insert(std::make_unique<NeighborListSelectionParameter>(k_NeighborListArrayPath_Key, "Feature Neighbor List", "", DataPath({"DataContainer", "FeatureData", "NeighborList"}),
+                                                                 ArraySelectionParameter::AllowedTypes{complex::DataType::int32}));
   params.insert(std::make_unique<ArraySelectionParameter>(k_AvgQuatsArrayPath_Key, "Feature Average Quaternions", "", DataPath({"DataContainer", "FeatureData", "AvgQuats"}),
                                                           ArraySelectionParameter::AllowedTypes{complex::DataType::float32}));
   params.insert(std::make_unique<ArraySelectionParameter>(k_FeaturePhasesArrayPath_Key, "Feature Phases", "", DataPath({"DataContainer", "FeatureData", "Phases"}),
@@ -115,6 +116,8 @@ IFilter::PreflightResult FindMisorientationsFilter::preflightImpl(const DataStru
   {
     return {MakeErrorResult<OutputActions>(-34500, "Input Average Quaternions does not have 4 components.")};
   }
+
+  const auto* featurePhases = dataStructure.getDataAs<Int32Array>(pFeaturePhasesArrayPathValue);
 
   dataArrayPaths.push_back(pAvgQuatsArrayPathValue);
   dataArrayPaths.push_back(pFeaturePhasesArrayPathValue);
