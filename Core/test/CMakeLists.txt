@@ -17,7 +17,7 @@ set(${PLUGIN_NAME}UnitTest_SRCS
   WriteASCIIDataTest.cpp
   WriteBinaryDataTest.cpp
   FindEuclideanDistMapTest.cpp
-  FindNeighborHoodsTest.cpp
+  FindNeighborhoodsTest.cpp
   FindSurfaceAreaToVolumeTest.cpp
 )
 
