@@ -15,6 +15,8 @@ set(${PLUGIN_NAME}UnitTest_SRCS
   RotateSampleRefFrameTest.cpp
   ErodeDilateBadDataTest.cpp
 
+    RemoveMinimumSizeFeaturesTest.cpp
+
   FindEuclideanDistMapTest.cpp
   FindNeighborhoodsTest.cpp
   FindSurfaceAreaToVolumeTest.cpp
