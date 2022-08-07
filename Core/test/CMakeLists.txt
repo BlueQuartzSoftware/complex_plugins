@@ -16,7 +16,7 @@ set(${PLUGIN_NAME}UnitTest_SRCS
   ErodeDilateBadDataTest.cpp
 
   FindEuclideanDistMapTest.cpp
-  FindNeighborHoodsTest.cpp
+  FindNeighborhoodsTest.cpp
   FindSurfaceAreaToVolumeTest.cpp
 )
 
