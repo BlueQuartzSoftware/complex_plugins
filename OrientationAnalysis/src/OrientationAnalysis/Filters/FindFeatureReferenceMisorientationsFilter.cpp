@@ -1,9 +1,11 @@
 #include "FindFeatureReferenceMisorientationsFilter.hpp"
 
+#include "complex/DataStructure/DataArray.hpp"
 #include "complex/DataStructure/DataPath.hpp"
 #include "complex/Parameters/ArrayCreationParameter.hpp"
 #include "complex/Parameters/ArraySelectionParameter.hpp"
 #include "complex/Parameters/ChoicesParameter.hpp"
+#include "complex/Filter/Actions/CreateArrayAction.hpp"
 
 #include "OrientationAnalysis/Filters/Algorithms/FindFeatureReferenceMisorientations.hpp"
 
@@ -38,7 +40,7 @@ std::string FindFeatureReferenceMisorientationsFilter::humanName() const
 //------------------------------------------------------------------------------
 std::vector<std::string> FindFeatureReferenceMisorientationsFilter::defaultTags() const
 {
-  return {"#Statistics", "#Crystallography"};
+  return {"#Statistics", "#Crystallography", "#Misorientation"};
 }
 
 //------------------------------------------------------------------------------
@@ -46,21 +48,31 @@ Parameters FindFeatureReferenceMisorientationsFilter::parameters() const
 {
   Parameters params;
   // Create the parameter descriptors that are needed for this filter
+  params.insertSeparator(Parameters::Separator{"Input Parameters"});
+
   params.insertLinkableParameter(
       std::make_unique<ChoicesParameter>(k_ReferenceOrientation_Key, "Reference Orientation", "", 0, ChoicesParameter::Choices{"Average Orientation", "Orientation at Feature Centroid"}));
-  params.insertSeparator(Parameters::Separator{"Cell Data"});
-  params.insert(std::make_unique<ArraySelectionParameter>(k_FeatureIdsArrayPath_Key, "Feature Ids", "", DataPath({"FeatureIds"}), ArraySelectionParameter::AllowedTypes{DataType::int32}));
-  params.insert(std::make_unique<ArraySelectionParameter>(k_CellPhasesArrayPath_Key, "Cell Phases", "", DataPath({"Phases"}), ArraySelectionParameter::AllowedTypes{DataType::int32}));
-  params.insert(std::make_unique<ArraySelectionParameter>(k_QuatsArrayPath_Key, "Quaternions", "", DataPath{}, ArraySelectionParameter::AllowedTypes{}));
-  params.insert(std::make_unique<ArraySelectionParameter>(k_GBEuclideanDistancesArrayPath_Key, "Boundary Euclidean Distances", "", DataPath{}, ArraySelectionParameter::AllowedTypes{}));
-  params.insertSeparator(Parameters::Separator{"Cell Feature Data"});
-  params.insert(std::make_unique<ArraySelectionParameter>(k_AvgQuatsArrayPath_Key, "Average Quaternions", "", DataPath{}, ArraySelectionParameter::AllowedTypes{}));
-  params.insertSeparator(Parameters::Separator{"Cell Ensemble Data"});
-  params.insert(std::make_unique<ArraySelectionParameter>(k_CrystalStructuresArrayPath_Key, "Crystal Structures", "", DataPath{}, ArraySelectionParameter::AllowedTypes{}));
-  params.insertSeparator(Parameters::Separator{"Cell Data"});
-  params.insert(std::make_unique<ArrayCreationParameter>(k_FeatureReferenceMisorientationsArrayName_Key, "Feature Reference Misorientations", "", DataPath{}));
-  params.insertSeparator(Parameters::Separator{"Cell Feature Data"});
-  params.insert(std::make_unique<ArrayCreationParameter>(k_FeatureAvgMisorientationsArrayName_Key, "Average Misorientations", "", DataPath{}));
+
+  params.insertSeparator(Parameters::Separator{"Required Cell Data"});
+  params.insert(std::make_unique<ArraySelectionParameter>(k_FeatureIdsArrayPath_Key, "Feature Ids", "", DataPath({"CellData", "FeatureIds"}), ArraySelectionParameter::AllowedTypes{DataType::int32}));
+  params.insert(std::make_unique<ArraySelectionParameter>(k_CellPhasesArrayPath_Key, "Cell Phases", "", DataPath({"CellData", "Phases"}), ArraySelectionParameter::AllowedTypes{DataType::int32}));
+  params.insert(std::make_unique<ArraySelectionParameter>(k_QuatsArrayPath_Key, "Quaternions", "", DataPath({"CellData", "Quats"}), ArraySelectionParameter::AllowedTypes{DataType::float32}));
+  params.insert(std::make_unique<ArraySelectionParameter>(k_GBEuclideanDistancesArrayPath_Key, "Boundary Euclidean Distances", "", DataPath({"CellData", "GBEuclideanDistances"}),
+                                                          ArraySelectionParameter::AllowedTypes{DataType::float32}));
+
+  params.insertSeparator(Parameters::Separator{"Required Feature Data"});
+  params.insert(
+      std::make_unique<ArraySelectionParameter>(k_AvgQuatsArrayPath_Key, "Average Quaternions", "", DataPath({"FeatureData", "AvgQuats"}), ArraySelectionParameter::AllowedTypes{DataType::float32}));
+  params.insertSeparator(Parameters::Separator{"Required Ensemble Data"});
+  params.insert(std::make_unique<ArraySelectionParameter>(k_CrystalStructuresArrayPath_Key, "Crystal Structures", "", DataPath({"Ensemble Data", "CrystalStructures"}),
+                                                          ArraySelectionParameter::AllowedTypes{DataType::uint32}));
+
+  params.insertSeparator(Parameters::Separator{"Created Cell Data"});
+  params.insert(
+      std::make_unique<ArrayCreationParameter>(k_FeatureReferenceMisorientationsArrayName_Key, "Feature Reference Misorientations", "", DataPath({"CellData", "FeatureReferenceMisorientations"})));
+  params.insertSeparator(Parameters::Separator{"Created Feature Data"});
+  params.insert(std::make_unique<ArrayCreationParameter>(k_FeatureAvgMisorientationsArrayName_Key, "Average Misorientations", "", DataPath({"FeatureData", "FeatureAvgMisorientations"})));
+
   // Associate the Linkable Parameter(s) to the children parameters that they control
   params.linkParameters(k_ReferenceOrientation_Key, k_GBEuclideanDistancesArrayPath_Key, 1);
   params.linkParameters(k_ReferenceOrientation_Key, k_AvgQuatsArrayPath_Key, 0);
@@ -78,15 +90,6 @@ IFilter::UniquePointer FindFeatureReferenceMisorientationsFilter::clone() const
 IFilter::PreflightResult FindFeatureReferenceMisorientationsFilter::preflightImpl(const DataStructure& dataStructure, const Arguments& filterArgs, const MessageHandler& messageHandler,
                                                                                   const std::atomic_bool& shouldCancel) const
 {
-  /****************************************************************************
-   * Write any preflight sanity checking codes in this function
-   ***************************************************************************/
-
-  /**
-   * These are the values that were gathered from the UI or the pipeline file or
-   * otherwise passed into the filter. These are here for your convenience. If you
-   * do not need some of them remove them.
-   */
   auto pReferenceOrientationValue = filterArgs.value<ChoicesParameter::ValueType>(k_ReferenceOrientation_Key);
   auto pFeatureIdsArrayPathValue = filterArgs.value<DataPath>(k_FeatureIdsArrayPath_Key);
   auto pCellPhasesArrayPathValue = filterArgs.value<DataPath>(k_CellPhasesArrayPath_Key);
@@ -118,18 +121,24 @@ IFilter::PreflightResult FindFeatureReferenceMisorientationsFilter::preflightImp
   // you can declare and update that string here.
   // None found in this filter based on the filter parameters
 
-  // If this filter makes changes to the DataStructure in the form of
-  // creating/deleting/moving/renaming DataGroups, Geometries, DataArrays then you
-  // will need to use one of the `*Actions` classes located in complex/Filter/Actions
-  // to relay that information to the preflight and execute methods. This is done by
-  // creating an instance of the Action class and then storing it in the resultOutputActions variable.
-  // This is done through a `push_back()` method combined with a `std::move()`. For the
-  // newly initiated to `std::move` once that code is executed what was once inside the Action class
-  // instance variable is *no longer there*. The memory has been moved. If you try to access that
-  // variable after this line you will probably get a crash or have subtle bugs. To ensure that this
-  // does not happen we suggest using braces `{}` to scope each of the action's declaration and store
-  // so that the programmer is not tempted to use the action instance past where it should be used.
-  // You have to create your own Actions class if there isn't something specific for your filter's needs
+  DataPath cellDataGroup = pCellPhasesArrayPathValue.getParent();
+  DataPath featureDataGroup = pAvgQuatsArrayPathValue.getParent();
+
+  const auto& cellPhases = dataStructure.getDataRefAs<Int32Array>(pCellPhasesArrayPathValue);
+  const auto& featureAvgQuats = dataStructure.getDataRefAs<Int32Array>(pAvgQuatsArrayPathValue);
+
+
+  // Create output Feature Reference Misorientations
+  {
+    auto createArrayAction = std::make_unique<CreateArrayAction>(DataType::float32, cellPhases.getIDataStore()->getTupleShape(), std::vector<usize>{1}, pFeatureReferenceMisorientationsArrayNameValue);
+    resultOutputActions.value().actions.push_back(std::move(createArrayAction));
+  }
+
+  // Create output Feature Average Misorientations
+  {
+    auto createArrayAction = std::make_unique<CreateArrayAction>(DataType::float32, featureAvgQuats.getIDataStore()->getTupleShape(), std::vector<usize>{1}, pFeatureAvgMisorientationsArrayNameValue);
+    resultOutputActions.value().actions.push_back(std::move(createArrayAction));
+  }
 
   // Store the preflight updated value(s) into the preflightUpdatedValues vector using
   // the appropriate methods.
