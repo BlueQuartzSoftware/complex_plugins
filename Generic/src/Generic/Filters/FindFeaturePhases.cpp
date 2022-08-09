@@ -1,76 +1,67 @@
-#include "DelaunayTriangulation.hpp"
+#include "FindFeaturePhases.hpp"
 
 #include "complex/DataStructure/DataPath.hpp"
+#include "complex/Filter/Actions/CreateArrayAction.hpp"
+#include "complex/Parameters/ArrayCreationParameter.hpp"
 #include "complex/Parameters/ArraySelectionParameter.hpp"
-#include "complex/Parameters/BoolParameter.hpp"
-#include "complex/Parameters/DataGroupSelectionParameter.hpp"
-#include "complex/Parameters/NumberParameter.hpp"
-#include "complex/Parameters/StringParameter.hpp"
 
 using namespace complex;
 
 namespace complex
 {
 //------------------------------------------------------------------------------
-std::string DelaunayTriangulation::name() const
+std::string FindFeaturePhases::name() const
 {
-  return FilterTraits<DelaunayTriangulation>::name.str();
+  return FilterTraits<FindFeaturePhases>::name.str();
 }
 
 //------------------------------------------------------------------------------
-std::string DelaunayTriangulation::className() const
+std::string FindFeaturePhases::className() const
 {
-  return FilterTraits<DelaunayTriangulation>::className;
+  return FilterTraits<FindFeaturePhases>::className;
 }
 
 //------------------------------------------------------------------------------
-Uuid DelaunayTriangulation::uuid() const
+Uuid FindFeaturePhases::uuid() const
 {
-  return FilterTraits<DelaunayTriangulation>::uuid;
+  return FilterTraits<FindFeaturePhases>::uuid;
 }
 
 //------------------------------------------------------------------------------
-std::string DelaunayTriangulation::humanName() const
+std::string FindFeaturePhases::humanName() const
 {
-  return "Delaunay Triangulation";
+  return "Find Feature Phases";
 }
 
 //------------------------------------------------------------------------------
-std::vector<std::string> DelaunayTriangulation::defaultTags() const
+std::vector<std::string> FindFeaturePhases::defaultTags() const
 {
-  return {"#Surface Meshing", "#Generation"};
+  return {"#Generic", "#Morphological"};
 }
 
 //------------------------------------------------------------------------------
-Parameters DelaunayTriangulation::parameters() const
+Parameters FindFeaturePhases::parameters() const
 {
   Parameters params;
   // Create the parameter descriptors that are needed for this filter
-  params.insert(std::make_unique<Float64Parameter>(k_Offset_Key, "Offset", "", 2.3456789));
-  params.insert(std::make_unique<Float64Parameter>(k_Tolerance_Key, "Tolerance", "", 2.3456789));
-  params.insertLinkableParameter(std::make_unique<BoolParameter>(k_TriangulateByFeature_Key, "Triangulate by Feature", "", false));
-  params.insert(std::make_unique<DataGroupSelectionParameter>(k_InputGeometry_Key, "Input Vertices", "", DataPath{}));
+  params.insertSeparator(Parameters::Separator{"Element Data"});
+  params.insert(std::make_unique<ArraySelectionParameter>(k_CellPhasesArrayPath_Key, "Cell Phases", "", DataPath({"Phases"}), ArraySelectionParameter::AllowedTypes{DataType::int32}));
   params.insert(std::make_unique<ArraySelectionParameter>(k_FeatureIdsArrayPath_Key, "Feature Ids", "", DataPath({"CellData", "FeatureIds"}), ArraySelectionParameter::AllowedTypes{DataType::int32}));
-  params.insert(std::make_unique<StringParameter>(k_TriangleDataContainerName_Key, "Triangle Data Container", "", "SomeString"));
-  params.insertSeparator(Parameters::Separator{"Vertex Data"});
-  params.insert(std::make_unique<StringParameter>(k_VertexAttributeMatrixName_Key, "Vertex Attribute Matrix", "", "SomeString"));
-  params.insertSeparator(Parameters::Separator{"Face Data"});
-  params.insert(std::make_unique<StringParameter>(k_FaceAttributeMatrixName_Key, "Face Attribute Matrix", "", "SomeString"));
-  // Associate the Linkable Parameter(s) to the children parameters that they control
-  params.linkParameters(k_TriangulateByFeature_Key, k_FeatureIdsArrayPath_Key, true);
+  params.insertSeparator(Parameters::Separator{"Feature Data"});
+  params.insert(std::make_unique<ArrayCreationParameter>(k_FeaturePhasesArrayPath_Key, "Phases", "", DataPath{}));
 
   return params;
 }
 
 //------------------------------------------------------------------------------
-IFilter::UniquePointer DelaunayTriangulation::clone() const
+IFilter::UniquePointer FindFeaturePhases::clone() const
 {
-  return std::make_unique<DelaunayTriangulation>();
+  return std::make_unique<FindFeaturePhases>();
 }
 
 //------------------------------------------------------------------------------
-IFilter::PreflightResult DelaunayTriangulation::preflightImpl(const DataStructure& dataStructure, const Arguments& filterArgs, const MessageHandler& messageHandler,
-                                                              const std::atomic_bool& shouldCancel) const
+IFilter::PreflightResult FindFeaturePhases::preflightImpl(const DataStructure& dataStructure, const Arguments& filterArgs, const MessageHandler& messageHandler,
+                                                          const std::atomic_bool& shouldCancel) const
 {
   /****************************************************************************
    * Write any preflight sanity checking codes in this function
@@ -81,14 +72,9 @@ IFilter::PreflightResult DelaunayTriangulation::preflightImpl(const DataStructur
    * otherwise passed into the filter. These are here for your convenience. If you
    * do not need some of them remove them.
    */
-  auto pOffsetValue = filterArgs.value<float64>(k_Offset_Key);
-  auto pToleranceValue = filterArgs.value<float64>(k_Tolerance_Key);
-  auto pTriangulateByFeatureValue = filterArgs.value<bool>(k_TriangulateByFeature_Key);
-  auto pInputGeometryValue = filterArgs.value<DataPath>(k_InputGeometry_Key);
+  auto pCellPhasesArrayPathValue = filterArgs.value<DataPath>(k_CellPhasesArrayPath_Key);
   auto pFeatureIdsArrayPathValue = filterArgs.value<DataPath>(k_FeatureIdsArrayPath_Key);
-  auto pTriangleDataContainerNameValue = filterArgs.value<StringParameter::ValueType>(k_TriangleDataContainerName_Key);
-  auto pVertexAttributeMatrixNameValue = filterArgs.value<StringParameter::ValueType>(k_VertexAttributeMatrixName_Key);
-  auto pFaceAttributeMatrixNameValue = filterArgs.value<StringParameter::ValueType>(k_FaceAttributeMatrixName_Key);
+  auto pFeaturePhasesArrayPathValue = filterArgs.value<DataPath>(k_FeaturePhasesArrayPath_Key);
 
   // Declare the preflightResult variable that will be populated with the results
   // of the preflight. The PreflightResult type contains the output Actions and
@@ -123,6 +109,12 @@ IFilter::PreflightResult DelaunayTriangulation::preflightImpl(const DataStructur
   // does not happen we suggest using braces `{}` to scope each of the action's declaration and store
   // so that the programmer is not tempted to use the action instance past where it should be used.
   // You have to create your own Actions class if there isn't something specific for your filter's needs
+  // These are some proposed Actions based on the FilterParameters used. Please check them for correctness.
+  // This block is commented out because it needs some variables to be filled in.
+  {
+    // auto createArrayAction = std::make_unique<CreateArrayAction>(complex::NumericType::FILL_ME_IN, std::vector<usize>{NUM_TUPLES_VALUE}, NUM_COMPONENTS, pFeaturePhasesArrayPathValue);
+    // resultOutputActions.value().actions.push_back(std::move(createArrayAction));
+  }
 
   // Store the preflight updated value(s) into the preflightUpdatedValues vector using
   // the appropriate methods.
@@ -133,20 +125,15 @@ IFilter::PreflightResult DelaunayTriangulation::preflightImpl(const DataStructur
 }
 
 //------------------------------------------------------------------------------
-Result<> DelaunayTriangulation::executeImpl(DataStructure& dataStructure, const Arguments& filterArgs, const PipelineFilter* pipelineNode, const MessageHandler& messageHandler,
-                                            const std::atomic_bool& shouldCancel) const
+Result<> FindFeaturePhases::executeImpl(DataStructure& dataStructure, const Arguments& filterArgs, const PipelineFilter* pipelineNode, const MessageHandler& messageHandler,
+                                        const std::atomic_bool& shouldCancel) const
 {
   /****************************************************************************
    * Extract the actual input values from the 'filterArgs' object
    ***************************************************************************/
-  auto pOffsetValue = filterArgs.value<float64>(k_Offset_Key);
-  auto pToleranceValue = filterArgs.value<float64>(k_Tolerance_Key);
-  auto pTriangulateByFeatureValue = filterArgs.value<bool>(k_TriangulateByFeature_Key);
-  auto pInputGeometryValue = filterArgs.value<DataPath>(k_InputGeometry_Key);
+  auto pCellPhasesArrayPathValue = filterArgs.value<DataPath>(k_CellPhasesArrayPath_Key);
   auto pFeatureIdsArrayPathValue = filterArgs.value<DataPath>(k_FeatureIdsArrayPath_Key);
-  auto pTriangleDataContainerNameValue = filterArgs.value<StringParameter::ValueType>(k_TriangleDataContainerName_Key);
-  auto pVertexAttributeMatrixNameValue = filterArgs.value<StringParameter::ValueType>(k_VertexAttributeMatrixName_Key);
-  auto pFaceAttributeMatrixNameValue = filterArgs.value<StringParameter::ValueType>(k_FaceAttributeMatrixName_Key);
+  auto pFeaturePhasesArrayPathValue = filterArgs.value<DataPath>(k_FeaturePhasesArrayPath_Key);
 
   /****************************************************************************
    * Write your algorithm implementation in this function
