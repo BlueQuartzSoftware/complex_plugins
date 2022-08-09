@@ -2,10 +2,10 @@
 
 #include "complex/DataStructure/DataArray.hpp"
 #include "complex/DataStructure/DataPath.hpp"
+#include "complex/Filter/Actions/CreateArrayAction.hpp"
 #include "complex/Parameters/ArrayCreationParameter.hpp"
 #include "complex/Parameters/ArraySelectionParameter.hpp"
 #include "complex/Parameters/ChoicesParameter.hpp"
-#include "complex/Filter/Actions/CreateArrayAction.hpp"
 
 #include "OrientationAnalysis/Filters/Algorithms/FindFeatureReferenceMisorientations.hpp"
 
@@ -126,7 +126,6 @@ IFilter::PreflightResult FindFeatureReferenceMisorientationsFilter::preflightImp
 
   const auto& cellPhases = dataStructure.getDataRefAs<Int32Array>(pCellPhasesArrayPathValue);
   const auto& featureAvgQuats = dataStructure.getDataRefAs<Int32Array>(pAvgQuatsArrayPathValue);
-
 
   // Create output Feature Reference Misorientations
   {
