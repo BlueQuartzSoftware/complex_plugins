@@ -2,11 +2,11 @@
 
 #include "complex/DataStructure/DataArray.hpp"
 #include "complex/DataStructure/DataPath.hpp"
+#include "complex/Filter/Actions/CreateArrayAction.hpp"
 #include "complex/Parameters/ArrayCreationParameter.hpp"
 #include "complex/Parameters/ArraySelectionParameter.hpp"
 #include "complex/Parameters/BoolParameter.hpp"
 #include "complex/Parameters/VectorParameter.hpp"
-#include "complex/Filter/Actions/CreateArrayAction.hpp"
 
 #include "OrientationAnalysis/Filters/Algorithms/FindSchmids.hpp"
 
@@ -121,7 +121,6 @@ IFilter::PreflightResult FindSchmidsFilter::preflightImpl(const DataStructure& d
 
   const Int32Array& phases = dataStructure.getDataRefAs<Int32Array>(pFeaturePhasesArrayPathValue);
 
-
   // Create output Schmids Array
   {
     auto createArrayAction = std::make_unique<CreateArrayAction>(DataType::float32, phases.getIDataStore()->getTupleShape(), std::vector<usize>{1}, pSchmidsArrayNameValue);
@@ -159,7 +158,6 @@ IFilter::PreflightResult FindSchmidsFilter::preflightImpl(const DataStructure& d
       return {MakeErrorResult<OutputActions>(-13500, "Slip Plane and Slip Direction must be normal")};
     }
   }
-
 
   // If your filter is going to pass back some `preflight updated values` then this is where you
   // would create the code to store those values in the appropriate object. Note that we
