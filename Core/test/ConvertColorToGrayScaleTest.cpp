@@ -250,7 +250,7 @@ static VertexGeom* createVertexGeometry(DataStructure& dataStructure, const std:
 {
   VertexGeom* vertexGeo = VertexGeom::Create(dataStructure, "VertexGeom");
   auto* vertexArray = Float32Array::CreateWithStore<DataStore<float32>>(dataStructure, "Vertices", tDims, cDims, vertexGeo->getId());
-  vertexGeo->setVertices(vertexArray);
+  vertexGeo->setVertices(*vertexArray);
   auto& vertices = vertexArray->getDataStoreRef();
   for(usize i = 0; i < numTuples; ++i)
   {

@@ -2,7 +2,7 @@
 
 #include "complex/Common/Numbers.hpp"
 #include "complex/DataStructure/DataGroup.hpp"
-#include "complex/DataStructure/Geometry/AbstractGeometryGrid.hpp"
+#include "complex/DataStructure/Geometry/IGridGeometry.hpp"
 #include "complex/Utilities/DataArrayUtilities.hpp"
 
 #include "EbsdLib/LaueOps/LaueOps.h"
@@ -29,7 +29,7 @@ AlignSectionsMisorientation::~AlignSectionsMisorientation() noexcept = default;
 // -----------------------------------------------------------------------------
 Result<> AlignSectionsMisorientation::operator()()
 {
-  const auto& gridGeom = m_DataStructure.getDataAs<AbstractGeometryGrid>(m_InputValues->inputImageGeometry);
+  const auto& gridGeom = m_DataStructure.getDataAs<IGridGeometry>(m_InputValues->inputImageGeometry);
 
   Result<> result = execute(gridGeom->getDimensions());
   if(result.invalid())
@@ -89,7 +89,7 @@ void AlignSectionsMisorientation::find_shifts(std::vector<int64_t>& xshifts, std
     }
   }
 
-  auto* gridGeom = m_DataStructure.getDataAs<AbstractGeometryGrid>(m_InputValues->inputImageGeometry);
+  auto* gridGeom = m_DataStructure.getDataAs<IGridGeometry>(m_InputValues->inputImageGeometry);
 
   const auto& cellPhases = m_DataStructure.getDataRefAs<Int32Array>(m_InputValues->cellPhasesArrayPath);
   const auto& quats = m_DataStructure.getDataRefAs<Float32Array>(m_InputValues->quatsArrayPath);

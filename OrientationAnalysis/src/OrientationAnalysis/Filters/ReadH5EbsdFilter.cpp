@@ -130,13 +130,16 @@ IFilter::PreflightResult ReadH5EbsdFilter::preflightImpl(const DataStructure& da
 
   CreateImageGeometryAction::OriginType origin = {0.0F, 0.0F, 0.0F};
 
-  resultOutputActions.value().actions.push_back(std::make_unique<CreateImageGeometryAction>(std::move(imageGeomPath), std::move(imageGeomDims), std::move(origin), std::move(spacing)));
+  resultOutputActions.value().actions.push_back(std::make_unique<CreateImageGeometryAction>(std::move(imageGeomPath),
+                                                                                            std::move(imageGeomDims),
+                                                                                            std::move(origin),
+                                                                                            std::move(spacing), pCellAttributeMatrixNameValue.getTargetName()));
 
   // Create the Cell AttributeMatrix
-  {
-    auto createDataGroupAction = std::make_unique<CreateDataGroupAction>(pCellAttributeMatrixNameValue);
-    resultOutputActions.value().actions.push_back(std::move(createDataGroupAction));
-  }
+//  {
+//    auto createDataGroupAction = std::make_unique<CreateDataGroupAction>(pCellAttributeMatrixNameValue);
+//    resultOutputActions.value().actions.push_back(std::move(createDataGroupAction));
+//  }
 
   // Create the Ensemble AttributeMatrix
   {

@@ -27,7 +27,7 @@ AlignSectionsFeatureCentroid::~AlignSectionsFeatureCentroid() noexcept = default
 // -----------------------------------------------------------------------------
 Result<> AlignSectionsFeatureCentroid::operator()()
 {
-  const auto& gridGeom = m_DataStructure.getDataAs<AbstractGeometryGrid>(m_InputValues->inputImageGeometry);
+  const auto& gridGeom = m_DataStructure.getDataAs<IGridGeometry>(m_InputValues->inputImageGeometry);
   Result<> result = execute(gridGeom->getDimensions());
   if(result.invalid())
   {
