@@ -52,7 +52,7 @@ public:
     }
     size_t numTuples = m_InputData.getNumberOfTuples();
     size_t numComp = m_InputData.getNumberOfComponents();
-    //size_t lastTup = 0;
+    // size_t lastTup = 0;
     for(size_t tup = 0; tup < numTuples; tup++)
     {
       auto now = std::chrono::steady_clock::now();
