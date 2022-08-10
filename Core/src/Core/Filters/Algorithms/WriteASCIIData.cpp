@@ -40,7 +40,7 @@ public:
     int32 recCount = 0;
     int32 count = 0;
     auto start = std::chrono::steady_clock::now();
-    std::ofstream fout(m_FilePath, std::ios_base::app);  // open precreated file in append mode
+    std::ofstream fout(m_FilePath, std::ios_base::app); // open precreated file in append mode
     std::stringstream stsm;
     if(std::is_same<T, float32>::value)
     {
