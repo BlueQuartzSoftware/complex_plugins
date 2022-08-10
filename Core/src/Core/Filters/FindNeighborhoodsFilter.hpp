@@ -30,6 +30,7 @@ public:
   static inline constexpr StringLiteral k_CentroidsArrayPath_Key = "CentroidsArrayPath";
   static inline constexpr StringLiteral k_NeighborhoodsArrayName_Key = "NeighborhoodsArrayName";
   static inline constexpr StringLiteral k_NeighborhoodListArrayName_Key = "NeighborhoodListArrayName";
+  static inline constexpr StringLiteral k_SelectedImageGeometry_Key = "SelectedImageGeometryPath";
 
   /**
    * @brief Returns the name of the filter.
