@@ -39,7 +39,5 @@ TEST_CASE("OrientationAnalysis::FindMisorientationsFilter", "[OrientationAnalysi
     // Execute the filter and check the result
     auto executeResult = filter.execute(dataStructure, args);
     COMPLEX_RESULT_REQUIRE_VALID(executeResult.result);
-
   }
 }
-

@@ -40,4 +40,3 @@ TEST_CASE("OrientationAnalysis::FindFeatureReferenceMisorientationsFilter", "[Or
     COMPLEX_RESULT_REQUIRE_VALID(executeResult.result);
   }
 }
-
