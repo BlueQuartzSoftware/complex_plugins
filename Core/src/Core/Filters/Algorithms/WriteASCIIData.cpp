@@ -135,7 +135,7 @@ const std::atomic_bool& WriteASCIIData::getCancel()
 // -----------------------------------------------------------------------------
 Result<> WriteASCIIData::operator()()
 {
-  const auto del = static_cast <WriteASCIIDataFilter::Delimiter>(m_InputValues->delimiter);
+  const auto del = static_cast<WriteASCIIDataFilter::Delimiter>(m_InputValues->delimiter);
   char delimiter = ' ';
   switch(del)
   {
