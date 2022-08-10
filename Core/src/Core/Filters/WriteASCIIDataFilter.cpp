@@ -98,7 +98,7 @@ IFilter::PreflightResult WriteASCIIDataFilter::preflightImpl(const DataStructure
   auto pDelimiterValue = filterArgs.value<ChoicesParameter::ValueType>(k_Delimiter_Key); 
   auto pSelectedDataArrayPathsValue = filterArgs.value<MultiArraySelectionParameter::ValueType>(k_SelectedDataArrayPaths_Key); //?
 
-  // Declare the preflightResult variable 
+  // Declare the preflightResult variable
   PreflightResult preflightResult;
 
   // If structural changes to the DataStructure this will store those actions.
