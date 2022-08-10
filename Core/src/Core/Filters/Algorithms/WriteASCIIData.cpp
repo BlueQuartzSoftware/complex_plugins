@@ -62,7 +62,7 @@ public:
         std::string message = fmt::format("Processing {}: {}% completed", m_InputData.getName(), static_cast<int32>(100 * (static_cast<float>(tup) / static_cast<float>(numTuples))));
         // std::string message = fmt::format("Processing {} completed", tup - lastTup);  // switch message if you need to calculate processing speeds and uncomment lastTup (lines 44 and 54)
         m_Filter->updateProgress(message);
-        //lastTup = tup;
+        // lastTup = tup;
         start = std::chrono::steady_clock::now();
       }
       if(m_Filter->getCancel())
