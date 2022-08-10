@@ -1,6 +1,6 @@
 #include "FindMisorientations.hpp"
 
-#include "complex/Common/Numbers.hpp"
+#include "complex/Common/Constants.hpp"
 #include "complex/DataStructure/DataArray.hpp"
 #include "complex/DataStructure/DataGroup.hpp"
 #include "complex/DataStructure/NeighborList.hpp"
@@ -71,7 +71,7 @@ Result<> FindMisorientations::operator()()
       {
         OrientationD axisAngle = orientationOps[xtalType1]->calculateMisorientation(q1, q2);
 
-        tempMisorientationLists[i][j] = static_cast<float>(axisAngle[3] * complex::numbers::k_180OverPi);
+        tempMisorientationLists[i][j] = static_cast<float>(axisAngle[3] * complex::Constants::k_180OverPiF);
         if(m_InputValues->FindAvgMisors)
         {
           (*avgMisorientations)[i] += tempMisorientationLists[i][j];
