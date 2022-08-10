@@ -215,17 +215,17 @@ private:
 
 TEST_CASE("Processing::WriteASCIIData: Valid filter execution")
 {
-    DataStructure dataStructure;
-    DataStructure& dsRef = dataStructure;
+  DataStructure dataStructure;
+  DataStructure& dsRef = dataStructure;
 
-    RunTest<int8>(dsRef).execute();
-    RunTest<int16>(dsRef).execute();
-    RunTest<int32>(dsRef).execute();
-    RunTest<int64>(dsRef).execute();
-    RunTest<uint8>(dsRef).execute();
-    RunTest<uint16>(dsRef).execute();
-    RunTest<uint32>(dsRef).execute();
-    RunTest<uint64>(dsRef).execute();
-    RunTest<float32>(dsRef).execute();
-    RunTest<float64>(dsRef).execute(); 
+  RunTest<int8>(dsRef).execute();
+  RunTest<int16>(dsRef).execute();
+  RunTest<int32>(dsRef).execute();
+  RunTest<int64>(dsRef).execute();
+  RunTest<uint8>(dsRef).execute();
+  RunTest<uint16>(dsRef).execute();
+  RunTest<uint32>(dsRef).execute();
+  RunTest<uint64>(dsRef).execute();
+  RunTest<float32>(dsRef).execute();
+  RunTest<float64>(dsRef).execute();
 } // end of test case
