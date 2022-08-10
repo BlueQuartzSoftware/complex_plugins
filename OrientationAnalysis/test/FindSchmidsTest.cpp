@@ -48,4 +48,3 @@ TEST_CASE("OrientationAnalysis::FindSchmidsFilter", "[OrientationAnalysis][FindS
     COMPLEX_RESULT_REQUIRE_VALID(executeResult.result);
   }
 }
-
