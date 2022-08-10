@@ -261,7 +261,7 @@ Result<> WriteASCIIData::operator()()
       std::ofstream fout(filePath, std::ios_base::app); // open precreated file in append mode
       fout << selectedArrayPtr.getName() << delimiter;
       count++;
-      if(count == selectedArrayPtr.getNumberOfTuples()) 
+      if(count == selectedDataArrayPaths.size()) 
       {
         fout << "\n";
       }
