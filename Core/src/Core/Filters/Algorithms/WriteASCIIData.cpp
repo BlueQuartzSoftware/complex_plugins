@@ -6,6 +6,7 @@
 #include "Core/Filters/WriteASCIIDataFilter.hpp"
 
 #include <fstream>
+#include <limits>
 #include <sstream>
 #include <string>
 #include <chrono>
