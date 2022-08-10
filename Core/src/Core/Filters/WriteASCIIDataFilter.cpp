@@ -91,14 +91,14 @@ IFilter::PreflightResult WriteASCIIDataFilter::preflightImpl(const DataStructure
   /****************************************************************************
    * Extract the actual input values from the 'filterArgs' object
    ***************************************************************************/
-  auto pOutputStyleValue = filterArgs.value<ChoicesParameter::ValueType>(k_OutputStyle_Key); //verify that its either Multi or single nothing else
-  auto pOutputPathValue = filterArgs.value<FileSystemPathParameter::ValueType>(k_OutputPath_Key); //verify the path
-  auto pFileExtensionValue = filterArgs.value<StringParameter::ValueType>(k_FileExtension_Key); //check extension and the "."
-  auto pMaxValPerLineValue = filterArgs.value<int32>(k_MaxValPerLine_Key); // verify that its >= 1
-  auto pDelimiterValue = filterArgs.value<ChoicesParameter::ValueType>(k_Delimiter_Key); 
-  auto pSelectedDataArrayPathsValue = filterArgs.value<MultiArraySelectionParameter::ValueType>(k_SelectedDataArrayPaths_Key); //?
+  auto pOutputStyleValue = filterArgs.value<ChoicesParameter::ValueType>(k_OutputStyle_Key);
+  auto pOutputPathValue = filterArgs.value<FileSystemPathParameter::ValueType>(k_OutputPath_Key);
+  auto pFileExtensionValue = filterArgs.value<StringParameter::ValueType>(k_FileExtension_Key);
+  auto pMaxValPerLineValue = filterArgs.value<int32>(k_MaxValPerLine_Key);
+  auto pDelimiterValue = filterArgs.value<ChoicesParameter::ValueType>(k_Delimiter_Key);
+  auto pSelectedDataArrayPathsValue = filterArgs.value<MultiArraySelectionParameter::ValueType>(k_SelectedDataArrayPaths_Key);
 
-  // Declare the preflightResult variable 
+  // Declare the preflightResult variable
   PreflightResult preflightResult;
 
   // If structural changes to the DataStructure this will store those actions.
