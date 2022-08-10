@@ -73,7 +73,6 @@ public:
       {
         stsm << m_InputData[tup * numComp + comp];
         recCount++;
-        
         if(comp != numComp - 1)
         {
           stsm << m_Delimiter;
@@ -260,15 +259,13 @@ Result<> WriteASCIIData::operator()()
       std::ofstream fout(filePath, std::ios_base::app); // open precreated file in append mode
       fout << selectedArrayPtr.getName() << delimiter;
       count++;
-      if(count == selectedDataArrayPaths.size()) 
+      if(count == selectedDataArrayPaths.size())
       {
         fout << "\n";
       }
       fout.close();
     }
-    
     count = 0; // reset
-
     // begin printing arrays
     for(const auto& selectedArrayPath : selectedDataArrayPaths)
     {
@@ -334,7 +331,6 @@ Result<> WriteASCIIData::operator()()
   }
   return {};
 }
-
 
 // -----------------------------------------------------------------------------
 std::string WriteASCIIData::getFilePath(const DataObject& selectedArrayPtr)
