@@ -164,8 +164,7 @@ Result<> WriteASCIIData::operator()()
     delimiter = '\t';
     break;
   }
-  default: 
-  {
+  default: {
     delimiter = ' ';
   }
   }
