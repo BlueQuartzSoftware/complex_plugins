@@ -7,9 +7,8 @@
 #include "complex/Filter/IFilter.hpp"
 #include "complex/Parameters/ChoicesParameter.hpp"
 #include "complex/Parameters/FileSystemPathParameter.hpp"
-#include "complex/Parameters/StringParameter.hpp"
 #include "complex/Parameters/MultiArraySelectionParameter.hpp"
-
+#include "complex/Parameters/StringParameter.hpp"
 
 namespace complex
 {

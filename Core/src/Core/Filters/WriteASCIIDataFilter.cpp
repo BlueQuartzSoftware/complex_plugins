@@ -1,20 +1,20 @@
 #include "WriteASCIIDataFilter.hpp"
 #include "Algorithms/WriteASCIIData.hpp"
 
+#include "complex/Common/TypeTraits.hpp"
 #include "complex/DataStructure/DataPath.hpp"
 #include "complex/Parameters/ChoicesParameter.hpp"
 #include "complex/Parameters/FileSystemPathParameter.hpp"
 #include "complex/Parameters/MultiArraySelectionParameter.hpp"
 #include "complex/Parameters/NumberParameter.hpp"
 #include "complex/Parameters/StringParameter.hpp"
-#include "complex/Common/TypeTraits.hpp"
 
 #include <algorithm>
 #include <array>
 #include <cmath>
+#include <filesystem>
 #include <limits>
 #include <stdexcept>
-#include <filesystem>
 namespace fs = std::filesystem;
 
 using namespace complex;
@@ -56,16 +56,15 @@ Parameters WriteASCIIDataFilter::parameters() const
 {
   Parameters params;
   // Create the parameter descriptors that are needed for this filter
-  params.insertLinkableParameter(std::make_unique<ChoicesParameter>(k_OutputStyle_Key, "Output Type", "", to_underlying(OutputStyle::MultipleFiles), 
-      ChoicesParameter::Choices{"Multiple Files", "Single File"})); //sequence dependent DO NOT REORDER
+  params.insertLinkableParameter(std::make_unique<ChoicesParameter>(k_OutputStyle_Key, "Output Type", "", to_underlying(OutputStyle::MultipleFiles),
+                                                                    ChoicesParameter::Choices{"Multiple Files", "Single File"})); // sequence dependent DO NOT REORDER
   params.insert(std::make_unique<FileSystemPathParameter>(k_OutputPath_Key, "Output Path", "", fs::path("<default output directory>"), FileSystemPathParameter::ExtensionsType{},
                                                           FileSystemPathParameter::PathType::OutputDir, true));
   params.insert(std::make_unique<StringParameter>(k_FileExtension_Key, "File Extension", "", ".txt"));
   params.insert(std::make_unique<Int32Parameter>(k_MaxValPerLine_Key, "Maximum Tuples Per Line", "", 1));
   params.insert(std::make_unique<ChoicesParameter>(k_Delimiter_Key, "Delimiter", "Default Delimiter is Space", to_underlying(Delimiter::Comma),
                                                    ChoicesParameter::Choices{"Space", "Semicolon", "Comma", "Colon", "Tab"})); // sequence dependent DO NOT REORDER
-  params.insert(std::make_unique<MultiArraySelectionParameter>(k_SelectedDataArrayPaths_Key, "Attribute Arrays to Export", "",
-                                                               MultiArraySelectionParameter::ValueType{}, complex::GetAllDataTypes()));
+  params.insert(std::make_unique<MultiArraySelectionParameter>(k_SelectedDataArrayPaths_Key, "Attribute Arrays to Export", "", MultiArraySelectionParameter::ValueType{}, complex::GetAllDataTypes()));
 
   // Associate the Linkable Parameter(s) to the children parameters that they control
   params.linkParameters(k_OutputStyle_Key, k_FileExtension_Key, std::make_any<uint64>(to_underlying(OutputStyle::MultipleFiles)));
@@ -82,7 +81,7 @@ IFilter::UniquePointer WriteASCIIDataFilter::clone() const
 
 //------------------------------------------------------------------------------
 IFilter::PreflightResult WriteASCIIDataFilter::preflightImpl(const DataStructure& dataStructure, const Arguments& filterArgs, const MessageHandler& messageHandler,
-                                                       const std::atomic_bool& shouldCancel) const
+                                                             const std::atomic_bool& shouldCancel) const
 {
   /****************************************************************************
    * Write any preflight sanity checking codes in this function
@@ -91,14 +90,14 @@ IFilter::PreflightResult WriteASCIIDataFilter::preflightImpl(const DataStructure
   /****************************************************************************
    * Extract the actual input values from the 'filterArgs' object
    ***************************************************************************/
-  auto pOutputStyleValue = filterArgs.value<ChoicesParameter::ValueType>(k_OutputStyle_Key); //verify that its either Multi or single nothing else
-  auto pOutputPathValue = filterArgs.value<FileSystemPathParameter::ValueType>(k_OutputPath_Key); //verify the path
-  auto pFileExtensionValue = filterArgs.value<StringParameter::ValueType>(k_FileExtension_Key); //check extension and the "."
-  auto pMaxValPerLineValue = filterArgs.value<int32>(k_MaxValPerLine_Key); // verify that its >= 1
-  auto pDelimiterValue = filterArgs.value<ChoicesParameter::ValueType>(k_Delimiter_Key); 
-  auto pSelectedDataArrayPathsValue = filterArgs.value<MultiArraySelectionParameter::ValueType>(k_SelectedDataArrayPaths_Key); //?
+  auto pOutputStyleValue = filterArgs.value<ChoicesParameter::ValueType>(k_OutputStyle_Key);
+  auto pOutputPathValue = filterArgs.value<FileSystemPathParameter::ValueType>(k_OutputPath_Key);
+  auto pFileExtensionValue = filterArgs.value<StringParameter::ValueType>(k_FileExtension_Key);
+  auto pMaxValPerLineValue = filterArgs.value<int32>(k_MaxValPerLine_Key);
+  auto pDelimiterValue = filterArgs.value<ChoicesParameter::ValueType>(k_Delimiter_Key);
+  auto pSelectedDataArrayPathsValue = filterArgs.value<MultiArraySelectionParameter::ValueType>(k_SelectedDataArrayPaths_Key);
 
-  // Declare the preflightResult variable 
+  // Declare the preflightResult variable
   PreflightResult preflightResult;
 
   // If structural changes to the DataStructure this will store those actions.
@@ -136,7 +135,7 @@ IFilter::PreflightResult WriteASCIIDataFilter::preflightImpl(const DataStructure
 
 //------------------------------------------------------------------------------
 Result<> WriteASCIIDataFilter::executeImpl(DataStructure& dataStructure, const Arguments& filterArgs, const PipelineFilter* pipelineNode, const MessageHandler& messageHandler,
-                                     const std::atomic_bool& shouldCancel) const
+                                           const std::atomic_bool& shouldCancel) const
 {
   /****************************************************************************
    * Write your algorithm implementation in this function
