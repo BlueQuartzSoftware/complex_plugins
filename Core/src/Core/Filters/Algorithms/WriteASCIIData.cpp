@@ -6,6 +6,7 @@
 #include "Core/Filters/WriteASCIIDataFilter.hpp"
 
 #include <fstream>
+#include <limits>
 #include <sstream>
 #include <string>
 #include <chrono>
@@ -39,7 +40,7 @@ public:
     int32 recCount = 0;
     int32 count = 0;
     auto start = std::chrono::steady_clock::now();
-    std::ofstream fout(m_FilePath, std::ios_base::app);  // open precreated file in append mode
+    std::ofstream fout(m_FilePath, std::ios_base::app); // open precreated file in append mode
     std::stringstream stsm;
     if(std::is_same<T, float32>::value)
     {
@@ -51,7 +52,7 @@ public:
     }
     size_t numTuples = m_InputData.getNumberOfTuples();
     size_t numComp = m_InputData.getNumberOfComponents();
-    //size_t lastTup = 0;
+    // size_t lastTup = 0;
     for(size_t tup = 0; tup < numTuples; tup++)
     {
       auto now = std::chrono::steady_clock::now();
@@ -61,7 +62,7 @@ public:
         std::string message = fmt::format("Processing {}: {}% completed", m_InputData.getName(), static_cast<int32>(100 * (static_cast<float>(tup) / static_cast<float>(numTuples))));
         // std::string message = fmt::format("Processing {} completed", tup - lastTup);  // switch message if you need to calculate processing speeds and uncomment lastTup (lines 44 and 54)
         m_Filter->updateProgress(message);
-        //lastTup = tup;
+        // lastTup = tup;
         start = std::chrono::steady_clock::now();
       }
       if(m_Filter->getCancel())
@@ -134,7 +135,7 @@ const std::atomic_bool& WriteASCIIData::getCancel()
 // -----------------------------------------------------------------------------
 Result<> WriteASCIIData::operator()()
 {
-  const auto del = static_cast <WriteASCIIDataFilter::Delimiter>(m_InputValues->delimiter);
+  const auto del = static_cast<WriteASCIIDataFilter::Delimiter>(m_InputValues->delimiter);
   char delimiter = ' ';
   switch(del)
   {
