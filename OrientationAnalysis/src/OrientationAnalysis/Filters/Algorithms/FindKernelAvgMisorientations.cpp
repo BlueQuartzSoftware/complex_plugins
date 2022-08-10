@@ -1,11 +1,15 @@
 #include "FindKernelAvgMisorientations.hpp"
 
+#include "complex/Common/Numbers.hpp"
 #include "complex/DataStructure/DataArray.hpp"
 #include "complex/DataStructure/DataGroup.hpp"
+#include "complex/DataStructure/Geometry/ImageGeom.hpp"
+#include "complex/Utilities/ParallelData3DAlgorithm.hpp"
 
 #include "EbsdLib/LaueOps/LaueOps.h"
 
 using namespace complex;
+
 
 // -----------------------------------------------------------------------------
 FindKernelAvgMisorientations::FindKernelAvgMisorientations(DataStructure& dataStructure, const IFilter::MessageHandler& mesgHandler, const std::atomic_bool& shouldCancel,
@@ -29,62 +33,51 @@ const std::atomic_bool& FindKernelAvgMisorientations::getCancel()
 // -----------------------------------------------------------------------------
 Result<> FindKernelAvgMisorientations::operator()()
 {
-
-  // Input Arrays
+  // Input Arrays / Parameter Data
   const auto& cellPhases = m_DataStructure.getDataRefAs<Int32Array>(m_InputValues->CellPhasesArrayPath);
   const auto& featureIds = m_DataStructure.getDataRefAs<Int32Array>(m_InputValues->FeatureIdsArrayPath);
   const auto& quats = m_DataStructure.getDataRefAs<Float32Array>(m_InputValues->QuatsArrayPath);
-
-  const auto& avgQuats = m_DataStructure.getDataRefAs<Float32Array>(m_InputValues->AvgQuatsArrayPath);
-
   const auto& crystalStructures = m_DataStructure.getDataRefAs<UInt32Array>(m_InputValues->CrystalStructuresArrayPath);
-
   const auto kernelSize = m_InputValues->KernelSize;
+
+  // Output Arrays
+  auto& kernelAvgMisorientations = m_DataStructure.getDataRefAs<Float32Array>(m_InputValues->KernelAverageMisorientationsArrayName);
 
   std::vector<LaueOps::Pointer> m_OrientationOps = LaueOps::GetAllOrientationOps();
 
-  int32_t numVoxel = 0; // number of voxels in the feature...
-  bool good = false;
+  auto* gridGeom = m_DataStructure.getDataAs<ImageGeom>(m_InputValues->InputImageGeometry);
+  SizeVec3 udims = gridGeom->getDimensions();
 
-  float totalmisorientation = 0.0f;
+  auto xPoints = static_cast<int64_t>(udims[0]);
+  auto yPoints = static_cast<int64_t>(udims[1]);
+  auto zPoints = static_cast<int64_t>(udims[2]);
 
-  uint32_t phase1 = EbsdLib::CrystalStructure::UnknownCrystalStructure;
-  uint32_t phase2 = EbsdLib::CrystalStructure::UnknownCrystalStructure;
-  SizeVec3Type udims = m->getGeometryAs<ImageGeom>()->getDimensions();
-
-  int64_t xPoints = static_cast<int64_t>(udims[0]);
-  int64_t yPoints = static_cast<int64_t>(udims[1]);
-  int64_t zPoints = static_cast<int64_t>(udims[2]);
-  int64_t point = 0;
-  size_t neighbor = 0;
-  int64_t jStride = 0;
-  int64_t kStride = 0;
-  float* currentQuatPtr = nullptr;
   for(int64_t col = 0; col < xPoints; col++)
   {
     for(int64_t row = 0; row < yPoints; row++)
     {
       for(int64_t plane = 0; plane < zPoints; plane++)
       {
-        point = (plane * xPoints * yPoints) + (row * xPoints) + col;
-        if(m_FeatureIds[point] > 0 && m_CellPhases[point] > 0)
+        int64_t point = (plane * xPoints * yPoints) + (row * xPoints) + col;
+        if(featureIds[point] > 0 && cellPhases[point] > 0)
         {
-          totalmisorientation = 0.0f;
-          numVoxel = 0;
-          currentQuatPtr = quatPtr->getTuplePointer(point);
-          QuatF q1(currentQuatPtr[0], currentQuatPtr[1], currentQuatPtr[2], currentQuatPtr[3]);
+          float totalMisorientation = 0.0f;
+          int32 numVoxel = 0;
 
-          phase1 = crystalStructures[m_CellPhases[point]];
+          size_t quatIndex = point * 4;
+          QuatF q1(quats[quatIndex], quats[quatIndex + 1], quats[quatIndex + 2], quats[quatIndex + 3]);
+
+          uint32_t phase1 = crystalStructures[cellPhases[point]];
           for(int32_t j = -kernelSize[2]; j < kernelSize[2] + 1; j++)
           {
-            jStride = j * xPoints * yPoints;
+            int64_t jStride = j * xPoints * yPoints;
             for(int32_t k = -kernelSize[1]; k < kernelSize[1] + 1; k++)
             {
-              kStride = k * xPoints;
+              int64_t kStride = k * xPoints;
               for(int32_t l = -kernelSize[0]; l < kernelSize[0] + 1; l++)
               {
-                good = true;
-                neighbor = point + (jStride) + (kStride) + (l);
+                bool good = true;
+                size_t neighbor = point + (jStride) + (kStride) + (l);
                 if(plane + j < 0)
                 {
                   good = false;
@@ -109,29 +102,26 @@ Result<> FindKernelAvgMisorientations::operator()()
                 {
                   good = false;
                 }
-                if(good && m_FeatureIds[point] == m_FeatureIds[neighbor])
+                if(good && featureIds[point] == featureIds[neighbor])
                 {
-                  currentQuatPtr = quatPtr->getTuplePointer(neighbor);
-
-                  QuatF q2(currentQuatPtr[0], currentQuatPtr[1], currentQuatPtr[2], currentQuatPtr[3]);
-                  phase2 = crystalStructures[m_CellPhases[neighbor]];
+                  quatIndex = neighbor * 4;
+                  QuatF q2(quats[quatIndex], quats[quatIndex + 1], quats[quatIndex + 2], quats[quatIndex + 3]);
                   OrientationF axisAngle = m_OrientationOps[phase1]->calculateMisorientation(q1, q2);
-
-                  totalmisorientation = totalmisorientation + (axisAngle[3] * SIMPLib::Constants::k_180OverPiD);
+                  totalMisorientation = totalMisorientation + (axisAngle[3] * complex::numbers::k_180OverPi);
                   numVoxel++;
                 }
               }
             }
           }
-          m_KernelAverageMisorientations[point] = totalmisorientation / (float)numVoxel;
+          kernelAvgMisorientations[point] = totalMisorientation / static_cast<float>(numVoxel);
           if(numVoxel == 0)
           {
-            m_KernelAverageMisorientations[point] = 0.0f;
+            kernelAvgMisorientations[point] = 0.0f;
           }
         }
-        if(m_FeatureIds[point] == 0 || m_CellPhases[point] == 0)
+        if(featureIds[point] == 0 || cellPhases[point] == 0)
         {
-          m_KernelAverageMisorientations[point] = 0.0f;
+          kernelAvgMisorientations[point] = 0.0f;
         }
       }
     }

@@ -7,20 +7,6 @@
 #include "complex/Filter/IFilter.hpp"
 #include "complex/Parameters/VectorParameter.hpp"
 
-/**
-* This is example code to put in the Execute Method of the filter.
-  FindKernelAvgMisorientationsInputValues inputValues;
-
-  inputValues.KernelSize = filterArgs.value<VectorInt32Parameter::ValueType>(k_KernelSize_Key);
-  inputValues.FeatureIdsArrayPath = filterArgs.value<DataPath>(k_FeatureIdsArrayPath_Key);
-  inputValues.CellPhasesArrayPath = filterArgs.value<DataPath>(k_CellPhasesArrayPath_Key);
-  inputValues.QuatsArrayPath = filterArgs.value<DataPath>(k_QuatsArrayPath_Key);
-  inputValues.CrystalStructuresArrayPath = filterArgs.value<DataPath>(k_CrystalStructuresArrayPath_Key);
-  inputValues.KernelAverageMisorientationsArrayName = filterArgs.value<DataPath>(k_KernelAverageMisorientationsArrayName_Key);
-
-  return FindKernelAvgMisorientations(dataStructure, messageHandler, shouldCancel, &inputValues)();
-*/
-
 namespace complex
 {
 
@@ -32,6 +18,7 @@ struct ORIENTATIONANALYSIS_EXPORT FindKernelAvgMisorientationsInputValues
   DataPath QuatsArrayPath;
   DataPath CrystalStructuresArrayPath;
   DataPath KernelAverageMisorientationsArrayName;
+  DataPath InputImageGeometry;
 };
 
 /**

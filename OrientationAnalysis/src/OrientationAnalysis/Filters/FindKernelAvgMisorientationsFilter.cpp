@@ -5,6 +5,7 @@
 #include "complex/Filter/Actions/CreateArrayAction.hpp"
 #include "complex/Parameters/ArrayCreationParameter.hpp"
 #include "complex/Parameters/ArraySelectionParameter.hpp"
+#include "complex/Parameters/GeometrySelectionParameter.hpp"
 #include "complex/Parameters/VectorParameter.hpp"
 
 #include "OrientationAnalysis/Filters/Algorithms/FindKernelAvgMisorientations.hpp"
@@ -51,6 +52,8 @@ Parameters FindKernelAvgMisorientationsFilter::parameters() const
   params.insertSeparator(Parameters::Separator{"Input Parameters"});
   params.insert(std::make_unique<VectorInt32Parameter>(k_KernelSize_Key, "Kernel Radius", "", std::vector<int32>{1, 1, 1}, std::vector<std::string>{"X", "Y", "Z"}));
   params.insertSeparator(Parameters::Separator{"Required Cell Data"});
+  params.insert(std::make_unique<GeometrySelectionParameter>(k_SelectedImageGeometry_Key, "Selected Image Geometry", "", DataPath({"Data Container"}),
+                                                             GeometrySelectionParameter::AllowedTypes{AbstractGeometry::Type::Image}));
   params.insert(std::make_unique<ArraySelectionParameter>(k_FeatureIdsArrayPath_Key, "Feature Ids", "", DataPath({"CellData", "FeatureIds"}), ArraySelectionParameter::AllowedTypes{DataType::int32}));
   params.insert(std::make_unique<ArraySelectionParameter>(k_CellPhasesArrayPath_Key, "Cell Phases", "", DataPath({"CellData", "Phases"}), ArraySelectionParameter::AllowedTypes{DataType::int32}));
   params.insert(std::make_unique<ArraySelectionParameter>(k_QuatsArrayPath_Key, "Quaternions", "", DataPath({"CellData", "Quats"}), ArraySelectionParameter::AllowedTypes{DataType::float32}));
@@ -79,6 +82,7 @@ IFilter::PreflightResult FindKernelAvgMisorientationsFilter::preflightImpl(const
   auto pQuatsArrayPathValue = filterArgs.value<DataPath>(k_QuatsArrayPath_Key);
   auto pCrystalStructuresArrayPathValue = filterArgs.value<DataPath>(k_CrystalStructuresArrayPath_Key);
   auto pKernelAverageMisorientationsArrayNameValue = filterArgs.value<DataPath>(k_KernelAverageMisorientationsArrayName_Key);
+  auto inputImageGeometry = filterArgs.value<DataPath>(k_SelectedImageGeometry_Key);
 
   // Declare the preflightResult variable that will be populated with the results
   // of the preflight. The PreflightResult type contains the output Actions and
@@ -122,6 +126,7 @@ Result<> FindKernelAvgMisorientationsFilter::executeImpl(DataStructure& dataStru
   inputValues.QuatsArrayPath = filterArgs.value<DataPath>(k_QuatsArrayPath_Key);
   inputValues.CrystalStructuresArrayPath = filterArgs.value<DataPath>(k_CrystalStructuresArrayPath_Key);
   inputValues.KernelAverageMisorientationsArrayName = filterArgs.value<DataPath>(k_KernelAverageMisorientationsArrayName_Key);
+  inputValues.InputImageGeometry = filterArgs.value<DataPath>(k_SelectedImageGeometry_Key);
 
   return FindKernelAvgMisorientations(dataStructure, messageHandler, shouldCancel, &inputValues)();
 }
