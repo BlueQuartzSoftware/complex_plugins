@@ -73,7 +73,6 @@ public:
       {
         stsm << m_InputData[tup * numComp + comp];
         recCount++;
-        
         if(comp != numComp - 1)
         {
           stsm << m_Delimiter;
@@ -88,10 +87,10 @@ public:
       else
       {
         stsm << m_Delimiter;
-      }  
+      }
       if(recCount >= k_MaxComponents) // k_MaxComponents = 21,000,000 (essentially flushes buffer every 1 second)
       {
-        fout << stsm.str(); 
+        fout << stsm.str();
         stsm.flush();
         recCount = 0;
       }
@@ -164,14 +163,12 @@ Result<> WriteASCIIData::operator()()
     delimiter = '\t';
     break;
   }
-  default: 
-  {
+  default: {
     delimiter = ' ';
   }
   }
-  
   int32 maxValPerLine = m_InputValues->maxValPerLine;
-  if (maxValPerLine < 1)
+  if(maxValPerLine < 1)
   {
     MakeErrorResult(-11020, fmt::format("Characters per line must be greater than zero: {}", m_InputValues->maxValPerLine));
     return {};
@@ -180,7 +177,7 @@ Result<> WriteASCIIData::operator()()
   auto selectedDataArrayPaths = m_InputValues->selectedDataArrayPaths;
   int32 count = 0; // used to dispaly progress to user (declared here to avoid duplication)
   std::string filePath = "";
-  if(static_cast <WriteASCIIDataFilter::OutputStyle>(m_InputValues->outputStyle) == WriteASCIIDataFilter::OutputStyle::MultipleFiles) // MultipleFiles = 0
+  if(static_cast<WriteASCIIDataFilter::OutputStyle>(m_InputValues->outputStyle) == WriteASCIIDataFilter::OutputStyle::MultipleFiles) // MultipleFiles = 0
   {
     for(const auto& selectedArrayPath : selectedDataArrayPaths)
     {
@@ -262,16 +259,14 @@ Result<> WriteASCIIData::operator()()
       std::ofstream fout(filePath, std::ios_base::app); // open precreated file in append mode
       fout << selectedArrayPtr.getName() << delimiter;
       count++;
-      if(count == selectedDataArrayPaths.size()) 
+      if(count == selectedDataArrayPaths.size())
       {
         fout << "\n";
       }
       fout.close();
     }
-    
     count = 0; // reset
-
-    //begin printing arrays
+    // begin printing arrays
     for(const auto& selectedArrayPath : selectedDataArrayPaths)
     {
       if(m_ShouldCancel)
@@ -337,7 +332,6 @@ Result<> WriteASCIIData::operator()()
   return {};
 }
 
-
 // -----------------------------------------------------------------------------
 std::string WriteASCIIData::getFilePath(const DataObject& selectedArrayPtr)
 {
@@ -346,8 +340,8 @@ std::string WriteASCIIData::getFilePath(const DataObject& selectedArrayPtr)
 
   std::string fullPath = m_InputValues->outputPath.string() + "/" + name + extension;
 
-  std::ofstream fout (fullPath, std::ofstream::out);  // test name resolution and create file
-  if(!fout.is_open()) 
+  std::ofstream fout(fullPath, std::ofstream::out); // test name resolution and create file
+  if(!fout.is_open())
   {
     MakeErrorResult(-11025, fmt::format("Error opening path {}", fullPath));
     return "";
