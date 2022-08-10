@@ -14,16 +14,10 @@
 #include "complex/Parameters/MultiArraySelectionParameter.hpp"
 #include "complex/Parameters/NumberParameter.hpp"
 #include "complex/Parameters/StringParameter.hpp"
-#include "complex/Common/TypeTraits.hpp"
-#include "complex/Common/TypesUtility.hpp"
-#include "complex/Common/Types.hpp"
-#include "complex/Filter/Arguments.hpp"
 
 #include <filesystem>
 #include <fstream>
 #include <functional>
-#include <vector>
-#include <string>
 #include <regex>
 #include <stdexcept>
 
