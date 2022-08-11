@@ -1,20 +1,20 @@
 #include "WriteASCIIDataFilter.hpp"
 #include "Algorithms/WriteASCIIData.hpp"
 
+#include "complex/Common/TypeTraits.hpp"
 #include "complex/DataStructure/DataPath.hpp"
 #include "complex/Parameters/ChoicesParameter.hpp"
 #include "complex/Parameters/FileSystemPathParameter.hpp"
 #include "complex/Parameters/MultiArraySelectionParameter.hpp"
 #include "complex/Parameters/NumberParameter.hpp"
 #include "complex/Parameters/StringParameter.hpp"
-#include "complex/Common/TypeTraits.hpp"
 
 #include <algorithm>
 #include <array>
 #include <cmath>
+#include <filesystem>
 #include <limits>
 #include <stdexcept>
-#include <filesystem>
 namespace fs = std::filesystem;
 
 using namespace complex;
@@ -64,8 +64,7 @@ Parameters WriteASCIIDataFilter::parameters() const
   params.insert(std::make_unique<Int32Parameter>(k_MaxValPerLine_Key, "Maximum Tuples Per Line", "", 1));
   params.insert(std::make_unique<ChoicesParameter>(k_Delimiter_Key, "Delimiter", "Default Delimiter is Space", to_underlying(Delimiter::Comma),
                                                    ChoicesParameter::Choices{"Space", "Semicolon", "Comma", "Colon", "Tab"})); // sequence dependent DO NOT REORDER
-  params.insert(std::make_unique<MultiArraySelectionParameter>(k_SelectedDataArrayPaths_Key, "Attribute Arrays to Export", "",
-                                                               MultiArraySelectionParameter::ValueType{}, complex::GetAllDataTypes()));
+  params.insert(std::make_unique<MultiArraySelectionParameter>(k_SelectedDataArrayPaths_Key, "Attribute Arrays to Export", "", MultiArraySelectionParameter::ValueType{}, complex::GetAllDataTypes()));
 
   // Associate the Linkable Parameter(s) to the children parameters that they control
   params.linkParameters(k_OutputStyle_Key, k_FileExtension_Key, std::make_any<uint64>(to_underlying(OutputStyle::MultipleFiles)));
@@ -82,7 +81,7 @@ IFilter::UniquePointer WriteASCIIDataFilter::clone() const
 
 //------------------------------------------------------------------------------
 IFilter::PreflightResult WriteASCIIDataFilter::preflightImpl(const DataStructure& dataStructure, const Arguments& filterArgs, const MessageHandler& messageHandler,
-                                                       const std::atomic_bool& shouldCancel) const
+                                                             const std::atomic_bool& shouldCancel) const
 {
   /****************************************************************************
    * Write any preflight sanity checking codes in this function
@@ -95,7 +94,7 @@ IFilter::PreflightResult WriteASCIIDataFilter::preflightImpl(const DataStructure
   auto pOutputPathValue = filterArgs.value<FileSystemPathParameter::ValueType>(k_OutputPath_Key);
   auto pFileExtensionValue = filterArgs.value<StringParameter::ValueType>(k_FileExtension_Key);
   auto pMaxValPerLineValue = filterArgs.value<int32>(k_MaxValPerLine_Key);
-  auto pDelimiterValue = filterArgs.value<ChoicesParameter::ValueType>(k_Delimiter_Key); 
+  auto pDelimiterValue = filterArgs.value<ChoicesParameter::ValueType>(k_Delimiter_Key);
   auto pSelectedDataArrayPathsValue = filterArgs.value<MultiArraySelectionParameter::ValueType>(k_SelectedDataArrayPaths_Key);
 
   // Declare the preflightResult variable
@@ -136,7 +135,7 @@ IFilter::PreflightResult WriteASCIIDataFilter::preflightImpl(const DataStructure
 
 //------------------------------------------------------------------------------
 Result<> WriteASCIIDataFilter::executeImpl(DataStructure& dataStructure, const Arguments& filterArgs, const PipelineFilter* pipelineNode, const MessageHandler& messageHandler,
-                                     const std::atomic_bool& shouldCancel) const
+                                           const std::atomic_bool& shouldCancel) const
 {
   /****************************************************************************
    * Write your algorithm implementation in this function

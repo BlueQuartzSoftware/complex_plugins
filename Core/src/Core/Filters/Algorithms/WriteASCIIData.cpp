@@ -1,17 +1,16 @@
 #include "WriteASCIIData.hpp"
 
+#include "Core/Filters/WriteASCIIDataFilter.hpp"
+#include "complex/Common/Types.hpp"
 #include "complex/DataStructure/DataArray.hpp"
 #include "complex/DataStructure/DataPath.hpp"
-#include "complex/Common/Types.hpp"
-#include "Core/Filters/WriteASCIIDataFilter.hpp"
 
+#include <chrono>
 #include <fstream>
 #include <limits>
 #include <sstream>
 #include <string>
-#include <chrono>
 #include <type_traits>
-#include <limits>
 
 using namespace complex;
 namespace // define constant expression for buffer speed
