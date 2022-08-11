@@ -49,7 +49,7 @@ struct make_shared_enabler : public complex::Application
 {
 };
 
-TEST_CASE("Reconstruction::EBSDSegmentFeatures: Instantiation and Parameter Check", "[Reconstruction][EBSDSegmentFeatures]")
+TEST_CASE("OrientationAnalysis::EBSDSegmentFeatures: Instantiation and Parameter Check", "[OrientationAnalysis][EBSDSegmentFeatures]")
 {
   std::shared_ptr<make_shared_enabler> app = std::make_shared<make_shared_enabler>();
   app->loadPlugins(unit_test::k_BuildDir.view(), true);
