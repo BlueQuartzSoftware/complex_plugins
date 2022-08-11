@@ -1,70 +1,75 @@
-/**
- * This file is auto generated from the original StatsToolbox/FindEuclideanDistMapFilter
- * runtime information. These are the steps that need to be taken to utilize this
- * unit test in the proper way.
- *
- * 1: Validate each of the default parameters that gets created.
- * 2: Inspect the actual filter to determine if the filter in its default state
- * would pass or fail BOTH the preflight() and execute() methods
- * 3: UPDATE the ```REQUIRE(result.result.valid());``` code to have the proper
- *
- * 4: Add additional unit tests to actually test each code path within the filter
- *
- * There are some example Catch2 ```TEST_CASE``` sections for your inspiration.
- *
- * NOTE the format of the ```TEST_CASE``` macro. Please stick to this format to
- * allow easier parsing of the unit tests.
- *
- * When you start working on this unit test remove "[FindEuclideanDistMapFilter][.][UNIMPLEMENTED]"
- * from the TEST_CASE macro. This will enable this unit test to be run by default
- * and report errors.
- */
 
 #include <catch2/catch.hpp>
 
+#include "complex/Core/Application.hpp"
 #include "complex/Parameters/ArrayCreationParameter.hpp"
-#include "complex/Parameters/ArraySelectionParameter.hpp"
 #include "complex/Parameters/BoolParameter.hpp"
 
 #include "Core/Core_test_dirs.hpp"
 #include "Core/Filters/FindEuclideanDistMapFilter.hpp"
 
+#include "complex_plugins/Utilities/TestUtilities.hpp"
+
 using namespace complex;
 
-TEST_CASE("Core::FindEuclideanDistMapFilter: Instantiation and Parameter Check", "[Core][FindEuclideanDistMapFilter]")
+TEST_CASE("Core::FindEuclideanDistMapFilter", "[Core][FindEuclideanDistMapFilter]")
 {
+  //  std::shared_ptr<make_shared_enabler> app = std::make_shared<make_shared_enabler>();
+  //  app->loadPlugins(unit_test::k_BuildDir.view(), true);
+  //  auto* filterList = Application::Instance()->getFilterList();
+
+  // Read the Small IN100 Data set
+  auto baseDataFilePath = fs::path(fmt::format("{}/TestFiles/6_6_stats_test.dream3d", unit_test::k_DREAM3DDataDir));
+  DataStructure dataStructure = LoadDataStructure(baseDataFilePath);
+  const DataPath k_CellFeatureDataAM = k_DataContainerPath.createChildPath("CellFeatureData");
+
+  const std::string k_GBDistancesArrayName("GBManhattanDistances");
+  const std::string k_TJDistancesArrayName("TJManhattanDistances");
+  const std::string k_QPDistancesArrayName("QPManhattanDistances");
+  const std::string k_NearestNeighborsArrayName("NearestNeighbors");
   // Instantiate the filter, a DataStructure object and an Arguments Object
-  FindEuclideanDistMapFilter filter;
-  DataStructure ds;
-  Arguments args;
+  {
+    FindEuclideanDistMapFilter filter;
+    Arguments args;
 
-  // Create default Parameters for the filter.
-  args.insertOrAssign(FindEuclideanDistMapFilter::k_CalcManhattanDist_Key, std::make_any<bool>(false));
-  args.insertOrAssign(FindEuclideanDistMapFilter::k_DoBoundaries_Key, std::make_any<bool>(false));
-  args.insertOrAssign(FindEuclideanDistMapFilter::k_DoTripleLines_Key, std::make_any<bool>(false));
-  args.insertOrAssign(FindEuclideanDistMapFilter::k_DoQuadPoints_Key, std::make_any<bool>(false));
-  args.insertOrAssign(FindEuclideanDistMapFilter::k_SaveNearestNeighbors_Key, std::make_any<bool>(false));
-  args.insertOrAssign(FindEuclideanDistMapFilter::k_FeatureIdsArrayPath_Key, std::make_any<DataPath>(DataPath{}));
-  args.insertOrAssign(FindEuclideanDistMapFilter::k_GBDistancesArrayName_Key, std::make_any<DataPath>(DataPath{}));
-  args.insertOrAssign(FindEuclideanDistMapFilter::k_TJDistancesArrayName_Key, std::make_any<DataPath>(DataPath{}));
-  args.insertOrAssign(FindEuclideanDistMapFilter::k_QPDistancesArrayName_Key, std::make_any<DataPath>(DataPath{}));
-  args.insertOrAssign(FindEuclideanDistMapFilter::k_NearestNeighborsArrayName_Key, std::make_any<DataPath>(DataPath{}));
+    // Create default Parameters for the filter.
+    args.insert(FindEuclideanDistMapFilter::k_CalcManhattanDist_Key, std::make_any<bool>(true));
+    args.insert(FindEuclideanDistMapFilter::k_DoBoundaries_Key, std::make_any<bool>(true));
+    args.insert(FindEuclideanDistMapFilter::k_DoTripleLines_Key, std::make_any<bool>(true));
+    args.insert(FindEuclideanDistMapFilter::k_DoQuadPoints_Key, std::make_any<bool>(true));
+    args.insert(FindEuclideanDistMapFilter::k_SaveNearestNeighbors_Key, std::make_any<bool>(false));
+    // Input Arrays
+    args.insert(FindEuclideanDistMapFilter::k_SelectedImageGeometry_Key, std::make_any<DataPath>(k_DataContainerPath));
 
-  // Preflight the filter and check result
-  auto preflightResult = filter.preflight(ds, args);
-  REQUIRE(preflightResult.outputActions.valid());
+    args.insert(FindEuclideanDistMapFilter::k_FeatureIdsArrayPath_Key, std::make_any<DataPath>(k_CellAttributeMatrix.createChildPath(k_FeatureIds)));
+    // Output Arrays
+    args.insert(FindEuclideanDistMapFilter::k_GBDistancesArrayName_Key, std::make_any<DataPath>({k_GBDistancesArrayName}));
+    args.insert(FindEuclideanDistMapFilter::k_TJDistancesArrayName_Key, std::make_any<DataPath>({k_TJDistancesArrayName}));
+    args.insert(FindEuclideanDistMapFilter::k_QPDistancesArrayName_Key, std::make_any<DataPath>({k_QPDistancesArrayName}));
+    args.insert(FindEuclideanDistMapFilter::k_NearestNeighborsArrayName_Key, std::make_any<DataPath>({k_NearestNeighborsArrayName}));
 
-  // Execute the filter and check the result
-  auto executeResult = filter.execute(ds, args);
-  REQUIRE(executeResult.result.valid());
+    // Preflight the filter and check result
+    auto preflightResult = filter.preflight(dataStructure, args);
+    COMPLEX_RESULT_REQUIRE_VALID(preflightResult.outputActions)
+
+    // Execute the filter and check the result
+    auto executeResult = filter.execute(dataStructure, args);
+    COMPLEX_RESULT_REQUIRE_VALID(executeResult.result)
+  }
+
+  // Compare the output arrays with those precalculated from the file
+  {
+    std::vector<std::string> comparisonNames = {k_GBDistancesArrayName, k_TJDistancesArrayName, k_QPDistancesArrayName};
+    for(const auto& comparisonName : comparisonNames)
+    {
+      const DataPath exemplarPath({k_DataContainer, k_CellData, comparisonName});
+      const DataPath calculatedPath({comparisonName});
+      const auto& exemplarData = dataStructure.getDataRefAs<IDataArray>(exemplarPath);
+      const auto& calculatedData = dataStructure.getDataRefAs<IDataArray>(calculatedPath);
+      CompareDataArrays<int32>(exemplarData, calculatedData);
+    }
+  }
+
+  // Write the DataStructure out to the file system
+  WriteTestDataStructure(dataStructure, fs::path(fmt::format("{}/find_euclidean_dist_map.dream3d", unit_test::k_BinaryTestOutputDir)));
 }
-
-// TEST_CASE("StatsToolbox::FindEuclideanDistMapFilter: Valid filter execution")
-//{
-//
-//}
-
-// TEST_CASE("StatsToolbox::FindEuclideanDistMapFilter: InValid filter execution")
-//{
-//
-//}

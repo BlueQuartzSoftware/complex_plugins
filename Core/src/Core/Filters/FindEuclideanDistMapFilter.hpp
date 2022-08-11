@@ -34,6 +34,7 @@ public:
   static inline constexpr StringLiteral k_TJDistancesArrayName_Key = "TJDistancesArrayName";
   static inline constexpr StringLiteral k_QPDistancesArrayName_Key = "QPDistancesArrayName";
   static inline constexpr StringLiteral k_NearestNeighborsArrayName_Key = "NearestNeighborsArrayName";
+  static inline constexpr StringLiteral k_SelectedImageGeometry_Key = "selected_image_geometry";
 
   /**
    * @brief Returns the name of the filter.

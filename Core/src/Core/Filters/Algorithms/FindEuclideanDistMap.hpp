@@ -39,6 +39,7 @@ struct CORE_EXPORT FindEuclideanDistMapInputValues
   DataPath TJDistancesArrayName;
   DataPath QPDistancesArrayName;
   DataPath NearestNeighborsArrayName;
+  DataPath InputImageGeometry;
 };
 
 /**
@@ -57,6 +58,15 @@ public:
   FindEuclideanDistMap(FindEuclideanDistMap&&) noexcept = delete;
   FindEuclideanDistMap& operator=(const FindEuclideanDistMap&) = delete;
   FindEuclideanDistMap& operator=(FindEuclideanDistMap&&) noexcept = delete;
+
+  using EnumType = uint32_t;
+
+  enum class MapType : EnumType
+  {
+    FeatureBoundary = 0, //!<
+    TripleJunction = 1,  //!<
+    QuadPoint = 2,       //!<
+  };
 
   Result<> operator()();
 
