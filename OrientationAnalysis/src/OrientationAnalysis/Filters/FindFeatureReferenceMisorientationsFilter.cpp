@@ -61,8 +61,8 @@ Parameters FindFeatureReferenceMisorientationsFilter::parameters() const
                                                           ArraySelectionParameter::AllowedTypes{DataType::float32}));
 
   params.insertSeparator(Parameters::Separator{"Required Feature Data"});
-  params.insert(
-      std::make_unique<ArraySelectionParameter>(k_AvgQuatsArrayPath_Key, "Average Quaternions", "", DataPath({"FeatureData", "AvgQuats"}), ArraySelectionParameter::AllowedTypes{DataType::float32}));
+  params.insert(std::make_unique<ArraySelectionParameter>(k_AvgQuatsArrayPath_Key, "Average Quaternions", "", DataPath({"CellFeatureData", "AvgQuats"}),
+                                                          ArraySelectionParameter::AllowedTypes{DataType::float32}));
   params.insertSeparator(Parameters::Separator{"Required Ensemble Data"});
   params.insert(std::make_unique<ArraySelectionParameter>(k_CrystalStructuresArrayPath_Key, "Crystal Structures", "", DataPath({"Ensemble Data", "CrystalStructures"}),
                                                           ArraySelectionParameter::AllowedTypes{DataType::uint32}));
@@ -71,11 +71,11 @@ Parameters FindFeatureReferenceMisorientationsFilter::parameters() const
   params.insert(
       std::make_unique<ArrayCreationParameter>(k_FeatureReferenceMisorientationsArrayName_Key, "Feature Reference Misorientations", "", DataPath({"CellData", "FeatureReferenceMisorientations"})));
   params.insertSeparator(Parameters::Separator{"Created Feature Data"});
-  params.insert(std::make_unique<ArrayCreationParameter>(k_FeatureAvgMisorientationsArrayName_Key, "Average Misorientations", "", DataPath({"FeatureData", "FeatureAvgMisorientations"})));
+  params.insert(std::make_unique<ArrayCreationParameter>(k_FeatureAvgMisorientationsArrayName_Key, "Average Misorientations", "", DataPath({"CellFeatureData", "FeatureAvgMisorientations"})));
 
   // Associate the Linkable Parameter(s) to the children parameters that they control
-  params.linkParameters(k_ReferenceOrientation_Key, k_GBEuclideanDistancesArrayPath_Key, 1);
-  params.linkParameters(k_ReferenceOrientation_Key, k_AvgQuatsArrayPath_Key, 0);
+  params.linkParameters(k_ReferenceOrientation_Key, k_GBEuclideanDistancesArrayPath_Key, static_cast<ChoicesParameter::ValueType>(1));
+  params.linkParameters(k_ReferenceOrientation_Key, k_AvgQuatsArrayPath_Key, static_cast<ChoicesParameter::ValueType>(0));
 
   return params;
 }
@@ -125,7 +125,7 @@ IFilter::PreflightResult FindFeatureReferenceMisorientationsFilter::preflightImp
   DataPath featureDataGroup = pAvgQuatsArrayPathValue.getParent();
 
   const auto& cellPhases = dataStructure.getDataRefAs<Int32Array>(pCellPhasesArrayPathValue);
-  const auto& featureAvgQuats = dataStructure.getDataRefAs<Int32Array>(pAvgQuatsArrayPathValue);
+  const auto& featureAvgQuats = dataStructure.getDataRefAs<Float32Array>(pAvgQuatsArrayPathValue);
 
   // Create output Feature Reference Misorientations
   {
