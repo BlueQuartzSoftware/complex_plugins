@@ -43,6 +43,8 @@ const std::string k_CellFeatureData("CellFeatureData");
 const std::string k_Centroids("Centroids");
 const std::string k_EulerAngles("EulerAngles");
 const std::string k_NumCells("NumElements");
+const std::string k_Neighborhoods("Neighborhoods");
+const std::string k_NeighborhoodList("NeighborhoodList");
 // Cell Level Group
 const std::string k_SmallIN100ScanData("EBSD Scan Data");
 const std::string k_CellData("CellData");
@@ -95,6 +97,9 @@ const FilterHandle k_CopyDataGroupFilterHandle(k_CopyDataGroupFilterId, k_Comple
 // Make sure we can instantiate the RemoveMinimumSizeFeaturesFilter
 const Uuid k_RemoveMinimumSizeFeaturesFilterId = *Uuid::FromString("53ac1638-8934-57b8-b8e5-4b91cdda23ec");
 const FilterHandle k_RemoveMinimumSizeFeaturesFilterHandle(k_RemoveMinimumSizeFeaturesFilterId, k_ComplexCorePluginId);
+// Make sure we can instantiate the CalculateFeatureSizesFilter
+const Uuid k_CalculateFeatureSizesFilterId = *Uuid::FromString("656f144c-a120-5c3b-bee5-06deab438588");
+const FilterHandle k_CalculateFeatureSizesFilterHandle(k_CalculateFeatureSizesFilterId, k_ComplexCorePluginId);
 
 const Uuid k_OrientationAnalysisPluginId = *Uuid::FromString("c09cf01b-014e-5adb-84eb-ea76fc79eeb1");
 // Make sure we can instantiate the Convert Orientations
