@@ -62,5 +62,5 @@ TEST_CASE("Core::FindFeatureCentroidsFilter", "[Core][FindFeatureCentroidsFilter
     CompareDataArrays<float>(k_CentroidsArray, k_CentroidsNXArray);
   }
 
-  WriteTestDataStructure(dataStructure, fs::path(fmt::format("{}/find_feature_centroids.dream3d", unit_test::k_BinaryDir)));
+  WriteTestDataStructure(dataStructure, fs::path(fmt::format("{}/find_feature_centroids.dream3d", unit_test::k_BinaryTestOutputDir)));
 }

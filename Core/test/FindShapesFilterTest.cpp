@@ -75,5 +75,5 @@ TEST_CASE("Core::FindShapesFilter", "[Core][FindShapesFilter]")
   }
 
   // Write the DataStructure out to the file system
-  WriteTestDataStructure(dataStructure, fs::path(fmt::format("{}/find_shapes.dream3d", unit_test::k_BinaryDir)));
+  WriteTestDataStructure(dataStructure, fs::path(fmt::format("{}/find_shapes.dream3d", unit_test::k_BinaryTestOutputDir)));
 }
