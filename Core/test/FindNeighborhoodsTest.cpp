@@ -1,66 +1,76 @@
-/**
- * This file is auto generated from the original StatsToolbox/FindNeighborhoods
- * runtime information. These are the steps that need to be taken to utilize this
- * unit test in the proper way.
- *
- * 1: Validate each of the default parameters that gets created.
- * 2: Inspect the actual filter to determine if the filter in its default state
- * would pass or fail BOTH the preflight() and execute() methods
- * 3: UPDATE the ```REQUIRE(result.result.valid());``` code to have the proper
- *
- * 4: Add additional unit tests to actually test each code path within the filter
- *
- * There are some example Catch2 ```TEST_CASE``` sections for your inspiration.
- *
- * NOTE the format of the ```TEST_CASE``` macro. Please stick to this format to
- * allow easier parsing of the unit tests.
- *
- * When you start working on this unit test remove "[FindNeighborhoods][.][UNIMPLEMENTED]"
- * from the TEST_CASE macro. This will enable this unit test to be run by default
- * and report errors.
- */
 
 #include <catch2/catch.hpp>
 
+#include "complex/Core/Application.hpp"
 #include "complex/Parameters/ArrayCreationParameter.hpp"
-#include "complex/Parameters/ArraySelectionParameter.hpp"
 #include "complex/Parameters/NumberParameter.hpp"
+#include "complex/UnitTest/UnitTestCommon.hpp"
 
 #include "Core/Core_test_dirs.hpp"
 #include "Core/Filters/FindNeighborhoodsFilter.hpp"
 
+#include "complex_plugins/Utilities/SmallIN100Utilties.hpp"
+#include "complex_plugins/Utilities/TestUtilities.hpp"
+
 using namespace complex;
+namespace fs = std::filesystem;
 
-TEST_CASE("Core::FindNeighborhoods: Instantiation and Parameter Check", "[Core][FindNeighborhoods]")
+namespace
 {
-  // Instantiate the filter, a DataStructure object and an Arguments Object
-  FindNeighborhoodsFilter filter;
-  DataStructure ds;
-  Arguments args;
+const std::string k_Volumes("Volumes");
+const std::string k_EquivalentDiameters("EquivalentDiameters");
+const std::string k_NumElements("NumElements");
+} // namespace
 
-  // Create default Parameters for the filter.
-  args.insertOrAssign(FindNeighborhoodsFilter::k_MultiplesOfAverage_Key, std::make_any<float32>(1.23345f));
-  args.insertOrAssign(FindNeighborhoodsFilter::k_EquivalentDiametersArrayPath_Key, std::make_any<DataPath>(DataPath{}));
-  args.insertOrAssign(FindNeighborhoodsFilter::k_FeaturePhasesArrayPath_Key, std::make_any<DataPath>(DataPath{}));
-  args.insertOrAssign(FindNeighborhoodsFilter::k_CentroidsArrayPath_Key, std::make_any<DataPath>(DataPath{}));
-  args.insertOrAssign(FindNeighborhoodsFilter::k_NeighborhoodsArrayName_Key, std::make_any<DataPath>(DataPath{}));
-  args.insertOrAssign(FindNeighborhoodsFilter::k_NeighborhoodListArrayName_Key, std::make_any<DataPath>(DataPath{}));
+TEST_CASE("Core::FindNeighborhoods", "[Core][FindNeighborhoods]")
+{
+  //  std::shared_ptr<make_shared_enabler> app = std::make_shared<make_shared_enabler>();
+  //  app->loadPlugins(unit_test::k_BuildDir.view(), true);
+  //  auto* filterList = Application::Instance()->getFilterList();
 
-  // Preflight the filter and check result
-  auto preflightResult = filter.preflight(ds, args);
-  REQUIRE(preflightResult.outputActions.valid());
+  // Read the Small IN100 Data set
+  auto baseDataFilePath = fs::path(fmt::format("{}/TestFiles/6_6_stats_test.dream3d", unit_test::k_DREAM3DDataDir));
+  DataStructure dataStructure = LoadDataStructure(baseDataFilePath);
+  const DataPath k_CellFeatureDataAM = k_DataContainerPath.createChildPath("CellFeatureData");
 
-  // Execute the filter and check the result
-  auto executeResult = filter.execute(ds, args);
-  REQUIRE(executeResult.result.valid());
+  {
+    // Instantiate the filter, a DataStructure object and an Arguments Object
+    FindNeighborhoodsFilter filter;
+    Arguments args;
+
+    // Create default Parameters for the filter.
+    args.insert(FindNeighborhoodsFilter::k_MultiplesOfAverage_Key, std::make_any<float32>(1.0F));
+    args.insert(FindNeighborhoodsFilter::k_SelectedImageGeometry_Key, std::make_any<DataPath>(k_DataContainerPath));
+    args.insert(FindNeighborhoodsFilter::k_EquivalentDiametersArrayPath_Key, std::make_any<DataPath>(k_CellFeatureDataAM.createChildPath(k_EquivalentDiameters)));
+    args.insert(FindNeighborhoodsFilter::k_FeaturePhasesArrayPath_Key, std::make_any<DataPath>(k_CellFeatureDataAM.createChildPath(k_Phases)));
+    args.insert(FindNeighborhoodsFilter::k_CentroidsArrayPath_Key, std::make_any<DataPath>(k_CellFeatureDataAM.createChildPath(k_Centroids)));
+    // Make the output arrays at the top level of the data structure, out and away from the exemplar arrays
+    args.insert(FindNeighborhoodsFilter::k_NeighborhoodsArrayName_Key, std::make_any<DataPath>({k_Neighborhoods}));
+    args.insert(FindNeighborhoodsFilter::k_NeighborhoodListArrayName_Key, std::make_any<DataPath>({k_NeighborhoodList}));
+
+    // Preflight the filter and check result
+    auto preflightResult = filter.preflight(dataStructure, args);
+    COMPLEX_RESULT_REQUIRE_VALID(preflightResult.outputActions)
+
+    // Execute the filter and check the result
+    auto executeResult = filter.execute(dataStructure, args);
+    COMPLEX_RESULT_REQUIRE_VALID(executeResult.result)
+  }
+
+  // Compare the k_Neighborhoods output array with those precalculated from the file
+  {
+    const DataPath exemplarPath({k_DataContainer, k_CellFeatureData, k_Neighborhoods});
+    const DataPath calculatedPath({k_Neighborhoods});
+    UnitTest::CompareArrays<int32>(dataStructure, exemplarPath, calculatedPath);
+  }
+
+  // Compare the k_NeighborhoodList output neighborlist with those precalculated from the file
+  {
+    const DataPath exemplarPath({k_DataContainer, k_CellFeatureData, k_NeighborhoodList});
+    const DataPath calculatedPath({k_NeighborhoodList});
+    UnitTest::CompareNeighborLists<int32>(dataStructure, exemplarPath, calculatedPath);
+  }
+
+  // Write the DataStructure out to the file system
+  WriteTestDataStructure(dataStructure, fs::path(fmt::format("{}/find_neighborhoods.dream3d", unit_test::k_BinaryTestOutputDir)));
 }
-
-// TEST_CASE("StatsToolbox::FindNeighborhoods: Valid filter execution")
-//{
-//
-//}
-
-// TEST_CASE("StatsToolbox::FindNeighborhoods: InValid filter execution")
-//{
-//
-//}
