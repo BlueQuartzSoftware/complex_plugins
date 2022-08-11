@@ -6,56 +6,11 @@
 #include "complex/Parameters/Dream3dImportParameter.hpp"
 #include "complex/UnitTest/UnitTestCommon.hpp"
 
+#include "complex_plugins/Utilities/SmallIN100Utilties.hpp"
+
 #include "OrientationAnalysis/Filters/ReadH5EbsdFilter.hpp"
 #include "OrientationAnalysis/OrientationAnalysis_test_dirs.hpp"
 #include "OrientationAnalysis/Parameters/H5EbsdReaderParameter.h"
-
-#include <filesystem>
-namespace fs = std::filesystem;
-
-using namespace complex;
-
-constexpr float EPSILON = 0.000001;
-
-namespace EbsdLib
-{
-namespace Ang
-{
-const std::string ConfidenceIndex("Confidence Index");
-const std::string ImageQuality("Image Quality");
-} // namespace Ang
-
-namespace EnsembleData
-{
-inline const std::string CrystalStructures("CrystalStructures");
-inline const std::string LatticeConstants("LatticeConstants");
-inline const std::string MaterialName("MaterialName");
-} // namespace EnsembleData
-} // namespace EbsdLib
-
-template <typename T>
-void CompareDataArrays(const IDataArray& left, const IDataArray& right)
-{
-  const auto& oldDataStore = left.getIDataStoreRefAs<AbstractDataStore<T>>();
-  const auto& newDataStore = right.getIDataStoreRefAs<AbstractDataStore<T>>();
-  usize start = 0;
-  usize end = oldDataStore.getSize();
-  for(usize i = start; i < end; i++)
-  {
-    if(oldDataStore[i] != newDataStore[i])
-    {
-      auto oldVal = oldDataStore[i];
-      auto newVal = newDataStore[i];
-      float diff = std::fabs(static_cast<float>(oldVal - newVal));
-      REQUIRE(diff < EPSILON);
-      break;
-    }
-  }
-}
-
-struct make_shared_enabler : public complex::Application
-{
-};
 
 TEST_CASE("OrientationAnalysis::ReadH5Ebsd: Instantiation and Parameter Check", "[OrientationAnalysis][ReadH5Ebsd]")
 {
@@ -85,58 +40,12 @@ TEST_CASE("OrientationAnalysis::ReadH5Ebsd: Valid filter execution", "[Orientati
   app->loadPlugins(unit_test::k_BuildDir.view(), true);
   auto* filterList = Application::Instance()->getFilterList();
 
-  // Make sure we can load the needed filters from the plugins
-  const Uuid k_ComplexCorePluginId = *Uuid::FromString("05cc618b-781f-4ac0-b9ac-43f26ce1854f");
-  const Uuid k_ImportDream3dFilterId = *Uuid::FromString("0dbd31c7-19e0-4077-83ef-f4a6459a0e2d");
-  const FilterHandle k_ImportDream3dFilterHandle(k_ImportDream3dFilterId, k_ComplexCorePluginId);
+  // Read Exemplar DREAM3D File
+  auto exemplarFilePath = fs::path(fmt::format("{}/TestFiles/Small_IN100.dream3d", unit_test::k_DREAM3DDataDir));
+  DataStructure exemplarDataStructure = complex::LoadDataStructure(exemplarFilePath);
 
-  const std::string k_Quats("Quats");
-  const std::string k_Phases("Phases");
-  const std::string k_ConfidenceIndex = EbsdLib::Ang::ConfidenceIndex;
-  const std::string k_ImageQuality = EbsdLib::Ang::ImageQuality;
-
-  const std::string k_Mask("Mask");
-  const std::string k_DataContainer("DataContainer");
-  const DataPath k_DataContainerPath({k_DataContainer});
-
-  const DataPath k_CalculatedShiftsPath = k_DataContainerPath.createChildPath("Calculated Shifts");
-
-  const DataPath k_CellAttributeMatrix = k_DataContainerPath.createChildPath("CellData");
-  const DataPath k_EulersArrayPath = k_CellAttributeMatrix.createChildPath(EbsdLib::CellData::EulerAngles);
-  const DataPath k_QuatsArrayPath = k_CellAttributeMatrix.createChildPath(k_Quats);
-  const DataPath k_PhasesArrayPath = k_CellAttributeMatrix.createChildPath(k_Phases);
-  const DataPath k_ConfidenceIndexArrayPath = k_CellAttributeMatrix.createChildPath(k_ConfidenceIndex);
-  const DataPath k_ImageQualityArrayPath = k_CellAttributeMatrix.createChildPath(k_ImageQuality);
-  const DataPath k_MaskArrayPath = k_CellAttributeMatrix.createChildPath(k_Mask);
-
-  const DataPath k_CellEnsembleAttributeMatrix = k_DataContainerPath.createChildPath("CellEnsembleData");
-  const DataPath k_CrystalStructuresArrayPath = k_CellEnsembleAttributeMatrix.createChildPath(EbsdLib::EnsembleData::CrystalStructures);
-
-  DataStructure exemplarDataStructure;
-  // Read Exemplar DREAM3D File Filter
-  {
-    constexpr StringLiteral k_ImportFileData = "Import_File_Data";
-
-    auto filter = filterList->createFilter(k_ImportDream3dFilterHandle);
-    REQUIRE(nullptr != filter);
-
-    Dream3dImportParameter::ImportData parameter;
-    parameter.FilePath = fs::path(fmt::format("{}/TestFiles/Small_IN100.dream3d", unit_test::k_DREAM3DDataDir));
-
-    Arguments args;
-    args.insertOrAssign(k_ImportFileData, std::make_any<Dream3dImportParameter::ImportData>(parameter));
-
-    // Preflight the filter and check result
-    auto preflightResult = filter->preflight(exemplarDataStructure, args);
-    COMPLEX_RESULT_REQUIRE_VALID(preflightResult.outputActions);
-
-    // Execute the filter and check the result
-    auto executeResult = filter->execute(exemplarDataStructure, args);
-    COMPLEX_RESULT_REQUIRE_VALID(executeResult.result);
-  }
-
-  DataStructure dataStructure;
   // ReadH5EbsdFilter
+  DataStructure dataStructure;
   {
     ReadH5EbsdFilter filter;
     Arguments args;
@@ -146,13 +55,13 @@ TEST_CASE("OrientationAnalysis::ReadH5Ebsd: Valid filter execution", "[Orientati
     h5ebsdParamVal.startSlice = 1;
     h5ebsdParamVal.endSlice = 117;
     h5ebsdParamVal.eulerRepresentation = EbsdLib::AngleRepresentation::Radians;
-    h5ebsdParamVal.hdf5DataPaths = {"Confidence Index", "EulerAngles", "Fit", "Image Quality", "Phases", "SEM Signal", "X Position", "Y Position"};
+    h5ebsdParamVal.hdf5DataPaths = {k_ConfidenceIndex, k_EulerAngles, k_Fit, k_ImageQuality, k_Phases, k_SEMSignal};
     h5ebsdParamVal.useRecommendedTransform = true;
 
     args.insertOrAssign(ReadH5EbsdFilter::k_ReadH5EbsdFilter_Key, std::make_any<H5EbsdReaderParameter::ValueType>(h5ebsdParamVal));
     args.insertOrAssign(ReadH5EbsdFilter::k_DataContainerName_Key, std::make_any<DataPath>(k_DataContainerPath));
     args.insertOrAssign(ReadH5EbsdFilter::k_CellAttributeMatrixName_Key, std::make_any<DataPath>(k_CellAttributeMatrix));
-    args.insertOrAssign(ReadH5EbsdFilter::k_CellEnsembleAttributeMatrixName_Key, std::make_any<DataPath>(k_CellEnsembleAttributeMatrix));
+    args.insertOrAssign(ReadH5EbsdFilter::k_CellEnsembleAttributeMatrixName_Key, std::make_any<DataPath>(k_CellEnsembleAttributeMatrixPath));
 
     // Preflight the filter and check result
     auto preflightResult = filter.preflight(dataStructure, args);
@@ -166,7 +75,7 @@ TEST_CASE("OrientationAnalysis::ReadH5Ebsd: Valid filter execution", "[Orientati
   // Loop and compare each array from the 'Exemplar Data / CellData' to the 'Data Container / CellData' group
   {
     auto& cellDataGroup = dataStructure.getDataRefAs<DataGroup>(k_CellAttributeMatrix);
-    auto& cellEnsembleDataGroup = dataStructure.getDataRefAs<DataGroup>(k_CellEnsembleAttributeMatrix);
+    auto& cellEnsembleDataGroup = dataStructure.getDataRefAs<DataGroup>(k_CellEnsembleAttributeMatrixPath);
     std::vector<DataPath> selectedArrays;
 
     // Create the vector of selected cell DataPaths
@@ -176,7 +85,7 @@ TEST_CASE("OrientationAnalysis::ReadH5Ebsd: Valid filter execution", "[Orientati
     }
     for(auto& child : cellEnsembleDataGroup)
     {
-      selectedArrays.push_back(k_CellEnsembleAttributeMatrix.createChildPath(child.second->getName()));
+      selectedArrays.push_back(k_CellEnsembleAttributeMatrixPath.createChildPath(child.second->getName()));
     }
 
     for(const auto& arrayPath : selectedArrays)
