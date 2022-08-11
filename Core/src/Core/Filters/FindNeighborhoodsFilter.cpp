@@ -5,6 +5,8 @@
 #include "complex/Parameters/ArraySelectionParameter.hpp"
 #include "complex/Parameters/GeometrySelectionParameter.hpp"
 #include "complex/Parameters/NumberParameter.hpp"
+#include "complex/Filter/Actions/CreateArrayAction.hpp"
+#include "complex/Filter/Actions/CreateNeighborListAction.hpp"
 
 #include "Core/Filters/Algorithms/FindNeighborhoods.hpp"
 
@@ -55,13 +57,13 @@ Parameters FindNeighborhoodsFilter::parameters() const
                                                              GeometrySelectionParameter::AllowedTypes{AbstractGeometry::Type::Image}));
 
   params.insertSeparator(Parameters::Separator{"Required Feature Data"});
-  params.insert(std::make_unique<ArraySelectionParameter>(k_EquivalentDiametersArrayPath_Key, "Equivalent Diameters", "", DataPath({"FeatureData", "EquivalentDiameters"}),
-                                                          ArraySelectionParameter::AllowedTypes{}));
-  params.insert(std::make_unique<ArraySelectionParameter>(k_FeaturePhasesArrayPath_Key, "Phases", "", DataPath({"FeatureData", "Phases"}), ArraySelectionParameter::AllowedTypes{DataType::int32}));
-  params.insert(std::make_unique<ArraySelectionParameter>(k_CentroidsArrayPath_Key, "Centroids", "", DataPath({"FeatureData", "Centroids"}), ArraySelectionParameter::AllowedTypes{DataType::float32}));
+  params.insert(std::make_unique<ArraySelectionParameter>(k_EquivalentDiametersArrayPath_Key, "Equivalent Diameters", "", DataPath({"CellFeatureData", "EquivalentDiameters"}),
+                                                          ArraySelectionParameter::AllowedTypes{DataType::float32}));
+  params.insert(std::make_unique<ArraySelectionParameter>(k_FeaturePhasesArrayPath_Key, "Phases", "", DataPath({"CellFeatureData", "Phases"}), ArraySelectionParameter::AllowedTypes{DataType::int32}));
+  params.insert(std::make_unique<ArraySelectionParameter>(k_CentroidsArrayPath_Key, "Centroids", "", DataPath({"CellFeatureData", "Centroids"}), ArraySelectionParameter::AllowedTypes{DataType::float32}));
   params.insertSeparator(Parameters::Separator{"Created Feature Data"});
-  params.insert(std::make_unique<ArrayCreationParameter>(k_NeighborhoodsArrayName_Key, "Neighborhoods", "", DataPath({"FeatureData", "Neighborhoods"})));
-  params.insert(std::make_unique<ArrayCreationParameter>(k_NeighborhoodListArrayName_Key, "NeighborhoodList", "", DataPath({"FeatureData", "NeighborhoodList"})));
+  params.insert(std::make_unique<ArrayCreationParameter>(k_NeighborhoodsArrayName_Key, "Neighborhoods", "", DataPath({"CellFeatureData", "Neighborhoods"})));
+  params.insert(std::make_unique<ArrayCreationParameter>(k_NeighborhoodListArrayName_Key, "NeighborhoodList", "", DataPath({"CellFeatureData", "NeighborhoodList"})));
 
   return params;
 }
@@ -93,6 +95,25 @@ IFilter::PreflightResult FindNeighborhoodsFilter::preflightImpl(const DataStruct
   // is going to create OutputActions subclasses that need to be returned. This will
   // store those actions.
   complex::Result<OutputActions> resultOutputActions;
+
+  // Get the Feature Phases Array and get its TupleShape
+  const auto* featurePhases = dataStructure.getDataAs<Int32Array>(pFeaturePhasesArrayPathValue);
+  if(nullptr == featurePhases)
+  {
+    return {nonstd::make_unexpected(std::vector<Error>{Error{-12801, "Feature Phases Data Array is not of the correct type"}})};
+  }
+
+  IDataStore::ShapeType tupleShape = featurePhases->getIDataStore()->getTupleShape();
+  // Create the Neighborhoods Array in the Feature Attribute Matrix
+  {
+    auto action = std::make_unique<CreateArrayAction>(DataType::int32, tupleShape, std::vector<usize>{1ULL}, pNeighborhoodsArrayNameValue);
+    resultOutputActions.value().actions.push_back(std::move(action));
+  }
+  // Create the NeighborList Output NeighborList in the Feature Attribute Matrix
+  {
+    auto action = std::make_unique<CreateNeighborListAction>(DataType::int32, featurePhases->getNumberOfTuples(), pNeighborhoodListArrayNameValue);
+    resultOutputActions.value().actions.push_back(std::move(action));
+  }
 
   // If your filter is going to pass back some `preflight updated values` then this is where you
   // would create the code to store those values in the appropriate object. Note that we
