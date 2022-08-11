@@ -21,8 +21,6 @@
 #include <regex>
 #include <stdexcept>
 
-#include "complex/UnitTest/UnitTestCommon.hpp"
-
 #include "Core/Core_test_dirs.hpp"
 
 namespace fs = std::filesystem;
@@ -173,8 +171,12 @@ private:
     // create DataArrays and store in vector to pass as an args
     for(int32 index = 0; index < k_NumOfDataArrays; index++)
     {
-      UnitTest::CreateTestDataArray<T>(m_DataStructure, std::to_string(fileType) + "_" + std::to_string(delimiter) + "_" + "array_" + std::to_string(index), {k_NumOfTuples}, {k_NumComponents})
-          ->fill(m_FillValue[index]);
+      using DataStoreType = DataStore<T>;
+      using ArrayType = DataArray<T>;
+
+      ArrayType* dataArray = ArrayType::template CreateWithStore<DataStoreType>(m_DataStructure, std::to_string(fileType) + "_" + std::to_string(delimiter) + "_" + "array_" + std::to_string(index),
+                                                                                {k_NumOfTuples}, {k_NumComponents});
+      dataArray->fill(m_FillValue[index]);
     }
     std::vector<DataPath> daps1 = m_DataStructure.getAllDataPaths();
 
