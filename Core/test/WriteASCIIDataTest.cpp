@@ -133,9 +133,9 @@ private:
     m_FillValue = std::vector<T>{a, b, c};
   }
 
-  std::string readIn(fs::path filePath)
+  std::vector<char> readIn(fs::path filePath)
   {
-    std::ifstream file(filePath.string());
+    std::ifstream file(filePath.string(), std::ios_base::binary);
 
     if(file)
     {
@@ -146,12 +146,12 @@ private:
 
       // read whole file into a vector
       std::vector<char> contents(length); // act as a buffer
-      file.read(&contents[0], length);
+      file.read(contents.data(), length);
 
       // build string from psuedo-buffer
-      return std::string{contents.begin(), contents.end()};
+      return contents;
     }
-    return "";
+    return {};
   }
 
   void CompareResults(IDataArray& selectedArray) // compare hash of both file strings
@@ -161,7 +161,7 @@ private:
     std::string exemplarStr = selectedArray.getName();
     exemplarStr.replace(exemplarStr.find("array"), 5, "exemplar");
     fs::path exemplarFilePath = fs::path(m_ExemplarsPath.string() + "/" + exemplarStr + ".txt");
-    REQUIRE(str_hash(readIn(writtenFilePath)) == str_hash(readIn(exemplarFilePath)));
+    REQUIRE(readIn(writtenFilePath) == readIn(exemplarFilePath));
   }
 
   void Test(uint64 fileType, uint64 delimiter)
