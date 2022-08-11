@@ -29,6 +29,7 @@ public:
   static inline constexpr StringLiteral k_SurfaceAreaVolumeRatioArrayName_Key = "SurfaceAreaVolumeRatioArrayName";
   static inline constexpr StringLiteral k_CalculateSphericity_Key = "CalculateSphericity";
   static inline constexpr StringLiteral k_SphericityArrayName_Key = "SphericityArrayName";
+  static inline constexpr StringLiteral k_SelectedImageGeometry_Key = "selected_image_geometry";
 
   /**
    * @brief Returns the name of the filter.

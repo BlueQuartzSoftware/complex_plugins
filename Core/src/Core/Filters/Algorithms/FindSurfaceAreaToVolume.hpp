@@ -29,6 +29,7 @@ struct CORE_EXPORT FindSurfaceAreaToVolumeInputValues
   DataPath SurfaceAreaVolumeRatioArrayName;
   bool CalculateSphericity;
   DataPath SphericityArrayName;
+  DataPath InputImageGeometry;
 };
 
 /**
