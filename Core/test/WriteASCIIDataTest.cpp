@@ -14,6 +14,7 @@
 #include "complex/Parameters/MultiArraySelectionParameter.hpp"
 #include "complex/Parameters/NumberParameter.hpp"
 #include "complex/Parameters/StringParameter.hpp"
+#include "complex/UnitTest/UnitTestCommon.hpp"
 
 #include <filesystem>
 #include <fstream>
@@ -196,11 +197,11 @@ private:
 
     // Preflight the filter and check result
     auto preflightResult = filter.preflight(m_DataStructure, args);
-    REQUIRE(preflightResult.outputActions.valid());
+    COMPLEX_RESULT_REQUIRE_VALID(preflightResult.outputActions);
 
     // Execute the filter and check the result
     auto executeResult = filter.execute(m_DataStructure, args);
-    REQUIRE(executeResult.result.valid());
+    COMPLEX_RESULT_REQUIRE_VALID(executeResult.result);
 
     // read the file(s) back in
     if(fileType == k_MultipleFiles)
