@@ -31,7 +31,7 @@ using namespace complex;
  */
 namespace
 {
-const fs::path k_TestOutput = fs::path(fmt::format("{}/Test_Output/WriteASCIIDataTest", unit_test::k_BuildDir));
+const fs::path k_TestOutput = fs::path(fmt::format("{}", unit_test::k_BinaryTestOutputDir));
 constexpr int32 k_NumOfDataArrays = 3;      // used for generation
 constexpr int32 k_NumOfTuples = 10;         // used for generation
 constexpr int32 k_NumComponents = 16;       // used for generation
@@ -158,9 +158,11 @@ private:
   {
     std::hash<std::string> str_hash;
     fs::path writtenFilePath = fs::path(k_TestOutput.string() + "/" + selectedArray.getName() + ".txt");
+    REQUIRE(fs::exists(writtenFilePath));
     std::string exemplarStr = selectedArray.getName();
     exemplarStr.replace(exemplarStr.find("array"), 5, "exemplar");
     fs::path exemplarFilePath = fs::path(m_ExemplarsPath.string() + "/" + exemplarStr + ".txt");
+    REQUIRE(fs::exists(exemplarFilePath));
     REQUIRE(readIn(writtenFilePath) == readIn(exemplarFilePath));
   }
 
