@@ -390,11 +390,11 @@ void findDistanceMap(DataStructure& dataStructure, const FindEuclideanDistMapInp
   {
     if(inputValues->CalcManhattanDist)
     {
-      taskRunner.template execute(ComputeDistanceMapImpl<int32>(dataStructure, *inputValues, FindEuclideanDistMap::MapType::FeatureBoundary));
+      taskRunner.execute(ComputeDistanceMapImpl<int32>(dataStructure, *inputValues, FindEuclideanDistMap::MapType::FeatureBoundary));
     }
     else
     {
-      taskRunner.template execute(ComputeDistanceMapImpl<float32>(dataStructure, *inputValues, FindEuclideanDistMap::MapType::FeatureBoundary));
+      taskRunner.execute(ComputeDistanceMapImpl<float32>(dataStructure, *inputValues, FindEuclideanDistMap::MapType::FeatureBoundary));
     }
   }
 
