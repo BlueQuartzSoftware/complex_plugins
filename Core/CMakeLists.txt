@@ -22,9 +22,11 @@ set(FilterList
   RotateSampleRefFrameFilter
   ErodeDilateBadDataFilter
 
+
   FindEuclideanDistMapFilter
   FindNeighborhoodsFilter
   FindSurfaceAreaToVolumeFilter
+
 
   WriteASCIIDataFilter
 
@@ -101,11 +103,14 @@ set(filter_algorithms
   ResampleImageGeom
   ErodeDilateBadData
 
+
   FindEuclideanDistMap
   FindNeighborhoods
   FindSurfaceAreaToVolume
 
   WriteASCIIData
+
+
 
 )
 

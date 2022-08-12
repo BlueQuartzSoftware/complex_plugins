@@ -14,11 +14,13 @@ set(${PLUGIN_NAME}UnitTest_SRCS
   ResampleImageGeomFilterTest.cpp # NEEDS TEST IMPLEMENTED
   RotateSampleRefFrameTest.cpp
   ErodeDilateBadDataTest.cpp
+
   RemoveMinimumSizeFeaturesTest.cpp
 
   FindEuclideanDistMapTest.cpp
   FindNeighborhoodsTest.cpp
   FindSurfaceAreaToVolumeTest.cpp
+
   WriteASCIIDataTest.cpp
 )
 
