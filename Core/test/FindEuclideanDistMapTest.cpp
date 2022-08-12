@@ -12,7 +12,7 @@
 
 using namespace complex;
 
-TEST_CASE("Core::FindEuclideanDistMapFilter", "[Core][FindEuclideanDistMapFilter]")
+TEST_CASE("Core::FindEuclideanDistMap", "[Core][FindEuclideanDistMap]")
 {
   //  std::shared_ptr<make_shared_enabler> app = std::make_shared<make_shared_enabler>();
   //  app->loadPlugins(unit_test::k_BuildDir.view(), true);
@@ -72,4 +72,8 @@ TEST_CASE("Core::FindEuclideanDistMapFilter", "[Core][FindEuclideanDistMapFilter
 
   // Write the DataStructure out to the file system
   WriteTestDataStructure(dataStructure, fs::path(fmt::format("{}/find_euclidean_dist_map.dream3d", unit_test::k_BinaryTestOutputDir)));
+}
+// TODO: needs to be implemented. This will need the input .dream3d file to be regenerated with the missing data generated using DREAM3D 6.6
+TEST_CASE("Core::FindEuclideanDistMap: Nearest Boundary Cell", "[OrientationAnalysis][FindMisorientations][.][UNIMPLEMENTED][!mayfail]")
+{
 }

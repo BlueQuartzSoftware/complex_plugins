@@ -32,7 +32,7 @@ const std::string k_ConfidenceIndex("Confidence Index");
 const std::string k_ImageQuality("Image Quality");
 const std::string k_Fit("Fit");
 const std::string k_SEMSignal("SEM Signal");
-
+const std::string k_AvgQuats("AvgQuats");
 const std::string k_Mask("Mask");
 const std::string k_Active("Active");
 const std::string k_GrainData("Grain Data");
