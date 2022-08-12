@@ -1,7 +1,6 @@
 #include <catch2/catch.hpp>
 
 #include "complex/Parameters/ArrayCreationParameter.hpp"
-#include "complex/Parameters/Dream3dImportParameter.hpp"
 #include "complex/UnitTest/UnitTestCommon.hpp"
 
 #include "Core/Core_test_dirs.hpp"
