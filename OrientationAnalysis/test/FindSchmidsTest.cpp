@@ -10,7 +10,7 @@
 
 using namespace complex;
 
-TEST_CASE("OrientationAnalysis::FindSchmidsFilter", "[OrientationAnalysis][FindSchmidsFilter]")
+TEST_CASE("OrientationAnalysis::FindSchmidsFilter", "[OrientationAnalysis][FindSchmidsFilter][.][UNIMPLEMENTED][!mayfail]")
 {
 
   // Read the Small IN100 Data set

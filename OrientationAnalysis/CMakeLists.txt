@@ -114,12 +114,12 @@ set(Parameter_List
 
 foreach(source ${Parameter_List})
   target_sources(${PLUGIN_NAME} PRIVATE
-    ${${PLUGIN_NAME}_SOURCE_DIR}/src/${PLUGIN_NAME}/Parameters/H5EbsdReaderParameter.h
-    ${${PLUGIN_NAME}_SOURCE_DIR}/src/${PLUGIN_NAME}/Parameters/H5EbsdReaderParameter.cpp)
+    ${${PLUGIN_NAME}_SOURCE_DIR}/src/${PLUGIN_NAME}/Parameters/${source}.h
+    ${${PLUGIN_NAME}_SOURCE_DIR}/src/${PLUGIN_NAME}/Parameters/${source}.cpp)
 
   source_group(TREE "${${PLUGIN_NAME}_SOURCE_DIR}/src/${PLUGIN_NAME}" PREFIX ${PLUGIN_NAME}
-    FILES ${${PLUGIN_NAME}_SOURCE_DIR}/src/${PLUGIN_NAME}/Parameters/H5EbsdReaderParameter.h
-    ${${PLUGIN_NAME}_SOURCE_DIR}/src/${PLUGIN_NAME}/Parameters/H5EbsdReaderParameter.cpp)
+    FILES ${${PLUGIN_NAME}_SOURCE_DIR}/src/${PLUGIN_NAME}/Parameters/${source}.h
+    ${${PLUGIN_NAME}_SOURCE_DIR}/src/${PLUGIN_NAME}/Parameters/${source}.cpp)
 endforeach()
 
 # ------------------------------------------------------------------------------
@@ -189,8 +189,8 @@ target_link_libraries(${PLUGIN_NAME} PUBLIC EbsdLib::EbsdLib)
 # you can use the target_include_directories(.....) cmake call
 target_include_directories(${PLUGIN_NAME}
   PUBLIC
-  ${EbsdLib_INCLUDE_DIRS}
-  ${${PLUGIN_NAME}_BINARY_DIR}
+    "${EbsdLib_INCLUDE_DIRS}"
+    "${${PLUGIN_NAME}_BINARY_DIR}"
 )
 
 # ------------------------------------------------------------------------------
