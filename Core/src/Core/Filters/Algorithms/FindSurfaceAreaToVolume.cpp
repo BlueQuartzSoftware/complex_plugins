@@ -162,44 +162,21 @@ Result<> FindSurfaceAreaToVolume::operator()()
     }
   }
 
-  // PARALLEL: Is this really worth it?
   const float thirdRootPi = std::pow(complex::Constants::k_PiF, 0.333333f);
-
-#ifdef COMPLEX_ENABLE_MULTICORE
-  tbb::parallel_for(tbb::blocked_range<int>(0, numFeatures), [&](tbb::blocked_range<int> r) {
-    for(int i = r.begin(); i < r.end(); ++i)
-    {
-      float featureVolume = voxelVol * numCells[i];
-      surfaceAreaVolumeRatio[i] = featureSurfaceArea[i] / featureVolume;
-    }
-  });
-#else
   for(size_t i = 1; i < static_cast<size_t>(numFeatures); i++)
   {
     float featureVolume = voxelVol * numCells[i];
     surfaceAreaVolumeRatio[i] = featureSurfaceArea[i] / featureVolume;
   }
 
-#endif
-
   if(m_InputValues->CalculateSphericity) // Calc the sphericity if requested
   {
     auto& sphericity = m_DataStructure.getDataRefAs<Float32Array>(m_InputValues->SphericityArrayName);
-#ifdef COMPLEX_ENABLE_MULTICORE
-    tbb::parallel_for(tbb::blocked_range<int>(0, numFeatures), [&](tbb::blocked_range<int> r) {
-      for(int i = r.begin(); i < r.end(); ++i)
-      {
-        float featureVolume = voxelVol * numCells[i];
-        sphericity[i] = (thirdRootPi * std::pow((6.0f * featureVolume), 0.66666f)) / featureSurfaceArea[i];
-      }
-    });
-#else
     for(size_t i = 1; i < static_cast<size_t>(numFeatures); i++)
     {
       float featureVolume = voxelVol * numCells[i];
       sphericity[i] = (thirdRootPi * std::pow((6.0f * featureVolume), 0.66666f)) / featureSurfaceArea[i];
     }
-#endif
   }
 
   return {};
