@@ -36,10 +36,20 @@ Result<> FindSchmids::operator()()
   const auto& crystalStructures = m_DataStructure.getDataRefAs<UInt32Array>(m_InputValues->CrystalStructuresArrayPath);
   auto& schmidArray = m_DataStructure.getDataRefAs<Float32Array>(m_InputValues->SchmidsArrayName);
   auto& slipSystems = m_DataStructure.getDataRefAs<Int32Array>(m_InputValues->SlipSystemsArrayName);
-  auto& poleArrays = m_DataStructure.getDataRefAs<Int32Array>(m_InputValues->SlipSystemsArrayName);
+  auto& poleArrays = m_DataStructure.getDataRefAs<Int32Array>(m_InputValues->PolesArrayName);
 
   auto* phiArray = m_DataStructure.getDataAs<Float32Array>(m_InputValues->PhisArrayName);
   auto* lambdaArray = m_DataStructure.getDataAs<Float32Array>(m_InputValues->LambdasArrayName);
+  if(m_InputValues->StoreAngleComponents)
+  {
+    (*phiArray)[0] = 0.0F;
+    (*lambdaArray)[0] = 0.0F;
+  }
+  schmidArray[0] = 0.0F;
+  poleArrays[0] = 0;
+  poleArrays[1] = 0;
+  poleArrays[2] = 0;
+  slipSystems[0] = 0;
 
   size_t totalFeatures = avgQuatPtr.getNumberOfTuples();
 
@@ -97,9 +107,10 @@ Result<> FindSchmids::operator()()
       (*phiArray)[i] = angleComps[0];
       (*lambdaArray)[i] = angleComps[1];
     }
-    poleArrays[3 * i] = int32_t(crystalLoading[0] * 100);
-    poleArrays[3 * i + 1] = int32_t(crystalLoading[1] * 100);
-    poleArrays[3 * i + 2] = int32_t(crystalLoading[2] * 100);
+
+    poleArrays[3 * i] = static_cast<int32>(crystalLoading[0] * 100.0);
+    poleArrays[3 * i + 1] = static_cast<int32>(crystalLoading[1] * 100.0);
+    poleArrays[3 * i + 2] = static_cast<int32>(crystalLoading[2] * 100.0);
     slipSystems[i] = slipSystem;
   }
 

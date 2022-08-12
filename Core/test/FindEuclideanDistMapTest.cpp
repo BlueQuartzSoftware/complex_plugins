@@ -37,7 +37,7 @@ TEST_CASE("Core::FindEuclideanDistMap", "[Core][FindEuclideanDistMap]")
     args.insert(FindEuclideanDistMapFilter::k_DoBoundaries_Key, std::make_any<bool>(true));
     args.insert(FindEuclideanDistMapFilter::k_DoTripleLines_Key, std::make_any<bool>(true));
     args.insert(FindEuclideanDistMapFilter::k_DoQuadPoints_Key, std::make_any<bool>(true));
-    args.insert(FindEuclideanDistMapFilter::k_SaveNearestNeighbors_Key, std::make_any<bool>(false));
+    args.insert(FindEuclideanDistMapFilter::k_SaveNearestNeighbors_Key, std::make_any<bool>(true));
     // Input Arrays
     args.insert(FindEuclideanDistMapFilter::k_SelectedImageGeometry_Key, std::make_any<DataPath>(k_DataContainerPath));
 
@@ -59,7 +59,7 @@ TEST_CASE("Core::FindEuclideanDistMap", "[Core][FindEuclideanDistMap]")
 
   // Compare the output arrays with those precalculated from the file
   {
-    std::vector<std::string> comparisonNames = {k_GBDistancesArrayName, k_TJDistancesArrayName, k_QPDistancesArrayName};
+    std::vector<std::string> comparisonNames = {k_GBDistancesArrayName, k_TJDistancesArrayName, k_QPDistancesArrayName, k_NearestNeighborsArrayName};
     for(const auto& comparisonName : comparisonNames)
     {
       const DataPath exemplarPath({k_DataContainer, k_CellData, comparisonName});
@@ -72,8 +72,4 @@ TEST_CASE("Core::FindEuclideanDistMap", "[Core][FindEuclideanDistMap]")
 
   // Write the DataStructure out to the file system
   WriteTestDataStructure(dataStructure, fs::path(fmt::format("{}/find_euclidean_dist_map.dream3d", unit_test::k_BinaryTestOutputDir)));
-}
-// TODO: needs to be implemented. This will need the input .dream3d file to be regenerated with the missing data generated using DREAM3D 6.6
-TEST_CASE("Core::FindEuclideanDistMap: Nearest Boundary Cell", "[OrientationAnalysis][FindMisorientations][.][UNIMPLEMENTED][!mayfail]")
-{
 }
