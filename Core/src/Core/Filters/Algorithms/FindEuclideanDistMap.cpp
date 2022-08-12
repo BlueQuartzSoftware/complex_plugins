@@ -402,22 +402,22 @@ void findDistanceMap(DataStructure& dataStructure, const FindEuclideanDistMapInp
   {
     if(inputValues->CalcManhattanDist)
     {
-      taskRunner.template execute(ComputeDistanceMapImpl<int32>(dataStructure, *inputValues, FindEuclideanDistMap::MapType::TripleJunction));
+      taskRunner.execute(ComputeDistanceMapImpl<int32>(dataStructure, *inputValues, FindEuclideanDistMap::MapType::TripleJunction));
     }
     else
     {
-      taskRunner.template execute(ComputeDistanceMapImpl<float32>(dataStructure, *inputValues, FindEuclideanDistMap::MapType::TripleJunction));
+      taskRunner.execute(ComputeDistanceMapImpl<float32>(dataStructure, *inputValues, FindEuclideanDistMap::MapType::TripleJunction));
     }
   }
   if(inputValues->DoQuadPoints)
   {
     if(inputValues->CalcManhattanDist)
     {
-      taskRunner.template execute(ComputeDistanceMapImpl<int32>(dataStructure, *inputValues, FindEuclideanDistMap::MapType::QuadPoint));
+      taskRunner.execute(ComputeDistanceMapImpl<int32>(dataStructure, *inputValues, FindEuclideanDistMap::MapType::QuadPoint));
     }
     else
     {
-      taskRunner.template execute(ComputeDistanceMapImpl<float32>(dataStructure, *inputValues, FindEuclideanDistMap::MapType::QuadPoint));
+      taskRunner.execute(ComputeDistanceMapImpl<float32>(dataStructure, *inputValues, FindEuclideanDistMap::MapType::QuadPoint));
     }
   }
   // Wait for tasks to complete

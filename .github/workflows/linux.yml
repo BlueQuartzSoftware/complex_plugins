@@ -78,6 +78,10 @@ jobs:
           CXX: ${{matrix.cxx}}
         run: |
           cmake --preset ci ${{github.workspace}}/complex -S ${{github.workspace}}/complex -DDREAM3D_DATA_DIR=${{github.workspace}}/DREAM3D_Data -D VCPKG_TARGET_TRIPLET:STRING=x64-linux-dynamic -DCOMPLEX_EXTRA_PLUGINS="Core;OrientationAnalysis" -DCOMPLEX_PLUGIN_SEARCH_DIRS=${{github.workspace}}
+      - name: Figure out EbsdLib
+        shell: bash
+        run: >
+          ls /home/runner/work/complex_plugins/complex_plugins/complex/build/vcpkg_installed/x64-linux-dynamic/share/ebsdlib/../../include/EbsdLib/Core/
       - name: Build
         run: |
           cmake --build ${{github.workspace}}/complex/build
