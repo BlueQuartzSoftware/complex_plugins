@@ -100,7 +100,7 @@ TEST_CASE("OrientationAnalysis::GenerateIPFColors", "[OrientationAnalysis][Gener
       REQUIRE(err >= 0);
     }
 
-    DataPath ipfColors({Constants::k_ImageDataContainer, Constants::k_CellData, Constants::k_IPFColors});
+    DataPath ipfColors({Constants::k_ImageDataContainer, Constants::k_CellData, Constants::k_Ipf_Colors});
 
     UInt8Array& exemplar = dataStructure.getDataRefAs<UInt8Array>(ipfColors);
     UInt8Array& output = dataStructure.getDataRefAs<UInt8Array>(cellIPFColorsArrayName);
