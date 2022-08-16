@@ -174,75 +174,11 @@ Result<> WriteASCIIData::operator()()
   }
 
   auto selectedDataArrayPaths = m_InputValues->selectedDataArrayPaths;
-  int32 count = 0; // used to dispaly progress to user (declared here to avoid duplication)
   std::string filePath = "";
-  if(static_cast<WriteASCIIDataFilter::OutputStyle>(m_InputValues->outputStyle) == WriteASCIIDataFilter::OutputStyle::MultipleFiles) // MultipleFiles = 0
+
+  if(static_cast<WriteASCIIDataFilter::OutputStyle>(m_InputValues->outputStyle) == WriteASCIIDataFilter::OutputStyle::SingleFile) // SingleFile = 1
   {
-    for(const auto& selectedArrayPath : selectedDataArrayPaths)
-    {
-      if(m_ShouldCancel)
-      {
-        return {};
-      }
-      auto& oldSelectedArray = m_DataStructure.getDataRefAs<IDataArray>(selectedArrayPath);
-      m_MessageHandler(fmt::format("Now Writing: {}", oldSelectedArray.getName()));
-      filePath = getFilePath(oldSelectedArray);
-      DataType type = oldSelectedArray.getDataType();
-      switch(type)
-      {
-      case DataType::boolean: {
-        WriteOutASCIIData<bool>(this, m_DataStructure.getDataRefAs<DataArray<bool>>(selectedArrayPath), maxValPerLine, delimiter, filePath).execute();
-        break;
-      }
-      case DataType::int8: {
-        WriteOutASCIIData<int8>(this, m_DataStructure.getDataRefAs<DataArray<int8>>(selectedArrayPath), maxValPerLine, delimiter, filePath).execute();
-        break;
-      }
-      case DataType::int16: {
-        WriteOutASCIIData<int16>(this, m_DataStructure.getDataRefAs<DataArray<int16>>(selectedArrayPath), maxValPerLine, delimiter, filePath).execute();
-        break;
-      }
-      case DataType::int32: {
-        WriteOutASCIIData<int32>(this, m_DataStructure.getDataRefAs<DataArray<int32>>(selectedArrayPath), maxValPerLine, delimiter, filePath).execute();
-        break;
-      }
-      case DataType::int64: {
-        WriteOutASCIIData<int64>(this, m_DataStructure.getDataRefAs<DataArray<int64>>(selectedArrayPath), maxValPerLine, delimiter, filePath).execute();
-        break;
-      }
-      case DataType::uint8: {
-        WriteOutASCIIData<uint8>(this, m_DataStructure.getDataRefAs<DataArray<uint8>>(selectedArrayPath), maxValPerLine, delimiter, filePath).execute();
-        break;
-      }
-      case DataType::uint16: {
-        WriteOutASCIIData<uint16>(this, m_DataStructure.getDataRefAs<DataArray<uint16>>(selectedArrayPath), maxValPerLine, delimiter, filePath).execute();
-        break;
-      }
-      case DataType::uint32: {
-        WriteOutASCIIData<uint32>(this, m_DataStructure.getDataRefAs<DataArray<uint32>>(selectedArrayPath), maxValPerLine, delimiter, filePath).execute();
-        break;
-      }
-      case DataType::uint64: {
-        WriteOutASCIIData<uint64>(this, m_DataStructure.getDataRefAs<DataArray<uint64>>(selectedArrayPath), maxValPerLine, delimiter, filePath).execute();
-        break;
-      }
-      case DataType::float32: {
-        WriteOutASCIIData<float32>(this, m_DataStructure.getDataRefAs<DataArray<float32>>(selectedArrayPath), maxValPerLine, delimiter, filePath).execute();
-        break;
-      }
-      case DataType::float64: {
-        WriteOutASCIIData<float64>(this, m_DataStructure.getDataRefAs<DataArray<float64>>(selectedArrayPath), maxValPerLine, delimiter, filePath).execute();
-        break;
-      }
-      default: {
-        throw std::runtime_error("Invalid DataType");
-      }
-      }
-      count++;
-    }
-  }
-  else if(static_cast<WriteASCIIDataFilter::OutputStyle>(m_InputValues->outputStyle) == WriteASCIIDataFilter::OutputStyle::SingleFile) // SingleFile = 1
-  {
+    int32 count = 0;
     for(const auto& selectedArrayPath : selectedDataArrayPaths)
     {
       if(m_ShouldCancel)
@@ -264,68 +200,67 @@ Result<> WriteASCIIData::operator()()
       }
       fout.close();
     }
-    count = 0; // reset
-    // begin printing arrays
-    for(const auto& selectedArrayPath : selectedDataArrayPaths)
+  }
+
+  // begin printing arrays
+  for(const auto& selectedArrayPath : selectedDataArrayPaths)
+  {
+    if(m_ShouldCancel)
     {
-      if(m_ShouldCancel)
-      {
-        return {};
-      }
-      auto& oldSelectedArray = m_DataStructure.getDataRefAs<IDataArray>(selectedArrayPath);
-      m_MessageHandler(fmt::format("Now Writing: {}", oldSelectedArray.getName()));
-      DataType type = oldSelectedArray.getDataType();
-      switch(type)
-      {
-      case DataType::boolean: {
-        WriteOutASCIIData<bool>(this, m_DataStructure.getDataRefAs<DataArray<bool>>(selectedArrayPath), maxValPerLine, delimiter, filePath).execute();
-        break;
-      }
-      case DataType::int8: {
-        WriteOutASCIIData<int8>(this, m_DataStructure.getDataRefAs<DataArray<int8>>(selectedArrayPath), maxValPerLine, delimiter, filePath).execute();
-        break;
-      }
-      case DataType::int16: {
-        WriteOutASCIIData<int16>(this, m_DataStructure.getDataRefAs<DataArray<int16>>(selectedArrayPath), maxValPerLine, delimiter, filePath).execute();
-        break;
-      }
-      case DataType::int32: {
-        WriteOutASCIIData<int32>(this, m_DataStructure.getDataRefAs<DataArray<int32>>(selectedArrayPath), maxValPerLine, delimiter, filePath).execute();
-        break;
-      }
-      case DataType::int64: {
-        WriteOutASCIIData<int64>(this, m_DataStructure.getDataRefAs<DataArray<int64>>(selectedArrayPath), maxValPerLine, delimiter, filePath).execute();
-        break;
-      }
-      case DataType::uint8: {
-        WriteOutASCIIData<uint8>(this, m_DataStructure.getDataRefAs<DataArray<uint8>>(selectedArrayPath), maxValPerLine, delimiter, filePath).execute();
-        break;
-      }
-      case DataType::uint16: {
-        WriteOutASCIIData<uint16>(this, m_DataStructure.getDataRefAs<DataArray<uint16>>(selectedArrayPath), maxValPerLine, delimiter, filePath).execute();
-        break;
-      }
-      case DataType::uint32: {
-        WriteOutASCIIData<uint32>(this, m_DataStructure.getDataRefAs<DataArray<uint32>>(selectedArrayPath), maxValPerLine, delimiter, filePath).execute();
-        break;
-      }
-      case DataType::uint64: {
-        WriteOutASCIIData<uint64>(this, m_DataStructure.getDataRefAs<DataArray<uint64>>(selectedArrayPath), maxValPerLine, delimiter, filePath).execute();
-        break;
-      }
-      case DataType::float32: {
-        WriteOutASCIIData<float32>(this, m_DataStructure.getDataRefAs<DataArray<float32>>(selectedArrayPath), maxValPerLine, delimiter, filePath).execute();
-        break;
-      }
-      case DataType::float64: {
-        WriteOutASCIIData<float64>(this, m_DataStructure.getDataRefAs<DataArray<float64>>(selectedArrayPath), maxValPerLine, delimiter, filePath).execute();
-        break;
-      }
-      default: {
-        throw std::runtime_error("Invalid DataType");
-      }
-      }
-      count++;
+      return {};
+    }
+    auto& oldSelectedArray = m_DataStructure.getDataRefAs<IDataArray>(selectedArrayPath);
+    m_MessageHandler(fmt::format("Now Writing: {}", oldSelectedArray.getName()));
+    if(static_cast<WriteASCIIDataFilter::OutputStyle>(m_InputValues->outputStyle) == WriteASCIIDataFilter::OutputStyle::MultipleFiles)
+    {
+      filePath = getFilePath(oldSelectedArray);
+    }
+    DataType type = oldSelectedArray.getDataType();
+    switch(type)
+    {
+    case DataType::int8: {
+      WriteOutASCIIData<int8>(this, m_DataStructure.getDataRefAs<DataArray<int8>>(selectedArrayPath), maxValPerLine, delimiter, filePath).execute();
+      break;
+    }
+    case DataType::int16: {
+      WriteOutASCIIData<int16>(this, m_DataStructure.getDataRefAs<DataArray<int16>>(selectedArrayPath), maxValPerLine, delimiter, filePath).execute();
+      break;
+    }
+    case DataType::int32: {
+      WriteOutASCIIData<int32>(this, m_DataStructure.getDataRefAs<DataArray<int32>>(selectedArrayPath), maxValPerLine, delimiter, filePath).execute();
+      break;
+    }
+    case DataType::int64: {
+      WriteOutASCIIData<int64>(this, m_DataStructure.getDataRefAs<DataArray<int64>>(selectedArrayPath), maxValPerLine, delimiter, filePath).execute();
+      break;
+    }
+    case DataType::uint8: {
+      WriteOutASCIIData<uint8>(this, m_DataStructure.getDataRefAs<DataArray<uint8>>(selectedArrayPath), maxValPerLine, delimiter, filePath).execute();
+      break;
+    }
+    case DataType::uint16: {
+      WriteOutASCIIData<uint16>(this, m_DataStructure.getDataRefAs<DataArray<uint16>>(selectedArrayPath), maxValPerLine, delimiter, filePath).execute();
+      break;
+    }
+    case DataType::uint32: {
+      WriteOutASCIIData<uint32>(this, m_DataStructure.getDataRefAs<DataArray<uint32>>(selectedArrayPath), maxValPerLine, delimiter, filePath).execute();
+      break;
+    }
+    case DataType::uint64: {
+      WriteOutASCIIData<uint64>(this, m_DataStructure.getDataRefAs<DataArray<uint64>>(selectedArrayPath), maxValPerLine, delimiter, filePath).execute();
+      break;
+    }
+    case DataType::float32: {
+      WriteOutASCIIData<float32>(this, m_DataStructure.getDataRefAs<DataArray<float32>>(selectedArrayPath), maxValPerLine, delimiter, filePath).execute();
+      break;
+    }
+    case DataType::float64: {
+      WriteOutASCIIData<float64>(this, m_DataStructure.getDataRefAs<DataArray<float64>>(selectedArrayPath), maxValPerLine, delimiter, filePath).execute();
+      break;
+    }
+    default: {
+      throw std::runtime_error("Invalid DataType");
+    }
     }
   }
   return {};
