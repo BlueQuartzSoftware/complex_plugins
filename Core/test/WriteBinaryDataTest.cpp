@@ -43,16 +43,16 @@ constexpr uint64 k_TabDelimiter = 4;      // enum representation
 
 // -----------------------------------------------------------------------------
 template <class T>
-class RunTest
+class RunBinaryTest
 {
 public:
   // ctor
-  RunTest(DataStructure& dataStructure)
+  RunBinaryTest(DataStructure& dataStructure)
   : m_DataStructure(dataStructure)
   {
   }
   // virtual dtor
-  ~RunTest() = default;
+  ~RunBinaryTest() = default;
 
   void execute()
   {
@@ -172,7 +172,7 @@ private:
       using DataStoreType = DataStore<T>;
       using ArrayType = DataArray<T>;
 
-      ArrayType* dataArray = ArrayType::template CreateWithStore<DataStoreType>(m_DataStructure, std::to_string(endianess) + "_" + "exemplar_" + std::to_string(index),
+      ArrayType* dataArray = ArrayType::template CreateWithStore<DataStoreType>(m_DataStructure, std::to_string(endianess) + "_" + "array_" + std::to_string(index),
                                                                                 {static_cast<usize>(k_NumOfTuples)}, {static_cast<usize>(k_NumComponents)});
       dataArray->fill(m_FillValue[index]);
     }
@@ -184,8 +184,7 @@ private:
 
     // Create default Parameters for the filter.
     args.insertOrAssign(WriteBinaryDataFilter::k_Endianess_Key, std::make_any<ChoicesParameter::ValueType>(endianess)); // uint64 0 and 1
-    //args.insertOrAssign(WriteBinaryDataFilter::k_OutputPath_Key, std::make_any<fs::path>(k_TestOutput));
-    args.insertOrAssign(WriteBinaryDataFilter::k_OutputPath_Key, std::make_any<fs::path>(m_ExemplarsPath));
+    args.insertOrAssign(WriteBinaryDataFilter::k_OutputPath_Key, std::make_any<fs::path>(k_TestOutput));
     args.insertOrAssign(WriteBinaryDataFilter::k_FileExtension_Key, std::make_any<std::string>(".bin"));
     args.insertOrAssign(WriteBinaryDataFilter::k_SelectedDataArrayPaths_Key, std::make_any<MultiArraySelectionParameter::ValueType>(daps1));
 
@@ -200,7 +199,7 @@ private:
     // read the file(s) back in
     for(int32 i = 0; i < daps1.size(); i++)
     {
-      //CompareResults(m_DataStructure.getDataRefAs<IDataArray>(daps1[i]));
+      CompareResults(m_DataStructure.getDataRefAs<IDataArray>(daps1[i]));
     }
   }
 };
@@ -210,14 +209,14 @@ TEST_CASE("Processing::WriteBinaryData: Valid filter execution")
   DataStructure dataStructure;
   DataStructure& dsRef = dataStructure;
 
-  RunTest<int8>(dsRef).execute();
-  RunTest<int16>(dsRef).execute();
-  RunTest<int32>(dsRef).execute();
-  RunTest<int64>(dsRef).execute();
-  RunTest<uint8>(dsRef).execute();
-  RunTest<uint16>(dsRef).execute();
-  RunTest<uint32>(dsRef).execute();
-  RunTest<uint64>(dsRef).execute();
-  RunTest<float32>(dsRef).execute();
-  RunTest<float64>(dsRef).execute();
+  RunBinaryTest<int8>(dsRef).execute();
+  RunBinaryTest<int16>(dsRef).execute();
+  RunBinaryTest<int32>(dsRef).execute();
+  RunBinaryTest<int64>(dsRef).execute();
+  RunBinaryTest<uint8>(dsRef).execute();
+  RunBinaryTest<uint16>(dsRef).execute();
+  RunBinaryTest<uint32>(dsRef).execute();
+  RunBinaryTest<uint64>(dsRef).execute();
+  RunBinaryTest<float32>(dsRef).execute();
+  RunBinaryTest<float64>(dsRef).execute();
 } // end of test case
