@@ -24,7 +24,7 @@ template <typename T>
 class WriteOutASCIIData
 {
 public:
-  WriteOutASCIIData(WriteASCIIData* filter, complex::DataArray<T>& inputData, int32 maxValPerLine, char delimiter, std::string filePath) // write unit test
+  WriteOutASCIIData(WriteASCIIData* filter, complex::DataArray<T>& inputData, int32 maxValPerLine, char delimiter, std::string filePath)
   : m_Filter(filter)
   , m_InputData(inputData)
   , m_MaxValPerLine(maxValPerLine)

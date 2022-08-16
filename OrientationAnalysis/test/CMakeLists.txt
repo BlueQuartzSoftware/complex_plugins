@@ -9,15 +9,15 @@ set(${PLUGIN_NAME}UnitTest_SRCS
   AlignSectionsMisorientationTest.cpp
   BadDataNeighborOrientationCheckTest.cpp
   ConvertOrientationsTest.cpp
-  EBSDSegmentFeaturesFilterTest.cpp   # NEEDS TEST IMPLEMENTED
+  EBSDSegmentFeaturesFilterTest.cpp   
   FindAvgOrientationsTest.cpp
   GenerateFZQuaternionsTest.cpp
   GenerateIPFColorsTest.cpp
   NeighborOrientationCorrelationTest.cpp
   RotateEulerRefFrameTest.cpp
   MergeTwinsTest.cpp
+  ReadH5EbsdTest.cpp
 )
-
 set(DISABLED_TESTS
 
   # ConvertHexGridToSquareGridTest.cpp    # MISSING 1 or more Parameter Implementations
@@ -58,7 +58,6 @@ set(DISABLED_TESTS
   ReadAngDataTest.cpp
   ReadCtfDataTest.cpp
 
-  # ReadH5EbsdTest.cpp    # MISSING 1 or more Parameter Implementations
   ReplaceElementAttributesWithNeighborValuesTest.cpp
   RodriguesConvertorTest.cpp
   Stereographic3DTest.cpp
