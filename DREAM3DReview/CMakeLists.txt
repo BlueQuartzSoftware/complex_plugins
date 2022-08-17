@@ -55,7 +55,6 @@ set(STUB_FILTERS
   LabelTriangleGeometry
   LaplacianSmoothPointCloud
   LocalDislocationDensityCalculator
-  MapPointCloudToRegularGrid
   NormalizeArrays
   ParaDisReader
   PointSampleTriangleGeometry
