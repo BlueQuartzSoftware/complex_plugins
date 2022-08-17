@@ -417,8 +417,7 @@ Parameters RotateSampleRefFrameFilter::parameters() const
   params.linkParameters(k_RotationRepresentation_Key, k_RotationMatrix_Key, std::make_any<uint64>(to_underlying(RotationRepresentation::RotationMatrix)));
 
   params.insertSeparator({"Input Geometry and Data"});
-  params.insert(
-      std::make_unique<GeometrySelectionParameter>(k_SelectedImageGeometry_Key, "Selected Image Geometry", "", DataPath{}, GeometrySelectionParameter::AllowedTypes{IGeometry::Type::Image}));
+  params.insert(std::make_unique<GeometrySelectionParameter>(k_SelectedImageGeometry_Key, "Selected Image Geometry", "", DataPath{}, GeometrySelectionParameter::AllowedTypes{IGeometry::Type::Image}));
   params.insert(std::make_unique<MultiArraySelectionParameter>(k_SelectedCellArrays_Key, "Cell Arrays", "", MultiArraySelectionParameter::ValueType{}, GetAllDataTypes()));
 
   params.insertSeparator({"Output Geometry and Data"});
@@ -463,7 +462,7 @@ IFilter::PreflightResult RotateSampleRefFrameFilter::preflightImpl(const DataStr
 
   auto createdImageGeomPath = filterArgs.value<DataPath>(k_CreatedImageGeometry_Key);
 
-  actions.actions.push_back(std::make_unique<CreateImageGeometryAction>(createdImageGeomPath, dims, origin, spacing));
+  actions.actions.push_back(std::make_unique<CreateImageGeometryAction>(createdImageGeomPath, dims, origin, spacing, ImageGeom::k_CellDataName));
 
   auto selectedCellArrays = filterArgs.value<std::vector<DataPath>>(k_SelectedCellArrays_Key);
 

@@ -77,8 +77,7 @@ Parameters ResampleImageGeomFilter::parameters() const
   //  params.insertLinkableParameter(std::make_unique<BoolParameter>(k_RemoveOriginalGeometry_Key, "Remove Original Image Geometry Group", "", true));
 
   params.insertSeparator(Parameters::Separator{"Input Data"});
-  params.insert(
-      std::make_unique<GeometrySelectionParameter>(k_SelectedImageGeometry_Key, "Selected Image Geometry", "", DataPath{}, GeometrySelectionParameter::AllowedTypes{IGeometry::Type::Image}));
+  params.insert(std::make_unique<GeometrySelectionParameter>(k_SelectedImageGeometry_Key, "Selected Image Geometry", "", DataPath{}, GeometrySelectionParameter::AllowedTypes{IGeometry::Type::Image}));
   params.insert(std::make_unique<DataGroupSelectionParameter>(k_SelectedCellDataGroup_Key, "Cell Data Group", "Data Group that contains *only* cell data", DataPath{}));
 
 #if 0
@@ -171,9 +170,9 @@ IFilter::PreflightResult ResampleImageGeomFilter::preflightImpl(const DataStruct
   }
 
   auto createdImageGeomPath = filterArgs.value<DataPath>(k_NewDataContainerPath_Key);
-  resultOutputActions.value().actions.push_back(std::make_unique<CreateImageGeometryAction>(createdImageGeomPath, CreateImageGeometryAction::DimensionType{m_XP, m_YP, m_ZP},
-                                                                                            CreateImageGeometryAction::SpacingType{oldOrigin[0], oldOrigin[1], oldOrigin[2]},
-                                                                                            CreateImageGeometryAction::OriginType{pSpacingValue[0], pSpacingValue[1], pSpacingValue[2]}));
+  resultOutputActions.value().actions.push_back(std::make_unique<CreateImageGeometryAction>(
+      createdImageGeomPath, CreateImageGeometryAction::DimensionType{m_XP, m_YP, m_ZP}, CreateImageGeometryAction::SpacingType{oldOrigin[0], oldOrigin[1], oldOrigin[2]},
+      CreateImageGeometryAction::OriginType{pSpacingValue[0], pSpacingValue[1], pSpacingValue[2]}, ImageGeom::k_CellDataName));
 
   // Store the preflight updated value(s) into the preflightUpdatedValues vector using
   // the appropriate methods.
