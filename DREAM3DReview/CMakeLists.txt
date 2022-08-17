@@ -48,7 +48,6 @@ set(STUB_FILTERS
   ImportQMMeltpoolTDMSFile
   ImportVolumeGraphicsFile
   InsertTransformationPhases
-  InterpolatePointCloudToRegularGrid
   IterativeClosestPoint
   KDistanceGraph
   KMeans
