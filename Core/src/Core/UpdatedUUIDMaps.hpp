@@ -1,7 +1,6 @@
 #pragma once
 
 #include <map>
-#include<iterator>
 #include <string>
 
 namespace complex
@@ -11,8 +10,7 @@ class UpdatedUUIDMaps
 {
 public:
   UpdatedUUIDMaps()
-  {
-  }
+  {}
   ~UpdatedUUIDMaps() = default;
   UpdatedUUIDMaps(const UpdatedUUIDMaps&) = default;
   UpdatedUUIDMaps(UpdatedUUIDMaps&&) noexcept = default;

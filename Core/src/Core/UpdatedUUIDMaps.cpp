@@ -5,8 +5,7 @@
 
 using namespace complex;
 
-  const std::map<std::string, std::string> UpdatedUUIDMaps::k_SIMPL_to_Complex 
-  {
+const std::map<std::string, std::string> UpdatedUUIDMaps::k_SIMPL_to_Complex{
     // syntax std::make_pair {Dream3d UUID , Dream3dnx UUID}, // dream3d-class-name
     {"0559aa37-c5ad-549a-82d4-bff4bfcb6cc6", "4bc81b8c-1594-409a-89eb-3ea8d8f061b0"}, // AbaqusHexahedronWriter
     {"abbe2e1e-6fb2-5511-91f3-0637252f0705", "155db7a2-7b12-4c52-8000-9f4421bd32d4"}, // AbaqusSurfaceMeshWriter
@@ -412,10 +411,9 @@ using namespace complex;
     {"a4952f40-22dd-54ec-8c38-69c3fcd0e6f7", "aa6d399b-715e-44f1-9902-f1bd18faf1c5"}, // WriteStatsGenOdfAngleFile
     {"b9134758-d5e5-59dd-9907-28d23e0e0143", "54a293f4-1366-46ca-b284-fe5965545dd2"}, // WriteStlFile
     {"5e523ec1-49ac-541e-a4ba-6fa725798b91", "a11c1306-f89e-4a1d-9133-0efeda3b0bba"}, // WriteTriangleGeometry
-  };
+};
 
-  const std::map<std::string, std::string> UpdatedUUIDMaps::k_Complex_to_SIMPL
-  {
+const std::map<std::string, std::string> UpdatedUUIDMaps::k_Complex_to_SIMPL{
     // syntax std::make_pair {Dream3dnx UUID , Dream3d UUID}, // dream3dnx-class-name
     {"4bc81b8c-1594-409a-89eb-3ea8d8f061b0", "0559aa37-c5ad-549a-82d4-bff4bfcb6cc6"}, // AbaqusHexahedronWriter
     {"155db7a2-7b12-4c52-8000-9f4421bd32d4", "abbe2e1e-6fb2-5511-91f3-0637252f0705"}, // AbaqusSurfaceMeshWriter
@@ -821,4 +819,4 @@ using namespace complex;
     {"aa6d399b-715e-44f1-9902-f1bd18faf1c5", "a4952f40-22dd-54ec-8c38-69c3fcd0e6f7"}, // WriteStatsGenOdfAngleFile
     {"54a293f4-1366-46ca-b284-fe5965545dd2", "b9134758-d5e5-59dd-9907-28d23e0e0143"}, // WriteStlFile
     {"a11c1306-f89e-4a1d-9133-0efeda3b0bba", "5e523ec1-49ac-541e-a4ba-6fa725798b91"}, // WriteTriangleGeometry
-  };
+};
