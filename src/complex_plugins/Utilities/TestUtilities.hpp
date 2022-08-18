@@ -118,7 +118,7 @@ const FilterHandle k_AlignSectionsFeatureCentroidFilterHandle(k_AlignSectionsFea
 
 const Uuid k_FindFeaturePhasesObjectsId = *Uuid::FromString("6334ce16-cea5-5643-83b5-9573805873fa");
 const FilterHandle k_FindNFeaturePhasesFilterHandle(k_FindFeaturePhasesObjectsId, k_ComplexCorePluginId);
-const Uuid k_FindNeighborsObjectsId = *Uuid::FromString("97cf66f8-7a9b-5ec2-83eb-f8c4c8a17bac");
+const Uuid k_FindNeighborsObjectsId = *Uuid::FromString("7177e88c-c3ab-4169-abe9-1fdaff20e598");
 const FilterHandle k_FindNeighborsFilterHandle(k_FindNeighborsObjectsId, k_ComplexCorePluginId);
 
 template <typename T>
