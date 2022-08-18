@@ -10,7 +10,8 @@ class UpdatedUUIDMaps
 {
 public:
   UpdatedUUIDMaps()
-  {}
+  {
+  }
   ~UpdatedUUIDMaps() = default;
   UpdatedUUIDMaps(const UpdatedUUIDMaps&) = default;
   UpdatedUUIDMaps(UpdatedUUIDMaps&&) noexcept = default;
