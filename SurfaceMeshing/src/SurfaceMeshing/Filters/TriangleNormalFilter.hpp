@@ -2,6 +2,7 @@
 
 #include "SurfaceMeshing/SurfaceMeshing_export.hpp"
 
+#include "complex/Common/StringLiteral.hpp"
 #include "complex/Filter/FilterTraits.hpp"
 #include "complex/Filter/IFilter.hpp"
 
@@ -9,7 +10,7 @@ namespace complex
 {
 /**
  * @class TriangleNormalFilter
- * @brief This filter will ....
+ * @brief 
  */
 class SURFACEMESHING_EXPORT TriangleNormalFilter : public IFilter
 {
@@ -25,6 +26,7 @@ public:
 
   // Parameter Keys
   static inline constexpr StringLiteral k_SurfaceMeshTriangleNormalsArrayPath_Key = "SurfaceMeshTriangleNormalsArrayPath";
+  static inline constexpr StringLiteral k_TriGeometryDataPath_Key = "TriGeometryDataPath";
 
   /**
    * @brief Returns the name of the filter.

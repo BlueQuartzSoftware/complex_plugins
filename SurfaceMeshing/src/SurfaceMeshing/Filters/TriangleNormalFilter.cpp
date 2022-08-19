@@ -1,10 +1,69 @@
 #include "TriangleNormalFilter.hpp"
 
+#include "complex/Common/ComplexRange.hpp"
 #include "complex/DataStructure/DataPath.hpp"
+#include "complex/DataStructure/Geometry/AbstractGeometry.hpp"
+#include "complex/DataStructure/Geometry/TriangleGeom.hpp"
 #include "complex/Filter/Actions/CreateArrayAction.hpp"
 #include "complex/Parameters/ArrayCreationParameter.hpp"
+#include "complex/Parameters/DataPathSelectionParameter.hpp"
+#include "complex/Parameters/GeometrySelectionParameter.hpp"
+#include "complex/Utilities/Math/MatrixMath.hpp"
+#include "complex/Utilities/ParallelDataAlgorithm.hpp"
 
 using namespace complex;
+
+namespace
+{
+class CalcTriangleNormals
+{
+public:
+  CalculateNormalsImpl(const AbstractGeometry::SharedVertexList& nodes, const AbstractGeometry::SharedTriList& triangles, Float64Array& normals)
+  : m_Nodes(nodes)
+  , m_Triangles(triangles)
+  , m_Normals(normals)
+  {
+  }
+  virtual ~CalculateNormalsImpl() = default;
+
+  void generate(size_t start, size_t end) const
+  {
+    AbstractGeometry::MeshIndexType nIdx0 = 0, nIdx1 = 0, nIdx2 = 0;
+    std::array<float, 3> vecA = {0.0f, 0.0f, 0.0f};
+    std::array<float, 3> vecB = {0.0f, 0.0f, 0.0f};
+    std::array<float, 3> normal = {0.0f, 0.0f, 0.0f};
+    for(size_t i = start; i < end; i++)
+    {
+      nIdx0 = triangles[i * 3] * 3;
+      nIdx1 = triangles[i * 3 + 1] * 3;
+      nIdx2 = triangles[i * 3 + 2] * 3;
+      std::array<float, 3> n0 = nodes[nIdx1];
+      std::array<float, 3> n1 = nodes[nIdx1];
+      std::array<float, 3> n2 = nodes[nIdx2];
+
+      MatrixMath::Subtract3x1s(A.data(), B.data(), vecA.data());
+      MatrixMath::Subtract3x1s(A.data(), C.data(), vecB.data());
+      MatrixMath::CrossProduct(vecA.data(), vecB.data(), normal.data());
+      MatrixMath::Normalize3x1(normal.data());
+      for(int32 count = 0; count < normal.size(); count++)
+      {
+        m_Normals[i * 3 + count] =  static_cast<float64>(normal[count]);
+      }
+    }
+  }
+
+  void operator()(const ComplexRange& range) const
+  {
+    convert(range.min(), range.max());
+  }   
+  
+
+private:
+  const AbstractGeometry::SharedVertexList& m_Nodes;
+  const AbstractGeometry::SharedTriList& m_Triangles;
+  Float64Array& m_Normals;
+};
+} // namespace
 
 namespace complex
 {
@@ -44,7 +103,9 @@ Parameters TriangleNormalFilter::parameters() const
   Parameters params;
   // Create the parameter descriptors that are needed for this filter
   params.insertSeparator(Parameters::Separator{"Face Data"});
-  params.insert(std::make_unique<ArrayCreationParameter>(k_SurfaceMeshTriangleNormalsArrayPath_Key, "Face Normals", "", DataPath{}));
+  params.insert(std::make_unique<GeometrySelectionParameter>(k_TriGeometryDataPath_Key, "Triangle Geometry", "The complete path to the Geometry for which to calculate the normals", DataPath{},
+                                                             GeometrySelectionParameter::AllowedTypes{AbstractGeometry::Type::Triangle}));
+  params.insert(std::make_unique<ArrayCreationParameter>(k_SurfaceMeshTriangleNormalsArrayPath_Key, "Face Normals", "The complete path to the array storing the calculated normals", DataPath{}));
 
   return params;
 }
@@ -59,62 +120,20 @@ IFilter::UniquePointer TriangleNormalFilter::clone() const
 IFilter::PreflightResult TriangleNormalFilter::preflightImpl(const DataStructure& dataStructure, const Arguments& filterArgs, const MessageHandler& messageHandler,
                                                              const std::atomic_bool& shouldCancel) const
 {
-  /****************************************************************************
-   * Write any preflight sanity checking codes in this function
-   ***************************************************************************/
+  auto pTriangleGeometryDataPath = filterArgs.value<DataPath>(k_TriGeometryDataPath_Key);
+  auto pSurfaceMeshTriangleNormalsArrayPath = filterArgs.value<DataPath>(k_SurfaceMeshTriangleNormalsArrayPath_Key);
 
-  /**
-   * These are the values that were gathered from the UI or the pipeline file or
-   * otherwise passed into the filter. These are here for your convenience. If you
-   * do not need some of them remove them.
-   */
-  auto pSurfaceMeshTriangleNormalsArrayPathValue = filterArgs.value<DataPath>(k_SurfaceMeshTriangleNormalsArrayPath_Key);
-
-  // Declare the preflightResult variable that will be populated with the results
-  // of the preflight. The PreflightResult type contains the output Actions and
-  // any preflight updated values that you want to be displayed to the user, typically
-  // through a user interface (UI).
-  PreflightResult preflightResult;
-
-  // If your filter is making structural changes to the DataStructure then the filter
-  // is going to create OutputActions subclasses that need to be returned. This will
-  // store those actions.
-  complex::Result<OutputActions> resultOutputActions;
-
-  // If your filter is going to pass back some `preflight updated values` then this is where you
-  // would create the code to store those values in the appropriate object. Note that we
-  // in line creating the pair (NOT a std::pair<>) of Key:Value that will get stored in
-  // the std::vector<PreflightValue> object.
   std::vector<PreflightValue> preflightUpdatedValues;
 
-  // If the filter needs to pass back some updated values via a key:value string:string set of values
-  // you can declare and update that string here.
-  // None found in this filter based on the filter parameters
+  complex::Result<OutputActions> resultOutputActions;
 
-  // If this filter makes changes to the DataStructure in the form of
-  // creating/deleting/moving/renaming DataGroups, Geometries, DataArrays then you
-  // will need to use one of the `*Actions` classes located in complex/Filter/Actions
-  // to relay that information to the preflight and execute methods. This is done by
-  // creating an instance of the Action class and then storing it in the resultOutputActions variable.
-  // This is done through a `push_back()` method combined with a `std::move()`. For the
-  // newly initiated to `std::move` once that code is executed what was once inside the Action class
-  // instance variable is *no longer there*. The memory has been moved. If you try to access that
-  // variable after this line you will probably get a crash or have subtle bugs. To ensure that this
-  // does not happen we suggest using braces `{}` to scope each of the action's declaration and store
-  // so that the programmer is not tempted to use the action instance past where it should be used.
-  // You have to create your own Actions class if there isn't something specific for your filter's needs
-  // These are some proposed Actions based on the FilterParameters used. Please check them for correctness.
-  // This block is commented out because it needs some variables to be filled in.
+  const TriangleGeom* triangleGeom = dataStructure.getDataAs<TriangleGeom>(pTriangleGeometryDataPath);
+  if(triangleGeom != nullptr)
   {
-    // auto createArrayAction = std::make_unique<CreateArrayAction>(complex::NumericType::FILL_ME_IN, std::vector<usize>{NUM_TUPLES_VALUE}, NUM_COMPONENTS, pSurfaceMeshTriangleNormalsArrayPathValue);
-    // resultOutputActions.value().actions.push_back(std::move(createArrayAction));
+    auto createArrayAction = std::make_unique<CreateArrayAction>(complex::DataType::float64, std::vector<usize>{triangleGeom->getNumberOfFaces()}, std::vector<usize>{1}, pSurfaceMeshTriangleNormalsArrayPath);
+    resultOutputActions.value().actions.push_back(std::move(createArrayAction));
   }
 
-  // Store the preflight updated value(s) into the preflightUpdatedValues vector using
-  // the appropriate methods.
-  // None found based on the filter parameters
-
-  // Return both the resultOutputActions and the preflightUpdatedValues via std::move()
   return {std::move(resultOutputActions), std::move(preflightUpdatedValues)};
 }
 
@@ -122,14 +141,18 @@ IFilter::PreflightResult TriangleNormalFilter::preflightImpl(const DataStructure
 Result<> TriangleNormalFilter::executeImpl(DataStructure& dataStructure, const Arguments& filterArgs, const PipelineFilter* pipelineNode, const MessageHandler& messageHandler,
                                            const std::atomic_bool& shouldCancel) const
 {
-  /****************************************************************************
-   * Extract the actual input values from the 'filterArgs' object
-   ***************************************************************************/
-  auto pSurfaceMeshTriangleNormalsArrayPathValue = filterArgs.value<DataPath>(k_SurfaceMeshTriangleNormalsArrayPath_Key);
+  auto pTriangleGeometryDataPath = filterArgs.value<DataPath>(k_TriGeometryDataPath_Key);
+  auto pSurfaceMeshTriangleNormalsArrayPath = filterArgs.value<DataPath>(k_SurfaceMeshTriangleNormalsArrayPath_Key);
+  
+  TriangleGeom& triangleGeom = dataStructure.getDataRefAs<TriangleGeom>(pTriangleGeometryDataPath);
+  Float64Array& normals = dataStructure.getDataRefAs<Float64Array>(pSurfaceMeshTriangleNormalsArrayPath);
+  // Associate the calculated normals with the Face Data in the Triangle Geometry
+  triangleGeom.getLinkedGeometryData().addFaceData(pSurfaceMeshTriangleNormalsArrayPath);
 
-  /****************************************************************************
-   * Write your algorithm implementation in this function
-   ***************************************************************************/
+  // Parallel algorithm to find duplicate nodes
+  ParallelDataAlgorithm dataAlg;
+  dataAlg.setRange(0ULL, static_cast<size_t>(triangleGeom.getNumberOfFaces()));
+  dataAlg.execute(::CalculateNormalsImpl(*(triangleGeom.getVertices()), *(triangleGeom.getFaces()), normals));
 
   return {};
 }

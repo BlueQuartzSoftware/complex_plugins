@@ -6,15 +6,6 @@
 #include "complex/DataStructure/DataStructure.hpp"
 #include "complex/Filter/IFilter.hpp"
 
-/**
-* This is example code to put in the Execute Method of the filter.
-  TriangleNormalFilterInputValues inputValues;
-
-  inputValues.SurfaceMeshTriangleNormalsArrayPath = filterArgs.value<DataPath>(k_SurfaceMeshTriangleNormalsArrayPath_Key);
-
-  return TriangleNormalFilter(dataStructure, messageHandler, shouldCancel, &inputValues)();
-*/
-
 namespace complex
 {
 
@@ -24,9 +15,8 @@ struct SURFACEMESHING_EXPORT TriangleNormalFilterInputValues
 };
 
 /**
- * @class ConditionalSetValue
- * @brief This filter replaces values in the target array with a user specified value
- * where a bool mask array specifies.
+ * @class TriangleNormalFilter
+ * @brief This filter calculates a normal vector of length 1 (normalized) for each Triangle in a Triangle Geometry.
  */
 
 class SURFACEMESHING_EXPORT TriangleNormalFilter
