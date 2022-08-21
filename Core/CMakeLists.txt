@@ -99,13 +99,10 @@ set(filter_algorithms
   ResampleImageGeom
   ErodeDilateBadData
   WriteASCIIData
-<<<<<<< HEAD
   WriteBinaryData
-=======
   FindEuclideanDistMap
   FindNeighborhoods
   FindSurfaceAreaToVolume
->>>>>>> 60a907fc (Add more Small IN100 Filters)
 )
 
 
