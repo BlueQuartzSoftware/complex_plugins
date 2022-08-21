@@ -101,4 +101,3 @@ protected:
 } // namespace complex
 
 COMPLEX_DEF_FILTER_TRAITS(complex, FindFeatureReferenceMisorientationsFilter, "24b54daf-3bf5-4331-93f6-03a49f719bf1");
-
