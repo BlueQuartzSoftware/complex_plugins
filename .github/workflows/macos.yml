@@ -28,8 +28,7 @@ jobs:
       - name: Checkout Complex Repo
         uses: actions/checkout@v2
         with:
-          repository: imikejackson/complex
-          ref: filter/filter_fixes_3
+          repository: bluequartzsoftware/complex
           path: complex 
           submodules: true                
       - name: Checkout DREAM3D_Data Repo
