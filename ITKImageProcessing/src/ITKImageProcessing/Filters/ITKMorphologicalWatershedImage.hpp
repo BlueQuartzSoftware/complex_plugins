@@ -11,8 +11,8 @@ namespace complex
  * @class ITKMorphologicalWatershedImage
  * @brief Watershed segmentation implementation with morphological operators.
  *
- * Watershed pixel are labeled 0. TOutputImage should be an integer type. Labels of output image are in no particular order. You can reorder the labels such that object labels are consecutive and sorted
- * based on object size by passing the output of this filter to a RelabelComponentImageFilter .
+ * Watershed pixel are labeled 0. TOutputImage should be an integer type. Labels of output image are in no particular order. You can reorder the labels such that object labels are consecutive and
+ * sorted based on object size by passing the output of this filter to a RelabelComponentImageFilter .
  *
  * The morphological watershed transform algorithm is described in Chapter 9.2 of Pierre Soille's book "Morphological Image Analysis:
  * Principles and Applications", Second Edition, Springer, 2003.
