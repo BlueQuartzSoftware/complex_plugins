@@ -13,9 +13,9 @@ This **Filter** accepts DataArray(s) as input, extracts the data, creates the fi
 
 | Name | Type | Decision |
 |-------|---------------|------------|-----------------|----------------|----------|
-| Endianess | Endianess enum class | Determines underlying ordering of binary, if unsure, use Little (most universal)
-| Output Path | Filesystem::path | Directory to store printed array files
-| File Extension | string | The file extension used for generated files
+| Endianess | Endianess enum class | Determines underlying ordering of binary, if unsure, use Little (most universal) |
+| Output Path | Filesystem::path | Directory to store printed array files |
+| File Extension | string | The file extension used for generated files |
 
 ## Required Geometry ##
 
@@ -24,7 +24,7 @@ None
 ## Required Objects ##
 
 | Kind | Default Name | Type | Component Dimensions | Description |
-**DataArray** | Attribute Arrays to Export | DataArray | any | any | Specifies **DataArray** to have their values printed
+**DataArray** | Attribute Arrays to Export | DataArray | any | any | Specifies **DataArray** to have their values printed |
 
 ## Created Objects ##
 
