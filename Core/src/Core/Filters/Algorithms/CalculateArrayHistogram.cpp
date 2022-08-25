@@ -1,5 +1,8 @@
 #include "CalculateArrayHistogram.hpp"
 
+#include "Core/Filters/CalculateArrayHistogramFilter.hpp"
+
+#include "Core/Filters/WriteBinaryDataFilter.hpp"
 #include "complex/DataStructure/DataArray.hpp"
 #include "complex/DataStructure/DataGroup.hpp"
 

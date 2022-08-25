@@ -1,4 +1,5 @@
-#include "CalculateArrayHistogram.hpp"
+#include "CalculateArrayHistogramFilter.hpp"
+#include "Algorithms/CalculateArrayHistogram.hpp"
 
 #include "complex/DataStructure/DataPath.hpp"
 #include "complex/Filter/Actions/CreateDataGroupAction.hpp"
@@ -13,37 +14,37 @@ using namespace complex;
 namespace complex
 {
 //------------------------------------------------------------------------------
-std::string CalculateArrayHistogram::name() const
+std::string CalculateArrayHistogramFilter::name() const
 {
-  return FilterTraits<CalculateArrayHistogram>::name.str();
+  return FilterTraits<CalculateArrayHistogramFilter>::name.str();
 }
 
 //------------------------------------------------------------------------------
-std::string CalculateArrayHistogram::className() const
+std::string CalculateArrayHistogramFilter::className() const
 {
-  return FilterTraits<CalculateArrayHistogram>::className;
+  return FilterTraits<CalculateArrayHistogramFilter>::className;
 }
 
 //------------------------------------------------------------------------------
-Uuid CalculateArrayHistogram::uuid() const
+Uuid CalculateArrayHistogramFilter::uuid() const
 {
-  return FilterTraits<CalculateArrayHistogram>::uuid;
+  return FilterTraits<CalculateArrayHistogramFilter>::uuid;
 }
 
 //------------------------------------------------------------------------------
-std::string CalculateArrayHistogram::humanName() const
+std::string CalculateArrayHistogramFilter::humanName() const
 {
   return "Calculate Frequency Histogram";
 }
 
 //------------------------------------------------------------------------------
-std::vector<std::string> CalculateArrayHistogram::defaultTags() const
+std::vector<std::string> CalculateArrayHistogramFilter::defaultTags() const
 {
   return {"#Statistics", "#Ensemble"};
 }
 
 //------------------------------------------------------------------------------
-Parameters CalculateArrayHistogram::parameters() const
+Parameters CalculateArrayHistogramFilter::parameters() const
 {
   Parameters params;
   // Create the parameter descriptors that are needed for this filter
@@ -65,13 +66,13 @@ Parameters CalculateArrayHistogram::parameters() const
 }
 
 //------------------------------------------------------------------------------
-IFilter::UniquePointer CalculateArrayHistogram::clone() const
+IFilter::UniquePointer CalculateArrayHistogramFilter::clone() const
 {
-  return std::make_unique<CalculateArrayHistogram>();
+  return std::make_unique<CalculateArrayHistogramFilter>();
 }
 
 //------------------------------------------------------------------------------
-IFilter::PreflightResult CalculateArrayHistogram::preflightImpl(const DataStructure& dataStructure, const Arguments& filterArgs, const MessageHandler& messageHandler,
+IFilter::PreflightResult CalculateArrayHistogramFilter::preflightImpl(const DataStructure& dataStructure, const Arguments& filterArgs, const MessageHandler& messageHandler,
                                                                 const std::atomic_bool& shouldCancel) const
 {
   /****************************************************************************
@@ -141,7 +142,7 @@ IFilter::PreflightResult CalculateArrayHistogram::preflightImpl(const DataStruct
 }
 
 //------------------------------------------------------------------------------
-Result<> CalculateArrayHistogram::executeImpl(DataStructure& dataStructure, const Arguments& filterArgs, const PipelineFilter* pipelineNode, const MessageHandler& messageHandler,
+Result<> CalculateArrayHistogramFilter::executeImpl(DataStructure& dataStructure, const Arguments& filterArgs, const PipelineFilter* pipelineNode, const MessageHandler& messageHandler,
                                               const std::atomic_bool& shouldCancel) const
 {
   /****************************************************************************
