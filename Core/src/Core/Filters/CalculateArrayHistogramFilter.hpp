@@ -1,6 +1,6 @@
 #pragma once
 
-#include "StatsToolbox/StatsToolbox_export.hpp"
+#include "Core/Core_export.hpp"
 
 #include "complex/Filter/FilterTraits.hpp"
 #include "complex/Filter/IFilter.hpp"
@@ -9,30 +9,29 @@ namespace complex
 {
 /**
  * @class CalculateArrayHistogram
- * @brief This filter will ....
+ * @brief This filter calculate the frequency histogram of a data structure
  */
-class STATSTOOLBOX_EXPORT CalculateArrayHistogram : public IFilter
+class CORE_EXPORT CalculateArrayHistogramFilter : public IFilter
 {
 public:
-  CalculateArrayHistogram() = default;
-  ~CalculateArrayHistogram() noexcept override = default;
+  CalculateArrayHistogramFilter() = default;
+  ~CalculateArrayHistogramFilter() noexcept override = default;
 
-  CalculateArrayHistogram(const CalculateArrayHistogram&) = delete;
-  CalculateArrayHistogram(CalculateArrayHistogram&&) noexcept = delete;
+  CalculateArrayHistogramFilter(const CalculateArrayHistogramFilter&) = delete;
+  CalculateArrayHistogramFilter(CalculateArrayHistogramFilter&&) noexcept = delete;
 
-  CalculateArrayHistogram& operator=(const CalculateArrayHistogram&) = delete;
-  CalculateArrayHistogram& operator=(CalculateArrayHistogram&&) noexcept = delete;
+  CalculateArrayHistogramFilter& operator=(const CalculateArrayHistogramFilter&) = delete;
+  CalculateArrayHistogramFilter& operator=(CalculateArrayHistogramFilter&&) noexcept = delete;
 
   // Parameter Keys
   static inline constexpr StringLiteral k_NumberOfBins_Key = "NumberOfBins";
   static inline constexpr StringLiteral k_UserDefinedRange_Key = "UserDefinedRange";
   static inline constexpr StringLiteral k_MinRange_Key = "MinRange";
   static inline constexpr StringLiteral k_MaxRange_Key = "MaxRange";
-  static inline constexpr StringLiteral k_NewDataContainer_Key = "NewDataContainer";
-  static inline constexpr StringLiteral k_SelectedArrayPath_Key = "SelectedArrayPath";
-  static inline constexpr StringLiteral k_NewDataContainerName_Key = "NewDataContainerName";
-  static inline constexpr StringLiteral k_NewAttributeMatrixName_Key = "NewAttributeMatrixName";
-  static inline constexpr StringLiteral k_NewDataArrayName_Key = "NewDataArrayName";
+  static inline constexpr StringLiteral k_NewDataGroup_Key = "NewDataGroup";
+  static inline constexpr StringLiteral k_SelectedArrayPaths_Key = "SelectedArrayPaths";
+  static inline constexpr StringLiteral k_NewDataGroupName_Key = "NewDataGroupName";
+  static inline constexpr StringLiteral k_DataGroupName_Key = "DataGroupName";
 
   /**
    * @brief Returns the name of the filter.
@@ -100,4 +99,4 @@ protected:
 };
 } // namespace complex
 
-COMPLEX_DEF_FILTER_TRAITS(complex, CalculateArrayHistogram, "c6b6d9e5-301d-4767-abf7-530f5ef5007d");
+COMPLEX_DEF_FILTER_TRAITS(complex, CalculateArrayHistogramFilter, "c6b6d9e5-301d-4767-abf7-530f5ef5007d");
