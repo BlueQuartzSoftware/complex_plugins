@@ -43,6 +43,7 @@ set(FilterList
   FindMisorientationsFilter
   FindSchmidsFilter
   ReadAngDataFilter
+  ReadCtfDataFilter
 )
   
 set(STUB_FILTERS
@@ -87,7 +88,6 @@ set(STUB_FILTERS
   #ImportH5OimData # MISSING 1 or more Parameter Implementations
   
   #OrientationUtility # MISSING 1 or more Parameter Implementations
-  ReadCtfData
   ReplaceElementAttributesWithNeighborValues
   RodriguesConvertor
   Stereographic3D
@@ -170,6 +170,7 @@ set(filter_algorithms
   FindMisorientations
   FindSchmids
   ReadAngData
+  ReadCtfData
 )
 
 

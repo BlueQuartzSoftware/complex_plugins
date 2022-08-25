@@ -2,50 +2,52 @@
 
 #include "OrientationAnalysis/OrientationAnalysis_export.hpp"
 
-#include "complex/DataStructure/DataArray.hpp"
 #include "complex/DataStructure/DataPath.hpp"
 #include "complex/DataStructure/DataStructure.hpp"
-#include "complex/DataStructure/IDataArray.hpp"
 #include "complex/Filter/IFilter.hpp"
+#include "complex/Parameters/FileSystemPathParameter.hpp"
 
-#include "EbsdLib/IO/TSL/AngReader.h"
-
+#include "EbsdLib/IO/HKL/CtfReader.h"
+#include "EbsdLib/IO/HKL/CtfPhase.h"
 
 namespace complex
 {
 
-struct ORIENTATIONANALYSIS_EXPORT ReadAngDataInputValues
+struct ORIENTATIONANALYSIS_EXPORT ReadCtfDataInputValues
 {
-  std::filesystem::path InputFile;
+  FileSystemPathParameter::ValueType InputFile;
   DataPath DataContainerName;
   DataPath CellAttributeMatrixName;
   DataPath CellEnsembleAttributeMatrixName;
+  bool DegreesToRadians;
+  bool EdaxHexagonalAlignment;
 };
 
-struct ORIENTATIONANALYSIS_EXPORT Ang_Private_Data
+
+struct ORIENTATIONANALYSIS_EXPORT Ctf_Private_Data
 {
   std::array<size_t, 3> dims = {0, 0, 0};
   std::array<float, 3> resolution = {0.0F, 0.0F, 0.0F};
   std::array<float, 3> origin = {0.0F, 0.0F, 0.0F};
-  std::vector<AngPhase::Pointer> phases;
+  std::vector<CtfPhase::Pointer> phases;
   int32_t units = 0;
 };
 
 /**
  * @brief The ReadAngDataPrivate class is a private implementation of the ReadAngData class
  */
-class ORIENTATIONANALYSIS_EXPORT ReadAngDataPrivate
+class ORIENTATIONANALYSIS_EXPORT ReadCtfDataPrivate
 {
 public:
-  ReadAngDataPrivate(){};
-  ~ReadAngDataPrivate() = default;
+  ReadCtfDataPrivate(){};
+  ~ReadCtfDataPrivate() = default;
 
-  ReadAngDataPrivate(const ReadAngDataPrivate&) = delete;            // Copy Constructor Not Implemented
-  ReadAngDataPrivate(ReadAngDataPrivate&&) = delete;                 // Move Constructor Not Implemented
-  ReadAngDataPrivate& operator=(const ReadAngDataPrivate&) = delete; // Copy Assignment Not Implemented
-  ReadAngDataPrivate& operator=(ReadAngDataPrivate&&) = delete;      // Move Assignment Not Implemented
+  ReadCtfDataPrivate(const ReadCtfDataPrivate&) = delete;            // Copy Constructor Not Implemented
+  ReadCtfDataPrivate(ReadCtfDataPrivate&&) = delete;                 // Move Constructor Not Implemented
+  ReadCtfDataPrivate& operator=(const ReadCtfDataPrivate&) = delete; // Copy Assignment Not Implemented
+  ReadCtfDataPrivate& operator=(ReadCtfDataPrivate&&) = delete;      // Move Assignment Not Implemented
 
-  Ang_Private_Data m_Data;
+  Ctf_Private_Data m_Data;
 
   std::string m_InputFile_Cache;
   fs::file_time_type m_TimeStamp_Cache;
@@ -166,40 +168,46 @@ public:
 };
 
 /**
- * @brief
+ * @class ConditionalSetValue
+ * @brief This filter replaces values in the target array with a user specified value
+ * where a bool mask array specifies.
  */
-class ORIENTATIONANALYSIS_EXPORT ReadAngData
+
+class ORIENTATIONANALYSIS_EXPORT ReadCtfData
 {
 public:
-  ReadAngData(DataStructure& dataStructure, const IFilter::MessageHandler& msgHandler, const std::atomic_bool& shouldCancel, ReadAngDataInputValues* inputValues);
-  ~ReadAngData() noexcept;
+  ReadCtfData(DataStructure& dataStructure, const IFilter::MessageHandler& mesgHandler, const std::atomic_bool& shouldCancel, ReadCtfDataInputValues* inputValues);
+  ~ReadCtfData() noexcept;
 
-  ReadAngData(const ReadAngData&) = delete;            // Copy Constructor Not Implemented
-  ReadAngData(ReadAngData&&) = delete;                 // Move Constructor Not Implemented
-  ReadAngData& operator=(const ReadAngData&) = delete; // Copy Assignment Not Implemented
-  ReadAngData& operator=(ReadAngData&&) = delete;      // Move Assignment Not Implemented
+  ReadCtfData(const ReadCtfData&) = delete;
+  ReadCtfData(ReadCtfData&&) noexcept = delete;
+  ReadCtfData& operator=(const ReadCtfData&) = delete;
+  ReadCtfData& operator=(ReadCtfData&&) noexcept = delete;
 
   Result<> operator()();
 
-protected:
+  const std::atomic_bool& getCancel();
+
 private:
   DataStructure& m_DataStructure;
-  const IFilter::MessageHandler& m_MessageHandler;
+  const ReadCtfDataInputValues* m_InputValues = nullptr;
   const std::atomic_bool& m_ShouldCancel;
-  const ReadAngDataInputValues* m_InputValues = nullptr;
+  const IFilter::MessageHandler& m_MessageHandler;
+
 
   /**
    * @brief
    * @param reader
    * @return Error code.
    */
-  std::pair<int32, std::string> loadMaterialInfo(AngReader* reader) const;
+  std::pair<int32, std::string> loadMaterialInfo(CtfReader* reader) const;
 
   /**
    * @brief
    * @param reader
    */
-  void copyRawEbsdData(AngReader* reader) const;
+  void copyRawEbsdData(CtfReader* reader) const;
+
 };
 
 } // namespace complex
