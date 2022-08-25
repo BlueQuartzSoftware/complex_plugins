@@ -1,6 +1,6 @@
 #pragma once
 
-#include "StatsToolbox/StatsToolbox_export.hpp"
+#include "Core/Core_export.hpp"
 
 #include "complex/DataStructure/DataPath.hpp"
 #include "complex/DataStructure/DataStructure.hpp"
@@ -26,7 +26,7 @@
 namespace complex
 {
 
-struct STATSTOOLBOX_EXPORT CalculateArrayHistogramInputValues
+struct CORE_EXPORT CalculateArrayHistogramInputValues
 {
   int32 NumberOfBins;
   bool UserDefinedRange;
@@ -45,7 +45,7 @@ struct STATSTOOLBOX_EXPORT CalculateArrayHistogramInputValues
  * where a bool mask array specifies.
  */
 
-class STATSTOOLBOX_EXPORT CalculateArrayHistogram
+class CORE_EXPORT CalculateArrayHistogram
 {
 public:
   CalculateArrayHistogram(DataStructure& dataStructure, const IFilter::MessageHandler& mesgHandler, const std::atomic_bool& shouldCancel, CalculateArrayHistogramInputValues* inputValues);

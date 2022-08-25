@@ -28,28 +28,27 @@
 #include "complex/Parameters/DataGroupCreationParameter.hpp"
 #include "complex/Parameters/NumberParameter.hpp"
 
-#include "StatsToolbox/Filters/CalculateArrayHistogram.hpp"
-#include "StatsToolbox/StatsToolbox_test_dirs.hpp"
+#include "Core/Filters/CalculateArrayHistogramFilter.hpp"
 
 using namespace complex;
 
 TEST_CASE("StatsToolbox::CalculateArrayHistogram: Instantiation and Parameter Check", "[StatsToolbox][CalculateArrayHistogram][.][UNIMPLEMENTED][!mayfail]")
 {
   // Instantiate the filter, a DataStructure object and an Arguments Object
-  CalculateArrayHistogram filter;
+  CalculateArrayHistogramFilter filter;
   DataStructure ds;
   Arguments args;
 
   // Create default Parameters for the filter.
-  args.insertOrAssign(CalculateArrayHistogram::k_NumberOfBins_Key, std::make_any<int32>(1234356));
-  args.insertOrAssign(CalculateArrayHistogram::k_UserDefinedRange_Key, std::make_any<bool>(false));
-  args.insertOrAssign(CalculateArrayHistogram::k_MinRange_Key, std::make_any<float64>(2.3456789));
-  args.insertOrAssign(CalculateArrayHistogram::k_MaxRange_Key, std::make_any<float64>(2.3456789));
-  args.insertOrAssign(CalculateArrayHistogram::k_NewDataContainer_Key, std::make_any<bool>(false));
-  args.insertOrAssign(CalculateArrayHistogram::k_SelectedArrayPath_Key, std::make_any<DataPath>(DataPath{}));
-  args.insertOrAssign(CalculateArrayHistogram::k_NewDataContainerName_Key, std::make_any<DataPath>(DataPath{}));
-  args.insertOrAssign(CalculateArrayHistogram::k_NewAttributeMatrixName_Key, std::make_any<DataPath>(DataPath{}));
-  args.insertOrAssign(CalculateArrayHistogram::k_NewDataArrayName_Key, std::make_any<DataPath>(DataPath{}));
+  args.insertOrAssign(CalculateArrayHistogramFilter::k_NumberOfBins_Key, std::make_any<int32>(1234356));
+  args.insertOrAssign(CalculateArrayHistogramFilter::k_UserDefinedRange_Key, std::make_any<bool>(false));
+  args.insertOrAssign(CalculateArrayHistogramFilter::k_MinRange_Key, std::make_any<float64>(2.3456789));
+  args.insertOrAssign(CalculateArrayHistogramFilter::k_MaxRange_Key, std::make_any<float64>(2.3456789));
+  args.insertOrAssign(CalculateArrayHistogramFilter::k_NewDataContainer_Key, std::make_any<bool>(false));
+  args.insertOrAssign(CalculateArrayHistogramFilter::k_SelectedArrayPath_Key, std::make_any<DataPath>(DataPath{}));
+  args.insertOrAssign(CalculateArrayHistogramFilter::k_NewDataContainerName_Key, std::make_any<DataPath>(DataPath{}));
+  args.insertOrAssign(CalculateArrayHistogramFilter::k_NewAttributeMatrixName_Key, std::make_any<DataPath>(DataPath{}));
+  args.insertOrAssign(CalculateArrayHistogramFilter::k_NewDataArrayName_Key, std::make_any<DataPath>(DataPath{}));
 
   // Preflight the filter and check result
   auto preflightResult = filter.preflight(ds, args);

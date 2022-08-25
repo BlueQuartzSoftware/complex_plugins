@@ -9,7 +9,6 @@ set(FilterList
 )
 
 set(STUB_FILTERS
-  CalculateArrayHistogram
   ComputeMomentInvariants2D
   FindAvgScalarValueForFeatures
   FindBoundaryElementFractions
@@ -79,7 +78,6 @@ source_group(TREE "${${PLUGIN_NAME}_SOURCE_DIR}/src/${PLUGIN_NAME}" PREFIX ${PLU
 set(filter_algorithms
 )
 set(filter_algorithms_disabled
-  CalculateArrayHistogram
   ComputeMomentInvariants2D
   FindAvgScalarValueForFeatures
   FindBoundaryElementFractions

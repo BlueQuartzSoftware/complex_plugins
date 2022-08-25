@@ -1,6 +1,6 @@
 #pragma once
 
-#include "StatsToolbox/StatsToolbox_export.hpp"
+#include "Core/Core_export.hpp"
 
 #include "complex/Filter/FilterTraits.hpp"
 #include "complex/Filter/IFilter.hpp"
@@ -9,19 +9,19 @@ namespace complex
 {
 /**
  * @class CalculateArrayHistogram
- * @brief This filter will ....
+ * @brief This filter calculate the frequency histogram of a data 
  */
-class STATSTOOLBOX_EXPORT CalculateArrayHistogram : public IFilter
+class CORE_EXPORT CalculateArrayHistogramFilter : public IFilter
 {
 public:
-  CalculateArrayHistogram() = default;
-  ~CalculateArrayHistogram() noexcept override = default;
+  CalculateArrayHistogramFilter() = default;
+  ~CalculateArrayHistogramFilter() noexcept override = default;
 
-  CalculateArrayHistogram(const CalculateArrayHistogram&) = delete;
-  CalculateArrayHistogram(CalculateArrayHistogram&&) noexcept = delete;
+  CalculateArrayHistogramFilter(const CalculateArrayHistogramFilter&) = delete;
+  CalculateArrayHistogramFilter(CalculateArrayHistogramFilter&&) noexcept = delete;
 
-  CalculateArrayHistogram& operator=(const CalculateArrayHistogram&) = delete;
-  CalculateArrayHistogram& operator=(CalculateArrayHistogram&&) noexcept = delete;
+  CalculateArrayHistogramFilter& operator=(const CalculateArrayHistogramFilter&) = delete;
+  CalculateArrayHistogramFilter& operator=(CalculateArrayHistogramFilter&&) noexcept = delete;
 
   // Parameter Keys
   static inline constexpr StringLiteral k_NumberOfBins_Key = "NumberOfBins";
@@ -100,4 +100,4 @@ protected:
 };
 } // namespace complex
 
-COMPLEX_DEF_FILTER_TRAITS(complex, CalculateArrayHistogram, "c6b6d9e5-301d-4767-abf7-530f5ef5007d");
+COMPLEX_DEF_FILTER_TRAITS(complex, CalculateArrayHistogramFilter, "c6b6d9e5-301d-4767-abf7-530f5ef5007d");
