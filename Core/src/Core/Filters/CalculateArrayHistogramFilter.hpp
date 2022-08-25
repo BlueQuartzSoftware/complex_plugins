@@ -9,7 +9,7 @@ namespace complex
 {
 /**
  * @class CalculateArrayHistogram
- * @brief This filter calculate the frequency histogram of a data 
+ * @brief This filter calculate the frequency histogram of a data structure
  */
 class CORE_EXPORT CalculateArrayHistogramFilter : public IFilter
 {
