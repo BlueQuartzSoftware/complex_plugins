@@ -139,7 +139,7 @@ Result<> CalculateArrayHistogramFilter::executeImpl(DataStructure& dataStructure
   for(const auto& selectedDataPath : inputValues.SelectedArrayPaths)
   {
     DataPath createdDataPath = selectedDataPath.createChildPath(selectedDataPath.getTargetName() + "Histogram");
-    dataStructure.getDataAs<Float32Array>(createdDataPath)->fill(0.0); // load with zeroes
+    dataStructure.getDataAs<Float32Array>(createdDataPath)->fill(0.0f); // load with zeroes
     createdDataPaths.push_back(createdDataPath);
   }
   inputValues.CreatedHistogramDataPaths = createdDataPaths;
