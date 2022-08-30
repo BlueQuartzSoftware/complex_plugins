@@ -17,7 +17,6 @@ struct CORE_EXPORT CalculateArrayHistogramInputValues
   float64 MinRange;
   float64 MaxRange;
   MultiArraySelectionParameter::ValueType SelectedArrayPaths;
-  DataPath NewDataGroupName;
   MultiArraySelectionParameter::ValueType CreatedHistogramDataPaths;
 };
 

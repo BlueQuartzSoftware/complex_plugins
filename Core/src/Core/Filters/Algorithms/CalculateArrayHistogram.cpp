@@ -2,7 +2,6 @@
 
 #include "Core/Filters/CalculateArrayHistogramFilter.hpp"
 
-#include "Core/Filters/WriteBinaryDataFilter.hpp"
 #include "complex/Common/ComplexRange.hpp"
 #include "complex/DataStructure/DataArray.hpp"
 #include "complex/DataStructure/DataGroup.hpp"

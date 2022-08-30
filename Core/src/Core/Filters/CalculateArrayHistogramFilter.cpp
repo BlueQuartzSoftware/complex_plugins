@@ -133,12 +133,21 @@ Result<> CalculateArrayHistogramFilter::executeImpl(DataStructure& dataStructure
   inputValues.MinRange = filterArgs.value<float64>(k_MinRange_Key);
   inputValues.MaxRange = filterArgs.value<float64>(k_MaxRange_Key);
   inputValues.SelectedArrayPaths = filterArgs.value<MultiArraySelectionParameter::ValueType>(k_SelectedArrayPaths_Key);
-  inputValues.NewDataGroupName = filterArgs.value<DataPath>(k_NewDataGroupName_Key);
+
+  DataPath& dataGroupPath = *std::move(DataPath::FromString("temp"));
+  if(filterArgs.value<bool>(k_NewDataGroup_Key))
+  {
+    dataGroupPath = filterArgs.value<DataPath>(k_NewDataGroupName_Key);
+  }
+  else
+  {
+    dataGroupPath = filterArgs.value<DataPath>(k_DataGroupName_Key);
+  }
 
   MultiArraySelectionParameter::ValueType createdDataPaths;
   for(const auto& selectedDataPath : inputValues.SelectedArrayPaths)
   {
-    DataPath createdDataPath = selectedDataPath.createChildPath(selectedDataPath.getTargetName() + "Histogram");
+    DataPath createdDataPath = dataGroupPath.createChildPath(dataStructure.getDataAs<IDataArray>(selectedDataPath)->getName() + "Histogram");
     dataStructure.getDataAs<Float32Array>(createdDataPath)->fill(0.0f); // load with zeroes
     createdDataPaths.push_back(createdDataPath);
   }
