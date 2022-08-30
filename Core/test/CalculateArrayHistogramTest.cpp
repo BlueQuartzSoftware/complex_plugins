@@ -12,6 +12,8 @@
 
 #include "Core/Filters/CalculateArrayHistogramFilter.hpp"
 
+#include <iostream>
+
 using namespace complex;
 
 namespace
@@ -69,9 +71,13 @@ TEST_CASE("Core::CalculateArrayHistogram: Valid Filter Execution", "[Core][Calcu
   for(const auto& child : childPaths)
   {
     auto& dataArray = dataStruct.getDataRefAs<DataArray<float32>>(child);
-    for(int32 i = 0; i < dataArray.getNumberOfComponents(); i++)
+    for(int32 index = 0; index < dataArray.getNumberOfTuples(); index++)
     {
-      std::cout << dataArray[i];
+      for(int32 i = 0; i < dataArray.getNumberOfComponents(); i++)
+      {
+        std::cout << dataArray[(index * dataArray.getNumberOfComponents()) + i] << ", ";
+      }
+      std::cout << "\t";
     }
     std::cout << std::endl;
   }

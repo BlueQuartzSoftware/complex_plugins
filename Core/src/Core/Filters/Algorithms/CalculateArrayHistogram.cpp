@@ -38,7 +38,8 @@ public:
   {
     float64 min = std::numeric_limits<float>::max();
     float64 max = -1.0 * std::numeric_limits<float>::max();
-    for(size_t i = 0; i < m_InputArray.getNumberOfTuples(); i++) // min and max in the input array
+    //const auto numOfElements = m_InputArray.getNumberOfComponents() * m_InputArray.getNumberOfTuples();
+    for(size_t i = 0; i < m_InputArray.getNumberOfComponents(); i++) // min and max in the input array
     {
       if(static_cast<float>(m_InputArray[i]) > max)
       {
@@ -80,7 +81,7 @@ public:
           return;
         }
         const auto bin = (m_InputArray.at(i) - m_Min) / increment;
-        if((bin >= 0) && (bin < m_NumBins))
+        if((bin >= 0) && (bin <= m_NumBins))
         {
           m_Histogram[bin * 2 + 1]++;
         }

@@ -115,7 +115,7 @@ IFilter::PreflightResult CalculateArrayHistogramFilter::preflightImpl(const Data
     {
       childPath = pDataGroupNameValue.createChildPath((dataArray->getName() + "Histogram"));
     }
-    auto createArrayAction = std::make_unique<CreateArrayAction>(complex::DataType::float32, std::vector<usize>{static_cast<usize>(pNumberOfBinsValue)}, std::vector<usize>{1}, childPath);
+    auto createArrayAction = std::make_unique<CreateArrayAction>(complex::DataType::float64, std::vector<usize>{static_cast<usize>(1)}, std::vector<usize>{dataArray->getNumberOfComponents()}, childPath);
     resultOutputActions.value().actions.push_back(std::move(createArrayAction));
   }
 
