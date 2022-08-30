@@ -1,6 +1,7 @@
 #include "CalculateArrayHistogramFilter.hpp"
 #include "Algorithms/CalculateArrayHistogram.hpp"
 
+#include "complex/DataStructure/DataArray.hpp"
 #include "complex/DataStructure/DataPath.hpp"
 #include "complex/DataStructure/IDataArray.hpp"
 #include "complex/Filter/Actions/CreateArrayAction.hpp"
@@ -114,8 +115,7 @@ IFilter::PreflightResult CalculateArrayHistogramFilter::preflightImpl(const Data
     {
       childPath = pDataGroupNameValue.createChildPath((dataArray->getName() + "Histogram"));
     }
-    auto createArrayAction =
-        std::make_unique<CreateArrayAction>(complex::DataType::float32, std::vector<usize>{static_cast<usize>(pNumberOfBinsValue)}, std::vector<usize>{1}, childPath); // load with zeroes
+    auto createArrayAction = std::make_unique<CreateArrayAction>(complex::DataType::float32, std::vector<usize>{static_cast<usize>(pNumberOfBinsValue)}, std::vector<usize>{1}, childPath);
     resultOutputActions.value().actions.push_back(std::move(createArrayAction));
   }
 
@@ -139,6 +139,7 @@ Result<> CalculateArrayHistogramFilter::executeImpl(DataStructure& dataStructure
   for(const auto& selectedDataPath : inputValues.SelectedArrayPaths)
   {
     DataPath createdDataPath = selectedDataPath.createChildPath(selectedDataPath.getTargetName() + "Histogram");
+    dataStructure.getDataAs<Float32Array>(createdDataPath)->fill(0.0); // load with zeroes
     createdDataPaths.push_back(createdDataPath);
   }
   inputValues.CreatedHistogramDataPaths = createdDataPaths;
