@@ -5,6 +5,7 @@
 #include "complex/DataStructure/DataPath.hpp"
 #include "complex/DataStructure/DataStructure.hpp"
 #include "complex/Filter/IFilter.hpp"
+#include "complex/Parameters/MultiArraySelectionParameter.hpp"
 
 namespace complex
 {
@@ -15,10 +16,9 @@ struct CORE_EXPORT CalculateArrayHistogramInputValues
   bool UserDefinedRange;
   float64 MinRange;
   float64 MaxRange;
-  std::vector<DataPath> SelectedArrayPaths;
+  MultiArraySelectionParameter::ValueType SelectedArrayPaths;
   DataPath NewDataGroupName;
-  DataPath NewDataArrayName;
-  std::vector<DataPath> OutputArrayPaths;
+  MultiArraySelectionParameter::ValueType CreatedHistogramDataPaths;
 };
 
 /**
@@ -39,6 +39,7 @@ public:
 
   Result<> operator()();
 
+  void updateProgress(const std::string& progMessage);
   const std::atomic_bool& getCancel();
 
 private:

@@ -52,14 +52,14 @@ Parameters CalculateArrayHistogramFilter::parameters() const
 {
   Parameters params;
   // Create the parameter descriptors that are needed for this filter
-  params.insert(std::make_unique<Int32Parameter>(k_NumberOfBins_Key, "Number of Bins", "", 1234356));
-  params.insertLinkableParameter(std::make_unique<BoolParameter>(k_UserDefinedRange_Key, "Use Min & Max Range", "", false));
+  params.insert(std::make_unique<Int32Parameter>(k_NumberOfBins_Key, "Number of Bins", "", 1));
+  params.insertLinkableParameter(std::make_unique<BoolParameter>(k_UserDefinedRange_Key, "Use Custom Min & Max Range", "", false));
   params.insert(std::make_unique<Float64Parameter>(k_MinRange_Key, "Min Value", "", 2.3456789));
   params.insert(std::make_unique<Float64Parameter>(k_MaxRange_Key, "Max Value", "", 2.3456789));
-  params.insertLinkableParameter(std::make_unique<BoolParameter>(k_NewDataGroup_Key, "Create new DataGroup for histograms", "", true));
-  params.insert(std::make_unique<MultiArraySelectionParameter>(k_SelectedArrayPaths_Key, "DataArray to Histogram", "", MultiArraySelectionParameter::ValueType{}, complex::GetAllNumericTypes()));
-  params.insert(std::make_unique<DataGroupCreationParameter>(k_NewDataGroupName_Key, "New DataGroup path", "", DataPath{}));
-  params.insert(std::make_unique<DataGroupSelectionParameter>(k_DataGroupName_Key, "Output DataGroup path", "", DataPath{}));
+  params.insertLinkableParameter(std::make_unique<BoolParameter>(k_NewDataGroup_Key, "Create New DataGroup for Histograms", "", true));
+  params.insert(std::make_unique<MultiArraySelectionParameter>(k_SelectedArrayPaths_Key, "DataArray(s) to Histogram", "", MultiArraySelectionParameter::ValueType{}, complex::GetAllNumericTypes()));
+  params.insert(std::make_unique<DataGroupCreationParameter>(k_NewDataGroupName_Key, "New DataGroup Path", "", DataPath{}));
+  params.insert(std::make_unique<DataGroupSelectionParameter>(k_DataGroupName_Key, "Output DataGroup Path", "", DataPath{}));
   // Associate the Linkable Parameter(s) to the children parameters that they control
   params.linkParameters(k_UserDefinedRange_Key, k_MinRange_Key, true);
   params.linkParameters(k_UserDefinedRange_Key, k_MaxRange_Key, true);
@@ -85,9 +85,8 @@ IFilter::PreflightResult CalculateArrayHistogramFilter::preflightImpl(const Data
   auto pMaxRangeValue = filterArgs.value<float64>(k_MaxRange_Key);
   auto pNewDataGroupValue = filterArgs.value<bool>(k_NewDataGroup_Key);
   auto pDataGroupNameValue = filterArgs.value<DataPath>(k_DataGroupName_Key);
-  auto pSelectedArrayPathsValue = filterArgs.value<std::vector<DataPath>>(k_SelectedArrayPaths_Key);
+  auto pSelectedArrayPathsValue = filterArgs.value<MultiArraySelectionParameter::ValueType>(k_SelectedArrayPaths_Key);
   auto pNewDataGroupNameValue = filterArgs.value<DataPath>(k_NewDataGroupName_Key); // sanity check if is Attribute matrix after impending complex update
-  auto pNewDataArrayNameValue = filterArgs.value<DataPath>(k_NewDataArrayName_Key); // load array with zeroes
 
   PreflightResult preflightResult;
 
@@ -99,7 +98,6 @@ IFilter::PreflightResult CalculateArrayHistogramFilter::preflightImpl(const Data
     auto createDataGroupAction = std::make_unique<CreateDataGroupAction>(pNewDataGroupNameValue);
     resultOutputActions.value().actions.push_back(std::move(createDataGroupAction));
   }
-  std::vector<DataPath> createdArrays;
   for(auto& selectedArrayPath : pSelectedArrayPathsValue)
   {
     const auto* dataArray = dataStructure.getDataAs<IDataArray>(selectedArrayPath);
@@ -116,13 +114,10 @@ IFilter::PreflightResult CalculateArrayHistogramFilter::preflightImpl(const Data
     {
       childPath = pDataGroupNameValue.createChildPath((dataArray->getName() + "Histogram"));
     }
-
-    auto createArrayAction = std::make_unique<CreateArrayAction>(complex::DataType::float32, std::vector<int32>{pNumberOfBinsValue}, std::vector<usize>{1}, childPath);
+    auto createArrayAction =
+        std::make_unique<CreateArrayAction>(complex::DataType::float32, std::vector<usize>{static_cast<usize>(pNumberOfBinsValue)}, std::vector<usize>{1}, childPath); // load with zeroes
     resultOutputActions.value().actions.push_back(std::move(createArrayAction));
-    createdArrays.push_back(childPath);
   }
-
-  preflightUpdatedValues.push_back({"outputArrays", createdArrays}) //just push this back and add for loop in algo and its done filter wise
 
   return {std::move(resultOutputActions), std::move(preflightUpdatedValues)};
 }
@@ -137,10 +132,17 @@ Result<> CalculateArrayHistogramFilter::executeImpl(DataStructure& dataStructure
   inputValues.UserDefinedRange = filterArgs.value<bool>(k_UserDefinedRange_Key);
   inputValues.MinRange = filterArgs.value<float64>(k_MinRange_Key);
   inputValues.MaxRange = filterArgs.value<float64>(k_MaxRange_Key);
-  inputValues.SelectedArrayPaths = filterArgs.value<std::vector<DataPath>>(k_SelectedArrayPaths_Key);
+  inputValues.SelectedArrayPaths = filterArgs.value<MultiArraySelectionParameter::ValueType>(k_SelectedArrayPaths_Key);
   inputValues.NewDataGroupName = filterArgs.value<DataPath>(k_NewDataGroupName_Key);
-  inputValues.NewDataArrayName = filterArgs.value<DataPath>(k_NewDataArrayName_Key);
-  inputValues.OutputArrayPaths = filterArgs.value<std::vector<DataPath>>("outputArrays");
+
+  MultiArraySelectionParameter::ValueType createdDataPaths;
+  for(const auto& selectedDataPath : inputValues.SelectedArrayPaths)
+  {
+    DataPath createdDataPath = selectedDataPath.createChildPath(selectedDataPath.getTargetName() + "Histogram");
+    createdDataPaths.push_back(createdDataPath);
+  }
+  inputValues.CreatedHistogramDataPaths = createdDataPaths;
+
   return CalculateArrayHistogram(dataStructure, messageHandler, shouldCancel, &inputValues)();
 }
 } // namespace complex
