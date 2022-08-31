@@ -12,12 +12,21 @@
 
 #include "Core/Filters/CalculateArrayHistogramFilter.hpp"
 
-#include <iostream>
-
 using namespace complex;
 
 namespace
 {
+constexpr float64 k_max_difference = 0.0001;
+
+void compareHistograms(DataArray<float64> calulated, std::array<float64, 8> actual)
+{
+    for (int32 i = 0; i < actual.size(); i++)
+    {
+        float64 diff = std::fabs(calulated[i] - actual[i]);
+        REQUIRE(diff < ::k_max_difference);
+    }
+}
+
 template <typename T>
 void fillArray(DataArray<T>* data, std::vector<T> values)
 {
@@ -44,7 +53,8 @@ TEST_CASE("Core::CalculateArrayHistogram: Valid Filter Execution", "[Core][Calcu
   ::fillArray(DataArray<uint32>::CreateWithStore<DataStore<uint32>>(dataStruct, "array2", {static_cast<usize>(4)}, {static_cast<usize>(3)}), {83, 93, 75, 67, 8977, 56, 48, 92, 57, 34, 34, 34});
 
   std::vector<DataPath> dataPaths = dataStruct.getAllDataPaths();
-  auto dataGPath = *std::move(DataPath::FromString("DataGroup"));
+  auto& parentPath = dataPaths[0].getParent();
+  auto dataGPath = parentPath.createChildPath("HistogramDataGroup");
 
   // Create default Parameters for the filter.
   args.insertOrAssign(CalculateArrayHistogramFilter::k_NumberOfBins_Key, std::make_any<int32>(4));
@@ -62,23 +72,51 @@ TEST_CASE("Core::CalculateArrayHistogram: Valid Filter Execution", "[Core][Calcu
   REQUIRE(executeResult.result.valid());
 
   // load vector with child paths from filter
-  std::vector<DataPath> childPaths;
-  for(const auto& dataPath : dataPaths)
+  std::vector<DataPath> histoDataPaths;
+  for(const auto& selectedDataPath : dataStruct.getAllDataPaths())
   {
-    childPaths.push_back(*std::move(DataPath::FromString("DataGroup/" + dataPath.toString() + "Histogram")));
+    auto isHistogram = selectedDataPath.toString().find("Histogram"); // treat like bool
+    if(isHistogram != std::string::npos)
+    {
+      histoDataPaths.push_back(selectedDataPath);
+    }
+  }
+  std::vector<DataPath> childPaths;
+  for(int32 i = 0; i < dataPaths.size(); i++)
+  {
+    const auto& inputArrayPath = dataPaths[i];
+    std::string inputArrayName = dataStruct.getDataAs<IDataArray>(inputArrayPath)->getName();
+    if(inputArrayName.empty())
+    {
+      continue;
+    }
+    for(const auto& histopath : histoDataPaths)
+    {
+      auto isMatchingInput = histopath.toString().find(inputArrayName); // treat like bool
+      if(isMatchingInput != std::string::npos)
+      {
+        childPaths.push_back(histopath); // make sure they are in the same position
+      }
+    }
   }
 
+  std::array<float64, 8> array0HistogramSet = {183.725, 11, 425.25, 0, 666.775, 0, 908.3, 1};
+  std::array<float64, 8> array1HistogramSet = {-44.75, 1, 1.5, 2, 47.75, 3, 94, 6};
+  std::array<float64, 8> array2HistogramSet = {2269.25, 11, 4505.5, 0, 6741.75, 0, 8978, 1};
   for(const auto& child : childPaths)
   {
-    auto& dataArray = dataStruct.getDataRefAs<DataArray<float32>>(child);
-    for(int32 index = 0; index < dataArray.getNumberOfTuples(); index++)
+    auto& dataArray = dataStruct.getDataRefAs<DataArray<float64>>(child);
+    if (dataArray.getName().find("array0") != std::string::npos)
     {
-      for(int32 i = 0; i < dataArray.getNumberOfComponents(); i++)
-      {
-        std::cout << dataArray[(index * dataArray.getNumberOfComponents()) + i] << ", ";
-      }
-      std::cout << "\t";
+        compareHistograms(dataArray, array0HistogramSet);
     }
-    std::cout << std::endl;
+    else if (dataArray.getName().find("array1") != std::string::npos)
+    {
+        compareHistograms(dataArray, array1HistogramSet);
+    }
+    else if (dataArray.getName().find("array2") != std::string::npos)
+    {
+        compareHistograms(dataArray, array2HistogramSet);
+    }
   }
 }

@@ -18,7 +18,7 @@ class GenerateHistogramFromData
 {
 public:
   using type = T;
-  GenerateHistogramFromData(CalculateArrayHistogram* filter, const int32 numBins, const float64 minRange, const float64 maxRange, const DataArray<typename type>& inputArray, Float32Array& histogram,
+  GenerateHistogramFromData(CalculateArrayHistogram* filter, const int32 numBins, float64 minRange, float64 maxRange, const DataArray<typename type>& inputArray, Float64Array& histogram,
                             usize& overflow)
   : m_Filter(filter)
   , m_NumBins(numBins)
@@ -29,7 +29,7 @@ public:
   , m_Overflow(overflow)
   {
   }
-  GenerateHistogramFromData(CalculateArrayHistogram* filter, const int32 numBins, const DataArray<typename type>& inputArray, Float32Array& histogram, usize& overflow)
+  GenerateHistogramFromData(CalculateArrayHistogram* filter, const int32 numBins, const DataArray<typename type>& inputArray, Float64Array& histogram, usize& overflow)
   : m_Filter(filter)
   , m_NumBins(numBins)
   , m_InputArray(inputArray)
@@ -38,28 +38,30 @@ public:
   {
     float64 min = std::numeric_limits<float>::max();
     float64 max = -1.0 * std::numeric_limits<float>::max();
-    //const auto numOfElements = m_InputArray.getNumberOfComponents() * m_InputArray.getNumberOfTuples();
-    for(size_t i = 0; i < m_InputArray.getNumberOfComponents(); i++) // min and max in the input array
+    const auto numOfElements = m_InputArray.getNumberOfComponents() * m_InputArray.getNumberOfTuples();
+    for(size_t i = 0; i < numOfElements; i++) // min and max in the input array
     {
-      if(static_cast<float>(m_InputArray[i]) > max)
+      if(static_cast<float64>(m_InputArray[i]) > max)
       {
-        max = static_cast<float>(m_InputArray[i]);
+        max = static_cast<float64>(m_InputArray[i]);
       }
-      if(static_cast<float>(m_InputArray[i]) < min)
+      if(static_cast<float64>(m_InputArray[i]) < min)
       {
-        min = static_cast<float>(m_InputArray[i]);
+        min = static_cast<float64>(m_InputArray[i]);
       }
     }
-    m_Max = max;
-    m_Min = min;
+    m_Max = static_cast<float64>(max + 1); // ensure upper limit encapsulates max value
+    m_Min = static_cast<float64>(min - 1); // ensure lower limit encapsulates min value
   }
   ~GenerateHistogramFromData() = default;
 
   void generate(const usize start, const usize end) const
   {
+    // tuple visulaization: Histogram = {(bin maximum, count), (bin maximum, count), ... }
+
     auto beginning = std::chrono::steady_clock::now();
-    const float32 increment = (m_Max - m_Min) / m_NumBins;
-    if(m_NumBins == 1)
+    const float64 increment = (m_Max - m_Min) / m_NumBins;
+    if(m_NumBins == 1) // if one bin, just set the first element to total number of points
     {
       m_Histogram[0] = m_Max;
       m_Histogram[1] = end;
@@ -80,8 +82,8 @@ public:
         {
           return;
         }
-        const auto bin = (m_InputArray.at(i) - m_Min) / increment;
-        if((bin >= 0) && (bin <= m_NumBins))
+        const auto bin = std::floor((m_InputArray.at(i) - m_Min) / increment);
+        if((bin >= 0) && (bin < m_NumBins))
         {
           m_Histogram[bin * 2 + 1]++;
         }
@@ -92,9 +94,9 @@ public:
       }
     }
 
-    for(int32 i = 0; i < m_NumBins; i++)
+    for(int64 i = 0; i < m_NumBins; i++)
     {
-      m_Histogram[i * 2] = m_Min + increment * (i + 1);
+      m_Histogram[(i * 2)] = static_cast<float64>(m_Min + (increment * (i + 1))); // load bin maximum into respective postion {(x, ), (x , ), ...}
     }
   }
 
@@ -109,7 +111,7 @@ private:
   float64 m_Min = 0.0;
   float64 m_Max = 0.0;
   const DataArray<T>& m_InputArray;
-  Float32Array& m_Histogram;
+  Float64Array& m_Histogram;
   usize& m_Overflow = 0;
 };
 } // namespace
@@ -151,10 +153,10 @@ Result<> CalculateArrayHistogram::operator()()
     const auto& inputData = m_DataStructure.getDataRefAs<IDataArray>(selectedArrayPath);
     auto type = inputData.getDataType();
     auto& histogramPath = m_InputValues->CreatedHistogramDataPaths.at(i);
-    auto& histogram = m_DataStructure.getDataRefAs<DataArray<float32>>(histogramPath);
-    const auto numTup = inputData.getNumberOfTuples();
+    auto& histogram = m_DataStructure.getDataRefAs<DataArray<float64>>(histogramPath);
+    const auto numElements = inputData.getNumberOfTuples() * inputData.getNumberOfComponents();
     ParallelDataAlgorithm dataAlg;
-    dataAlg.setRange(0, numTup);
+    dataAlg.setRange(0, numElements);
     usize overflow = 0;
     if(m_ShouldCancel)
     {

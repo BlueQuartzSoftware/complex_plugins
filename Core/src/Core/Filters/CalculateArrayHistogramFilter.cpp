@@ -94,17 +94,29 @@ IFilter::PreflightResult CalculateArrayHistogramFilter::preflightImpl(const Data
   complex::Result<OutputActions> resultOutputActions;
 
   std::vector<PreflightValue> preflightUpdatedValues;
+
   if(pNewDataGroupValue)
   {
+    if(pNewDataGroupNameValue.toString().empty())
+    {
+      return {MakeErrorResult<OutputActions>(-19570, "DataGroup cannot be created because it's null (\"\")!")};
+    }
     auto createDataGroupAction = std::make_unique<CreateDataGroupAction>(pNewDataGroupNameValue);
     resultOutputActions.value().actions.push_back(std::move(createDataGroupAction));
+  }
+  else
+  {
+    if(pDataGroupNameValue.toString().empty())
+    {
+      return {MakeErrorResult<OutputActions>(-19570, "DataGroup cannot be found because it's null (\"\")!")};
+    }
   }
   for(auto& selectedArrayPath : pSelectedArrayPathsValue)
   {
     const auto* dataArray = dataStructure.getDataAs<IDataArray>(selectedArrayPath);
     if(dataArray == nullptr)
     {
-      return {MakeErrorResult<OutputActions>(-19570, fmt::format("DataArray {} does not exist!", selectedArrayPath.toString()))};
+      return {MakeErrorResult<OutputActions>(-19571, fmt::format("DataArray {} does not exist!", selectedArrayPath.toString()))};
     }
     DataPath childPath;
     if(pNewDataGroupValue)
@@ -115,7 +127,7 @@ IFilter::PreflightResult CalculateArrayHistogramFilter::preflightImpl(const Data
     {
       childPath = pDataGroupNameValue.createChildPath((dataArray->getName() + "Histogram"));
     }
-    auto createArrayAction = std::make_unique<CreateArrayAction>(complex::DataType::float64, std::vector<usize>{static_cast<usize>(1)}, std::vector<usize>{dataArray->getNumberOfComponents()}, childPath);
+    auto createArrayAction = std::make_unique<CreateArrayAction>(complex::DataType::float64, std::vector<usize>{static_cast<usize>(pNumberOfBinsValue)}, std::vector<usize>{2}, childPath);
     resultOutputActions.value().actions.push_back(std::move(createArrayAction));
   }
 
@@ -144,12 +156,37 @@ Result<> CalculateArrayHistogramFilter::executeImpl(DataStructure& dataStructure
     dataGroupPath = filterArgs.value<DataPath>(k_DataGroupName_Key);
   }
 
-  MultiArraySelectionParameter::ValueType createdDataPaths;
-  for(const auto& selectedDataPath : inputValues.SelectedArrayPaths)
+  std::vector<DataPath> histoDataPaths;
+  for(const auto& selectedDataPath : dataStructure.getAllDataPaths())
   {
-    DataPath createdDataPath = dataGroupPath.createChildPath(dataStructure.getDataAs<IDataArray>(selectedDataPath)->getName() + "Histogram");
-    dataStructure.getDataAs<Float32Array>(createdDataPath)->fill(0.0f); // load with zeroes
-    createdDataPaths.push_back(createdDataPath);
+    auto isHistogram = selectedDataPath.toString().find("Histogram"); // treat like bool
+    if(isHistogram != std::string::npos)
+    {
+      histoDataPaths.push_back(selectedDataPath);
+    }
+  }
+  std::vector<DataPath> createdDataPaths;
+  for(int32 i = 0; i < inputValues.SelectedArrayPaths.size(); i++)
+  {
+    const auto& inputArrayPath = inputValues.SelectedArrayPaths[i];
+    std::string inputArrayName = dataStructure.getDataAs<IDataArray>(inputArrayPath)->getName();
+    if(inputArrayName.empty())
+    {
+      continue;
+    }
+    for(const auto& histopath : histoDataPaths)
+    {
+      auto isMatchingInput = histopath.toString().find(inputArrayName); // treat like bool
+      if(isMatchingInput != std::string::npos)
+      {
+        createdDataPaths.push_back(histopath); // make sure they are in the same position
+      }
+    }
+  }
+
+  for(const auto& path : createdDataPaths)
+  {
+    dataStructure.getDataAs<Float64Array>(path)->fill(0.0); // load with zeroes
   }
   inputValues.CreatedHistogramDataPaths = createdDataPaths;
 
