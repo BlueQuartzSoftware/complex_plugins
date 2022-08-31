@@ -20,11 +20,11 @@ constexpr float64 k_max_difference = 0.0001;
 
 void compareHistograms(DataArray<float64> calulated, std::array<float64, 8> actual)
 {
-    for (int32 i = 0; i < actual.size(); i++)
-    {
-        float64 diff = std::fabs(calulated[i] - actual[i]);
-        REQUIRE(diff < ::k_max_difference);
-    }
+  for(int32 i = 0; i < actual.size(); i++)
+  {
+    float64 diff = std::fabs(calulated[i] - actual[i]);
+    REQUIRE(diff < ::k_max_difference);
+  }
 }
 
 template <typename T>
@@ -106,17 +106,17 @@ TEST_CASE("Core::CalculateArrayHistogram: Valid Filter Execution", "[Core][Calcu
   for(const auto& child : childPaths)
   {
     auto& dataArray = dataStruct.getDataRefAs<DataArray<float64>>(child);
-    if (dataArray.getName().find("array0") != std::string::npos)
+    if(dataArray.getName().find("array0") != std::string::npos)
     {
-        compareHistograms(dataArray, array0HistogramSet);
+      compareHistograms(dataArray, array0HistogramSet);
     }
-    else if (dataArray.getName().find("array1") != std::string::npos)
+    else if(dataArray.getName().find("array1") != std::string::npos)
     {
-        compareHistograms(dataArray, array1HistogramSet);
+      compareHistograms(dataArray, array1HistogramSet);
     }
-    else if (dataArray.getName().find("array2") != std::string::npos)
+    else if(dataArray.getName().find("array2") != std::string::npos)
     {
-        compareHistograms(dataArray, array2HistogramSet);
+      compareHistograms(dataArray, array2HistogramSet);
     }
   }
 }
