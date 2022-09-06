@@ -138,9 +138,9 @@ inline void ExecuteEbsdSegmentFeatures(DataStructure& dataStructure, const Filte
   args.insertOrAssign(k_CellPhasesArrayPath_Key, std::make_any<DataPath>(k_PhasesArrayPath));
   args.insertOrAssign(k_GoodVoxelsPath_Key, std::make_any<DataPath>(k_MaskArrayPath));
   args.insertOrAssign(k_CrystalStructuresArrayPath_Key, std::make_any<DataPath>(k_CrystalStructuresArrayPath));
-  args.insertOrAssign(k_FeatureIdsArrayName_Key, std::make_any<DataPath>(k_FeatureIdsArrayPath));
-  args.insertOrAssign(k_CellFeatureAttributeMatrixName_Key, std::make_any<DataPath>(k_CellFeatureAttributeMatrix));
-  args.insertOrAssign(k_ActiveArrayName_Key, std::make_any<DataPath>(k_ActiveArrayPath));
+  args.insertOrAssign(k_FeatureIdsArrayName_Key, std::make_any<std::string>(k_FeatureIds));
+  args.insertOrAssign(k_CellFeatureAttributeMatrixName_Key, std::make_any<std::string>(k_GrainData));
+  args.insertOrAssign(k_ActiveArrayName_Key, std::make_any<std::string>(k_Active));
   args.insertOrAssign(k_RandomizeFeatures_Key, std::make_any<bool>(false));
 
   // Preflight the filter and check result
