@@ -71,7 +71,7 @@ inline void ExecuteConvertOrientations(DataStructure& dataStructure, const Filte
   args.insertOrAssign(k_InputType_Key, std::make_any<ChoicesParameter::ValueType>(0));
   args.insertOrAssign(k_OutputType_Key, std::make_any<ChoicesParameter::ValueType>(2));
   args.insertOrAssign(k_InputOrientationArrayPath_Key, std::make_any<DataPath>(k_EulersArrayPath));
-  args.insertOrAssign(k_OutputOrientationArrayName_Key, std::make_any<DataPath>(k_QuatsArrayPath));
+  args.insertOrAssign(k_OutputOrientationArrayName_Key, std::make_any<std::string>(k_Quats));
 
   // Preflight the filter and check result
   auto preflightResult = filter->preflight(dataStructure, args);
