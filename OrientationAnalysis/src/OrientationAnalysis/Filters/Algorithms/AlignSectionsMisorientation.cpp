@@ -47,7 +47,7 @@ Result<> AlignSectionsMisorientation::operator()()
 std::vector<DataPath> AlignSectionsMisorientation::getSelectedDataPaths() const
 {
   auto cellDataGroupPath = m_InputValues->cellDataGroupPath;
-  auto& cellDataGroup = m_DataStructure.getDataRefAs<DataGroup>(cellDataGroupPath);
+  auto& cellDataGroup = m_DataStructure.getDataRefAs<AttributeMatrix>(cellDataGroupPath);
   std::vector<DataPath> selectedCellArrays;
 
   // Create the vector of selected cell DataPaths

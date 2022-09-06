@@ -102,9 +102,10 @@ int64_t EBSDSegmentFeatures::getSeed(int32 gnum, int64 nextSeed) const
   if(seed >= 0)
   {
     UInt8Array& activeArray = m_DataStructure.getDataRefAs<UInt8Array>(m_InputValues->activeArrayPath);
+    AttributeMatrix& cellFeatureAM = m_DataStructure.getDataRefAs<AttributeMatrix>(m_InputValues->cellFeatureAttributeMatrixPath);
     featureIds->setValue(static_cast<usize>(seed), gnum);
     std::vector<usize> tDims = {static_cast<usize>(gnum) + 1};
-    activeArray.getDataStore()->reshapeTuples(tDims); // This will resize the actives array
+    ResizeAttributeMatrix(cellFeatureAM, tDims); // This will resize the actives array
   }
   return seed;
 }
