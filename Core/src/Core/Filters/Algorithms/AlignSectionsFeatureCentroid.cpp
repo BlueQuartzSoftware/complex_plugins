@@ -44,7 +44,7 @@ Result<> AlignSectionsFeatureCentroid::operator()()
 std::vector<DataPath> AlignSectionsFeatureCentroid::getSelectedDataPaths() const
 {
   auto cellDataGroupPath = m_InputValues->cellDataGroupPath;
-  auto& cellDataGroup = m_DataStructure.getDataRefAs<DataGroup>(cellDataGroupPath);
+  auto& cellDataGroup = m_DataStructure.getDataRefAs<AttributeMatrix>(cellDataGroupPath);
   std::vector<DataPath> selectedCellArrays;
 
   // Create the vector of selected cell DataPaths
