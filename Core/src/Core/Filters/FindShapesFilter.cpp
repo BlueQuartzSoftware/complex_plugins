@@ -55,7 +55,6 @@ Parameters FindShapesFilter::parameters() const
   params.insert(std::make_unique<ArraySelectionParameter>(k_FeatureIdsArrayPath_Key, "Cell Feature Ids", "", DataPath({"FeatureIds"}), ArraySelectionParameter::AllowedTypes{DataType::int32}));
 
   params.insertSeparator(Parameters::Separator{"Required Input Feature Data"});
-  params.insert(std::make_unique<AttributeMatrixSelectionParameter>(k_CellFeatureAttributeMatrixName_Key, "Cell Feature Attribute Matrix", "", DataPath({"Feature Data"})));
   params.insert(std::make_unique<ArraySelectionParameter>(k_CentroidsArrayPath_Key, "Feature Centroids", "", DataPath({"Centroids"}), ArraySelectionParameter::AllowedTypes{DataType::float32}));
 
   params.insertSeparator(Parameters::Separator{"Created Feature Data"});
@@ -79,13 +78,13 @@ IFilter::PreflightResult FindShapesFilter::preflightImpl(const DataStructure& da
                                                          const std::atomic_bool& shouldCancel) const
 {
   auto pFeatureIdsArrayPath = filterArgs.value<DataPath>(k_FeatureIdsArrayPath_Key);
-  auto featureAttrMatrixPath = filterArgs.value<DataPath>(k_CellFeatureAttributeMatrixName_Key);
   auto pCentroidsArrayPath = filterArgs.value<DataPath>(k_CentroidsArrayPath_Key);
   auto pOmega3sArrayName = filterArgs.value<std::string>(k_Omega3sArrayName_Key);
   auto pAxisLengthsArrayName = filterArgs.value<std::string>(k_AxisLengthsArrayName_Key);
   auto pAxisEulerAnglesArrayName = filterArgs.value<std::string>(k_AxisEulerAnglesArrayName_Key);
   auto pAspectRatiosArrayName = filterArgs.value<std::string>(k_AspectRatiosArrayName_Key);
   auto pVolumesArrayName = filterArgs.value<std::string>(k_VolumesArrayName_Key);
+  auto featureAttrMatrixPath = pCentroidsArrayPath.getParent();
   auto pOmega3sArrayPath = featureAttrMatrixPath.createChildPath(pOmega3sArrayName);
   auto pAxisLengthsArrayPath = featureAttrMatrixPath.createChildPath(pAxisLengthsArrayName);
   auto pAxisEulerAnglesArrayPath = featureAttrMatrixPath.createChildPath(pAxisEulerAnglesArrayName);
@@ -161,8 +160,8 @@ Result<> FindShapesFilter::executeImpl(DataStructure& dataStructure, const Argum
   FindShapesInputValues inputValues;
 
   inputValues.FeatureIdsArrayPath = filterArgs.value<DataPath>(k_FeatureIdsArrayPath_Key);
-  inputValues.FeatureAttributeMatrixPath = filterArgs.value<DataPath>(k_CellFeatureAttributeMatrixName_Key);
   inputValues.CentroidsArrayPath = filterArgs.value<DataPath>(k_CentroidsArrayPath_Key);
+  inputValues.FeatureAttributeMatrixPath = inputValues.CentroidsArrayPath.getParent();
   auto pOmega3sArrayName = filterArgs.value<std::string>(k_Omega3sArrayName_Key);
   auto pAxisLengthsArrayName = filterArgs.value<std::string>(k_AxisLengthsArrayName_Key);
   auto pAxisEulerAnglesArrayName = filterArgs.value<std::string>(k_AxisEulerAnglesArrayName_Key);

@@ -48,7 +48,6 @@ TEST_CASE("Core::FindShapesFilter", "[Core][FindShapesFilter]")
 
     // Create default Parameters for the filter.
     args.insertOrAssign(FindShapesFilter::k_FeatureIdsArrayPath_Key, std::make_any<DataPath>(k_FeatureIdsArrayPath2));
-    args.insertOrAssign(FindShapesFilter::k_CellFeatureAttributeMatrixName_Key, std::make_any<DataPath>(k_CellFeatureAttributeMatrixPath));
     args.insertOrAssign(FindShapesFilter::k_CentroidsArrayPath_Key, std::make_any<DataPath>(k_CentroidsArrayPath));
     args.insertOrAssign(FindShapesFilter::k_Omega3sArrayName_Key, std::make_any<std::string>(k_Omega3sArrayNameNX));
     args.insertOrAssign(FindShapesFilter::k_AxisLengthsArrayName_Key, std::make_any<std::string>(k_AxisLengthsArrayNameNX));
