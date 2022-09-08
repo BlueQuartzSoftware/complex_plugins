@@ -72,7 +72,7 @@ void AlignSectionsMisorientation::find_shifts(std::vector<int64_t>& xshifts, std
       // This really should NOT be happening as the path was verified during preflight BUT we may be calling this from
       // somewhere else that is NOT going through the normal complex::IFilter API of Preflight and Execute
       std::string message = fmt::format("Mask Array DataPath does not exist or is not of the correct type (Bool | UInt8) {}", m_InputValues->goodVoxelsArrayPath.toString());
-      m_Result.errors().push_back({-53900, message});
+      m_Result = MergeResults(MakeErrorResult(-53900, message), m_Result);
       return;
     }
   }
@@ -84,7 +84,7 @@ void AlignSectionsMisorientation::find_shifts(std::vector<int64_t>& xshifts, std
     if(!outFile.is_open())
     {
       std::string message = fmt::format("Error creating Input Shifts File with file path {}", m_InputValues->alignmentShiftFileName.string());
-      m_Result.errors().push_back({-53901, message});
+      m_Result = MergeResults(MakeErrorResult(-53901, message), m_Result);
       return;
     }
   }
