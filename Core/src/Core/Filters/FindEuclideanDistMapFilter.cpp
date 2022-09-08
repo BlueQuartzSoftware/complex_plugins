@@ -186,7 +186,7 @@ Result<> FindEuclideanDistMapFilter::executeImpl(DataStructure& dataStructure, c
   inputValues.GBDistancesArrayName = parentGroupPath.createChildPath(filterArgs.value<std::string>(k_GBDistancesArrayName_Key));
   inputValues.TJDistancesArrayName = parentGroupPath.createChildPath(filterArgs.value<std::string>(k_TJDistancesArrayName_Key));
   inputValues.QPDistancesArrayName = parentGroupPath.createChildPath(filterArgs.value<std::string>(k_QPDistancesArrayName_Key));
-  auto& nearestNeighborName = filterArgs.value<std::string>(k_NearestNeighborsArrayName_Key);
+  auto nearestNeighborName = filterArgs.value<std::string>(k_NearestNeighborsArrayName_Key);
   inputValues.NearestNeighborsArrayName = inputValues.SaveNearestNeighbors ? parentGroupPath.createChildPath(nearestNeighborName) : DataPath::FromString(nearestNeighborName).value();
   inputValues.InputImageGeometry = filterArgs.value<DataPath>(k_SelectedImageGeometry_Key);
 
