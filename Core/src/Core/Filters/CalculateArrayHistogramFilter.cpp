@@ -102,7 +102,7 @@ IFilter::PreflightResult CalculateArrayHistogramFilter::preflightImpl(const Data
   }
   for(auto& selectedArrayPath : pSelectedArrayPathsValue)
   {
-    const auto& dataArray = dataStructure.getDataRefAs<IDataArray>(selectedArrayPath);
+    const auto& dataArray = dataStructure.getDataAs<IDataArray>(selectedArrayPath);
     DataPath childPath;
     if(pNewDataGroupValue)
     {

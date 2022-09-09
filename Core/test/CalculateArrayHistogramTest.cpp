@@ -47,10 +47,10 @@ TEST_CASE("Core::CalculateArrayHistogram: Valid Filter Execution", "[Core][Calcu
   Arguments args;
 
   // load vector with data paths for test
-  ::fillArray(DataArray<float64>::CreateWithStore<DataStore<float64>>(dataStruct, "array0", {static_cast<usize>(4)}, {static_cast<usize>(3)}),
+  ::fillArray(*DataArray<float64>::CreateWithStore<DataStore<float64>>(dataStruct, "array0", {static_cast<usize>(4)}, {static_cast<usize>(3)}),
               {0.0, 5.5, 8.5, 9.2, 16.7, 907.3, 5.0, 6.9, 83.7387483, -56.8, 3.7, -4.9});
-  ::fillArray(DataArray<int32>::CreateWithStore<DataStore<int32>>(dataStruct, "array1", {static_cast<usize>(4)}, {static_cast<usize>(3)}), {56, 82, 46, 93, 73, 57, 24, 32, -90, -35, 74, -19});
-  ::fillArray(DataArray<uint32>::CreateWithStore<DataStore<uint32>>(dataStruct, "array2", {static_cast<usize>(4)}, {static_cast<usize>(3)}), {83, 93, 75, 67, 8977, 56, 48, 92, 57, 34, 34, 34});
+  ::fillArray(*DataArray<int32>::CreateWithStore<DataStore<int32>>(dataStruct, "array1", {static_cast<usize>(4)}, {static_cast<usize>(3)}), {56, 82, 46, 93, 73, 57, 24, 32, -90, -35, 74, -19});
+  ::fillArray(*DataArray<uint32>::CreateWithStore<DataStore<uint32>>(dataStruct, "array2", {static_cast<usize>(4)}, {static_cast<usize>(3)}), {83, 93, 75, 67, 8977, 56, 48, 92, 57, 34, 34, 34});
 
   std::vector<DataPath> dataPaths = dataStruct.getAllDataPaths();
   auto& parentPath = dataPaths[0].getParent();
