@@ -17,9 +17,8 @@ template <typename T>
 class GenerateHistogramFromData
 {
 public:
-  using type = T;
-  GenerateHistogramFromData(CalculateArrayHistogram* filter, const int32 numBins, float64 minRange, float64 maxRange, const DataArray<typename type>& inputArray, Float64Array& histogram,
-                            usize& overflow)
+  GenerateHistogramFromData(CalculateArrayHistogram* filter, const int32 numBins, float64 minRange, float64 maxRange, const DataArray<T>& inputArray, Float64Array& histogram,
+      std::atomic<usize>& overflow)
   : m_Filter(filter)
   , m_NumBins(numBins)
   , m_Min(minRange)
@@ -29,7 +28,7 @@ public:
   , m_Overflow(overflow)
   {
   }
-  GenerateHistogramFromData(CalculateArrayHistogram* filter, const int32 numBins, const DataArray<typename type>& inputArray, Float64Array& histogram, usize& overflow)
+  GenerateHistogramFromData(CalculateArrayHistogram* filter, const int32 numBins, const DataArray<T>& inputArray, Float64Array& histogram, std::atomic<usize>& overflow)
   : m_Filter(filter)
   , m_NumBins(numBins)
   , m_InputArray(inputArray)
@@ -157,7 +156,7 @@ Result<> CalculateArrayHistogram::operator()()
     const auto numElements = inputData.getNumberOfTuples() * inputData.getNumberOfComponents();
     ParallelDataAlgorithm dataAlg;
     dataAlg.setRange(0, numElements);
-    usize overflow = 0;
+    std::atomic<usize> overflow = 0;
     if(m_ShouldCancel)
     {
       return {};
