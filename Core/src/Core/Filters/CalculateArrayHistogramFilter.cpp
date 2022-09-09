@@ -169,10 +169,6 @@ Result<> CalculateArrayHistogramFilter::executeImpl(DataStructure& dataStructure
     }
   }
 
-  for(const auto& path : createdDataPaths)
-  {
-    dataStructure.getDataAs<Float64Array>(path)->fill(0.0); // load with zeroes
-  }
   inputValues.CreatedHistogramDataPaths = createdDataPaths;
 
   return CalculateArrayHistogram(dataStructure, messageHandler, shouldCancel, &inputValues)();

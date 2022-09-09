@@ -18,7 +18,7 @@ namespace
 {
 constexpr float64 k_max_difference = 0.0001;
 
-void compareHistograms(DataArray<float64> calulated, std::array<float64, 8> actual)
+void compareHistograms(const DataArray<float64>& calulated, const std::array<float64, 8>& actual)
 {
   for(int32 i = 0; i < actual.size(); i++)
   {
@@ -28,7 +28,7 @@ void compareHistograms(DataArray<float64> calulated, std::array<float64, 8> actu
 }
 
 template <typename T>
-void fillArray(DataArray<T>* data, std::vector<T> values)
+void fillArray(DataArray<T>& data, const std::vector<T>& values)
 {
   int32 count = 0;
   for(T value : values)
@@ -65,11 +65,11 @@ TEST_CASE("Core::CalculateArrayHistogram: Valid Filter Execution", "[Core][Calcu
 
   // Preflight the filter and check result
   auto preflightResult = filter.preflight(dataStruct, args);
-  REQUIRE(preflightResult.outputActions.valid());
+  COMPLEX_RESULT_REQUIRE_VALID(preflightResult.outputActions);
 
   // Execute the filter and check the result
   auto executeResult = filter.execute(dataStruct, args);
-  REQUIRE(executeResult.result.valid());
+  COMPLEX_RESULT_REQUIRE_VALID(executeResult.result);
 
   // load vector with child paths from filter
   std::vector<DataPath> histoDataPaths;
