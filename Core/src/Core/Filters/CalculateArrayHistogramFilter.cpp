@@ -140,33 +140,12 @@ Result<> CalculateArrayHistogramFilter::executeImpl(DataStructure& dataStructure
   {
     dataGroupPath = filterArgs.value<DataPath>(k_DataGroupName_Key);
   }
-
-  std::vector<DataPath> histoDataPaths;
-  for(const auto& selectedDataPath : dataStructure.getAllDataPaths())
-  {
-    auto isHistogram = selectedDataPath.toString().find("Histogram"); // treat like bool
-    if(isHistogram != std::string::npos)
-    {
-      histoDataPaths.push_back(selectedDataPath);
-    }
-  }
   std::vector<DataPath> createdDataPaths;
-  for(int32 i = 0; i < inputValues.SelectedArrayPaths.size(); i++)
+  for(auto& selectedArrayPath : inputValues.SelectedArrayPaths) // regenerate based on preflight
   {
-    const auto& inputArrayPath = inputValues.SelectedArrayPaths[i];
-    std::string inputArrayName = dataStructure.getDataAs<IDataArray>(inputArrayPath)->getName();
-    if(inputArrayName.empty())
-    {
-      continue;
-    }
-    for(const auto& histopath : histoDataPaths)
-    {
-      auto isMatchingInput = histopath.toString().find(inputArrayName); // treat like bool
-      if(isMatchingInput != std::string::npos)
-      {
-        createdDataPaths.push_back(histopath); // make sure they are in the same position
-      }
-    }
+    const auto& dataArray = dataStructure.getDataAs<IDataArray>(selectedArrayPath);
+    auto childPath = dataGroupPath.createChildPath((dataArray->getName() + "Histogram"));
+    createdDataPaths.push_back(childPath);
   }
 
   inputValues.CreatedHistogramDataPaths = createdDataPaths;

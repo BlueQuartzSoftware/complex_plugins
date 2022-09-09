@@ -10,6 +10,7 @@
 #include "complex/Parameters/MultiArraySelectionParameter.hpp"
 #include "complex/Parameters/NumberParameter.hpp"
 
+#include "complex_plugins/Utilities/TestUtilities.hpp"
 #include "Core/Filters/CalculateArrayHistogramFilter.hpp"
 
 using namespace complex;
@@ -33,7 +34,7 @@ void fillArray(DataArray<T>& data, const std::vector<T>& values)
   int32 count = 0;
   for(T value : values)
   {
-    data->getDataStore()->setValue(count, value);
+    data.getDataStore()->setValue(count, value);
     count++;
   }
 }
@@ -72,38 +73,18 @@ TEST_CASE("Core::CalculateArrayHistogram: Valid Filter Execution", "[Core][Calcu
   COMPLEX_RESULT_REQUIRE_VALID(executeResult.result);
 
   // load vector with child paths from filter
-  std::vector<DataPath> histoDataPaths;
-  for(const auto& selectedDataPath : dataStruct.getAllDataPaths())
+  std::vector<DataPath> createdDataPaths;
+  for (auto& selectedArrayPath : dataPaths) // regenerate based on preflight
   {
-    auto isHistogram = selectedDataPath.toString().find("Histogram"); // treat like bool
-    if(isHistogram != std::string::npos)
-    {
-      histoDataPaths.push_back(selectedDataPath);
-    }
-  }
-  std::vector<DataPath> childPaths;
-  for(int32 i = 0; i < dataPaths.size(); i++)
-  {
-    const auto& inputArrayPath = dataPaths[i];
-    std::string inputArrayName = dataStruct.getDataAs<IDataArray>(inputArrayPath)->getName();
-    if(inputArrayName.empty())
-    {
-      continue;
-    }
-    for(const auto& histopath : histoDataPaths)
-    {
-      auto isMatchingInput = histopath.toString().find(inputArrayName); // treat like bool
-      if(isMatchingInput != std::string::npos)
-      {
-        childPaths.push_back(histopath); // make sure they are in the same position
-      }
-    }
+      const auto& dataArray = dataStruct.getDataAs<IDataArray>(selectedArrayPath);
+      auto childPath = dataGPath.createChildPath((dataArray->getName() + "Histogram"));
+      createdDataPaths.push_back(childPath);
   }
 
   std::array<float64, 8> array0HistogramSet = {183.725, 11, 425.25, 0, 666.775, 0, 908.3, 1};
   std::array<float64, 8> array1HistogramSet = {-44.75, 1, 1.5, 2, 47.75, 3, 94, 6};
   std::array<float64, 8> array2HistogramSet = {2269.25, 11, 4505.5, 0, 6741.75, 0, 8978, 1};
-  for(const auto& child : childPaths)
+  for(const auto& child : createdDataPaths)
   {
     auto& dataArray = dataStruct.getDataRefAs<DataArray<float64>>(child);
     if(dataArray.getName().find("array0") != std::string::npos)
