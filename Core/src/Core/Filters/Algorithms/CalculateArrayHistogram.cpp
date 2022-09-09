@@ -18,7 +18,7 @@ class GenerateHistogramFromData
 {
 public:
   GenerateHistogramFromData(CalculateArrayHistogram* filter, const int32 numBins, float64 minRange, float64 maxRange, const DataArray<T>& inputArray, Float64Array& histogram,
-      std::atomic<usize>& overflow)
+                            std::atomic<usize>& overflow)
   : m_Filter(filter)
   , m_NumBins(numBins)
   , m_Min(minRange)

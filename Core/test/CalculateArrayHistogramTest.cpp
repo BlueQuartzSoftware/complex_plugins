@@ -10,8 +10,8 @@
 #include "complex/Parameters/MultiArraySelectionParameter.hpp"
 #include "complex/Parameters/NumberParameter.hpp"
 
-#include "complex_plugins/Utilities/TestUtilities.hpp"
 #include "Core/Filters/CalculateArrayHistogramFilter.hpp"
+#include "complex_plugins/Utilities/TestUtilities.hpp"
 
 using namespace complex;
 
@@ -74,11 +74,11 @@ TEST_CASE("Core::CalculateArrayHistogram: Valid Filter Execution", "[Core][Calcu
 
   // load vector with child paths from filter
   std::vector<DataPath> createdDataPaths;
-  for (auto& selectedArrayPath : dataPaths) // regenerate based on preflight
+  for(auto& selectedArrayPath : dataPaths) // regenerate based on preflight
   {
-      const auto& dataArray = dataStruct.getDataAs<IDataArray>(selectedArrayPath);
-      auto childPath = dataGPath.createChildPath((dataArray->getName() + "Histogram"));
-      createdDataPaths.push_back(childPath);
+    const auto& dataArray = dataStruct.getDataAs<IDataArray>(selectedArrayPath);
+    auto childPath = dataGPath.createChildPath((dataArray->getName() + "Histogram"));
+    createdDataPaths.push_back(childPath);
   }
 
   std::array<float64, 8> array0HistogramSet = {183.725, 11, 425.25, 0, 666.775, 0, 908.3, 1};
