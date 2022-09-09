@@ -111,7 +111,7 @@ private:
   float64 m_Max = 0.0;
   const DataArray<T>& m_InputArray;
   Float64Array& m_Histogram;
-  usize& m_Overflow = 0;
+  std::atomic<usize>& m_Overflow = 0;
 };
 } // namespace
 
