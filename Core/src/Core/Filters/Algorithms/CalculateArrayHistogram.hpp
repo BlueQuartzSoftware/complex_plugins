@@ -12,12 +12,12 @@ namespace complex
 
 struct CORE_EXPORT CalculateArrayHistogramInputValues
 {
-  int32 NumberOfBins;
-  bool UserDefinedRange;
-  float64 MinRange;
-  float64 MaxRange;
-  MultiArraySelectionParameter::ValueType SelectedArrayPaths;
-  MultiArraySelectionParameter::ValueType CreatedHistogramDataPaths;
+  int32 NumberOfBins = 0;
+  bool UserDefinedRange = false;
+  float64 MinRange = 0.0;
+  float64 MaxRange = 0.0;
+  MultiArraySelectionParameter::ValueType SelectedArrayPaths = {};
+  MultiArraySelectionParameter::ValueType CreatedHistogramDataPaths = {};
 };
 
 /**
