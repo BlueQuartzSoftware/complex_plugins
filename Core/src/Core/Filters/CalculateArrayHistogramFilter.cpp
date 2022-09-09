@@ -97,27 +97,12 @@ IFilter::PreflightResult CalculateArrayHistogramFilter::preflightImpl(const Data
 
   if(pNewDataGroupValue)
   {
-    if(pNewDataGroupNameValue.toString().empty())
-    {
-      return {MakeErrorResult<OutputActions>(-19570, "DataGroup cannot be created because it's null (\"\")!")};
-    }
     auto createDataGroupAction = std::make_unique<CreateDataGroupAction>(pNewDataGroupNameValue);
     resultOutputActions.value().actions.push_back(std::move(createDataGroupAction));
   }
-  else
-  {
-    if(pDataGroupNameValue.toString().empty())
-    {
-      return {MakeErrorResult<OutputActions>(-19570, "DataGroup cannot be found because it's null (\"\")!")};
-    }
-  }
   for(auto& selectedArrayPath : pSelectedArrayPathsValue)
   {
-    const auto* dataArray = dataStructure.getDataAs<IDataArray>(selectedArrayPath);
-    if(dataArray == nullptr)
-    {
-      return {MakeErrorResult<OutputActions>(-19571, fmt::format("DataArray {} does not exist!", selectedArrayPath.toString()))};
-    }
+    const auto& dataArray = dataStructure.getDataRefAs<IDataArray>(selectedArrayPath);
     DataPath childPath;
     if(pNewDataGroupValue)
     {
