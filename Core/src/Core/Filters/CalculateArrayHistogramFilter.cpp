@@ -131,7 +131,7 @@ Result<> CalculateArrayHistogramFilter::executeImpl(DataStructure& dataStructure
   inputValues.MaxRange = filterArgs.value<float64>(k_MaxRange_Key);
   inputValues.SelectedArrayPaths = filterArgs.value<MultiArraySelectionParameter::ValueType>(k_SelectedArrayPaths_Key);
 
-  DataPath& dataGroupPath = *std::move(DataPath::FromString("temp"));
+  DataPath dataGroupPath;
   if(filterArgs.value<bool>(k_NewDataGroup_Key))
   {
     dataGroupPath = filterArgs.value<DataPath>(k_NewDataGroupName_Key);
