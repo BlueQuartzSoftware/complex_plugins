@@ -7,8 +7,8 @@
 #include "complex/Filter/IFilter.hpp"
 #include "complex/Parameters/FileSystemPathParameter.hpp"
 
-#include "EbsdLib/IO/HKL/CtfReader.h"
 #include "EbsdLib/IO/HKL/CtfPhase.h"
+#include "EbsdLib/IO/HKL/CtfReader.h"
 
 namespace complex
 {
@@ -17,12 +17,11 @@ struct ORIENTATIONANALYSIS_EXPORT ReadCtfDataInputValues
 {
   FileSystemPathParameter::ValueType InputFile;
   DataPath DataContainerName;
-  DataPath CellAttributeMatrixName;
-  DataPath CellEnsembleAttributeMatrixName;
+  std::string CellAttributeMatrixName;
+  std::string CellEnsembleAttributeMatrixName;
   bool DegreesToRadians;
   bool EdaxHexagonalAlignment;
 };
-
 
 struct ORIENTATIONANALYSIS_EXPORT Ctf_Private_Data
 {
@@ -194,7 +193,6 @@ private:
   const std::atomic_bool& m_ShouldCancel;
   const IFilter::MessageHandler& m_MessageHandler;
 
-
   /**
    * @brief
    * @param reader
@@ -207,7 +205,6 @@ private:
    * @param reader
    */
   void copyRawEbsdData(CtfReader* reader) const;
-
 };
 
 } // namespace complex

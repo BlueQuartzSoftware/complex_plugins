@@ -3,13 +3,15 @@
 #include "OrientationAnalysis/Filters/Algorithms/ReadCtfData.hpp"
 
 #include "complex/DataStructure/DataPath.hpp"
+#include "complex/DataStructure/Geometry/ImageGeom.hpp"
 #include "complex/Filter/Actions/CreateArrayAction.hpp"
 #include "complex/Filter/Actions/CreateDataGroupAction.hpp"
 #include "complex/Filter/Actions/CreateImageGeometryAction.hpp"
 #include "complex/Parameters/ArrayCreationParameter.hpp"
-#include "complex/Parameters/DataGroupCreationParameter.hpp"
-#include "complex/Parameters/FileSystemPathParameter.hpp"
 #include "complex/Parameters/BoolParameter.hpp"
+#include "complex/Parameters/DataGroupCreationParameter.hpp"
+#include "complex/Parameters/DataObjectNameParameter.hpp"
+#include "complex/Parameters/FileSystemPathParameter.hpp"
 
 #include "EbsdLib/IO/HKL/CtfFields.h"
 #include "EbsdLib/IO/HKL/CtfPhase.h"
@@ -63,11 +65,11 @@ Parameters ReadCtfDataFilter::parameters() const
   params.insert(std::make_unique<BoolParameter>(k_EdaxHexagonalAlignment_Key, "Convert Hexagonal X-Axis to EDAX Standard", "", false));
 
   params.insertSeparator(Parameters::Separator{"Created Data Structure Objects"});
-  params.insert(std::make_unique<DataGroupCreationParameter>(k_DataContainerName_Key, "Created Image Geometry", "", DataPath({"DataContainer"})));
-  //  params.insertSeparator(Parameters::Separator{"Cell Data"});
-  params.insert(std::make_unique<ArrayCreationParameter>(k_CellAttributeMatrixName_Key, "Created Cell Attribute Matrix", "", DataPath({"DataContainer", "CellData"})));
-  // params.insertSeparator(Parameters::Separator{"Cell Ensemble Data"});
-  params.insert(std::make_unique<ArrayCreationParameter>(k_CellEnsembleAttributeMatrixName_Key, "Created Cell Ensemble Attribute Matrix", "", DataPath({"DataContainer", "CellEnsembleData"})));
+  params.insert(std::make_unique<DataGroupCreationParameter>(k_DataContainerName_Key, "Created Image Geometry", "The complete path to the Geometry being created.", DataPath({"DataContainer"})));
+  params.insert(
+      std::make_unique<DataObjectNameParameter>(k_CellAttributeMatrixName_Key, "Created Cell Attribute Matrix", "The Attribute Matrix where the scan data is stored.", ImageGeom::k_CellDataName));
+  params.insert(std::make_unique<DataObjectNameParameter>(k_CellEnsembleAttributeMatrixName_Key, "Created Cell Ensemble Attribute Matrix",
+                                                          "The Attribute Matrix where the phase information is stored.", "CellEnsembleData"));
 
   return params;
 }
@@ -83,19 +85,13 @@ IFilter::PreflightResult ReadCtfDataFilter::preflightImpl(const DataStructure& d
                                                           const std::atomic_bool& shouldCancel) const
 {
   auto pInputFileValue = filterArgs.value<FileSystemPathParameter::ValueType>(k_InputFile_Key);
-  auto pDegreesToRadiansValue = filterArgs.value<bool>(k_DegreesToRadians_Key);
-  auto pEdaxHexagonalAlignmentValue = filterArgs.value<bool>(k_EdaxHexagonalAlignment_Key);
-  auto pDataContainerNameValue = filterArgs.value<DataPath>(k_DataContainerName_Key);
-  auto pCellAttributeMatrixNameValue = filterArgs.value<DataPath>(k_CellAttributeMatrixName_Key);
-  auto pCellEnsembleAttributeMatrixNameValue = filterArgs.value<DataPath>(k_CellEnsembleAttributeMatrixName_Key);
-  auto imageGeomPath = filterArgs.value<DataPath>(k_DataContainerName_Key);
-
+  //  auto pDegreesToRadiansValue = filterArgs.value<bool>(k_DegreesToRadians_Key);
+  //  auto pEdaxHexagonalAlignmentValue = filterArgs.value<bool>(k_EdaxHexagonalAlignment_Key);
+  auto pImageGeometryPath = filterArgs.value<DataPath>(k_DataContainerName_Key);
+  auto pCellAttributeMatrixNameValue = filterArgs.value<std::string>(k_CellAttributeMatrixName_Key);
+  auto pCellEnsembleAttributeMatrixNameValue = filterArgs.value<std::string>(k_CellEnsembleAttributeMatrixName_Key);
 
   PreflightResult preflightResult;
-
-  complex::Result<OutputActions> resultOutputActions;
-
-  std::vector<PreflightValue> preflightUpdatedValues;
 
   CtfReader reader;
   reader.setFileName(pInputFileValue.string());
@@ -111,19 +107,29 @@ IFilter::PreflightResult ReadCtfDataFilter::preflightImpl(const DataStructure& d
   CreateImageGeometryAction::SpacingType spacing = {reader.getXStep(), reader.getYStep(), 1.0F};
   CreateImageGeometryAction::OriginType origin = {0.0F, 0.0F, 0.0F};
 
-  resultOutputActions.value().actions.push_back(std::make_unique<CreateImageGeometryAction>(std::move(imageGeomPath), std::move(imageGeomDims), std::move(origin), std::move(spacing)));
+  // These variables should be updated with the latest data generated for each variable during preflight.
+  // These will be returned through the preflightResult variable to the
+  // user interface. You could make these member variables instead if needed.
+  std::stringstream ss;
+  std::array<float, 3> halfRes = {spacing[0] * 0.5F, spacing[1] * 0.5F, spacing[2] * 0.5F};
 
-  // Create the Cell AttributeMatrix
-  {
-    auto createDataGroupAction = std::make_unique<CreateDataGroupAction>(pCellAttributeMatrixNameValue);
-    resultOutputActions.value().actions.push_back(std::move(createDataGroupAction));
-  }
+  ss << "X Step: " << reader.getXStep() << "    Y Step: " << reader.getYStep() << "\n"
+     << "Num Cols: " << reader.getXCells() << "    "
+     << "Num Rows: " << reader.getYCells() << "\n"
+     << "Sample Physical Dimensions: " << (reader.getXStep() * reader.getXCells()) << " (W) x " << (reader.getYStep() * reader.getYCells()) << " (H) microns"
+     << "\n";
+  std::string fileInfo = ss.str();
+  std::vector<PreflightValue> preflightUpdatedValues = {{"Ctf File Information", fileInfo}};
 
-  // Create the Ensemble AttributeMatrix
-  {
-    auto createDataGroupAction = std::make_unique<CreateDataGroupAction>(pCellEnsembleAttributeMatrixNameValue);
-    resultOutputActions.value().actions.push_back(std::move(createDataGroupAction));
-  }
+  // Define a custom class that generates the changes to the DataStructure.
+  auto createImageGeometryAction = std::make_unique<CreateImageGeometryAction>(pImageGeometryPath, CreateImageGeometryAction::DimensionType({imageGeomDims[0], imageGeomDims[1], imageGeomDims[2]}),
+                                                                               origin, spacing, pCellAttributeMatrixNameValue);
+
+  // Assign the createImageGeometryAction to the Result<OutputActions>::actions vector via a push_back
+  complex::Result<OutputActions> resultOutputActions;
+  resultOutputActions.value().actions.push_back(std::move(createImageGeometryAction));
+
+  DataPath cellAttributeMatrixPath = pImageGeometryPath.createChildPath(pCellAttributeMatrixNameValue);
 
   CtfFields ctfFeatures;
   std::vector<std::string> names = ctfFeatures.getFilterFeatures<std::vector<std::string>>();
@@ -133,13 +139,13 @@ IFilter::PreflightResult ReadCtfDataFilter::preflightImpl(const DataStructure& d
   {
     if(reader.getPointerType(name) == EbsdLib::NumericTypes::Type::Int32)
     {
-      DataPath dataArrayPath = pCellAttributeMatrixNameValue.createChildPath(name);
+      DataPath dataArrayPath = cellAttributeMatrixPath.createChildPath(name);
       auto action = std::make_unique<CreateArrayAction>(complex::DataType::int32, tupleDims, cDims, dataArrayPath);
       resultOutputActions.value().actions.push_back(std::move(action));
     }
     else if(reader.getPointerType(name) == EbsdLib::NumericTypes::Type::Float)
     {
-      DataPath dataArrayPath = pCellAttributeMatrixNameValue.createChildPath(name);
+      DataPath dataArrayPath = cellAttributeMatrixPath.createChildPath(name);
       auto action = std::make_unique<CreateArrayAction>(complex::DataType::float32, tupleDims, cDims, dataArrayPath);
       resultOutputActions.value().actions.push_back(std::move(action));
     }
@@ -148,7 +154,7 @@ IFilter::PreflightResult ReadCtfDataFilter::preflightImpl(const DataStructure& d
   // Create the Cell Phases Array
   {
     cDims[0] = 1;
-    DataPath dataArrayPath = pCellAttributeMatrixNameValue.createChildPath(EbsdLib::CtfFile::Phases);
+    DataPath dataArrayPath = cellAttributeMatrixPath.createChildPath(EbsdLib::CtfFile::Phases);
     auto action = std::make_unique<CreateArrayAction>(complex::DataType::int32, tupleDims, cDims, dataArrayPath);
     resultOutputActions.value().actions.push_back(std::move(action));
   }
@@ -156,9 +162,16 @@ IFilter::PreflightResult ReadCtfDataFilter::preflightImpl(const DataStructure& d
   // Create the Cell Euler Angles Array
   {
     cDims[0] = 3;
-    DataPath dataArrayPath = pCellAttributeMatrixNameValue.createChildPath(EbsdLib::CtfFile::EulerAngles);
+    DataPath dataArrayPath = cellAttributeMatrixPath.createChildPath(EbsdLib::CtfFile::EulerAngles);
     auto action = std::make_unique<CreateArrayAction>(complex::DataType::float32, tupleDims, cDims, dataArrayPath);
     resultOutputActions.value().actions.push_back(std::move(action));
+  }
+
+  // Create the Ensemble AttributeMatrix
+  DataPath ensembleAttributeMatrixPath = pImageGeometryPath.createChildPath(pCellEnsembleAttributeMatrixNameValue);
+  {
+    auto createDataGroupAction = std::make_unique<CreateDataGroupAction>(ensembleAttributeMatrixPath);
+    resultOutputActions.value().actions.push_back(std::move(createDataGroupAction));
   }
 
   std::vector<std::shared_ptr<CtfPhase>> angPhases = reader.getPhaseVector();
@@ -166,21 +179,21 @@ IFilter::PreflightResult ReadCtfDataFilter::preflightImpl(const DataStructure& d
   // Create the Crystal Structures Array
   {
     cDims[0] = 1;
-    DataPath dataArrayPath = pCellEnsembleAttributeMatrixNameValue.createChildPath(EbsdLib::CtfFile::CrystalStructures);
+    DataPath dataArrayPath = ensembleAttributeMatrixPath.createChildPath(EbsdLib::CtfFile::CrystalStructures);
     auto action = std::make_unique<CreateArrayAction>(complex::DataType::uint32, tupleDims, cDims, dataArrayPath);
     resultOutputActions.value().actions.push_back(std::move(action));
   }
   // Create the Lattice Constants Array
   {
     cDims[0] = 6;
-    DataPath dataArrayPath = pCellEnsembleAttributeMatrixNameValue.createChildPath(EbsdLib::CtfFile::LatticeConstants);
+    DataPath dataArrayPath = ensembleAttributeMatrixPath.createChildPath(EbsdLib::CtfFile::LatticeConstants);
     auto action = std::make_unique<CreateArrayAction>(complex::DataType::float32, tupleDims, cDims, dataArrayPath);
     resultOutputActions.value().actions.push_back(std::move(action));
   }
   // Create the Material Names Array
   {
     cDims[0] = 256;
-    DataPath dataArrayPath = pCellEnsembleAttributeMatrixNameValue.createChildPath(EbsdLib::CtfFile::MaterialName);
+    DataPath dataArrayPath = ensembleAttributeMatrixPath.createChildPath(EbsdLib::CtfFile::MaterialName);
     auto action = std::make_unique<CreateArrayAction>(complex::DataType::int8, tupleDims, cDims, dataArrayPath);
     resultOutputActions.value().actions.push_back(std::move(action));
   }
@@ -199,10 +212,10 @@ Result<> ReadCtfDataFilter::executeImpl(DataStructure& dataStructure, const Argu
   inputValues.DegreesToRadians = filterArgs.value<bool>(k_DegreesToRadians_Key);
   inputValues.EdaxHexagonalAlignment = filterArgs.value<bool>(k_EdaxHexagonalAlignment_Key);
   inputValues.DataContainerName = filterArgs.value<DataPath>(k_DataContainerName_Key);
-  inputValues.CellAttributeMatrixName = filterArgs.value<DataPath>(k_CellAttributeMatrixName_Key);
-  inputValues.CellEnsembleAttributeMatrixName = filterArgs.value<DataPath>(k_CellEnsembleAttributeMatrixName_Key);
+  inputValues.CellAttributeMatrixName = filterArgs.value<std::string>(k_CellAttributeMatrixName_Key);
+  inputValues.CellEnsembleAttributeMatrixName = filterArgs.value<std::string>(k_CellEnsembleAttributeMatrixName_Key);
 
-   ReadCtfData readCtfData(dataStructure, messageHandler, shouldCancel, &inputValues);
-   return readCtfData();
+  ReadCtfData readCtfData(dataStructure, messageHandler, shouldCancel, &inputValues);
+  return readCtfData();
 }
 } // namespace complex

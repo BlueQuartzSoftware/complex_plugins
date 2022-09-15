@@ -10,7 +10,6 @@
 
 #include "EbsdLib/IO/TSL/AngReader.h"
 
-
 namespace complex
 {
 
@@ -18,8 +17,8 @@ struct ORIENTATIONANALYSIS_EXPORT ReadAngDataInputValues
 {
   std::filesystem::path InputFile;
   DataPath DataContainerName;
-  DataPath CellAttributeMatrixName;
-  DataPath CellEnsembleAttributeMatrixName;
+  std::string CellAttributeMatrixName;
+  std::string CellEnsembleAttributeMatrixName;
 };
 
 struct ORIENTATIONANALYSIS_EXPORT Ang_Private_Data

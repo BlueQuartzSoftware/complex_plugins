@@ -204,3 +204,23 @@ target_include_directories(${PLUGIN_NAME}
 # Add in the unit tests for the filters included in this plugin
 enable_testing()
 add_subdirectory(${${PLUGIN_NAME}_SOURCE_DIR}/test)
+
+
+# -----------------------------------------------------------------------
+# Install example pipelines
+# -----------------------------------------------------------------------
+if(EXISTS "${${PLUGIN_NAME}_SOURCE_DIR}/pipelines")
+  set(PIPELINE_DEST_DIR "${CMAKE_LIBRARY_OUTPUT_DIRECTORY}/${CMAKE_CFG_INTDIR}/pipelines/${PLUGIN_NAME}")
+  add_custom_target(${PLUGIN_NAME}PipelineFolderCopy ALL
+    COMMAND ${CMAKE_COMMAND} -E copy_directory "${${PLUGIN_NAME}_SOURCE_DIR}/pipelines"
+    ${PIPELINE_DEST_DIR}
+    COMMENT "Copying Pipeline Folder into Binary Directory")
+  set_target_properties(${PLUGIN_NAME}PipelineFolderCopy PROPERTIES FOLDER ZZ_COPY_FILES)
+
+  set(INSTALL_DESTINATION "Pipelines/${PLUGIN_NAME}")
+  install(DIRECTORY
+    "${${PLUGIN_NAME}_SOURCE_DIR}/pipelines/"
+    DESTINATION "${INSTALL_DESTINATION}"
+    COMPONENT Applications
+  )
+endif()
