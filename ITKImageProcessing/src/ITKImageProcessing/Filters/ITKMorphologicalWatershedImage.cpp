@@ -134,6 +134,6 @@ Result<> ITKMorphologicalWatershedImage::executeImpl(DataStructure& dataStructur
   // LINK GEOMETRY OUTPUT STOP
 
   return ITK::Execute<cxITKMorphologicalWatershedImage::ArrayOptionsT, cxITKMorphologicalWatershedImage::FilterOutputT>(dataStructure, selectedInputArray, imageGeomPath, outputArrayPath, itkFunctor,
-                                                                                                                        messageHandler);
+                                                                                                                        shouldCancel);
 }
 } // namespace complex

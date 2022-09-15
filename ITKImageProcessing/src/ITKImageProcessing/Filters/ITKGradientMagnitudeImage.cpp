@@ -117,6 +117,6 @@ Result<> ITKGradientMagnitudeImage::executeImpl(DataStructure& dataStructure, co
   imageGeom.getLinkedGeometryData().addCellData(outputArrayPath);
 
   return ITK::Execute<cxITKGradientMagnitudeImage::ArrayOptionsT, cxITKGradientMagnitudeImage::FilterOutputT>(dataStructure, selectedInputArray, imageGeomPath, outputArrayPath, itkFunctor,
-                                                                                                              messageHandler);
+                                                                                                              shouldCancel);
 }
 } // namespace complex

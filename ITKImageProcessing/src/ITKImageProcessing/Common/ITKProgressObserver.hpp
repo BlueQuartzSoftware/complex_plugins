@@ -22,7 +22,6 @@ public:
   using Pointer = SmartPointer<Self>;
 
   /** Method for creation through the object factory. */
-  // itkSimpleNewMacro(Self);
   static Pointer New(const complex::IFilter::MessageHandler& messageHandler)
   {
     Pointer smartPtr = ::itk::ObjectFactory<ProgressObserver>::Create();
