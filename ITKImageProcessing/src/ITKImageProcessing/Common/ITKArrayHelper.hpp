@@ -1,5 +1,7 @@
 #pragma once
 
+#include "ITKImageProcessing/Common/ITKProgressObserver.hpp"
+
 #include "complex/Common/Result.hpp"
 #include "complex/Common/Types.hpp"
 #include "complex/Common/TypesUtility.hpp"
@@ -521,6 +523,7 @@ struct ITKFilterFunctor
 {
   template <class FilterCreationFunctorT>
   Result<ITKFilterFunctorResult_t<FilterCreationFunctorT>> operator()(IDataStore& inputDataStore, const ImageGeom& imageGeom, IDataStore& outputDataStore,
+                                                                      const complex::IFilter::MessageHandler& mesgHandler, const std::string& progFeedbackPrefix, bool progressFeedback,
                                                                       const FilterCreationFunctorT& filterCreationFunctor) const
   {
     using InputImageType = itk::Image<InputT, Dimension>;
@@ -529,6 +532,12 @@ struct ITKFilterFunctor
     auto& typedInputDataStore = dynamic_cast<DataStore<ITK::UnderlyingType_t<InputT>>&>(inputDataStore);
     typename InputImageType::Pointer inputImage = ITK::WrapDataStoreInImage<InputT, Dimension>(typedInputDataStore, imageGeom);
     auto filter = filterCreationFunctor.template createFilter<InputImageType, OutputImageType, Dimension>();
+    itk::ProgressObserver::Pointer progressObs = itk::ProgressObserver::New(mesgHandler);
+    if(progressFeedback)
+    {
+      progressObs->setMessagePrefix(progFeedbackPrefix);
+      filter->AddObserver(itk::ProgressEvent(), progressObs);
+    }
     filter->SetInput(inputImage);
     filter->Update();
 
@@ -651,7 +660,8 @@ Result<OutputActions> DataCheck(const DataStructure& dataStructure, const DataPa
 
 template <class ArrayOptionsT, template <class> class OutputT = detail::DefaultOutput_t, class FilterCreationFunctorT>
 Result<detail::ITKFilterFunctorResult_t<FilterCreationFunctorT>> Execute(DataStructure& dataStructure, const DataPath& inputArrayPath, const DataPath& imageGeomPath, const DataPath& outputArrayPath,
-                                                                         FilterCreationFunctorT&& filterCreationFunctor)
+                                                                         FilterCreationFunctorT&& filterCreationFunctor, const complex::IFilter::MessageHandler& mesgHandler,
+                                                                         const std::string& progFeedbackPrefix = "", bool progressFeedback = false)
 {
   auto& imageGeom = dataStructure.getDataRefAs<ImageGeom>(imageGeomPath);
   auto& inputArray = dataStructure.getDataRefAs<IDataArray>(inputArrayPath);
@@ -663,7 +673,8 @@ Result<detail::ITKFilterFunctorResult_t<FilterCreationFunctorT>> Execute(DataStr
 
   try
   {
-    return ArraySwitchFunc<detail::ITKFilterFunctor, ArrayOptionsT, ResultT, OutputT>(inputDataStore, imageGeom, -1, inputDataStore, imageGeom, outputDataStore, filterCreationFunctor);
+    return ArraySwitchFunc<detail::ITKFilterFunctor, ArrayOptionsT, ResultT, OutputT>(inputDataStore, imageGeom, -1, inputDataStore, imageGeom, outputDataStore, mesgHandler, progFeedbackPrefix,
+                                                                                      progressFeedback, filterCreationFunctor);
   } catch(const itk::ExceptionObject& exception)
   {
     return MakeErrorResult<ResultT>(-222, exception.GetDescription());

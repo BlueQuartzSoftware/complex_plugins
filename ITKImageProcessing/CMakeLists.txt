@@ -260,6 +260,7 @@ target_sources(${PLUGIN_NAME}
   PRIVATE
   ${${PLUGIN_NAME}_SOURCE_DIR}/src/${PLUGIN_NAME}/Common/ITKArrayHelper.hpp
   ${${PLUGIN_NAME}_SOURCE_DIR}/src/${PLUGIN_NAME}/Common/ITKArrayHelper.cpp
+  ${${PLUGIN_NAME}_SOURCE_DIR}/src/${PLUGIN_NAME}/Common/ITKProgressObserver.hpp
 )
 
 target_include_directories(${PLUGIN_NAME} PUBLIC ${ITK_INCLUDE_DIRS})
