@@ -19,7 +19,6 @@ using ArrayOptionsT = ITK::ScalarPixelIdTypeList;
 struct ITKGrayscaleFillholeImageFunctor
 {
   bool fullyConnected = false;
-  const complex::IFilter::MessageHandler& m_MessageHandler;
 
   template <class InputImageT, class OutputImageT, uint32 Dimension>
   auto createFilter() const
@@ -106,7 +105,7 @@ Result<> ITKGrayscaleFillholeImage::executeImpl(DataStructure& dataStructure, co
   auto outputArrayPath = filterArgs.value<DataPath>(k_OutputImageDataPath_Key);
   auto fullyConnected = filterArgs.value<bool>(k_FullyConnected_Key);
 
-  cxITKGrayscaleFillholeImage::ITKGrayscaleFillholeImageFunctor itkFunctor = {fullyConnected, messageHandler};
+  cxITKGrayscaleFillholeImage::ITKGrayscaleFillholeImageFunctor itkFunctor = {fullyConnected};
 
   ImageGeom& imageGeom = dataStructure.getDataRefAs<ImageGeom>(imageGeomPath);
   imageGeom.getLinkedGeometryData().addCellData(outputArrayPath);
