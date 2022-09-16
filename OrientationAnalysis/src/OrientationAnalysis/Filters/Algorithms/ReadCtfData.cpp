@@ -111,7 +111,7 @@ void ReadCtfData::copyRawEbsdData(CtfReader* reader) const
   std::vector<size_t> cDims = {1};
 
   auto& imageGeom = m_DataStructure.getDataRefAs<ImageGeom>(m_InputValues->DataContainerName);
-  size_t totalPoints = imageGeom.getNumberOfElements();
+  size_t totalPoints = imageGeom.getNumberOfCells();
 
   // Prepare the Cell Attribute Matrix with the correct number of tuples based on the total points being read from the file.
   std::vector<size_t> tDims = {imageGeom.getNumXPoints(), imageGeom.getNumYPoints(), imageGeom.getNumZPoints()};
