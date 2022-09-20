@@ -111,10 +111,10 @@ void ReadCtfData::copyRawEbsdData(CtfReader* reader) const
   std::vector<size_t> cDims = {1};
 
   auto& imageGeom = m_DataStructure.getDataRefAs<ImageGeom>(m_InputValues->DataContainerName);
-  size_t totalPoints = imageGeom.getNumberOfCells();
+  size_t totalCells = imageGeom.getNumberOfCells();
 
-  // Prepare the Cell Attribute Matrix with the correct number of tuples based on the total points being read from the file.
-  std::vector<size_t> tDims = {imageGeom.getNumXPoints(), imageGeom.getNumYPoints(), imageGeom.getNumZPoints()};
+  // Prepare the Cell Attribute Matrix with the correct number of tuples based on the total Cells being read from the file.
+  std::vector<size_t> tDims = {imageGeom.getNumXCells(), imageGeom.getNumYCells(), imageGeom.getNumZCells()};
 
   // Adjust the values of the 'phase' data to correct for invalid values and assign the read Phase Data into the actual DataArray
   {
@@ -122,15 +122,15 @@ void ReadCtfData::copyRawEbsdData(CtfReader* reader) const
      * For HKL OIM Files if there is a single phase then the value of the phase
      * data is one (1). If there are 2 or more phases, the lowest value
      * of phase is also one (1). However, if there are "zero solutions" in the data
-     * then those points are assigned a phase of zero.  Since those points can be identified
-     * by other methods, the phase of these points should be changed to one since in the rest
+     * then those Cells are assigned a phase of zero.  Since those Cells can be identified
+     * by other methods, the phase of these Cells should be changed to one since in the rest
      * of the reconstruction code we follow the convention that the lowest value is One (1)
      * even if there is only a single phase. The next if statement converts all zeros to ones
      * if there is a single phase in the OIM data.
      */
     auto& targetArray = m_DataStructure.getDataRefAs<Int32Array>(CellAttributeMatrixPath.createChildPath(EbsdLib::CtfFile::Phases));
     int* phasePtr = reinterpret_cast<int32_t*>(reader->getPointerByName(EbsdLib::Ctf::Phase));
-    for(size_t i = 0; i < totalPoints; i++)
+    for(size_t i = 0; i < totalCells; i++)
     {
       if(phasePtr[i] < 1)
       {
@@ -151,7 +151,7 @@ void ReadCtfData::copyRawEbsdData(CtfReader* reader) const
     cDims[0] = 3;
 
     auto& cellEulerAngles = m_DataStructure.getDataRefAs<Float32Array>(CellAttributeMatrixPath.createChildPath(EbsdLib::CtfFile::EulerAngles));
-    for(size_t i = 0; i < totalPoints; i++)
+    for(size_t i = 0; i < totalCells; i++)
     {
       cellEulerAngles[3 * i] = fComp0[i];
       cellEulerAngles[3 * i + 1] = fComp1[i];
@@ -174,42 +174,42 @@ void ReadCtfData::copyRawEbsdData(CtfReader* reader) const
   {
     auto* fComp0 = reinterpret_cast<int32*>(reader->getPointerByName(EbsdLib::Ctf::Bands));
     auto& targetArray = m_DataStructure.getDataRefAs<Int32Array>(CellAttributeMatrixPath.createChildPath(EbsdLib::Ctf::Bands));
-    std::copy(fComp0, fComp0 + totalPoints, targetArray.begin());
+    std::copy(fComp0, fComp0 + totalCells, targetArray.begin());
   }
 
   {
     auto* fComp0 = reinterpret_cast<int32*>(reader->getPointerByName(EbsdLib::Ctf::Error));
     auto& targetArray = m_DataStructure.getDataRefAs<Int32Array>(CellAttributeMatrixPath.createChildPath(EbsdLib::Ctf::Error));
-    std::copy(fComp0, fComp0 + totalPoints, targetArray.begin());
+    std::copy(fComp0, fComp0 + totalCells, targetArray.begin());
   }
 
   {
     auto* fComp0 = reinterpret_cast<float*>(reader->getPointerByName(EbsdLib::Ctf::MAD));
     auto& targetArray = m_DataStructure.getDataRefAs<Float32Array>(CellAttributeMatrixPath.createChildPath(EbsdLib::Ctf::MAD));
-    std::copy(fComp0, fComp0 + totalPoints, targetArray.begin());
+    std::copy(fComp0, fComp0 + totalCells, targetArray.begin());
   }
 
   {
     auto* fComp0 = reinterpret_cast<int32*>(reader->getPointerByName(EbsdLib::Ctf::BC));
     auto& targetArray = m_DataStructure.getDataRefAs<Int32Array>(CellAttributeMatrixPath.createChildPath(EbsdLib::Ctf::BC));
-    std::copy(fComp0, fComp0 + totalPoints, targetArray.begin());
+    std::copy(fComp0, fComp0 + totalCells, targetArray.begin());
   }
 
   {
     auto* fComp0 = reinterpret_cast<int32*>(reader->getPointerByName(EbsdLib::Ctf::BS));
     auto& targetArray = m_DataStructure.getDataRefAs<Int32Array>(CellAttributeMatrixPath.createChildPath(EbsdLib::Ctf::BS));
-    std::copy(fComp0, fComp0 + totalPoints, targetArray.begin());
+    std::copy(fComp0, fComp0 + totalCells, targetArray.begin());
   }
 
   {
     auto* fComp0 = reinterpret_cast<float*>(reader->getPointerByName(EbsdLib::Ctf::X));
     auto& targetArray = m_DataStructure.getDataRefAs<Float32Array>(CellAttributeMatrixPath.createChildPath(EbsdLib::Ctf::X));
-    std::copy(fComp0, fComp0 + totalPoints, targetArray.begin());
+    std::copy(fComp0, fComp0 + totalCells, targetArray.begin());
   }
 
   {
     auto* fComp0 = reinterpret_cast<float*>(reader->getPointerByName(EbsdLib::Ctf::Y));
     auto& targetArray = m_DataStructure.getDataRefAs<Float32Array>(CellAttributeMatrixPath.createChildPath(EbsdLib::Ctf::Y));
-    std::copy(fComp0, fComp0 + totalPoints, targetArray.begin());
+    std::copy(fComp0, fComp0 + totalCells, targetArray.begin());
   }
 }
