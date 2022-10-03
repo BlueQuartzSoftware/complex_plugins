@@ -34,7 +34,7 @@ Uuid ConvertDataFilter::uuid() const
 //------------------------------------------------------------------------------
 std::string ConvertDataFilter::humanName() const
 {
-  return "Color to GrayScale";
+  return "Convert AttributeArray DataType";
 }
 
 //------------------------------------------------------------------------------
