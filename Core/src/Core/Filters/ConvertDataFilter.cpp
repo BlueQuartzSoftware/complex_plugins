@@ -40,7 +40,7 @@ std::string ConvertDataFilter::humanName() const
 //------------------------------------------------------------------------------
 std::vector<std::string> ConvertDataFilter::defaultTags() const
 {
-  return {"#Core", "#Image"};
+  return {"#Core", "#Convert"};
 }
 
 //------------------------------------------------------------------------------
