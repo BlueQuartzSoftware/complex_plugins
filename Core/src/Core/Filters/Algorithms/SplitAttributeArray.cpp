@@ -24,14 +24,6 @@ void SplitArrays(DataStructure& dataStructure, const SplitAttributeArrayInputVal
       splitArray[i] = inputArray[numComponents * i + j];
     }
   }
-
-  // for(usize i = 0; i < numTuples; i++)
-  //{
-  //  for(usize j = 0; j < numComponents; j++)
-  //  {
-  //    splitArrays[j][i] = inputArray[numComponents * i + j];
-  //  }
-  //}
 }
 } // namespace
 
