@@ -32,7 +32,7 @@ void createDataStructure(DataStructure& ds)
   AttributeMatrix* am = AttributeMatrix::Create(ds, AttributeMatrixName);
   am->setShape(tdims);
   std::vector<size_t> cdims = {COMPONENT_DIM};
-  DataArray<T>* da = DataArray<T>::CreateWithStore<DataStore<T>>(ds, DataArrayName, tdims, cdims, am->getId());
+  DataArray<T>* da = DataArray<T>::template CreateWithStore<DataStore<T>>(ds, DataArrayName, tdims, cdims, am->getId());
   da->fill(static_cast<T>(0.0));
 }
 
