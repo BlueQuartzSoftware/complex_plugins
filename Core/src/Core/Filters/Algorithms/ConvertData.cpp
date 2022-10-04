@@ -43,44 +43,48 @@ Result<> ConvertData(DataStructure& dataStructure, const ConvertDataInputValues*
 
   switch(inputValues->ScalarType)
   {
-  case NumericType::int8: {
+  case DataType::int8: {
     ConvertData<T, int8>(inputArray, dataStructure.getDataRefAs<Int8Array>(inputValues->OutputArrayName));
     break;
   }
-  case NumericType::uint8: {
+  case DataType::uint8: {
     ConvertData<T, uint8>(inputArray, dataStructure.getDataRefAs<UInt8Array>(inputValues->OutputArrayName));
     break;
   }
-  case NumericType::int16: {
+  case DataType::int16: {
     ConvertData<T, int16>(inputArray, dataStructure.getDataRefAs<Int16Array>(inputValues->OutputArrayName));
     break;
   }
-  case NumericType::uint16: {
+  case DataType::uint16: {
     ConvertData<T, uint16>(inputArray, dataStructure.getDataRefAs<UInt16Array>(inputValues->OutputArrayName));
     break;
   }
-  case NumericType::int32: {
+  case DataType::int32: {
     ConvertData<T, int32>(inputArray, dataStructure.getDataRefAs<Int32Array>(inputValues->OutputArrayName));
     break;
   }
-  case NumericType::uint32: {
+  case DataType::uint32: {
     ConvertData<T, uint32>(inputArray, dataStructure.getDataRefAs<UInt32Array>(inputValues->OutputArrayName));
     break;
   }
-  case NumericType::int64: {
+  case DataType::int64: {
     ConvertData<T, int64>(inputArray, dataStructure.getDataRefAs<Int64Array>(inputValues->OutputArrayName));
     break;
   }
-  case NumericType::uint64: {
+  case DataType::uint64: {
     ConvertData<T, uint64>(inputArray, dataStructure.getDataRefAs<UInt64Array>(inputValues->OutputArrayName));
     break;
   }
-  case NumericType::float32: {
+  case DataType::float32: {
     ConvertData<T, float32>(inputArray, dataStructure.getDataRefAs<Float32Array>(inputValues->OutputArrayName));
     break;
   }
-  case NumericType::float64: {
+  case DataType::float64: {
     ConvertData<T, float64>(inputArray, dataStructure.getDataRefAs<Float64Array>(inputValues->OutputArrayName));
+    break;
+  }
+  case DataType::boolean: {
+    ConvertData<T, bool>(inputArray, dataStructure.getDataRefAs<BoolArray>(inputValues->OutputArrayName));
     break;
   }
   default: {
