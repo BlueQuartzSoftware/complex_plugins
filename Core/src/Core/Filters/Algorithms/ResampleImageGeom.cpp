@@ -38,7 +38,7 @@ public:
   ~ChangeResolutionImpl() = default;
 
   // -----------------------------------------------------------------------------
-  void compute(size_t zStart, size_t zEnd, size_t yStart, size_t yEnd, size_t xStart, size_t xEnd) const
+  void compute(size_t xStart, size_t xEnd, size_t yStart, size_t yEnd, size_t zStart, size_t zEnd) const
   {
     for(size_t i = zStart; i < zEnd; i++)
     {
