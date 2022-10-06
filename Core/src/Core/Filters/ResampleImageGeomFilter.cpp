@@ -4,6 +4,7 @@
 #include "complex/DataStructure/DataPath.hpp"
 #include "complex/DataStructure/Geometry/ImageGeom.hpp"
 #include "complex/DataStructure/INeighborList.hpp"
+#include "complex/Filter/Actions/CopyArrayInstanceAction.hpp"
 #include "complex/Filter/Actions/CopyGroupAction.hpp"
 #include "complex/Filter/Actions/CreateArrayAction.hpp"
 #include "complex/Filter/Actions/CreateAttributeMatrixAction.hpp"
@@ -16,6 +17,8 @@
 #include "complex/Parameters/GeometrySelectionParameter.hpp"
 #include "complex/Parameters/StringParameter.hpp"
 #include "complex/Parameters/VectorParameter.hpp"
+#include "complex/Utilities/DataGroupUtilities.hpp"
+#include "complex/Utilities/StringUtilities.hpp"
 
 #include "Core/Filters/Algorithms/ResampleImageGeom.hpp"
 
@@ -110,7 +113,7 @@ IFilter::PreflightResult ResampleImageGeomFilter::preflightImpl(const DataStruct
   auto pSpacingValue = filterArgs.value<VectorFloat32Parameter::ValueType>(k_Spacing_Key);
 
   auto pRemoveOriginalGeometry = filterArgs.value<bool>(k_RemoveOriginalGeometry_Key);
-  auto pNewDataContainerPathValue = filterArgs.value<DataPath>(k_NewDataContainerPath_Key);
+  auto createdImageGeomPath = filterArgs.value<DataPath>(k_NewDataContainerPath_Key);
 
   auto pRenumberFeaturesValue = filterArgs.value<bool>(k_RenumberFeatures_Key);
   auto pFeatureIdsArrayPathValue = filterArgs.value<DataPath>(k_FeatureIdsArrayPath_Key);
@@ -164,7 +167,6 @@ IFilter::PreflightResult ResampleImageGeomFilter::preflightImpl(const DataStruct
     m_ZP = 1;
   }
 
-  auto createdImageGeomPath = filterArgs.value<DataPath>(k_NewDataContainerPath_Key);
   resultOutputActions.value().actions.push_back(std::make_unique<CreateImageGeometryAction>(createdImageGeomPath, CreateImageGeometryAction::DimensionType{m_XP, m_YP, m_ZP},
                                                                                             CreateImageGeometryAction::SpacingType{oldOrigin[0], oldOrigin[1], oldOrigin[2]},
                                                                                             CreateImageGeometryAction::OriginType{pSpacingValue[0], pSpacingValue[1], pSpacingValue[2]}, cellDataName));
@@ -234,7 +236,37 @@ IFilter::PreflightResult ResampleImageGeomFilter::preflightImpl(const DataStruct
   }
 
   // copy over the rest of the data
-  resultOutputActions.value().actions.push_back(std::make_unique<CopyGroupAction>(selectedImageGeomPath, pNewDataContainerPathValue, true, ignorePaths));
+  auto childPaths = GetAllChildDataPaths(dataStructure, selectedImageGeomPath, DataObject::Type::DataObject, ignorePaths);
+  if(childPaths.has_value())
+  {
+    for(const auto& childPath : childPaths.value())
+    {
+      std::string copiedChildName = complex::StringUtilities::replace(childPath.toString(), selectedImageGeomPath.getTargetName(), createdImageGeomPath.getTargetName());
+      DataPath copiedChildPath = DataPath::FromString(copiedChildName).value();
+      if(dataStructure.getDataAs<BaseGroup>(childPath) != nullptr)
+      {
+        std::vector<DataPath> allCreatedPaths = {copiedChildPath};
+        auto pathsToBeCopied = GetAllChildDataPathsRecursive(dataStructure, childPath);
+        if(pathsToBeCopied.has_value())
+        {
+          for(const auto& sourcePath : pathsToBeCopied.value())
+          {
+            std::string createdPathName = complex::StringUtilities::replace(sourcePath.toString(), selectedImageGeomPath.getTargetName(), createdImageGeomPath.getTargetName());
+            allCreatedPaths.push_back(DataPath::FromString(createdPathName).value());
+          }
+        }
+        resultOutputActions.value().actions.push_back(std::make_unique<CopyGroupAction>(childPath, copiedChildPath, allCreatedPaths));
+      }
+      else if(dataStructure.getDataAs<IDataArray>(childPath) != nullptr)
+      {
+        resultOutputActions.value().actions.push_back(std::make_unique<CopyArrayInstanceAction>(childPath, copiedChildPath));
+      }
+      // TODO : copy neighborlist
+      // TODO : copy string array
+      // TODO : copy scalar data
+      // TODO : copy dynamic list array
+    }
+  }
 
   if(pRemoveOriginalGeometry)
   {
