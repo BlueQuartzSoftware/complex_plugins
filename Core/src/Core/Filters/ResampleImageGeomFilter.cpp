@@ -4,6 +4,7 @@
 #include "complex/DataStructure/DataPath.hpp"
 #include "complex/DataStructure/Geometry/ImageGeom.hpp"
 #include "complex/DataStructure/INeighborList.hpp"
+#include "complex/Filter/Actions/CopyGroupAction.hpp"
 #include "complex/Filter/Actions/CreateArrayAction.hpp"
 #include "complex/Filter/Actions/CreateAttributeMatrixAction.hpp"
 #include "complex/Filter/Actions/CreateImageGeometryAction.hpp"
@@ -75,7 +76,7 @@ Parameters ResampleImageGeomFilter::parameters() const
   // Create the parameter descriptors that are needed for this filter
   params.insertSeparator(Parameters::Separator{"Input Parameters"});
   params.insert(std::make_unique<VectorFloat32Parameter>(k_Spacing_Key, "New Spacing", "", std::vector<float32>{1.0F, 1.0F, 1.0F}, std::vector<std::string>(3)));
-  //  params.insertLinkableParameter(std::make_unique<BoolParameter>(k_RemoveOriginalGeometry_Key, "Remove Original Image Geometry Group", "", true));
+  params.insertLinkableParameter(std::make_unique<BoolParameter>(k_RemoveOriginalGeometry_Key, "Remove Original Image Geometry Group", "", true));
 
   params.insertSeparator(Parameters::Separator{"Input Data"});
   params.insert(std::make_unique<GeometrySelectionParameter>(k_SelectedImageGeometry_Key, "Selected Image Geometry", "", DataPath{}, GeometrySelectionParameter::AllowedTypes{IGeometry::Type::Image}));
@@ -118,7 +119,10 @@ IFilter::PreflightResult ResampleImageGeomFilter::preflightImpl(const DataStruct
   auto selectedImageGeomPath = filterArgs.value<DataPath>(k_SelectedImageGeometry_Key);
   const auto& selectedImageGeom = dataStructure.getDataRefAs<ImageGeom>(selectedImageGeomPath);
   const auto* cellDataGroup = selectedImageGeom.getCellData();
-  auto cellDataGroupPath = selectedImageGeomPath.createChildPath(cellDataGroup->getName());
+  std::string cellDataName = cellDataGroup->getName();
+  auto cellDataGroupPath = selectedImageGeomPath.createChildPath(cellDataName);
+
+  std::vector<DataPath> ignorePaths = {cellDataGroupPath}; // already copied over so skip these when collecting child paths to finish copying over later
 
   if(pSpacingValue[0] < 0.0F || pSpacingValue[1] < 0.0F || pSpacingValue[2] < 0.0F)
   {
@@ -161,9 +165,9 @@ IFilter::PreflightResult ResampleImageGeomFilter::preflightImpl(const DataStruct
   }
 
   auto createdImageGeomPath = filterArgs.value<DataPath>(k_NewDataContainerPath_Key);
-  resultOutputActions.value().actions.push_back(std::make_unique<CreateImageGeometryAction>(
-      createdImageGeomPath, CreateImageGeometryAction::DimensionType{m_XP, m_YP, m_ZP}, CreateImageGeometryAction::SpacingType{oldOrigin[0], oldOrigin[1], oldOrigin[2]},
-      CreateImageGeometryAction::OriginType{pSpacingValue[0], pSpacingValue[1], pSpacingValue[2]}, ImageGeom::k_CellDataName));
+  resultOutputActions.value().actions.push_back(std::make_unique<CreateImageGeometryAction>(createdImageGeomPath, CreateImageGeometryAction::DimensionType{m_XP, m_YP, m_ZP},
+                                                                                            CreateImageGeometryAction::SpacingType{oldOrigin[0], oldOrigin[1], oldOrigin[2]},
+                                                                                            CreateImageGeometryAction::OriginType{pSpacingValue[0], pSpacingValue[1], pSpacingValue[2]}, cellDataName));
 
   // Store the preflight updated value(s) into the preflightUpdatedValues vector using
   // the appropriate methods.
@@ -174,16 +178,16 @@ IFilter::PreflightResult ResampleImageGeomFilter::preflightImpl(const DataStruct
   std::vector<std::string> cellDataArrayNames = cellDataGroup->getDataMap().getNames();
 
   usize originalImageSize = std::accumulate(oldDims.begin(), oldDims.end(), static_cast<usize>(1), std::multiplies<>{});
-  for(const auto& cellArrayPath : cellDataArrayNames)
+  for(const auto& cellArrayName : cellDataArrayNames)
   {
-    const auto& cellArray = dataStructure.getDataRefAs<IDataArray>(cellDataGroupPath.createChildPath(cellArrayPath));
+    const auto& cellArray = dataStructure.getDataRefAs<IDataArray>(cellDataGroupPath.createChildPath(cellArrayName));
     usize arraySize = cellArray.getNumberOfTuples();
     if(arraySize != originalImageSize)
     {
       return {MakeErrorResult<OutputActions>(
           -1, fmt::format("Selected Array '{}' was size {}, but Image Geometry '{}' expects size {}", cellArray.getName(), arraySize, selectedImageGeom.getName(), originalImageSize))};
     }
-    DataPath createdArrayPath = createdImageGeomPath.createChildPath(ImageGeom::k_CellDataName).createChildPath(cellArray.getName());
+    DataPath createdArrayPath = createdImageGeomPath.createChildPath(cellDataName).createChildPath(cellArray.getName());
 
     resultOutputActions.value().actions.push_back(
         std::make_unique<CreateArrayAction>(cellArray.getDataType(), std::vector<usize>{m_ZP, m_YP, m_XP}, cellArray.getIDataStoreRef().getComponentShape(), createdArrayPath));
@@ -202,6 +206,7 @@ IFilter::PreflightResult ResampleImageGeomFilter::preflightImpl(const DataStruct
     {
       return {MakeErrorResult<OutputActions>(-11503, fmt::format("Cannot find selected cell feature Attribute Matrix at path '{}'", pCellFeatureAttributeMatrixPathValue.toString()))};
     }
+    ignorePaths.push_back(pCellFeatureAttributeMatrixPathValue);
     std::string warningMsg = "";
     DataPath destCellFeatureAMPath = createdImageGeomPath.createChildPath(pCellFeatureAttributeMatrixPathValue.getTargetName());
     AttributeMatrix::ShapeType tDims = cellFeatureAM->getShape();
@@ -227,6 +232,9 @@ IFilter::PreflightResult ResampleImageGeomFilter::preflightImpl(const DataStruct
                                        pFeatureIdsArrayPathValue.toString(), warningMsg)}));
     }
   }
+
+  // copy over the rest of the data
+  resultOutputActions.value().actions.push_back(std::make_unique<CopyGroupAction>(selectedImageGeomPath, pNewDataContainerPathValue, true, ignorePaths));
 
   if(pRemoveOriginalGeometry)
   {
