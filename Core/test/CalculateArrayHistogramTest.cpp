@@ -54,7 +54,7 @@ TEST_CASE("Core::CalculateArrayHistogram: Valid Filter Execution", "[Core][Calcu
   ::fillArray(*DataArray<uint32>::CreateWithStore<DataStore<uint32>>(dataStruct, "array2", {static_cast<usize>(4)}, {static_cast<usize>(3)}), {83, 93, 75, 67, 8977, 56, 48, 92, 57, 34, 34, 34});
 
   std::vector<DataPath> dataPaths = dataStruct.getAllDataPaths();
-  auto& parentPath = dataPaths[0].getParent();
+  auto parentPath = dataPaths[0].getParent();
   auto dataGPath = parentPath.createChildPath("HistogramDataGroup");
 
   // Create default Parameters for the filter.
