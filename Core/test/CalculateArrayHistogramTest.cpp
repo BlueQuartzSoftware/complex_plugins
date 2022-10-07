@@ -63,6 +63,7 @@ TEST_CASE("Core::CalculateArrayHistogram: Valid Filter Execution", "[Core][Calcu
   args.insertOrAssign(CalculateArrayHistogramFilter::k_NewDataGroup_Key, std::make_any<bool>(true));
   args.insertOrAssign(CalculateArrayHistogramFilter::k_SelectedArrayPaths_Key, std::make_any<MultiArraySelectionParameter::ValueType>(dataPaths));
   args.insertOrAssign(CalculateArrayHistogramFilter::k_NewDataGroupName_Key, std::make_any<DataPath>(dataGPath));
+  args.insertOrAssign(CalculateArrayHistogramFilter::k_HistoName_Key, std::make_any<std::string>("Histogram"));
 
   // Preflight the filter and check result
   auto preflightResult = filter.preflight(dataStruct, args);

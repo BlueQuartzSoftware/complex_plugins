@@ -2,17 +2,13 @@
 #include "Algorithms/CalculateArrayHistogram.hpp"
 
 #include "complex/DataStructure/DataArray.hpp"
-#include "complex/DataStructure/DataPath.hpp"
-#include "complex/DataStructure/IDataArray.hpp"
 #include "complex/Filter/Actions/CreateArrayAction.hpp"
 #include "complex/Filter/Actions/CreateDataGroupAction.hpp"
-#include "complex/Parameters/ArrayCreationParameter.hpp"
-#include "complex/Parameters/ArraySelectionParameter.hpp"
 #include "complex/Parameters/BoolParameter.hpp"
 #include "complex/Parameters/DataGroupCreationParameter.hpp"
 #include "complex/Parameters/DataGroupSelectionParameter.hpp"
-#include "complex/Parameters/MultiArraySelectionParameter.hpp"
 #include "complex/Parameters/NumberParameter.hpp"
+#include "complex/Parameters/StringParameter.hpp"
 
 using namespace complex;
 
@@ -53,14 +49,18 @@ Parameters CalculateArrayHistogramFilter::parameters() const
 {
   Parameters params;
   // Create the parameter descriptors that are needed for this filter
+  params.insertSeparator(Parameters::Separator{"Filter Parameters"});
   params.insert(std::make_unique<Int32Parameter>(k_NumberOfBins_Key, "Number of Bins", "", 1));
   params.insertLinkableParameter(std::make_unique<BoolParameter>(k_UserDefinedRange_Key, "Use Custom Min & Max Range", "", false));
   params.insert(std::make_unique<Float64Parameter>(k_MinRange_Key, "Min Value", "", 2.3456789));
   params.insert(std::make_unique<Float64Parameter>(k_MaxRange_Key, "Max Value", "", 2.3456789));
-  params.insertLinkableParameter(std::make_unique<BoolParameter>(k_NewDataGroup_Key, "Create New DataGroup for Histograms", "", true));
+  params.insertSeparator(Parameters::Separator{"Input Arrays"});
   params.insert(std::make_unique<MultiArraySelectionParameter>(k_SelectedArrayPaths_Key, "DataArray(s) to Histogram", "", MultiArraySelectionParameter::ValueType{}, complex::GetAllNumericTypes()));
+  params.insertSeparator(Parameters::Separator{"Output Set Up"});
+  params.insertLinkableParameter(std::make_unique<BoolParameter>(k_NewDataGroup_Key, "Create New DataGroup for Histograms", "", true));
   params.insert(std::make_unique<DataGroupCreationParameter>(k_NewDataGroupName_Key, "New DataGroup Path", "", DataPath{}));
   params.insert(std::make_unique<DataGroupSelectionParameter>(k_DataGroupName_Key, "Output DataGroup Path", "", DataPath{}));
+  params.insert(std::make_unique<StringParameter>(k_HistoName_Key, "Suffix for created Histograms", "", "Histogram"));
   // Associate the Linkable Parameter(s) to the children parameters that they control
   params.linkParameters(k_UserDefinedRange_Key, k_MinRange_Key, true);
   params.linkParameters(k_UserDefinedRange_Key, k_MaxRange_Key, true);
@@ -88,6 +88,7 @@ IFilter::PreflightResult CalculateArrayHistogramFilter::preflightImpl(const Data
   auto pDataGroupNameValue = filterArgs.value<DataPath>(k_DataGroupName_Key);
   auto pSelectedArrayPathsValue = filterArgs.value<MultiArraySelectionParameter::ValueType>(k_SelectedArrayPaths_Key);
   auto pNewDataGroupNameValue = filterArgs.value<DataPath>(k_NewDataGroupName_Key); // sanity check if is Attribute matrix after impending complex update
+  auto pHistogramSuffix = filterArgs.value<std::string>(k_HistoName_Key);
 
   PreflightResult preflightResult;
 
@@ -106,11 +107,11 @@ IFilter::PreflightResult CalculateArrayHistogramFilter::preflightImpl(const Data
     DataPath childPath;
     if(pNewDataGroupValue)
     {
-      childPath = pNewDataGroupNameValue.createChildPath((dataArray->getName() + "Histogram"));
+      childPath = pNewDataGroupNameValue.createChildPath((dataArray->getName() + pHistogramSuffix));
     }
     else
     {
-      childPath = pDataGroupNameValue.createChildPath((dataArray->getName() + "Histogram"));
+      childPath = pDataGroupNameValue.createChildPath((dataArray->getName() + pHistogramSuffix));
     }
     auto createArrayAction = std::make_unique<CreateArrayAction>(complex::DataType::float64, std::vector<usize>{static_cast<usize>(pNumberOfBinsValue)}, std::vector<usize>{2}, childPath);
     resultOutputActions.value().actions.push_back(std::move(createArrayAction));

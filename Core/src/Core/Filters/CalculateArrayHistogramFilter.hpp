@@ -32,6 +32,7 @@ public:
   static inline constexpr StringLiteral k_SelectedArrayPaths_Key = "SelectedArrayPaths";
   static inline constexpr StringLiteral k_NewDataGroupName_Key = "NewDataGroupName";
   static inline constexpr StringLiteral k_DataGroupName_Key = "DataGroupName";
+  static inline constexpr StringLiteral k_HistoName_Key = "HistogramSuffix";
 
   /**
    * @brief Returns the name of the filter.

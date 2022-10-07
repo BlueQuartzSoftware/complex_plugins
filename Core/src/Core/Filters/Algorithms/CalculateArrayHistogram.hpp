@@ -42,7 +42,7 @@ public:
   Result<> operator()();
 
   void updateProgress(const std::string& progMessage);
-  void updateThreadSafeProgress();
+  void updateThreadSafeProgress(size_t counter);
   const std::atomic_bool& getCancel();
 
 private:
