@@ -159,10 +159,10 @@ Result<> CalculateArrayHistogram::operator()()
 
   for(int32 i = 0; i < selectedArrayPaths.size(); i++)
   {
-    const auto customRange = m_InputValues->UserDefinedRange;
-    std::tuple<bool, float32, float32>& range = std::make_tuple(customRange, 0.0f, 0.0f); // Custom bool, min, max
-    if(std::get<0>(range))
+    std::tuple<bool, float32, float32>& range = std::make_tuple(false, 0.0f, 0.0f); // Custom bool, min, max
+    if(m_InputValues->UserDefinedRange)
     {
+      std::get<1>(range) = true;
       std::get<1>(range) = m_InputValues->MinRange;
       std::get<2>(range) = m_InputValues->MaxRange;
     }
