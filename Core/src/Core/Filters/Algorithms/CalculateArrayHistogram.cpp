@@ -99,7 +99,7 @@ public:
   }
 
 private:
-  CalculateArrayHistogram& m_Filter = nullptr;
+  CalculateArrayHistogram& m_Filter;
   const int32 m_NumBins = 1;
   float64 m_Min = 0.0;
   float64 m_Max = 0.0;
