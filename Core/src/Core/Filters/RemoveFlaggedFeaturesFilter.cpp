@@ -4,6 +4,7 @@
 #include "complex/DataStructure/AttributeMatrix.hpp"
 #include "complex/DataStructure/DataArray.hpp"
 #include "complex/DataStructure/DataPath.hpp"
+#include "complex/DataStructure/INeighborList.hpp"
 #include "complex/Parameters/ArraySelectionParameter.hpp"
 #include "complex/Parameters/BoolParameter.hpp"
 #include "complex/Parameters/GeometrySelectionParameter.hpp"
@@ -89,10 +90,26 @@ IFilter::PreflightResult RemoveFlaggedFeaturesFilter::preflightImpl(const DataSt
     return {nonstd::make_unexpected(std::vector<Error>{Error{-9891, fmt::format("Could not find selected Flagged Features Data Array at path '{}'", pFlaggedFeaturesArrayPathValue.toString())}})};
   }
 
-  if(dataStructure.getDataAs<AttributeMatrix>(pFlaggedFeaturesArrayPathValue.getParent()) == nullptr)
+  DataPath cellFeatureAttributeMatrixPath = pFlaggedFeaturesArrayPathValue.getParent();
+  const AttributeMatrix* cellFeatureAM = dataStructure.getDataAs<AttributeMatrix>(cellFeatureAttributeMatrixPath);
+  if(cellFeatureAM == nullptr)
   {
     return {nonstd::make_unexpected(std::vector<Error>{
         Error{-9892, fmt::format("Could not find the parent Attribute Matrix for the selected Flagged Features Data Array at path '{}'", pFlaggedFeaturesArrayPathValue.toString())}})};
+  }
+
+  std::string warningMsg = "";
+  for(const auto& [id, object] : *cellFeatureAM)
+  {
+    if(const auto* srcNeighborListArray = dynamic_cast<const INeighborList*>(object.get()); srcNeighborListArray != nullptr)
+    {
+      warningMsg += "\n" + cellFeatureAttributeMatrixPath.toString() + "/" + srcNeighborListArray->getName();
+    }
+  }
+  if(!warningMsg.empty())
+  {
+    resultOutputActions.m_Warnings.push_back(Warning({-11505, fmt::format("This filter modifies the Cell Level Array '{}', the following arrays are of type NeighborList and will not be kept:{}",
+                                                                          pFeatureIdsArrayPathValue.toString(), warningMsg)}));
   }
 
   return {std::move(resultOutputActions), std::move(preflightUpdatedValues)};
