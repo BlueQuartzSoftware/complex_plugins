@@ -47,12 +47,14 @@ std::vector<std::string> RemoveFlaggedFeaturesFilter::defaultTags() const
 Parameters RemoveFlaggedFeaturesFilter::parameters() const
 {
   Parameters params;
-  // Create the parameter descriptors that are needed for this filter
+  params.insertSeparator(Parameters::Separator{"Input Parameters"});
   params.insert(std::make_unique<BoolParameter>(k_FillRemovedFeatures_Key, "Fill-in Removed Features", "", false));
   params.insert(std::make_unique<GeometrySelectionParameter>(k_ImageGeometry_Key, "Selected Image Geometry", "", DataPath{}, GeometrySelectionParameter::AllowedTypes{IGeometry::Type::Image}));
-  params.insertSeparator(Parameters::Separator{"Cell Data"});
+
+  params.insertSeparator(Parameters::Separator{"Required Input Cell Data"});
   params.insert(std::make_unique<ArraySelectionParameter>(k_FeatureIdsArrayPath_Key, "Feature Ids", "", DataPath({"CellData", "FeatureIds"}), ArraySelectionParameter::AllowedTypes{DataType::int32}));
-  params.insertSeparator(Parameters::Separator{"Cell Feature Data"});
+
+  params.insertSeparator(Parameters::Separator{"Required Input Cell Feature Data"});
   params.insert(std::make_unique<ArraySelectionParameter>(k_FlaggedFeaturesArrayPath_Key, "Flagged Features", "", DataPath{}, ArraySelectionParameter::AllowedTypes{DataType::boolean}));
   params.insert(std::make_unique<MultiArraySelectionParameter>(k_IgnoredDataArrayPaths_Key, "Attribute Arrays to Ignore", "",
                                                                MultiArraySelectionParameter::ValueType{DataPath(), DataPath(), DataPath()}, complex::GetAllDataTypes()));
