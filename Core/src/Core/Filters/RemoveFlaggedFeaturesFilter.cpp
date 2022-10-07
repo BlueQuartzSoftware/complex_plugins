@@ -70,10 +70,8 @@ IFilter::UniquePointer RemoveFlaggedFeaturesFilter::clone() const
 IFilter::PreflightResult RemoveFlaggedFeaturesFilter::preflightImpl(const DataStructure& dataStructure, const Arguments& filterArgs, const MessageHandler& messageHandler,
                                                                     const std::atomic_bool& shouldCancel) const
 {
-  // auto pFillRemovedFeaturesValue = filterArgs.value<bool>(k_FillRemovedFeatures_Key);
   auto pFeatureIdsArrayPathValue = filterArgs.value<DataPath>(k_FeatureIdsArrayPath_Key);
   auto pFlaggedFeaturesArrayPathValue = filterArgs.value<DataPath>(k_FlaggedFeaturesArrayPath_Key);
-  // auto pIgnoredDataArrayPathsValue = filterArgs.value<MultiArraySelectionParameter::ValueType>(k_IgnoredDataArrayPaths_Key);
 
   PreflightResult preflightResult;
   complex::Result<OutputActions> resultOutputActions;
