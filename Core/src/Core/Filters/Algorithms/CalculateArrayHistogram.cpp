@@ -17,8 +17,8 @@ template <typename T>
 class GenerateHistogramFromData
 {
 public:
-  GenerateHistogramFromData(CalculateArrayHistogram* filter, const int32 numBins, float64 minRange, float64 maxRange, const DataArray<T>& inputArray, Float64Array& histogram,
-                            std::atomic<usize>& overflow)
+  GenerateHistogramFromData(CalculateArrayHistogram* filter, const int32 numBins, const DataArray<T>& inputArray, Float64Array& histogram, std::atomic<usize>& overflow, float64 minRange = 0.0,
+                            float64 maxRange = 0.0)
   : m_Filter(filter)
   , m_NumBins(numBins)
   , m_Min(minRange)
@@ -28,41 +28,42 @@ public:
   , m_Overflow(overflow)
   {
   }
-  GenerateHistogramFromData(CalculateArrayHistogram* filter, const int32 numBins, const DataArray<T>& inputArray, Float64Array& histogram, std::atomic<usize>& overflow)
-  : m_Filter(filter)
-  , m_NumBins(numBins)
-  , m_InputArray(inputArray)
-  , m_Histogram(histogram)
-  , m_Overflow(overflow)
-  {
-    float64 min = std::numeric_limits<float>::max();
-    float64 max = -1.0 * std::numeric_limits<float>::max();
-    const auto numOfElements = m_InputArray.getNumberOfComponents() * m_InputArray.getNumberOfTuples();
-    for(size_t i = 0; i < numOfElements; i++) // min and max in the input array
-    {
-      if(static_cast<float64>(m_InputArray[i]) > max)
-      {
-        max = static_cast<float64>(m_InputArray[i]);
-      }
-      if(static_cast<float64>(m_InputArray[i]) < min)
-      {
-        min = static_cast<float64>(m_InputArray[i]);
-      }
-    }
-    m_Max = static_cast<float64>(max + 1); // ensure upper limit encapsulates max value
-    m_Min = static_cast<float64>(min - 1); // ensure lower limit encapsulates min value
-  }
   ~GenerateHistogramFromData() = default;
 
   void generate(const usize start, const usize end) const
   {
     // tuple visulaization: Histogram = {(bin maximum, count), (bin maximum, count), ... }
 
+    float64 min = std::numeric_limits<float>::max();
+    float64 max = -1.0 * std::numeric_limits<float>::max();
+    if(m_Max == 0.0 && m_Min == 0.0)
+    {
+      const auto numOfElements = m_InputArray.getNumberOfComponents() * m_InputArray.getNumberOfTuples();
+      for(size_t i = 0; i < numOfElements; i++) // min and max in the input array
+      {
+        if(static_cast<float64>(m_InputArray[i]) > max)
+        {
+          max = static_cast<float64>(m_InputArray[i]);
+        }
+        if(static_cast<float64>(m_InputArray[i]) < min)
+        {
+          min = static_cast<float64>(m_InputArray[i]);
+        }
+      }
+      max = static_cast<float64>(max + 1); // ensure upper limit encapsulates max value
+      min = static_cast<float64>(min - 1); // ensure lower limit encapsulates min value
+    }
+    else
+    {
+      min = m_Min;
+      max = m_Max;
+    }
+
     auto beginning = std::chrono::steady_clock::now();
-    const float64 increment = (m_Max - m_Min) / m_NumBins;
+    const float64 increment = (max - min) / m_NumBins;
     if(m_NumBins == 1) // if one bin, just set the first element to total number of points
     {
-      m_Histogram[0] = m_Max;
+      m_Histogram[0] = max;
       m_Histogram[1] = end;
     }
     else
@@ -81,7 +82,7 @@ public:
         {
           return;
         }
-        const auto bin = std::floor((m_InputArray.at(i) - m_Min) / increment);
+        const auto bin = std::floor((m_InputArray.at(i) - min) / increment);
         if((bin >= 0) && (bin < m_NumBins))
         {
           m_Histogram[bin * 2 + 1]++;
@@ -95,7 +96,7 @@ public:
 
     for(int64 i = 0; i < m_NumBins; i++)
     {
-      m_Histogram[(i * 2)] = static_cast<float64>(m_Min + (increment * (i + 1))); // load bin maximum into respective postion {(x, ), (x , ), ...}
+      m_Histogram[(i * 2)] = static_cast<float64>(min + (increment * (i + 1))); // load bin maximum into respective postion {(x, ), (x , ), ...}
     }
   }
 
@@ -111,7 +112,7 @@ private:
   float64 m_Max = 0.0;
   const DataArray<T>& m_InputArray;
   Float64Array& m_Histogram;
-  std::atomic<usize>& m_Overflow = 0;
+  std::atomic<usize>& m_Overflow;
 };
 } // namespace
 
@@ -168,7 +169,7 @@ Result<> CalculateArrayHistogram::operator()()
       if(m_InputValues->UserDefinedRange)
       {
         dataAlg.execute(
-            GenerateHistogramFromData(this, numBins, m_InputValues->MinRange, m_InputValues->MaxRange, m_DataStructure.getDataRefAs<DataArray<int8>>(selectedArrayPath), histogram, overflow));
+            GenerateHistogramFromData(this, numBins, m_DataStructure.getDataRefAs<DataArray<int8>>(selectedArrayPath), histogram, overflow, m_InputValues->MinRange, m_InputValues->MaxRange));
       }
       else
       {
@@ -180,7 +181,7 @@ Result<> CalculateArrayHistogram::operator()()
       if(m_InputValues->UserDefinedRange)
       {
         dataAlg.execute(
-            GenerateHistogramFromData(this, numBins, m_InputValues->MinRange, m_InputValues->MaxRange, m_DataStructure.getDataRefAs<DataArray<int16>>(selectedArrayPath), histogram, overflow));
+            GenerateHistogramFromData(this, numBins, m_DataStructure.getDataRefAs<DataArray<int16>>(selectedArrayPath), histogram, overflow, m_InputValues->MinRange, m_InputValues->MaxRange));
       }
       else
       {
@@ -192,7 +193,7 @@ Result<> CalculateArrayHistogram::operator()()
       if(m_InputValues->UserDefinedRange)
       {
         dataAlg.execute(
-            GenerateHistogramFromData(this, numBins, m_InputValues->MinRange, m_InputValues->MaxRange, m_DataStructure.getDataRefAs<DataArray<int32>>(selectedArrayPath), histogram, overflow));
+            GenerateHistogramFromData(this, numBins, m_DataStructure.getDataRefAs<DataArray<int32>>(selectedArrayPath), histogram, overflow, m_InputValues->MinRange, m_InputValues->MaxRange));
       }
       else
       {
@@ -204,7 +205,7 @@ Result<> CalculateArrayHistogram::operator()()
       if(m_InputValues->UserDefinedRange)
       {
         dataAlg.execute(
-            GenerateHistogramFromData(this, numBins, m_InputValues->MinRange, m_InputValues->MaxRange, m_DataStructure.getDataRefAs<DataArray<int64>>(selectedArrayPath), histogram, overflow));
+            GenerateHistogramFromData(this, numBins, m_DataStructure.getDataRefAs<DataArray<int64>>(selectedArrayPath), histogram, overflow, m_InputValues->MinRange, m_InputValues->MaxRange));
       }
       else
       {
@@ -216,7 +217,7 @@ Result<> CalculateArrayHistogram::operator()()
       if(m_InputValues->UserDefinedRange)
       {
         dataAlg.execute(
-            GenerateHistogramFromData(this, numBins, m_InputValues->MinRange, m_InputValues->MaxRange, m_DataStructure.getDataRefAs<DataArray<uint8>>(selectedArrayPath), histogram, overflow));
+            GenerateHistogramFromData(this, numBins, m_DataStructure.getDataRefAs<DataArray<uint8>>(selectedArrayPath), histogram, overflow, m_InputValues->MinRange, m_InputValues->MaxRange));
       }
       else
       {
@@ -228,7 +229,7 @@ Result<> CalculateArrayHistogram::operator()()
       if(m_InputValues->UserDefinedRange)
       {
         dataAlg.execute(
-            GenerateHistogramFromData(this, numBins, m_InputValues->MinRange, m_InputValues->MaxRange, m_DataStructure.getDataRefAs<DataArray<uint16>>(selectedArrayPath), histogram, overflow));
+            GenerateHistogramFromData(this, numBins, m_DataStructure.getDataRefAs<DataArray<uint16>>(selectedArrayPath), histogram, overflow, m_InputValues->MinRange, m_InputValues->MaxRange));
       }
       else
       {
@@ -240,7 +241,7 @@ Result<> CalculateArrayHistogram::operator()()
       if(m_InputValues->UserDefinedRange)
       {
         dataAlg.execute(
-            GenerateHistogramFromData(this, numBins, m_InputValues->MinRange, m_InputValues->MaxRange, m_DataStructure.getDataRefAs<DataArray<uint32>>(selectedArrayPath), histogram, overflow));
+            GenerateHistogramFromData(this, numBins, m_DataStructure.getDataRefAs<DataArray<uint32>>(selectedArrayPath), histogram, overflow, m_InputValues->MinRange, m_InputValues->MaxRange));
       }
       else
       {
@@ -252,7 +253,7 @@ Result<> CalculateArrayHistogram::operator()()
       if(m_InputValues->UserDefinedRange)
       {
         dataAlg.execute(
-            GenerateHistogramFromData(this, numBins, m_InputValues->MinRange, m_InputValues->MaxRange, m_DataStructure.getDataRefAs<DataArray<uint64>>(selectedArrayPath), histogram, overflow));
+            GenerateHistogramFromData(this, numBins, m_DataStructure.getDataRefAs<DataArray<uint64>>(selectedArrayPath), histogram, overflow, m_InputValues->MinRange, m_InputValues->MaxRange));
       }
       else
       {
@@ -264,7 +265,7 @@ Result<> CalculateArrayHistogram::operator()()
       if(m_InputValues->UserDefinedRange)
       {
         dataAlg.execute(
-            GenerateHistogramFromData(this, numBins, m_InputValues->MinRange, m_InputValues->MaxRange, m_DataStructure.getDataRefAs<DataArray<float32>>(selectedArrayPath), histogram, overflow));
+            GenerateHistogramFromData(this, numBins, m_DataStructure.getDataRefAs<DataArray<float32>>(selectedArrayPath), histogram, overflow, m_InputValues->MinRange, m_InputValues->MaxRange));
       }
       else
       {
@@ -276,7 +277,7 @@ Result<> CalculateArrayHistogram::operator()()
       if(m_InputValues->UserDefinedRange)
       {
         dataAlg.execute(
-            GenerateHistogramFromData(this, numBins, m_InputValues->MinRange, m_InputValues->MaxRange, m_DataStructure.getDataRefAs<DataArray<float64>>(selectedArrayPath), histogram, overflow));
+            GenerateHistogramFromData(this, numBins, m_DataStructure.getDataRefAs<DataArray<float64>>(selectedArrayPath), histogram, overflow, m_InputValues->MinRange, m_InputValues->MaxRange));
       }
       else
       {
