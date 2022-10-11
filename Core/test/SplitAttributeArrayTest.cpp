@@ -3,8 +3,10 @@
 #include "complex/DataStructure/AttributeMatrix.hpp"
 #include "complex/DataStructure/DataArray.hpp"
 #include "complex/Parameters/ArraySelectionParameter.hpp"
+#include "complex/Parameters/DynamicTableParameter.hpp"
 #include "complex/Parameters/StringParameter.hpp"
 #include "complex/UnitTest/UnitTestCommon.hpp"
+#include "complex/Utilities/StringUtilities.hpp"
 
 #include "Core/Core_test_dirs.hpp"
 #include "Core/Filters/SplitAttributeArrayFilter.hpp"
@@ -63,9 +65,6 @@ DataStructure createDataStructure()
   BoolArray* mcArray2 = BoolArray::CreateWithStore<DataStore<bool>>(dataStructure, "MultiComponent Array bool", std::vector<size_t>(1, 10), std::vector<size_t>(1, 5), am1->getId());
   fillDataArray(mcArray2);
 
-  // UCharArray* mcArray3 = UCharArrayType::CreateWithStore<DataStore<>>(dataStructure, "MultiComponent Array unsigned char", std::vector<size_t>(1, 10), std::vector<size_t>(1, 5), am1->getId());
-  // fillDataArray<unsigned char>(mcArray3);
-
   Int8Array* mcArray4 = Int8Array::CreateWithStore<DataStore<int8>>(dataStructure, "MultiComponent Array int8", std::vector<size_t>(1, 10), std::vector<size_t>(1, 5), am1->getId());
   fillDataArray<int8>(mcArray4);
 
@@ -101,39 +100,54 @@ DataStructure createDataStructure()
 
 // -----------------------------------------------------------------------------
 template <typename T>
-void TestSplitByType(DataStructure& ds, std::string dataType)
+void TestSplitByType(DataStructure& ds, const std::string& dataType, const DynamicTableInfo::RowType& extractComps = {})
 {
   SplitAttributeArrayFilter filter;
 
   DataPath arrayPath({"AttributeMatrix", "MultiComponent Array " + dataType});
+  std::vector<usize> compsToCheck;
 
   Arguments args;
   // read in the exemplar shift data file
   args.insertOrAssign(SplitAttributeArrayFilter::k_MultiCompArray_Key, std::make_any<DataPath>(arrayPath));
   args.insertOrAssign(SplitAttributeArrayFilter::k_Postfix_Key, std::make_any<std::string>("Component"));
+  args.insertOrAssign(SplitAttributeArrayFilter::k_DeleteOriginal_Key, std::make_any<bool>(false));
+  if(!extractComps.empty())
+  {
+    args.insertOrAssign(SplitAttributeArrayFilter::k_SelectComponents_Key, std::make_any<bool>(true));
+    args.insertOrAssign(SplitAttributeArrayFilter::k_ComponentsToExtract_Key, std::make_any<DynamicTableParameter::ValueType>({extractComps}));
+    for(const auto& comp : extractComps)
+    {
+      compsToCheck.push_back(static_cast<usize>(comp));
+    }
+  }
+  else
+  {
+    args.insertOrAssign(SplitAttributeArrayFilter::k_SelectComponents_Key, std::make_any<bool>(false));
+    for(usize i = 0; i < 5; ++i)
+    {
+      compsToCheck.push_back(i);
+    }
+  }
 
   auto executeResults = filter.execute(ds, args);
   COMPLEX_RESULT_REQUIRE_VALID(executeResults.result);
-  using DataArrayPtrType = DataArray<T>*;
-  DataArray<T>& mcArray_original = ds.getDataRefAs<DataArray<T>>(DataPath({"AttributeMatrix", "MultiComponent Array " + dataType}));
 
-  std::vector<DataArrayPtrType> mcArraysAfterSplit;
-  DataArrayPtrType mcArray0 = ds.getDataAs<DataArray<T>>(DataPath({"AttributeMatrix", "MultiComponent Array " + dataType + "Component0"}));
-  mcArraysAfterSplit.push_back(mcArray0);
-  DataArrayPtrType mcArray1 = ds.getDataAs<DataArray<T>>(DataPath({"AttributeMatrix", "MultiComponent Array " + dataType + "Component1"}));
-  mcArraysAfterSplit.push_back(mcArray1);
-  DataArrayPtrType mcArray2 = ds.getDataAs<DataArray<T>>(DataPath({"AttributeMatrix", "MultiComponent Array " + dataType + "Component2"}));
-  mcArraysAfterSplit.push_back(mcArray2);
-  DataArrayPtrType mcArray3 = ds.getDataAs<DataArray<T>>(DataPath({"AttributeMatrix", "MultiComponent Array " + dataType + "Component3"}));
-  mcArraysAfterSplit.push_back(mcArray3);
-  DataArrayPtrType mcArray4 = ds.getDataAs<DataArray<T>>(DataPath({"AttributeMatrix", "MultiComponent Array " + dataType + "Component4"}));
-  mcArraysAfterSplit.push_back(mcArray4);
+  using DataArrayPtrType = DataArray<T>*;
+
+  DataArray<T>& mcArray_original = ds.getDataRefAs<DataArray<T>>(DataPath({"AttributeMatrix", "MultiComponent Array " + dataType}));
+  std::map<usize, DataArrayPtrType> mcArraysAfterSplit;
+  for(const auto& comp : compsToCheck)
+  {
+    DataArrayPtrType mcArray = ds.getDataAs<DataArray<T>>(DataPath({"AttributeMatrix", "MultiComponent Array " + dataType + "Component" + StringUtilities::number(comp)}));
+    mcArraysAfterSplit[comp] = mcArray;
+  }
 
   usize numTuples = mcArray_original.getNumberOfTuples();
   usize numComps = mcArray_original.getNumberOfComponents();
   for(int i = 0; i < numTuples; i++)
   {
-    for(int j = 0; j < numComps; j++)
+    for(const auto& j : compsToCheck)
     {
       T originalValue = mcArray_original[i * numComps + j];
       T afterSplitValue = (*mcArraysAfterSplit[j])[i];
@@ -149,9 +163,8 @@ TEST_CASE("Core::SplitAttributeArray: Instantiation and Parameter Check", "[Core
 
   TestSplitByType<uint32>(ds, "uint32");
   TestSplitByType<bool>(ds, "bool");
-  // TestSplitByType<unsigned char>(ds, "unsigned char");
   TestSplitByType<int8>(ds, "int8");
-  TestSplitByType<uint8>(ds, "uint8");
+  TestSplitByType<uint8>(ds, "uint8", {1, 3});
   TestSplitByType<int16>(ds, "int16");
   TestSplitByType<uint16>(ds, "uint16");
   TestSplitByType<int32>(ds, "int32");
