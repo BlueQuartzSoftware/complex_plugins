@@ -1,6 +1,5 @@
 #include "ResampleImageGeomFilter.hpp"
 
-#include "complex/DataStructure/DataGroup.hpp"
 #include "complex/DataStructure/DataPath.hpp"
 #include "complex/DataStructure/Geometry/ImageGeom.hpp"
 #include "complex/DataStructure/INeighborList.hpp"
@@ -96,8 +95,6 @@ Parameters ResampleImageGeomFilter::parameters() const
   params.insertSeparator(Parameters::Separator{"Created Image Geometry"});
   params.insert(
       std::make_unique<DataGroupCreationParameter>(k_NewDataContainerPath_Key, "Resampled Image Geometry", "Location to store the resampled image geometry", DataPath({"Resampled Image Geometry"})));
-  // params.insert(std::make_unique<StringParameter>(k_NewFeaturesName_Key, "New Cell Features Group Name", "Name of the new DataGroup containing updated Voxel Arrays", "Cell Features"));
-
   return params;
 }
 
