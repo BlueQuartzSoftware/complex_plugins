@@ -26,6 +26,7 @@ public:
   // Parameter Keys
   static inline constexpr StringLiteral k_MultiCompArray_Key = "MulticomponentArray";
   static inline constexpr StringLiteral k_Postfix_Key = "Postfix";
+  static inline constexpr StringLiteral k_DeleteOriginal_Key = "DeleteOriginalArray";
 
   /**
    * @brief Returns the name of the filter.

@@ -3,7 +3,9 @@
 #include "complex/DataStructure/DataPath.hpp"
 #include "complex/DataStructure/IDataArray.hpp"
 #include "complex/Filter/Actions/CreateArrayAction.hpp"
+#include "complex/Filter/Actions/DeleteDataAction.hpp"
 #include "complex/Parameters/ArraySelectionParameter.hpp"
+#include "complex/Parameters/BoolParameter.hpp"
 #include "complex/Parameters/DataObjectNameParameter.hpp"
 #include "complex/Parameters/StringParameter.hpp"
 #include "complex/Utilities/StringUtilities.hpp"
@@ -52,6 +54,7 @@ Parameters SplitAttributeArrayFilter::parameters() const
   params.insertSeparator(Parameters::Separator{"Input Parameters"});
   params.insert(std::make_unique<ArraySelectionParameter>(k_MultiCompArray_Key, "Multicomponent Attribute Array", "", DataPath{}, GetAllDataTypes()));
   params.insert(std::make_unique<StringParameter>(k_Postfix_Key, "Postfix", "", "_Component"));
+  params.insert(std::make_unique<BoolParameter>(k_DeleteOriginal_Key, "Remove Original Array", "", false));
 
   return params;
 }
@@ -68,6 +71,7 @@ IFilter::PreflightResult SplitAttributeArrayFilter::preflightImpl(const DataStru
 {
   auto pInputArrayPath = filterArgs.value<ArraySelectionParameter::ValueType>(k_MultiCompArray_Key);
   auto pPostfix = filterArgs.value<std::string>(k_Postfix_Key);
+  auto pRemoveOriginal = filterArgs.value<bool>(k_DeleteOriginal_Key);
 
   PreflightResult preflightResult;
   complex::Result<OutputActions> resultOutputActions;
@@ -91,6 +95,11 @@ IFilter::PreflightResult SplitAttributeArrayFilter::preflightImpl(const DataStru
     std::string arrayName = pInputArrayPath.getTargetName() + pPostfix + StringUtilities::number(i);
     DataPath newArrayPath = pInputArrayPath.getParent().createChildPath(arrayName);
     resultOutputActions.value().actions.push_back(std::make_unique<CreateArrayAction>(inputArray->getDataType(), tdims, cdims, newArrayPath));
+  }
+
+  if(pRemoveOriginal)
+  {
+    resultOutputActions.value().deferredActions.push_back(std::make_unique<DeleteDataAction>(pInputArrayPath));
   }
 
   return {std::move(resultOutputActions), std::move(preflightUpdatedValues)};
