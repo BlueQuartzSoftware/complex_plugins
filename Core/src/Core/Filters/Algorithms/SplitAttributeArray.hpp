@@ -12,6 +12,7 @@ struct CORE_EXPORT SplitAttributeArrayInputValues
 {
   DataPath InputArrayPath;
   std::string SplitArraysSuffix;
+  std::vector<usize> ExtractComponents;
 };
 
 /**

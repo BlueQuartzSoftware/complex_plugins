@@ -27,6 +27,8 @@ public:
   static inline constexpr StringLiteral k_MultiCompArray_Key = "MulticomponentArray";
   static inline constexpr StringLiteral k_Postfix_Key = "Postfix";
   static inline constexpr StringLiteral k_DeleteOriginal_Key = "DeleteOriginalArray";
+  static inline constexpr StringLiteral k_SelectComponents_Key = "SelectComponentsToExtract";
+  static inline constexpr StringLiteral k_ComponentsToExtract_Key = "ComponentsToExtract";
 
   /**
    * @brief Returns the name of the filter.

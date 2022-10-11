@@ -13,7 +13,7 @@ void SplitArrays(DataStructure& dataStructure, const SplitAttributeArrayInputVal
   DataArray<T>& inputArray = dataStructure.getDataRefAs<DataArray<T>>(inputValues->InputArrayPath);
   usize numTuples = inputArray.getNumberOfTuples();
   usize numComponents = inputArray.getNumberOfComponents();
-  for(usize j = 0; j < numComponents; j++)
+  for(const auto& j : inputValues->ExtractComponents)
   {
     std::string arrayName = inputValues->InputArrayPath.getTargetName() + inputValues->SplitArraysSuffix + StringUtilities::number(j);
     DataPath splitArrayPath = inputValues->InputArrayPath.getParent().createChildPath(arrayName);
