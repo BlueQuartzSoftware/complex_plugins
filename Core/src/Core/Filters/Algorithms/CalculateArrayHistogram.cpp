@@ -20,7 +20,7 @@ class GenerateHistogramFromData
 {
 public:
   GenerateHistogramFromData(CalculateArrayHistogram& filter, const int32 numBins, const DataArray<T>& inputArray, Float64Array& histogram, std::atomic<usize>& overflow,
-                            std::tuple<bool, float32, float32>& range, size_t progIncrement)
+                            std::tuple<bool, float64, float64>& range, size_t progIncrement)
   : m_Filter(filter)
   , m_NumBins(numBins)
   , m_InputArray(inputArray)
@@ -39,8 +39,8 @@ public:
     float64 max = -1.0 * std::numeric_limits<float>::max();
     if(std::get<0>(m_Range))
     {
-      min = static_cast<float64>(std::get<1>(m_Range));
-      max = static_cast<float64>(std::get<2>(m_Range));
+      min = std::get<1>(m_Range);
+      max = std::get<2>(m_Range);
     }
     else
     {
@@ -96,7 +96,7 @@ public:
 private:
   CalculateArrayHistogram& m_Filter;
   const int32 m_NumBins = 1;
-  std::tuple<bool, float32, float32>& m_Range;
+  std::tuple<bool, float64, float64>& m_Range;
   const DataArray<T>& m_InputArray;
   Float64Array& m_Histogram;
   std::atomic<usize>& m_Overflow;
@@ -159,13 +159,7 @@ Result<> CalculateArrayHistogram::operator()()
 
   for(int32 i = 0; i < selectedArrayPaths.size(); i++)
   {
-    std::tuple<bool, float32, float32>& range = std::make_tuple(false, 0.0f, 0.0f); // Custom bool, min, max
-    if(m_InputValues->UserDefinedRange)
-    {
-      std::get<1>(range) = true;
-      std::get<1>(range) = m_InputValues->MinRange;
-      std::get<2>(range) = m_InputValues->MaxRange;
-    }
+    std::tuple<bool, float64, float64> range = std::make_tuple(m_InputValues->UserDefinedRange, m_InputValues->MinRange, m_InputValues->MaxRange); // Custom bool, min, max
     const auto& selectedArrayPath = selectedArrayPaths.at(i);
     const auto& inputData = m_DataStructure.getDataRefAs<IDataArray>(selectedArrayPath);
     auto type = inputData.getDataType();
