@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Processing/Processing_export.hpp"
+#include "Core/Core_export.hpp"
 
 #include "complex/Filter/FilterTraits.hpp"
 #include "complex/Filter/IFilter.hpp"
@@ -8,26 +8,25 @@
 namespace complex
 {
 /**
- * @class RemoveFlaggedFeatures
+ * @class ConvertDataFilter
  * @brief This filter will ....
  */
-class PROCESSING_EXPORT RemoveFlaggedFeatures : public IFilter
+class CORE_EXPORT ConvertDataFilter : public IFilter
 {
 public:
-  RemoveFlaggedFeatures() = default;
-  ~RemoveFlaggedFeatures() noexcept override = default;
+  ConvertDataFilter() = default;
+  ~ConvertDataFilter() noexcept override = default;
 
-  RemoveFlaggedFeatures(const RemoveFlaggedFeatures&) = delete;
-  RemoveFlaggedFeatures(RemoveFlaggedFeatures&&) noexcept = delete;
+  ConvertDataFilter(const ConvertDataFilter&) = delete;
+  ConvertDataFilter(ConvertDataFilter&&) noexcept = delete;
 
-  RemoveFlaggedFeatures& operator=(const RemoveFlaggedFeatures&) = delete;
-  RemoveFlaggedFeatures& operator=(RemoveFlaggedFeatures&&) noexcept = delete;
+  ConvertDataFilter& operator=(const ConvertDataFilter&) = delete;
+  ConvertDataFilter& operator=(ConvertDataFilter&&) noexcept = delete;
 
   // Parameter Keys
-  static inline constexpr StringLiteral k_FillRemovedFeatures_Key = "FillRemovedFeatures";
-  static inline constexpr StringLiteral k_FeatureIdsArrayPath_Key = "FeatureIdsArrayPath";
-  static inline constexpr StringLiteral k_FlaggedFeaturesArrayPath_Key = "FlaggedFeaturesArrayPath";
-  static inline constexpr StringLiteral k_IgnoredDataArrayPaths_Key = "IgnoredDataArrayPaths";
+  static inline constexpr StringLiteral k_ScalarType_Key = "ScalarType";
+  static inline constexpr StringLiteral k_ArrayToConvert_Key = "ArrayToConvert";
+  static inline constexpr StringLiteral k_ConvertedArray_Key = "ConvertedArray";
 
   /**
    * @brief Returns the name of the filter.
@@ -95,4 +94,4 @@ protected:
 };
 } // namespace complex
 
-COMPLEX_DEF_FILTER_TRAITS(complex, RemoveFlaggedFeatures, "6e8cc6ec-8b9b-402e-9deb-85bd1cdba743");
+COMPLEX_DEF_FILTER_TRAITS(complex, ConvertDataFilter, "6dc586cc-59fb-4ee8-90ff-2d3587da12f5");

@@ -8,6 +8,7 @@
 set(${PLUGIN_NAME}UnitTest_SRCS
   AlignSectionsFeatureCentroidTest.cpp
   ConvertColorToGrayScaleTest.cpp
+  ConvertDataTest.cpp
   FillBadDataTest.cpp # NEEDS TEST IMPLEMENTED
   FindFeatureCentroidsFilterTest.cpp
   FindShapesFilterTest.cpp
@@ -20,6 +21,8 @@ set(${PLUGIN_NAME}UnitTest_SRCS
   FindNeighborhoodsTest.cpp
   FindSurfaceAreaToVolumeTest.cpp
   CalculateArrayHistogramTest.cpp
+  RemoveFlaggedFeaturesTest
+  SplitAttributeArrayTest.cpp
 )
 
 create_complex_plugin_unit_test(PLUGIN_NAME ${PLUGIN_NAME}

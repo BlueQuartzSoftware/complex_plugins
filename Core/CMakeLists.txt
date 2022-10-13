@@ -15,6 +15,7 @@ set(${PLUGIN_NAME}_SOURCE_DIR ${CMAKE_CURRENT_LIST_DIR})
 set(FilterList
   AlignSectionsFeatureCentroidFilter
   ConvertColorToGrayScaleFilter
+  ConvertDataFilter
   FillBadDataFilter
   FindFeatureCentroidsFilter
   FindShapesFilter
@@ -27,6 +28,8 @@ set(FilterList
   FindNeighborhoodsFilter
   FindSurfaceAreaToVolumeFilter
   CalculateArrayHistogramFilter
+  RemoveFlaggedFeaturesFilter
+  SplitAttributeArrayFilter
 )
 
 set(STUB_FILTERS
@@ -94,6 +97,7 @@ source_group(TREE "${${PLUGIN_NAME}_SOURCE_DIR}/src/${PLUGIN_NAME}" PREFIX ${PLU
 set(filter_algorithms
   AlignSectionsFeatureCentroid
   ConvertColorToGrayScale
+  ConvertData
   FillBadData
   FindFeatureCentroids
   FindShapes
@@ -105,6 +109,8 @@ set(filter_algorithms
   FindNeighborhoods
   FindSurfaceAreaToVolume
   CalculateArrayHistogram
+  RemoveFlaggedFeatures
+  SplitAttributeArray
 )
 
 
