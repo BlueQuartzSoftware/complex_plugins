@@ -21,7 +21,7 @@ set(${PLUGIN_NAME}UnitTest_SRCS
   FindNeighborhoodsTest.cpp
   FindSurfaceAreaToVolumeTest.cpp
   CalculateArrayHistogramTest.cpp
-  RemoveFlaggedFeaturesTest
+  RemoveFlaggedFeaturesTest.cpp
   SplitAttributeArrayTest.cpp
 )
 
