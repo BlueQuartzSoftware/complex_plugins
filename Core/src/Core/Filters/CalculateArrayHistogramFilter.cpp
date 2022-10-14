@@ -52,15 +52,15 @@ Parameters CalculateArrayHistogramFilter::parameters() const
   params.insertSeparator(Parameters::Separator{"Filter Parameters"});
   params.insert(std::make_unique<Int32Parameter>(k_NumberOfBins_Key, "Number of Bins", "", 1));
   params.insertLinkableParameter(std::make_unique<BoolParameter>(k_UserDefinedRange_Key, "Use Custom Min & Max Range", "", false));
-  params.insert(std::make_unique<Float64Parameter>(k_MinRange_Key, "Min Value", "", 2.3456789));
-  params.insert(std::make_unique<Float64Parameter>(k_MaxRange_Key, "Max Value", "", 2.3456789));
+  params.insert(std::make_unique<Float64Parameter>(k_MinRange_Key, "Min Value", "", 0.0));
+  params.insert(std::make_unique<Float64Parameter>(k_MaxRange_Key, "Max Value", "", 1.0));
   params.insertSeparator(Parameters::Separator{"Input Arrays"});
   params.insert(std::make_unique<MultiArraySelectionParameter>(k_SelectedArrayPaths_Key, "DataArray(s) to Histogram", "", MultiArraySelectionParameter::ValueType{}, complex::GetAllNumericTypes()));
   params.insertSeparator(Parameters::Separator{"Output Set Up"});
   params.insertLinkableParameter(std::make_unique<BoolParameter>(k_NewDataGroup_Key, "Create New DataGroup for Histograms", "", true));
   params.insert(std::make_unique<DataGroupCreationParameter>(k_NewDataGroupName_Key, "New DataGroup Path", "", DataPath{}));
   params.insert(std::make_unique<DataGroupSelectionParameter>(k_DataGroupName_Key, "Output DataGroup Path", "", DataPath{}));
-  params.insert(std::make_unique<StringParameter>(k_HistoName_Key, "Suffix for created Histograms", "", "Histogram"));
+  params.insert(std::make_unique<StringParameter>(k_HistoName_Key, "Suffix for created Histograms", "", " Histogram"));
   // Associate the Linkable Parameter(s) to the children parameters that they control
   params.linkParameters(k_UserDefinedRange_Key, k_MinRange_Key, true);
   params.linkParameters(k_UserDefinedRange_Key, k_MaxRange_Key, true);
