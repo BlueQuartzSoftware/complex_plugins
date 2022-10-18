@@ -63,13 +63,12 @@ std::vector<std::string> CreateGeometryFilter::defaultTags() const
 Parameters CreateGeometryFilter::parameters() const
 {
   Parameters params;
-  // Create the parameter descriptors that are needed for this filter
+
+  params.insertSeparator(Parameters::Separator{"Input Parameters"});
   params.insertLinkableParameter(std::make_unique<ChoicesParameter>(k_GeometryType_Key, "Geometry Type", "", 0, GetAllGeometryTypesAsStrings()));
   params.insert(std::make_unique<BoolParameter>(k_WarningsAsErrors_Key, "Treat Geometry Warnings as Errors", "", false));
-  params.insert(std::make_unique<ChoicesParameter>(k_ArrayHandling_Key, "Array Handling", "", 0, ChoicesParameter::Choices{"Copy Array, Move Array"}));
-  params.insert(std::make_unique<DataGroupCreationParameter>(k_GeometryName_Key, "Geometry Name", "", DataPath({"[Geometry]"})));
+  params.insert(std::make_unique<ChoicesParameter>(k_ArrayHandling_Key, "Array Handling", "", 0, ChoicesParameter::Choices{"Copy Array", "Move Array "}));
 
-  // Image Geometry
   params.insert(std::make_unique<VectorUInt64Parameter>(k_Dimensions_Key, "Dimensions", "The number of cells in each of the X, Y, Z directions", std::vector<uint64_t>{20ULL, 60ULL, 200ULL},
                                                         std::vector<std::string>{"X"s, "Y"s, "Z"s}));
   params.insert(
@@ -77,36 +76,63 @@ Parameters CreateGeometryFilter::parameters() const
   params.insert(
       std::make_unique<VectorFloat32Parameter>(k_Spacing_Key, "Spacing", "The length scale of each voxel/pixel", std::vector<float32>{1.0F, 1.0F, 1.0F}, std::vector<std::string>{"X"s, "Y"s, "Z"s}));
 
-  // RectilinearGrid Geometry
   params.insert(std::make_unique<ArraySelectionParameter>(k_XBounds_Key, "X Bounds", "", DataPath{}, ArraySelectionParameter::AllowedTypes{DataType::float32}));
   params.insert(std::make_unique<ArraySelectionParameter>(k_YBounds_Key, "Y Bounds", "", DataPath{}, ArraySelectionParameter::AllowedTypes{DataType::float32}));
   params.insert(std::make_unique<ArraySelectionParameter>(k_ZBounds_Key, "Z Bounds", "", DataPath{}, ArraySelectionParameter::AllowedTypes{DataType::float32}));
 
-  // Vertex, Edge, Triangle, Quadrilateral, Tetrahedral, & Hexahedral Geometry
   params.insert(std::make_unique<ArraySelectionParameter>(k_VertexListName_Key, "Shared Vertex List", "", DataPath{}, ArraySelectionParameter::AllowedTypes{DataType::float32}));
-  params.insert(std::make_unique<DataObjectNameParameter>(k_VertexAttributeMatrixName_Key, "Vertex Attribute Matrix", "", INodeGeometry0D::k_VertexDataName));
-
-  // Edge Geometry
   params.insert(std::make_unique<ArraySelectionParameter>(k_EdgeListName_Key, "Edge List", "", DataPath{}, ArraySelectionParameter::AllowedTypes{DataType::uint64}));
-  params.insert(std::make_unique<DataObjectNameParameter>(k_EdgeAttributeMatrixName_Key, "Edge Attribute Matrix", "", INodeGeometry1D::k_EdgeDataName));
-
-  // Triangle Geometry
   params.insert(std::make_unique<ArraySelectionParameter>(k_TriangleListName_Key, "Triangle List", "", DataPath{}, ArraySelectionParameter::AllowedTypes{DataType::uint64}));
-
-  // Quadrilateral Geometry
   params.insert(std::make_unique<ArraySelectionParameter>(k_QuadrilateralListName_Key, "Quadrilateral List", "", DataPath{}, ArraySelectionParameter::AllowedTypes{DataType::uint64}));
-
-  // Triangle & Quadrilateral Geometry
-  params.insert(std::make_unique<DataObjectNameParameter>(k_FaceAttributeMatrixName_Key, "Face Attribute Matrix", "", INodeGeometry2D::k_FaceDataName));
-
-  // Tetrahedral Geometry
   params.insert(std::make_unique<ArraySelectionParameter>(k_TetrahedralListName_Key, "Tetrahedral List", "", DataPath{}, ArraySelectionParameter::AllowedTypes{DataType::uint64}));
-
-  // Hexahedral Geometry
   params.insert(std::make_unique<ArraySelectionParameter>(k_HexahedralListName_Key, "Hexahedral List", "", DataPath{}, ArraySelectionParameter::AllowedTypes{DataType::uint64}));
 
-  // Image, RectilinearGrid, Tetrahedral, & Hexahedral Geometry
+  params.insertSeparator(Parameters::Separator{"Created Data Objects"});
+  params.insert(std::make_unique<DataObjectNameParameter>(k_VertexAttributeMatrixName_Key, "Vertex Attribute Matrix", "", INodeGeometry0D::k_VertexDataName));
+  params.insert(std::make_unique<DataObjectNameParameter>(k_EdgeAttributeMatrixName_Key, "Edge Attribute Matrix", "", INodeGeometry1D::k_EdgeDataName));
+  params.insert(std::make_unique<DataObjectNameParameter>(k_FaceAttributeMatrixName_Key, "Face Attribute Matrix", "", INodeGeometry2D::k_FaceDataName));
   params.insert(std::make_unique<DataObjectNameParameter>(k_CellAttributeMatrixName_Key, "Cell Attribute Matrix", "", IGridGeometry::k_CellDataName));
+  params.insert(std::make_unique<DataGroupCreationParameter>(k_GeometryName_Key, "Geometry Name", "", DataPath({"[Geometry]"})));
+
+  // setup linked parameters
+  // image
+  params.linkParameters(k_GeometryType_Key, k_Dimensions_Key, std::make_any<ChoicesParameter::ValueType>(0));
+  params.linkParameters(k_GeometryType_Key, k_Origin_Key, std::make_any<ChoicesParameter::ValueType>(0));
+  params.linkParameters(k_GeometryType_Key, k_Spacing_Key, std::make_any<ChoicesParameter::ValueType>(0));
+  params.linkParameters(k_GeometryType_Key, k_CellAttributeMatrixName_Key, std::make_any<ChoicesParameter::ValueType>(0));
+  // rect grid
+  params.linkParameters(k_GeometryType_Key, k_XBounds_Key, std::make_any<ChoicesParameter::ValueType>(1));
+  params.linkParameters(k_GeometryType_Key, k_YBounds_Key, std::make_any<ChoicesParameter::ValueType>(1));
+  params.linkParameters(k_GeometryType_Key, k_ZBounds_Key, std::make_any<ChoicesParameter::ValueType>(1));
+  params.linkParameters(k_GeometryType_Key, k_CellAttributeMatrixName_Key, std::make_any<ChoicesParameter::ValueType>(1));
+  // vertex
+  params.linkParameters(k_GeometryType_Key, k_VertexListName_Key, std::make_any<ChoicesParameter::ValueType>(2));
+  params.linkParameters(k_GeometryType_Key, k_VertexAttributeMatrixName_Key, std::make_any<ChoicesParameter::ValueType>(2));
+  // edge
+  params.linkParameters(k_GeometryType_Key, k_VertexListName_Key, std::make_any<ChoicesParameter::ValueType>(3));
+  params.linkParameters(k_GeometryType_Key, k_EdgeListName_Key, std::make_any<ChoicesParameter::ValueType>(3));
+  params.linkParameters(k_GeometryType_Key, k_VertexAttributeMatrixName_Key, std::make_any<ChoicesParameter::ValueType>(3));
+  params.linkParameters(k_GeometryType_Key, k_EdgeAttributeMatrixName_Key, std::make_any<ChoicesParameter::ValueType>(3));
+  // triangle
+  params.linkParameters(k_GeometryType_Key, k_VertexListName_Key, std::make_any<ChoicesParameter::ValueType>(4));
+  params.linkParameters(k_GeometryType_Key, k_TriangleListName_Key, std::make_any<ChoicesParameter::ValueType>(4));
+  params.linkParameters(k_GeometryType_Key, k_VertexAttributeMatrixName_Key, std::make_any<ChoicesParameter::ValueType>(4));
+  params.linkParameters(k_GeometryType_Key, k_FaceAttributeMatrixName_Key, std::make_any<ChoicesParameter::ValueType>(4));
+  // quad
+  params.linkParameters(k_GeometryType_Key, k_VertexListName_Key, std::make_any<ChoicesParameter::ValueType>(5));
+  params.linkParameters(k_GeometryType_Key, k_QuadrilateralListName_Key, std::make_any<ChoicesParameter::ValueType>(5));
+  params.linkParameters(k_GeometryType_Key, k_VertexAttributeMatrixName_Key, std::make_any<ChoicesParameter::ValueType>(5));
+  params.linkParameters(k_GeometryType_Key, k_FaceAttributeMatrixName_Key, std::make_any<ChoicesParameter::ValueType>(5));
+  // tet
+  params.linkParameters(k_GeometryType_Key, k_VertexListName_Key, std::make_any<ChoicesParameter::ValueType>(6));
+  params.linkParameters(k_GeometryType_Key, k_TetrahedralListName_Key, std::make_any<ChoicesParameter::ValueType>(6));
+  params.linkParameters(k_GeometryType_Key, k_VertexAttributeMatrixName_Key, std::make_any<ChoicesParameter::ValueType>(6));
+  params.linkParameters(k_GeometryType_Key, k_CellAttributeMatrixName_Key, std::make_any<ChoicesParameter::ValueType>(6));
+  // hex
+  params.linkParameters(k_GeometryType_Key, k_VertexListName_Key, std::make_any<ChoicesParameter::ValueType>(7));
+  params.linkParameters(k_GeometryType_Key, k_HexahedralListName_Key, std::make_any<ChoicesParameter::ValueType>(7));
+  params.linkParameters(k_GeometryType_Key, k_VertexAttributeMatrixName_Key, std::make_any<ChoicesParameter::ValueType>(7));
+  params.linkParameters(k_GeometryType_Key, k_CellAttributeMatrixName_Key, std::make_any<ChoicesParameter::ValueType>(7));
 
   return params;
 }
