@@ -162,24 +162,47 @@ Result<> CreateGeometry::operator()()
     }
     warningResults.warnings().insert(warningResults.warnings().end(), results.warnings().begin(), results.warnings().end());
   }
-  // This check must be done in execute since we are accessing the array values!
-  if(m_InputValues->GeometryType == 1) // RectilinearGridGeometry
+  // rectilinear grid geometry
+  if(m_InputValues->GeometryType == 1)
   {
-    const auto& xBounds = m_DataStructure.getDataRefAs<Float32Array>(m_InputValues->XBoundsArrayPath);
-    const auto& yBounds = m_DataStructure.getDataRefAs<Float32Array>(m_InputValues->YBoundsArrayPath);
-    const auto& zBounds = m_DataStructure.getDataRefAs<Float32Array>(m_InputValues->ZBoundsArrayPath);
-    auto xResults = checkGridBoundsResolution(xBounds, m_InputValues->TreatWarningsAsErrors, "X");
-    auto yResults = checkGridBoundsResolution(yBounds, m_InputValues->TreatWarningsAsErrors, "Y");
-    auto zResults = checkGridBoundsResolution(zBounds, m_InputValues->TreatWarningsAsErrors, "Z");
+    // This check must be done in execute since we are accessing the array values!
+    const auto& srcXBounds = m_DataStructure.getDataRefAs<Float32Array>(m_InputValues->XBoundsArrayPath);
+    const auto& srcYBounds = m_DataStructure.getDataRefAs<Float32Array>(m_InputValues->YBoundsArrayPath);
+    const auto& srcZBounds = m_DataStructure.getDataRefAs<Float32Array>(m_InputValues->ZBoundsArrayPath);
+    auto xResults = checkGridBoundsResolution(srcXBounds, m_InputValues->TreatWarningsAsErrors, "X");
+    auto yResults = checkGridBoundsResolution(srcYBounds, m_InputValues->TreatWarningsAsErrors, "Y");
+    auto zResults = checkGridBoundsResolution(srcZBounds, m_InputValues->TreatWarningsAsErrors, "Z");
     auto results = MergeResults(MergeResults(xResults, yResults), zResults);
     if(results.invalid())
     {
-      return xResults;
+      return results;
     }
     warningResults.warnings().insert(warningResults.warnings().end(), results.warnings().begin(), results.warnings().end());
-  }
-  if(m_InputValues->GeometryType == 3 || m_InputValues->GeometryType == 4 || m_InputValues->GeometryType == 5 || m_InputValues->GeometryType == 6 || m_InputValues->GeometryType == 7)
-  {
+
+    // copy over the bounds data
+    const DataPath destXBoundsListPath = m_InputValues->GeometryPath.createChildPath(m_InputValues->XBoundsArrayPath.getTargetName());
+    const auto& xBounds = m_DataStructure.getDataRefAs<Float32Array>(destXBoundsListPath);
+    if(!ExecuteDataFunction(CopyDataArrayFunctor{}, DataType::float32, m_DataStructure, m_InputValues->XBoundsArrayPath, destXBoundsListPath))
+    {
+      return MakeErrorResult(-8340, fmt::format("Could not copy data array at path '{}' with size {} to data array at path '{}' with size {}.", m_InputValues->XBoundsArrayPath.toString(),
+                                                srcXBounds.getSize(), destXBoundsListPath.toString(), xBounds.getSize()));
+    }
+
+    const DataPath destYBoundsListPath = m_InputValues->GeometryPath.createChildPath(m_InputValues->YBoundsArrayPath.getTargetName());
+    const auto& yBounds = m_DataStructure.getDataRefAs<Float32Array>(destYBoundsListPath);
+    if(!ExecuteDataFunction(CopyDataArrayFunctor{}, DataType::float32, m_DataStructure, m_InputValues->YBoundsArrayPath, destYBoundsListPath))
+    {
+      return MakeErrorResult(-8340, fmt::format("Could not copy data array at path '{}' with size {} to data array at path '{}' with size {}.", m_InputValues->YBoundsArrayPath.toString(),
+                                                srcYBounds.getSize(), destYBoundsListPath.toString(), yBounds.getSize()));
+    }
+
+    const DataPath destZBoundsListPath = m_InputValues->GeometryPath.createChildPath(m_InputValues->ZBoundsArrayPath.getTargetName());
+    const auto& zBounds = m_DataStructure.getDataRefAs<Float32Array>(destZBoundsListPath);
+    if(!ExecuteDataFunction(CopyDataArrayFunctor{}, DataType::float32, m_DataStructure, m_InputValues->ZBoundsArrayPath, destZBoundsListPath))
+    {
+      return MakeErrorResult(-8340, fmt::format("Could not copy data array at path '{}' with size {} to data array at path '{}' with size {}.", m_InputValues->ZBoundsArrayPath.toString(),
+                                                srcYBounds.getSize(), destZBoundsListPath.toString(), zBounds.getSize()));
+    }
   }
   return warningResults;
 }

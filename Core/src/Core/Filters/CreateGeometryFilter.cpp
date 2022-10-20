@@ -14,6 +14,7 @@
 #include "complex/Filter/Actions/CreateGeometry2DAction.hpp"
 #include "complex/Filter/Actions/CreateGeometry3DAction.hpp"
 #include "complex/Filter/Actions/CreateImageGeometryAction.hpp"
+#include "complex/Filter/Actions/CreateRectGridGeometryAction.hpp"
 #include "complex/Filter/Actions/CreateVertexGeometryAction.hpp"
 #include "complex/Filter/Actions/DeleteDataAction.hpp"
 #include "complex/Filter/Actions/MoveDataAction.hpp"
@@ -233,16 +234,30 @@ IFilter::PreflightResult CreateGeometryFilter::preflightImpl(const DataStructure
     {
       return {nonstd::make_unexpected(std::vector<Error>{Error{-9846, fmt::format("Cannot find selected quadrilateral list at path '{}'", pZBoundsPath.toString())}})};
     }
-    if(xBounds->getNumberOfTuples() < 2 || yBounds->getNumberOfTuples() < 2 || zBounds->getNumberOfTuples() < 2)
+    usize xTuples = xBounds->getNumberOfTuples();
+    usize yTuples = yBounds->getNumberOfTuples();
+    usize zTuples = zBounds->getNumberOfTuples();
+    if(xTuples < 2 || yTuples < 2 || zTuples < 2)
     {
-      fmt::format("One of the bounds arrays has a size less than two; all sizes must be at least two\nX Bounds Size: {}\nY Bounds Size: {}\nZ Bounds Size: {}\n", xBounds->getNumberOfTuples(),
-                  yBounds->getNumberOfTuples(), zBounds->getNumberOfTuples());
+      fmt::format("One of the bounds arrays has a size less than two; all sizes must be at least two\nX Bounds Size: {}\nY Bounds Size: {}\nZ Bounds Size: {}\n", xTuples, yTuples, zTuples);
       return {nonstd::make_unexpected(
           std::vector<Error>{Error{-9847, fmt::format("One of the bounds arrays has a size less than two; all sizes must be at least two\nX Bounds Size: {}\nY Bounds Size: {}\nZ Bounds Size: {}\n",
                                                       xBounds->getNumberOfTuples(), yBounds->getNumberOfTuples(), zBounds->getNumberOfTuples())}})};
     }
 
-    // TODO : create rect grid geom action
+    auto createRectGridGeometryAction =
+        std::make_unique<CreateRectGridGeometryAction>(pGeometryPath, xTuples, yTuples, zTuples, pCellAMName, xBounds->getName(), yBounds->getName(), zBounds->getName());
+    resultOutputActions.value().actions.push_back(std::move(createRectGridGeometryAction));
+
+    if(pMoveArrays) // copy over the data and delete later instead of actually moving so the geometry action can create & set the bounds lists
+    {
+      auto deleteXBoundsListAction = std::make_unique<DeleteDataAction>(pXBoundsPath);
+      resultOutputActions.value().deferredActions.push_back(std::move(deleteXBoundsListAction));
+      auto deleteYBoundsListAction = std::make_unique<DeleteDataAction>(pYBoundsPath);
+      resultOutputActions.value().deferredActions.push_back(std::move(deleteYBoundsListAction));
+      auto deleteZBoundsListAction = std::make_unique<DeleteDataAction>(pZBoundsPath);
+      resultOutputActions.value().deferredActions.push_back(std::move(deleteZBoundsListAction));
+    }
   }
   if(pGeometryType == 2) // VertexGeom
   {
