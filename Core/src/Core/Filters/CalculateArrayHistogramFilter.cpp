@@ -131,6 +131,8 @@ Result<> CalculateArrayHistogramFilter::executeImpl(DataStructure& dataStructure
   inputValues.MinRange = filterArgs.value<float64>(k_MinRange_Key);
   inputValues.MaxRange = filterArgs.value<float64>(k_MaxRange_Key);
   inputValues.SelectedArrayPaths = filterArgs.value<MultiArraySelectionParameter::ValueType>(k_SelectedArrayPaths_Key);
+  
+  auto histogramSuffix = filterArgs.value<std::string>(k_HistoName_Key);
 
   DataPath dataGroupPath;
   if(filterArgs.value<bool>(k_NewDataGroup_Key))
@@ -145,7 +147,7 @@ Result<> CalculateArrayHistogramFilter::executeImpl(DataStructure& dataStructure
   for(auto& selectedArrayPath : inputValues.SelectedArrayPaths) // regenerate based on preflight
   {
     const auto& dataArray = dataStructure.getDataAs<IDataArray>(selectedArrayPath);
-    auto childPath = dataGroupPath.createChildPath((dataArray->getName() + "Histogram"));
+    auto childPath = dataGroupPath.createChildPath((dataArray->getName() + histogramSuffix));
     createdDataPaths.push_back(childPath);
   }
 
