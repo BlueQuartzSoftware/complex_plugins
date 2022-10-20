@@ -12,6 +12,7 @@
 #include "complex/DataStructure/Geometry/VertexGeom.hpp"
 #include "complex/Filter/Actions/CreateGeometry1DAction.hpp"
 #include "complex/Filter/Actions/CreateGeometry2DAction.hpp"
+#include "complex/Filter/Actions/CreateGeometry3DAction.hpp"
 #include "complex/Filter/Actions/CreateImageGeometryAction.hpp"
 #include "complex/Filter/Actions/CreateVertexGeometryAction.hpp"
 #include "complex/Filter/Actions/DeleteDataAction.hpp"
@@ -333,7 +334,9 @@ IFilter::PreflightResult CreateGeometryFilter::preflightImpl(const DataStructure
       return {nonstd::make_unexpected(std::vector<Error>{Error{-9847, fmt::format("Cannot find selected quadrilateral list at path '{}'", pTetListPath.toString())}})};
     }
 
-    // TODO : create tet geom action
+    auto createTetGeomAction = std::make_unique<CreateTetrahedralGeometryAction>(pGeometryPath, tetList->getNumberOfTuples(), vertexList->getNumberOfTuples(), pVertexAMName, pCellAMName,
+                                                                                 pVertexListPath.getTargetName(), pTetListPath.getTargetName());
+    resultOutputActions.value().actions.push_back(std::move(createTetGeomAction));
 
     if(pMoveArrays) // copy over the data and delete later instead of actually moving so the geometry action can create & set the list(s)
     {
@@ -353,7 +356,9 @@ IFilter::PreflightResult CreateGeometryFilter::preflightImpl(const DataStructure
       return {nonstd::make_unexpected(std::vector<Error>{Error{-9845, fmt::format("Cannot find selected quadrilateral list at path '{}'", pHexListPath.toString())}})};
     }
 
-    // TODO : create hex geom action
+    auto createHexGeomAction = std::make_unique<CreateHexahedralGeometryAction>(pGeometryPath, hexList->getNumberOfTuples(), vertexList->getNumberOfTuples(), pVertexAMName, pCellAMName,
+                                                                                pVertexListPath.getTargetName(), pHexListPath.getTargetName());
+    resultOutputActions.value().actions.push_back(std::move(createHexGeomAction));
 
     if(pMoveArrays) // copy over the data and delete later instead of actually moving so the geometry action can create & set the list(s)
     {
