@@ -1,5 +1,6 @@
 #include "CreateGeometryFilter.hpp"
 
+#include "Core/Filters/Algorithms/CreateGeometry.hpp"
 #include "complex/Common/TypesUtility.hpp"
 #include "complex/DataStructure/DataPath.hpp"
 #include "complex/DataStructure/Geometry/EdgeGeom.hpp"
@@ -9,7 +10,12 @@
 #include "complex/DataStructure/Geometry/TetrahedralGeom.hpp"
 #include "complex/DataStructure/Geometry/TriangleGeom.hpp"
 #include "complex/DataStructure/Geometry/VertexGeom.hpp"
+#include "complex/Filter/Actions/CreateGeometry1DAction.hpp"
+#include "complex/Filter/Actions/CreateGeometry2DAction.hpp"
 #include "complex/Filter/Actions/CreateImageGeometryAction.hpp"
+#include "complex/Filter/Actions/CreateVertexGeometryAction.hpp"
+#include "complex/Filter/Actions/DeleteDataAction.hpp"
+#include "complex/Filter/Actions/MoveDataAction.hpp"
 #include "complex/Parameters/ArraySelectionParameter.hpp"
 #include "complex/Parameters/BoolParameter.hpp"
 #include "complex/Parameters/ChoicesParameter.hpp"
@@ -24,6 +30,55 @@
 using namespace std::string_literals;
 
 using namespace complex;
+
+namespace
+{
+Result<> checkGeometryArraysCompatible(const Float32Array* vertices, const UInt64Array* cells, bool treatWarningsAsErrors, const std::string& cellType)
+{
+  Result<> warningResults;
+  usize numVertices = vertices->getNumberOfTuples();
+  uint64 idx = 0;
+  for(usize i = 0; i < cells->getSize(); i++)
+  {
+    if((*cells)[i] > idx)
+    {
+      idx = (*cells)[i];
+    }
+  }
+  if((idx + 1) > numVertices)
+  {
+    std::string msg =
+        fmt::format("Supplied {} list contains a vertex index larger than the total length of the supplied shared vertex list\nIndex Value: {}\nNumber of Vertices: {}", cellType, idx, numVertices);
+    if(treatWarningsAsErrors)
+    {
+      return {nonstd::make_unexpected(std::vector<Error>{Error{-9844, msg}})};
+    }
+    warningResults.warnings().push_back(Warning{-9844, msg});
+  }
+  return warningResults;
+}
+
+Result<> checkGridBoundsResolution(const Float32Array* bounds, bool treatWarningsAsErrors, const std::string& boundType)
+{
+  Result<> warningResults;
+  float val = (*bounds)[0];
+  for(size_t i = 1; i < (*bounds).getNumberOfTuples(); i++)
+  {
+    if(val > (*bounds)[i])
+    {
+      std::string msg =
+          fmt::format("Supplied {} Bounds array is not strictly increasing; this results in negative resolutions\nIndex {} Value: {}\nIndex {} Value: {}", boundType, (i - 1), val, i, (*bounds)[i]);
+      if(treatWarningsAsErrors)
+      {
+        return MakeErrorResult(-8344, msg);
+      }
+      warningResults.warnings().push_back(Warning{-8344, msg});
+    }
+    val = (*bounds)[i];
+  }
+  return warningResults;
+}
+} // namespace
 
 namespace complex
 {
@@ -146,51 +201,270 @@ IFilter::UniquePointer CreateGeometryFilter::clone() const
 //------------------------------------------------------------------------------
 IFilter::PreflightResult CreateGeometryFilter::preflightImpl(const DataStructure& ds, const Arguments& filterArgs, const MessageHandler& messageHandler, const std::atomic_bool& shouldCancel) const
 {
-  /**
-   * These are the values that were gathered from the UI or the pipeline file or
-   * otherwise passed into the filter. These are here for your convenience. If you
-   * do not need some of them remove them.
-   */
-  auto pImageGeometryPath = filterArgs.value<DataPath>(k_GeometryDataPath_Key);
-  auto pDimensionsValue = filterArgs.value<VectorUInt64Parameter::ValueType>(k_Dimensions_Key);
-  auto pOriginValue = filterArgs.value<VectorFloat32Parameter::ValueType>(k_Origin_Key);
-  auto pSpacingValue = filterArgs.value<VectorFloat32Parameter::ValueType>(k_Spacing_Key);
-  auto cellDataName = filterArgs.value<DataObjectNameParameter::ValueType>(k_CellDataName_Key);
+  auto pGeometryPath = filterArgs.value<DataPath>(k_GeometryName_Key);
+  auto pGeometryType = filterArgs.value<ChoicesParameter::ValueType>(k_GeometryType_Key);
+  auto pWarningsAsErrors = filterArgs.value<bool>(k_WarningsAsErrors_Key);
+  auto pMoveArrays = filterArgs.value<ChoicesParameter::ValueType>(k_ArrayHandling_Key) == 1;
 
-  // These variables should be updated with the latest data generated for each variable during preflight.
-  // These will be returned through the preflightResult variable to the
-  // user interface. You could make these member variables instead if needed.
-  std::stringstream ss;
-  std::array<float, 3> halfRes = {pSpacingValue[0] * 0.5F, pSpacingValue[1] * 0.5F, pSpacingValue[2] * 0.5F};
-  ss << "Extents:\n"
-     << "X Extent: 0 to " << pDimensionsValue[0] - 1 << " (dimension: " << pDimensionsValue[0] << ")\n"
-     << "Y Extent: 0 to " << pDimensionsValue[1] - 1 << " (dimension: " << pDimensionsValue[1] << ")\n"
-     << "Z Extent: 0 to " << pDimensionsValue[2] - 1 << " (dimension: " << pDimensionsValue[2] << ")\n"
-     << "Bounds:\n"
-     << "X Range: " << (pOriginValue[0] - halfRes[0]) << " to " << (pOriginValue[0] - halfRes[0] + static_cast<float>(pDimensionsValue[0]) * pSpacingValue[0])
-     << " (delta: " << (static_cast<float>(pDimensionsValue[0]) * pSpacingValue[0]) << ")\n"
-     << "Y Range: " << (pOriginValue[1] - halfRes[1]) << " to " << (pOriginValue[1] - halfRes[1] + static_cast<float>(pDimensionsValue[1]) * pSpacingValue[1])
-     << " (delta: " << (static_cast<float>(pDimensionsValue[1]) * pSpacingValue[1]) << ")\n"
-     << "Z Range: " << (pOriginValue[2] - halfRes[2]) << " to " << (pOriginValue[2] - halfRes[2] + static_cast<float>(pDimensionsValue[2]) * pSpacingValue[2])
-     << " (delta: " << (static_cast<float>(pDimensionsValue[2]) * pSpacingValue[2]) << ")\n";
-  std::string boxDimensions = ss.str();
-
-  // Define a custom class that generates the changes to the DataStructure.
-  auto createImageGeometryAction = std::make_unique<CreateImageGeometryAction>(
-      pImageGeometryPath, CreateImageGeometryAction::DimensionType({pDimensionsValue[0], pDimensionsValue[1], pDimensionsValue[2]}), pOriginValue, pSpacingValue, cellDataName);
-
-  // Assign the CreateImageGeometryAction to the Result<OutputActions>::actions vector via a push_back
   complex::Result<OutputActions> resultOutputActions;
-  resultOutputActions.value().actions.push_back(std::move(createImageGeometryAction));
+  std::vector<PreflightValue> preflightUpdatedValues;
 
-  // Declare the preflightResult variable that will be populated with the results
-  // of the preflight. The PreflightResult type contains the output Actions and
-  // any preflight updated values that you want to be displayed to the user, typically
-  // through a user interface (UI).
-  IFilter::PreflightResult preflightResult;
-  // Assign/Move the resultOutputActions to the preflightResult object
+  // collect arguments common to multiple geometry types all at once
+  DataPath pVertexListPath;
+  std::string pVertexAMName;
+  std::string pFaceAMName;
+  std::string pCellAMName;
+  if(pGeometryType == 2 || pGeometryType == 3 || pGeometryType == 4 || pGeometryType == 5 || pGeometryType == 6 || pGeometryType == 7)
+  {
+    pVertexListPath = filterArgs.value<DataPath>(k_VertexListName_Key);
+    pVertexAMName = filterArgs.value<std::string>(k_VertexAttributeMatrixName_Key);
 
-  std::vector<PreflightValue> preflightUpdatedValues = {{"BoxDimensions", boxDimensions}};
+    if(ds.getDataAs<Float32Array>(pVertexListPath) == nullptr)
+    {
+      return {nonstd::make_unexpected(std::vector<Error>{Error{-9840, fmt::format("Cannot find selected vertex list at path '{}'", pVertexListPath.toString())}})};
+    }
+  }
+  if(pGeometryType == 4 || pGeometryType == 5)
+  {
+    pFaceAMName = filterArgs.value<std::string>(k_FaceAttributeMatrixName_Key);
+  }
+  if(pGeometryType == 0 || pGeometryType == 1 || pGeometryType == 6 || pGeometryType == 7)
+  {
+    pCellAMName = filterArgs.value<std::string>(k_CellAttributeMatrixName_Key);
+  }
+
+  // create geometry actions & deferred delete data actions if move arrays option selected
+  if(pGeometryType == 0) // ImageGeom
+  {
+    auto pDimensionsValue = filterArgs.value<VectorUInt64Parameter::ValueType>(k_Dimensions_Key);
+    auto pOriginValue = filterArgs.value<VectorFloat32Parameter::ValueType>(k_Origin_Key);
+    auto pSpacingValue = filterArgs.value<VectorFloat32Parameter::ValueType>(k_Spacing_Key);
+
+    std::stringstream ss;
+    std::array<float, 3> halfRes = {pSpacingValue[0] * 0.5F, pSpacingValue[1] * 0.5F, pSpacingValue[2] * 0.5F};
+    ss << "Extents:\n"
+       << "X Extent: 0 to " << pDimensionsValue[0] - 1 << " (dimension: " << pDimensionsValue[0] << ")\n"
+       << "Y Extent: 0 to " << pDimensionsValue[1] - 1 << " (dimension: " << pDimensionsValue[1] << ")\n"
+       << "Z Extent: 0 to " << pDimensionsValue[2] - 1 << " (dimension: " << pDimensionsValue[2] << ")\n"
+       << "Bounds:\n"
+       << "X Range: " << (pOriginValue[0] - halfRes[0]) << " to " << (pOriginValue[0] - halfRes[0] + static_cast<float>(pDimensionsValue[0]) * pSpacingValue[0])
+       << " (delta: " << (static_cast<float>(pDimensionsValue[0]) * pSpacingValue[0]) << ")\n"
+       << "Y Range: " << (pOriginValue[1] - halfRes[1]) << " to " << (pOriginValue[1] - halfRes[1] + static_cast<float>(pDimensionsValue[1]) * pSpacingValue[1])
+       << " (delta: " << (static_cast<float>(pDimensionsValue[1]) * pSpacingValue[1]) << ")\n"
+       << "Z Range: " << (pOriginValue[2] - halfRes[2]) << " to " << (pOriginValue[2] - halfRes[2] + static_cast<float>(pDimensionsValue[2]) * pSpacingValue[2])
+       << " (delta: " << (static_cast<float>(pDimensionsValue[2]) * pSpacingValue[2]) << ")\n";
+    std::string boxDimensions = ss.str();
+
+    auto createImageGeometryAction = std::make_unique<CreateImageGeometryAction>(
+        pGeometryPath, CreateImageGeometryAction::DimensionType({pDimensionsValue[0], pDimensionsValue[1], pDimensionsValue[2]}), pOriginValue, pSpacingValue, pCellAMName);
+
+    resultOutputActions.value().actions.push_back(std::move(createImageGeometryAction));
+    preflightUpdatedValues.push_back({"BoxDimensions", boxDimensions});
+  }
+  if(pGeometryType == 1) // RectGridGeom
+  {
+    auto pXBoundsPath = filterArgs.value<DataPath>(k_XBounds_Key);
+    auto pYBoundsPath = filterArgs.value<DataPath>(k_YBounds_Key);
+    auto pZBoundsPath = filterArgs.value<DataPath>(k_ZBounds_Key);
+    const auto xBounds = ds.getDataAs<Float32Array>(pXBoundsPath);
+    if(xBounds == nullptr)
+    {
+      return {nonstd::make_unexpected(std::vector<Error>{Error{-9844, fmt::format("Cannot find selected quadrilateral list at path '{}'", pXBoundsPath.toString())}})};
+    }
+    const auto yBounds = ds.getDataAs<Float32Array>(pYBoundsPath);
+    if(yBounds == nullptr)
+    {
+      return {nonstd::make_unexpected(std::vector<Error>{Error{-9845, fmt::format("Cannot find selected quadrilateral list at path '{}'", pYBoundsPath.toString())}})};
+    }
+    const auto zBounds = ds.getDataAs<Float32Array>(pZBoundsPath);
+    if(zBounds == nullptr)
+    {
+      return {nonstd::make_unexpected(std::vector<Error>{Error{-9846, fmt::format("Cannot find selected quadrilateral list at path '{}'", pZBoundsPath.toString())}})};
+    }
+    if(xBounds->getNumberOfTuples() < 2 || yBounds->getNumberOfTuples() < 2 || zBounds->getNumberOfTuples() < 2)
+    {
+      fmt::format("One of the bounds arrays has a size less than two; all sizes must be at least two\nX Bounds Size: {}\nY Bounds Size: {}\nZ Bounds Size: {}\n", xBounds->getNumberOfTuples(),
+                  yBounds->getNumberOfTuples(), zBounds->getNumberOfTuples());
+      return {nonstd::make_unexpected(
+          std::vector<Error>{Error{-9847, fmt::format("One of the bounds arrays has a size less than two; all sizes must be at least two\nX Bounds Size: {}\nY Bounds Size: {}\nZ Bounds Size: {}\n",
+                                                      xBounds->getNumberOfTuples(), yBounds->getNumberOfTuples(), zBounds->getNumberOfTuples())}})};
+    }
+
+    auto xResults = checkGridBoundsResolution(xBounds, pWarningsAsErrors, "X");
+    if(xResults.invalid())
+    {
+      return {nonstd::make_unexpected(xResults.errors())};
+    }
+    auto yResults = checkGridBoundsResolution(yBounds, pWarningsAsErrors, "Y");
+    if(yResults.invalid())
+    {
+      return {nonstd::make_unexpected(yResults.errors())};
+    }
+    auto zResults = checkGridBoundsResolution(zBounds, pWarningsAsErrors, "Z");
+    if(zResults.invalid())
+    {
+      return {nonstd::make_unexpected(zResults.errors())};
+    }
+    auto results = MergeResults(MergeResults(xResults, yResults), zResults);
+    resultOutputActions.warnings().insert(resultOutputActions.warnings().end(), results.warnings().begin(), results.warnings().end());
+
+    // TODO : create rect grid geom action
+  }
+  if(pGeometryType == 2) // VertexGeom
+  {
+    const auto vertexList = ds.getDataAs<Float32Array>(pVertexListPath);
+
+    auto createVertexGeomAction = std::make_unique<CreateVertexGeometryAction>(pGeometryPath, vertexList->getNumberOfTuples(), pVertexAMName, pVertexListPath.getTargetName());
+    resultOutputActions.value().actions.push_back(std::move(createVertexGeomAction));
+
+    if(pMoveArrays) // copy over the data and delete later instead of actually moving so the geometry action can create & set the vertices list
+    {
+      auto deleteSrcVertexListAction = std::make_unique<DeleteDataAction>(pVertexListPath);
+      resultOutputActions.value().deferredActions.push_back(std::move(deleteSrcVertexListAction));
+    }
+  }
+  if(pGeometryType == 3) // EdgeGeom
+  {
+    auto pEdgeListPath = filterArgs.value<DataPath>(k_EdgeListName_Key);
+    auto pEdgeAMName = filterArgs.value<std::string>(k_EdgeAttributeMatrixName_Key);
+    const auto vertexList = ds.getDataAs<Float32Array>(pVertexListPath);
+    const auto edgeList = ds.getDataAs<UInt64Array>(pEdgeListPath);
+    if(edgeList == nullptr)
+    {
+      return {nonstd::make_unexpected(std::vector<Error>{Error{-9841, fmt::format("Cannot find selected edge list at path '{}'", pEdgeListPath.toString())}})};
+    }
+
+    auto results = checkGeometryArraysCompatible(vertexList, edgeList, pWarningsAsErrors, "edge");
+    if(results.invalid())
+    {
+      return {nonstd::make_unexpected(results.errors())};
+    }
+    resultOutputActions.warnings().insert(resultOutputActions.warnings().end(), results.warnings().begin(), results.warnings().end());
+
+    auto createEdgeGeomAction = std::make_unique<CreateEdgeGeometryAction>(pGeometryPath, edgeList->getNumberOfTuples(), vertexList->getNumberOfTuples(), pVertexAMName, pEdgeAMName,
+                                                                           pVertexListPath.getTargetName(), pEdgeListPath.getTargetName());
+    resultOutputActions.value().actions.push_back(std::move(createEdgeGeomAction));
+
+    if(pMoveArrays) // copy over the data and delete later instead of actually moving so the geometry action can create & set the vertices list(s)
+    {
+      auto deleteSrcVertexListAction = std::make_unique<DeleteDataAction>(pVertexListPath);
+      resultOutputActions.value().deferredActions.push_back(std::move(deleteSrcVertexListAction));
+      auto deleteSrcEdgesListAction = std::make_unique<DeleteDataAction>(pEdgeListPath);
+      resultOutputActions.value().deferredActions.push_back(std::move(deleteSrcEdgesListAction));
+    }
+  }
+  if(pGeometryType == 4) // TriangleGeom
+  {
+    auto pTriangleListPath = filterArgs.value<DataPath>(k_TriangleListName_Key);
+    const auto vertexList = ds.getDataAs<Float32Array>(pVertexListPath);
+    const auto triangleList = ds.getDataAs<UInt64Array>(pTriangleListPath);
+    if(triangleList == nullptr)
+    {
+      return {nonstd::make_unexpected(std::vector<Error>{Error{-9843, fmt::format("Cannot find selected triangle list at path '{}'", pTriangleListPath.toString())}})};
+    }
+
+    auto results = checkGeometryArraysCompatible(vertexList, triangleList, pWarningsAsErrors, "triangle");
+    if(results.invalid())
+    {
+      return {nonstd::make_unexpected(results.errors())};
+    }
+    resultOutputActions.warnings().insert(resultOutputActions.warnings().end(), results.warnings().begin(), results.warnings().end());
+
+    auto createTriangleGeomAction = std::make_unique<CreateTriangleGeometryAction>(pGeometryPath, triangleList->getNumberOfTuples(), vertexList->getNumberOfTuples(), pVertexAMName, pFaceAMName,
+                                                                                   pVertexListPath.getTargetName(), pTriangleListPath.getTargetName());
+    resultOutputActions.value().actions.push_back(std::move(createTriangleGeomAction));
+
+    if(pMoveArrays) // copy over the data and delete later instead of actually moving so the geometry action can create & set the list(s)
+    {
+      auto deleteSrcVertexListAction = std::make_unique<DeleteDataAction>(pVertexListPath);
+      resultOutputActions.value().deferredActions.push_back(std::move(deleteSrcVertexListAction));
+      auto deleteSrcTrianglesListAction = std::make_unique<DeleteDataAction>(pTriangleListPath);
+      resultOutputActions.value().deferredActions.push_back(std::move(deleteSrcTrianglesListAction));
+    }
+  }
+  if(pGeometryType == 5) // QuadGeom
+  {
+    auto pQuadListPath = filterArgs.value<DataPath>(k_QuadrilateralListName_Key);
+    const auto vertexList = ds.getDataAs<Float32Array>(pVertexListPath);
+    const auto quadList = ds.getDataAs<UInt64Array>(pQuadListPath);
+    if(quadList == nullptr)
+    {
+      return {nonstd::make_unexpected(std::vector<Error>{Error{-9845, fmt::format("Cannot find selected quadrilateral list at path '{}'", pQuadListPath.toString())}})};
+    }
+
+    auto results = checkGeometryArraysCompatible(vertexList, quadList, pWarningsAsErrors, "quadrilateral");
+    if(results.invalid())
+    {
+      return {nonstd::make_unexpected(results.errors())};
+    }
+    resultOutputActions.warnings().insert(resultOutputActions.warnings().end(), results.warnings().begin(), results.warnings().end());
+
+    auto createQuadGeomAction = std::make_unique<CreateQuadGeometryAction>(pGeometryPath, quadList->getNumberOfTuples(), vertexList->getNumberOfTuples(), pVertexAMName, pFaceAMName,
+                                                                           pVertexListPath.getTargetName(), pQuadListPath.getTargetName());
+    resultOutputActions.value().actions.push_back(std::move(createQuadGeomAction));
+
+    if(pMoveArrays) // copy over the data and delete later instead of actually moving so the geometry action can create & set the list(s)
+    {
+      auto deleteSrcVertexListAction = std::make_unique<DeleteDataAction>(pVertexListPath);
+      resultOutputActions.value().deferredActions.push_back(std::move(deleteSrcVertexListAction));
+      auto deleteSrcQuadsListAction = std::make_unique<DeleteDataAction>(pQuadListPath);
+      resultOutputActions.value().deferredActions.push_back(std::move(deleteSrcQuadsListAction));
+    }
+  }
+  if(pGeometryType == 6) // TetrahedralGeom
+  {
+    auto pTetListPath = filterArgs.value<DataPath>(k_TetrahedralListName_Key);
+    const auto vertexList = ds.getDataAs<Float32Array>(pVertexListPath);
+    const auto tetList = ds.getDataAs<UInt64Array>(pTetListPath);
+    if(tetList == nullptr)
+    {
+      return {nonstd::make_unexpected(std::vector<Error>{Error{-9847, fmt::format("Cannot find selected quadrilateral list at path '{}'", pTetListPath.toString())}})};
+    }
+
+    auto results = checkGeometryArraysCompatible(vertexList, tetList, pWarningsAsErrors, "tetrahedral");
+    if(results.invalid())
+    {
+      return {nonstd::make_unexpected(results.errors())};
+    }
+    resultOutputActions.warnings().insert(resultOutputActions.warnings().end(), results.warnings().begin(), results.warnings().end());
+
+    // TODO : create tet geom action
+
+    if(pMoveArrays) // copy over the data and delete later instead of actually moving so the geometry action can create & set the list(s)
+    {
+      auto deleteSrcVertexListAction = std::make_unique<DeleteDataAction>(pVertexListPath);
+      resultOutputActions.value().deferredActions.push_back(std::move(deleteSrcVertexListAction));
+      auto deleteSrcTetListAction = std::make_unique<DeleteDataAction>(pTetListPath);
+      resultOutputActions.value().deferredActions.push_back(std::move(deleteSrcTetListAction));
+    }
+  }
+  if(pGeometryType == 7) // HexahedralGeom
+  {
+    auto pHexListPath = filterArgs.value<DataPath>(k_HexahedralListName_Key);
+    const auto vertexList = ds.getDataAs<Float32Array>(pVertexListPath);
+    const auto hexList = ds.getDataAs<UInt64Array>(pHexListPath);
+    if(hexList == nullptr)
+    {
+      return {nonstd::make_unexpected(std::vector<Error>{Error{-9845, fmt::format("Cannot find selected quadrilateral list at path '{}'", pHexListPath.toString())}})};
+    }
+
+    auto results = checkGeometryArraysCompatible(vertexList, hexList, pWarningsAsErrors, "hexahedral");
+    if(results.invalid())
+    {
+      return {nonstd::make_unexpected(results.errors())};
+    }
+    resultOutputActions.warnings().insert(resultOutputActions.warnings().end(), results.warnings().begin(), results.warnings().end());
+
+    // TODO : create hex geom action
+
+    if(pMoveArrays) // copy over the data and delete later instead of actually moving so the geometry action can create & set the list(s)
+    {
+      auto deleteSrcVertexListAction = std::make_unique<DeleteDataAction>(pVertexListPath);
+      resultOutputActions.value().deferredActions.push_back(std::move(deleteSrcVertexListAction));
+      auto deleteSrcHexListAction = std::make_unique<DeleteDataAction>(pHexListPath);
+      resultOutputActions.value().deferredActions.push_back(std::move(deleteSrcHexListAction));
+    }
+  }
 
   // Return both the resultOutputActions and the preflightUpdatedValues via std::move()
   return {std::move(resultOutputActions), std::move(preflightUpdatedValues)};
@@ -200,17 +474,67 @@ IFilter::PreflightResult CreateGeometryFilter::preflightImpl(const DataStructure
 Result<> CreateGeometryFilter::executeImpl(DataStructure& data, const Arguments& filterArgs, const PipelineFilter* pipelineNode, const MessageHandler& messageHandler,
                                            const std::atomic_bool& shouldCancel) const
 {
-  /****************************************************************************
-   * Extract the actual input values from the 'filterArgs' object
-   ***************************************************************************/
-  auto pImageGeometryPath = filterArgs.value<DataPath>(k_GeometryDataPath_Key);
-  auto pDimensionsValue = filterArgs.value<VectorUInt64Parameter::ValueType>(k_Dimensions_Key);
-  auto pOriginValue = filterArgs.value<VectorFloat32Parameter::ValueType>(k_Origin_Key);
-  auto pSpacingValue = filterArgs.value<VectorFloat32Parameter::ValueType>(k_Spacing_Key);
+  CreateGeometryInputValues inputValues;
+  inputValues.GeometryPath = filterArgs.value<DataPath>(k_GeometryName_Key);
+  inputValues.GeometryType = filterArgs.value<ChoicesParameter::ValueType>(k_GeometryType_Key);
+  inputValues.TreatWarningsAsErrors = filterArgs.value<bool>(k_WarningsAsErrors_Key);
+  inputValues.MoveArrays = filterArgs.value<ChoicesParameter::ValueType>(k_ArrayHandling_Key) == 1;
 
-  /****************************************************************************
-   * Write your algorithm implementation in this function
-   ***************************************************************************/
-  return {};
+  if(inputValues.GeometryType == 0) // ImageGeom
+  {
+    inputValues.Dimensions = filterArgs.value<VectorUInt64Parameter::ValueType>(k_Dimensions_Key);
+    inputValues.Origin = filterArgs.value<VectorFloat32Parameter::ValueType>(k_Origin_Key);
+    inputValues.Spacing = filterArgs.value<VectorFloat32Parameter::ValueType>(k_Spacing_Key);
+    inputValues.CellAttributeMatrixPath = inputValues.GeometryPath.createChildPath(filterArgs.value<std::string>(k_CellAttributeMatrixName_Key));
+  }
+  if(inputValues.GeometryType == 1) // RectGridGeom
+  {
+    inputValues.XBoundsArrayPath = filterArgs.value<DataPath>(k_XBounds_Key);
+    inputValues.YBoundsArrayPath = filterArgs.value<DataPath>(k_YBounds_Key);
+    inputValues.ZBoundsArrayPath = filterArgs.value<DataPath>(k_ZBounds_Key);
+    inputValues.CellAttributeMatrixPath = inputValues.GeometryPath.createChildPath(filterArgs.value<std::string>(k_CellAttributeMatrixName_Key));
+  }
+  if(inputValues.GeometryType == 2) // VertexGeom
+  {
+    inputValues.SharedVertexListArrayPath = filterArgs.value<DataPath>(k_VertexListName_Key);
+    inputValues.VertexAttributeMatrixPath = inputValues.GeometryPath.createChildPath(filterArgs.value<std::string>(k_VertexAttributeMatrixName_Key));
+  }
+  if(inputValues.GeometryType == 3) // EdgeGeom
+  {
+    inputValues.SharedVertexListArrayPath = filterArgs.value<DataPath>(k_VertexListName_Key);
+    inputValues.VertexAttributeMatrixPath = inputValues.GeometryPath.createChildPath(filterArgs.value<std::string>(k_VertexAttributeMatrixName_Key));
+    inputValues.SharedEdgeListArrayPath = filterArgs.value<DataPath>(k_EdgeListName_Key);
+    inputValues.EdgeAttributeMatrixPath = inputValues.GeometryPath.createChildPath(filterArgs.value<std::string>(k_EdgeAttributeMatrixName_Key));
+  }
+  if(inputValues.GeometryType == 4) // TriangleGeom
+  {
+    inputValues.SharedVertexListArrayPath = filterArgs.value<DataPath>(k_VertexListName_Key);
+    inputValues.VertexAttributeMatrixPath = inputValues.GeometryPath.createChildPath(filterArgs.value<std::string>(k_VertexAttributeMatrixName_Key));
+    inputValues.SharedFaceListArrayPath = filterArgs.value<DataPath>(k_TriangleListName_Key);
+    inputValues.FaceAttributeMatrixPath = inputValues.GeometryPath.createChildPath(filterArgs.value<std::string>(k_FaceAttributeMatrixName_Key));
+  }
+  if(inputValues.GeometryType == 5) // QuadGeom
+  {
+    inputValues.SharedVertexListArrayPath = filterArgs.value<DataPath>(k_VertexListName_Key);
+    inputValues.VertexAttributeMatrixPath = inputValues.GeometryPath.createChildPath(filterArgs.value<std::string>(k_VertexAttributeMatrixName_Key));
+    inputValues.SharedFaceListArrayPath = filterArgs.value<DataPath>(k_QuadrilateralListName_Key);
+    inputValues.FaceAttributeMatrixPath = inputValues.GeometryPath.createChildPath(filterArgs.value<std::string>(k_FaceAttributeMatrixName_Key));
+  }
+  if(inputValues.GeometryType == 6) // TetrahedralGeom
+  {
+    inputValues.SharedVertexListArrayPath = filterArgs.value<DataPath>(k_VertexListName_Key);
+    inputValues.VertexAttributeMatrixPath = inputValues.GeometryPath.createChildPath(filterArgs.value<std::string>(k_VertexAttributeMatrixName_Key));
+    inputValues.SharedCellListArrayPath = filterArgs.value<DataPath>(k_TetrahedralListName_Key);
+    inputValues.CellAttributeMatrixPath = inputValues.GeometryPath.createChildPath(filterArgs.value<std::string>(k_CellAttributeMatrixName_Key));
+  }
+  if(inputValues.GeometryType == 7) // HexahedralGeom
+  {
+    inputValues.SharedVertexListArrayPath = filterArgs.value<DataPath>(k_VertexListName_Key);
+    inputValues.VertexAttributeMatrixPath = inputValues.GeometryPath.createChildPath(filterArgs.value<std::string>(k_VertexAttributeMatrixName_Key));
+    inputValues.SharedCellListArrayPath = filterArgs.value<DataPath>(k_HexahedralListName_Key);
+    inputValues.CellAttributeMatrixPath = inputValues.GeometryPath.createChildPath(filterArgs.value<std::string>(k_CellAttributeMatrixName_Key));
+  }
+
+  return CreateGeometry(data, messageHandler, shouldCancel, &inputValues)();
 }
 } // namespace complex

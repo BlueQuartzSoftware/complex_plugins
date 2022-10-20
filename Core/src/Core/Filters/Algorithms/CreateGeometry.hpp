@@ -5,47 +5,62 @@
 #include "complex/DataStructure/DataPath.hpp"
 #include "complex/DataStructure/DataStructure.hpp"
 #include "complex/Filter/IFilter.hpp"
+#include "complex/Parameters/ChoicesParameter.hpp"
+#include "complex/Parameters/VectorParameter.hpp"
 
 namespace complex
 {
 
+struct CopyDataArrayFunctor
+{
+  template <typename T>
+  bool operator()(DataStructure& dataStruct, const DataPath& inDataRef, const DataPath& outDataRef)
+  {
+    const DataArray<T>& inputDataArray = dataStruct.getDataRefAs<DataArray<T>>(inDataRef);
+    const auto& inputData = inputDataArray.getDataStoreRef();
+    auto& outputDataArray = dataStruct.getDataRefAs<DataArray<T>>(outDataRef);
+    auto& outputData = outputDataArray.getDataStoreRef();
+    if(inputData.getSize() == outputData.getSize())
+    {
+      for(usize i = 0; i < inputData.getSize(); ++i)
+      {
+        outputData[i] = inputData[i];
+      }
+    }
+    else
+    {
+      return false;
+    }
+    return true;
+  }
+};
+
 struct CORE_EXPORT CreateGeometryInputValues
 {
+  DataPath GeometryPath;
   ChoicesParameter::ValueType GeometryType;
   bool TreatWarningsAsErrors;
-  ChoicesParameter::ValueType ArrayHandling;
-  DataPath DataContainerName;
-  VectorInt32Parameter::ValueType Dimensions;
+  bool MoveArrays; // true = move arrays, false = copy arrays
+
+  VectorUInt64Parameter::ValueType Dimensions;
   VectorFloat32Parameter::ValueType Origin;
   VectorFloat32Parameter::ValueType Spacing;
-  DataPath ImageCellAttributeMatrixName;
+
   DataPath XBoundsArrayPath;
   DataPath YBoundsArrayPath;
   DataPath ZBoundsArrayPath;
-  DataPath RectGridCellAttributeMatrixName;
-  <<<NOT_IMPLEMENTED>>> BoxDimensions;
-  DataPath SharedVertexListArrayPath0;
-  DataPath VertexAttributeMatrixName0;
-  DataPath SharedVertexListArrayPath1;
+
+  DataPath SharedVertexListArrayPath;
+  DataPath VertexAttributeMatrixPath;
+
   DataPath SharedEdgeListArrayPath;
-  DataPath VertexAttributeMatrixName1;
-  DataPath EdgeAttributeMatrixName;
-  DataPath SharedVertexListArrayPath2;
-  DataPath SharedTriListArrayPath;
-  DataPath VertexAttributeMatrixName2;
-  DataPath FaceAttributeMatrixName0;
-  DataPath SharedVertexListArrayPath3;
-  DataPath SharedQuadListArrayPath;
-  DataPath VertexAttributeMatrixName3;
-  DataPath FaceAttributeMatrixName1;
-  DataPath SharedVertexListArrayPath4;
-  DataPath SharedTetListArrayPath;
-  DataPath VertexAttributeMatrixName4;
-  DataPath TetCellAttributeMatrixName;
-  DataPath SharedVertexListArrayPath5;
-  DataPath SharedHexListArrayPath;
-  DataPath VertexAttributeMatrixName5;
-  DataPath HexCellAttributeMatrixName;
+  DataPath EdgeAttributeMatrixPath;
+
+  DataPath SharedFaceListArrayPath;
+  DataPath FaceAttributeMatrixPath;
+
+  DataPath SharedCellListArrayPath;
+  DataPath CellAttributeMatrixPath;
 };
 
 /**
