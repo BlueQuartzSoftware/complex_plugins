@@ -55,7 +55,7 @@ Parameters CalculateArrayHistogramFilter::parameters() const
   params.insert(std::make_unique<Float64Parameter>(k_MinRange_Key, "Min Value", "", 0.0));
   params.insert(std::make_unique<Float64Parameter>(k_MaxRange_Key, "Max Value", "", 1.0));
   params.insertSeparator(Parameters::Separator{"Input Arrays"});
-  params.insert(std::make_unique<MultiArraySelectionParameter>(k_SelectedArrayPaths_Key, "DataArray(s) to Histogram", "", MultiArraySelectionParameter::ValueType{}, complex::GetAllNumericTypes()));
+  params.insert(std::make_unique<MultiArraySelectionParameter>(k_SelectedArrayPaths_Key, "Input Data Arrays", "", MultiArraySelectionParameter::ValueType{}, complex::GetAllNumericTypes()));
   params.insertSeparator(Parameters::Separator{"Output Set Up"});
   params.insertLinkableParameter(std::make_unique<BoolParameter>(k_NewDataGroup_Key, "Create New DataGroup for Histograms", "", true));
   params.insert(std::make_unique<DataGroupCreationParameter>(k_NewDataGroupName_Key, "New DataGroup Path", "", DataPath{}));
