@@ -31,55 +31,6 @@ using namespace std::string_literals;
 
 using namespace complex;
 
-namespace
-{
-Result<> checkGeometryArraysCompatible(const Float32Array* vertices, const UInt64Array* cells, bool treatWarningsAsErrors, const std::string& cellType)
-{
-  Result<> warningResults;
-  usize numVertices = vertices->getNumberOfTuples();
-  uint64 idx = 0;
-  for(usize i = 0; i < cells->getSize(); i++)
-  {
-    if((*cells)[i] > idx)
-    {
-      idx = (*cells)[i];
-    }
-  }
-  if((idx + 1) > numVertices)
-  {
-    std::string msg =
-        fmt::format("Supplied {} list contains a vertex index larger than the total length of the supplied shared vertex list\nIndex Value: {}\nNumber of Vertices: {}", cellType, idx, numVertices);
-    if(treatWarningsAsErrors)
-    {
-      return {nonstd::make_unexpected(std::vector<Error>{Error{-9844, msg}})};
-    }
-    warningResults.warnings().push_back(Warning{-9844, msg});
-  }
-  return warningResults;
-}
-
-Result<> checkGridBoundsResolution(const Float32Array* bounds, bool treatWarningsAsErrors, const std::string& boundType)
-{
-  Result<> warningResults;
-  float val = (*bounds)[0];
-  for(size_t i = 1; i < (*bounds).getNumberOfTuples(); i++)
-  {
-    if(val > (*bounds)[i])
-    {
-      std::string msg =
-          fmt::format("Supplied {} Bounds array is not strictly increasing; this results in negative resolutions\nIndex {} Value: {}\nIndex {} Value: {}", boundType, (i - 1), val, i, (*bounds)[i]);
-      if(treatWarningsAsErrors)
-      {
-        return MakeErrorResult(-8344, msg);
-      }
-      warningResults.warnings().push_back(Warning{-8344, msg});
-    }
-    val = (*bounds)[i];
-  }
-  return warningResults;
-}
-} // namespace
-
 namespace complex
 {
 //------------------------------------------------------------------------------
@@ -290,24 +241,6 @@ IFilter::PreflightResult CreateGeometryFilter::preflightImpl(const DataStructure
                                                       xBounds->getNumberOfTuples(), yBounds->getNumberOfTuples(), zBounds->getNumberOfTuples())}})};
     }
 
-    auto xResults = checkGridBoundsResolution(xBounds, pWarningsAsErrors, "X");
-    if(xResults.invalid())
-    {
-      return {nonstd::make_unexpected(xResults.errors())};
-    }
-    auto yResults = checkGridBoundsResolution(yBounds, pWarningsAsErrors, "Y");
-    if(yResults.invalid())
-    {
-      return {nonstd::make_unexpected(yResults.errors())};
-    }
-    auto zResults = checkGridBoundsResolution(zBounds, pWarningsAsErrors, "Z");
-    if(zResults.invalid())
-    {
-      return {nonstd::make_unexpected(zResults.errors())};
-    }
-    auto results = MergeResults(MergeResults(xResults, yResults), zResults);
-    resultOutputActions.warnings().insert(resultOutputActions.warnings().end(), results.warnings().begin(), results.warnings().end());
-
     // TODO : create rect grid geom action
   }
   if(pGeometryType == 2) // VertexGeom
@@ -334,13 +267,6 @@ IFilter::PreflightResult CreateGeometryFilter::preflightImpl(const DataStructure
       return {nonstd::make_unexpected(std::vector<Error>{Error{-9841, fmt::format("Cannot find selected edge list at path '{}'", pEdgeListPath.toString())}})};
     }
 
-    auto results = checkGeometryArraysCompatible(vertexList, edgeList, pWarningsAsErrors, "edge");
-    if(results.invalid())
-    {
-      return {nonstd::make_unexpected(results.errors())};
-    }
-    resultOutputActions.warnings().insert(resultOutputActions.warnings().end(), results.warnings().begin(), results.warnings().end());
-
     auto createEdgeGeomAction = std::make_unique<CreateEdgeGeometryAction>(pGeometryPath, edgeList->getNumberOfTuples(), vertexList->getNumberOfTuples(), pVertexAMName, pEdgeAMName,
                                                                            pVertexListPath.getTargetName(), pEdgeListPath.getTargetName());
     resultOutputActions.value().actions.push_back(std::move(createEdgeGeomAction));
@@ -362,13 +288,6 @@ IFilter::PreflightResult CreateGeometryFilter::preflightImpl(const DataStructure
     {
       return {nonstd::make_unexpected(std::vector<Error>{Error{-9843, fmt::format("Cannot find selected triangle list at path '{}'", pTriangleListPath.toString())}})};
     }
-
-    auto results = checkGeometryArraysCompatible(vertexList, triangleList, pWarningsAsErrors, "triangle");
-    if(results.invalid())
-    {
-      return {nonstd::make_unexpected(results.errors())};
-    }
-    resultOutputActions.warnings().insert(resultOutputActions.warnings().end(), results.warnings().begin(), results.warnings().end());
 
     auto createTriangleGeomAction = std::make_unique<CreateTriangleGeometryAction>(pGeometryPath, triangleList->getNumberOfTuples(), vertexList->getNumberOfTuples(), pVertexAMName, pFaceAMName,
                                                                                    pVertexListPath.getTargetName(), pTriangleListPath.getTargetName());
@@ -392,13 +311,6 @@ IFilter::PreflightResult CreateGeometryFilter::preflightImpl(const DataStructure
       return {nonstd::make_unexpected(std::vector<Error>{Error{-9845, fmt::format("Cannot find selected quadrilateral list at path '{}'", pQuadListPath.toString())}})};
     }
 
-    auto results = checkGeometryArraysCompatible(vertexList, quadList, pWarningsAsErrors, "quadrilateral");
-    if(results.invalid())
-    {
-      return {nonstd::make_unexpected(results.errors())};
-    }
-    resultOutputActions.warnings().insert(resultOutputActions.warnings().end(), results.warnings().begin(), results.warnings().end());
-
     auto createQuadGeomAction = std::make_unique<CreateQuadGeometryAction>(pGeometryPath, quadList->getNumberOfTuples(), vertexList->getNumberOfTuples(), pVertexAMName, pFaceAMName,
                                                                            pVertexListPath.getTargetName(), pQuadListPath.getTargetName());
     resultOutputActions.value().actions.push_back(std::move(createQuadGeomAction));
@@ -421,13 +333,6 @@ IFilter::PreflightResult CreateGeometryFilter::preflightImpl(const DataStructure
       return {nonstd::make_unexpected(std::vector<Error>{Error{-9847, fmt::format("Cannot find selected quadrilateral list at path '{}'", pTetListPath.toString())}})};
     }
 
-    auto results = checkGeometryArraysCompatible(vertexList, tetList, pWarningsAsErrors, "tetrahedral");
-    if(results.invalid())
-    {
-      return {nonstd::make_unexpected(results.errors())};
-    }
-    resultOutputActions.warnings().insert(resultOutputActions.warnings().end(), results.warnings().begin(), results.warnings().end());
-
     // TODO : create tet geom action
 
     if(pMoveArrays) // copy over the data and delete later instead of actually moving so the geometry action can create & set the list(s)
@@ -447,13 +352,6 @@ IFilter::PreflightResult CreateGeometryFilter::preflightImpl(const DataStructure
     {
       return {nonstd::make_unexpected(std::vector<Error>{Error{-9845, fmt::format("Cannot find selected quadrilateral list at path '{}'", pHexListPath.toString())}})};
     }
-
-    auto results = checkGeometryArraysCompatible(vertexList, hexList, pWarningsAsErrors, "hexahedral");
-    if(results.invalid())
-    {
-      return {nonstd::make_unexpected(results.errors())};
-    }
-    resultOutputActions.warnings().insert(resultOutputActions.warnings().end(), results.warnings().begin(), results.warnings().end());
 
     // TODO : create hex geom action
 
