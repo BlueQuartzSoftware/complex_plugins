@@ -28,6 +28,18 @@ using namespace complex;
 namespace complex
 {
 
+static constexpr uint64 k_ImageGeometry = 0;
+static constexpr uint64 k_RectGridGeometry = 1;
+static constexpr uint64 k_VertexGeometry = 2;
+static constexpr uint64 k_EdgeGeometry = 3;
+static constexpr uint64 k_TriangleGeometry = 4;
+static constexpr uint64 k_QuadGeometry = 5;
+static constexpr uint64 k_TetGeometry = 6;
+static constexpr uint64 k_HexGeometry = 7;
+
+static constexpr uint64 k_CopyArray = 0;
+static constexpr uint64 k_MoveArray = 1;
+
 struct CopyDataArrayFunctor
 {
   template <typename T>
@@ -223,7 +235,7 @@ IFilter::PreflightResult CreateGeometryFilter::preflightImpl(const DataStructure
   auto pGeometryPath = filterArgs.value<DataPath>(k_GeometryName_Key);
   auto pGeometryType = filterArgs.value<ChoicesParameter::ValueType>(k_GeometryType_Key);
   auto pWarningsAsErrors = filterArgs.value<bool>(k_WarningsAsErrors_Key);
-  auto pMoveArrays = filterArgs.value<ChoicesParameter::ValueType>(k_ArrayHandling_Key) == 1;
+  auto pMoveArrays = filterArgs.value<ChoicesParameter::ValueType>(k_ArrayHandling_Key) == k_MoveArray;
 
   complex::Result<OutputActions> resultOutputActions;
   std::vector<PreflightValue> preflightUpdatedValues;
@@ -233,7 +245,8 @@ IFilter::PreflightResult CreateGeometryFilter::preflightImpl(const DataStructure
   std::string pVertexAMName;
   std::string pFaceAMName;
   std::string pCellAMName;
-  if(pGeometryType == 2 || pGeometryType == 3 || pGeometryType == 4 || pGeometryType == 5 || pGeometryType == 6 || pGeometryType == 7)
+  if(pGeometryType == k_VertexGeometry || pGeometryType == k_EdgeGeometry || pGeometryType == k_TriangleGeometry || pGeometryType == k_QuadGeometry || pGeometryType == k_TetGeometry ||
+     pGeometryType == k_HexGeometry)
   {
     pVertexListPath = filterArgs.value<DataPath>(k_VertexListName_Key);
     pVertexAMName = filterArgs.value<std::string>(k_VertexAttributeMatrixName_Key);
@@ -243,17 +256,17 @@ IFilter::PreflightResult CreateGeometryFilter::preflightImpl(const DataStructure
       return {nonstd::make_unexpected(std::vector<Error>{Error{-9840, fmt::format("Cannot find selected vertex list at path '{}'", pVertexListPath.toString())}})};
     }
   }
-  if(pGeometryType == 4 || pGeometryType == 5)
+  if(pGeometryType == k_TriangleGeometry || pGeometryType == k_QuadGeometry)
   {
     pFaceAMName = filterArgs.value<std::string>(k_FaceAttributeMatrixName_Key);
   }
-  if(pGeometryType == 0 || pGeometryType == 1 || pGeometryType == 6 || pGeometryType == 7)
+  if(pGeometryType == k_ImageGeometry || pGeometryType == k_RectGridGeometry || pGeometryType == k_TetGeometry || pGeometryType == k_HexGeometry)
   {
     pCellAMName = filterArgs.value<std::string>(k_CellAttributeMatrixName_Key);
   }
 
   // create geometry actions & deferred delete data actions if move arrays option selected
-  if(pGeometryType == 0) // ImageGeom
+  if(pGeometryType == k_ImageGeometry) // ImageGeom
   {
     auto pDimensionsValue = filterArgs.value<VectorUInt64Parameter::ValueType>(k_Dimensions_Key);
     auto pOriginValue = filterArgs.value<VectorFloat32Parameter::ValueType>(k_Origin_Key);
@@ -280,7 +293,7 @@ IFilter::PreflightResult CreateGeometryFilter::preflightImpl(const DataStructure
     resultOutputActions.value().actions.push_back(std::move(createImageGeometryAction));
     preflightUpdatedValues.push_back({"BoxDimensions", boxDimensions});
   }
-  if(pGeometryType == 1) // RectGridGeom
+  if(pGeometryType == k_RectGridGeometry) // RectGridGeom
   {
     auto pXBoundsPath = filterArgs.value<DataPath>(k_XBounds_Key);
     auto pYBoundsPath = filterArgs.value<DataPath>(k_YBounds_Key);
@@ -325,7 +338,7 @@ IFilter::PreflightResult CreateGeometryFilter::preflightImpl(const DataStructure
       resultOutputActions.value().deferredActions.push_back(std::move(deleteZBoundsListAction));
     }
   }
-  if(pGeometryType == 2) // VertexGeom
+  if(pGeometryType == k_VertexGeometry) // VertexGeom
   {
     const auto vertexList = ds.getDataAs<Float32Array>(pVertexListPath);
 
@@ -338,7 +351,7 @@ IFilter::PreflightResult CreateGeometryFilter::preflightImpl(const DataStructure
       resultOutputActions.value().deferredActions.push_back(std::move(deleteSrcVertexListAction));
     }
   }
-  if(pGeometryType == 3) // EdgeGeom
+  if(pGeometryType == k_EdgeGeometry) // EdgeGeom
   {
     auto pEdgeListPath = filterArgs.value<DataPath>(k_EdgeListName_Key);
     auto pEdgeAMName = filterArgs.value<std::string>(k_EdgeAttributeMatrixName_Key);
@@ -361,7 +374,7 @@ IFilter::PreflightResult CreateGeometryFilter::preflightImpl(const DataStructure
       resultOutputActions.value().deferredActions.push_back(std::move(deleteSrcEdgesListAction));
     }
   }
-  if(pGeometryType == 4) // TriangleGeom
+  if(pGeometryType == k_TriangleGeometry) // TriangleGeom
   {
     auto pTriangleListPath = filterArgs.value<DataPath>(k_TriangleListName_Key);
     const auto vertexList = ds.getDataAs<Float32Array>(pVertexListPath);
@@ -383,7 +396,7 @@ IFilter::PreflightResult CreateGeometryFilter::preflightImpl(const DataStructure
       resultOutputActions.value().deferredActions.push_back(std::move(deleteSrcTrianglesListAction));
     }
   }
-  if(pGeometryType == 5) // QuadGeom
+  if(pGeometryType == k_QuadGeometry) // QuadGeom
   {
     auto pQuadListPath = filterArgs.value<DataPath>(k_QuadrilateralListName_Key);
     const auto vertexList = ds.getDataAs<Float32Array>(pVertexListPath);
@@ -405,7 +418,7 @@ IFilter::PreflightResult CreateGeometryFilter::preflightImpl(const DataStructure
       resultOutputActions.value().deferredActions.push_back(std::move(deleteSrcQuadsListAction));
     }
   }
-  if(pGeometryType == 6) // TetrahedralGeom
+  if(pGeometryType == k_TetGeometry) // TetrahedralGeom
   {
     auto pTetListPath = filterArgs.value<DataPath>(k_TetrahedralListName_Key);
     const auto vertexList = ds.getDataAs<Float32Array>(pVertexListPath);
@@ -427,7 +440,7 @@ IFilter::PreflightResult CreateGeometryFilter::preflightImpl(const DataStructure
       resultOutputActions.value().deferredActions.push_back(std::move(deleteSrcTetListAction));
     }
   }
-  if(pGeometryType == 7) // HexahedralGeom
+  if(pGeometryType == k_HexGeometry) // HexahedralGeom
   {
     auto pHexListPath = filterArgs.value<DataPath>(k_HexahedralListName_Key);
     const auto vertexList = ds.getDataAs<Float32Array>(pVertexListPath);
@@ -461,36 +474,37 @@ Result<> CreateGeometryFilter::executeImpl(DataStructure& data, const Arguments&
   auto geometryPath = filterArgs.value<DataPath>(k_GeometryName_Key);
   auto geometryType = filterArgs.value<ChoicesParameter::ValueType>(k_GeometryType_Key);
   auto treatWarningsAsErrors = filterArgs.value<bool>(k_WarningsAsErrors_Key);
-  auto moveArrays = filterArgs.value<ChoicesParameter::ValueType>(k_ArrayHandling_Key) == 1;
+  auto moveArrays = filterArgs.value<ChoicesParameter::ValueType>(k_ArrayHandling_Key) == k_MoveArray;
 
   DataPath sharedVertexListArrayPath;
   DataPath sharedFaceListArrayPath;
   DataPath sharedCellListArrayPath;
 
-  if(geometryType == 2 || geometryType == 3 || geometryType == 4 || geometryType == 5 || geometryType == 6 || geometryType == 7)
+  if(geometryType == k_VertexGeometry || geometryType == k_EdgeGeometry || geometryType == k_TriangleGeometry || geometryType == k_QuadGeometry || geometryType == k_TetGeometry || geometryType == 7)
   {
     sharedVertexListArrayPath = filterArgs.value<DataPath>(k_VertexListName_Key);
   }
-  if(geometryType == 4)
+  if(geometryType == k_TriangleGeometry)
   {
     sharedFaceListArrayPath = filterArgs.value<DataPath>(k_TriangleListName_Key);
   }
-  if(geometryType == 5)
+  if(geometryType == k_QuadGeometry)
   {
     sharedFaceListArrayPath = filterArgs.value<DataPath>(k_QuadrilateralListName_Key);
   }
-  if(geometryType == 6)
+  if(geometryType == k_TetGeometry)
   {
     sharedCellListArrayPath = filterArgs.value<DataPath>(k_TetrahedralListName_Key);
   }
-  if(geometryType == 7)
+  if(geometryType == k_HexGeometry)
   {
     sharedCellListArrayPath = filterArgs.value<DataPath>(k_HexahedralListName_Key);
   }
 
   Result<> warningResults;
   // copy over the vertex data in the case of vertex, edge, triangle, quad, tet, and hex geometries
-  if(geometryType == 2 || geometryType == 3 || geometryType == 4 || geometryType == 5 || geometryType == 6 || geometryType == 7)
+  if(geometryType == k_VertexGeometry || geometryType == k_EdgeGeometry || geometryType == k_TriangleGeometry || geometryType == k_QuadGeometry || geometryType == k_TetGeometry ||
+     geometryType == k_HexGeometry)
   {
     const DataPath destVertexListPath = geometryPath.createChildPath(sharedVertexListArrayPath.getTargetName());
     const auto& vertexList = data.getDataRefAs<Float32Array>(destVertexListPath);
@@ -501,8 +515,7 @@ Result<> CreateGeometryFilter::executeImpl(DataStructure& data, const Arguments&
                                                 srcVertexList.getSize(), destVertexListPath.toString(), vertexList.getSize()));
     }
   }
-  // edge geometry
-  if(geometryType == 3)
+  if(geometryType == k_EdgeGeometry)
   {
     auto sharedEdgeListArrayPath = filterArgs.value<DataPath>(k_EdgeListName_Key);
 
@@ -525,8 +538,7 @@ Result<> CreateGeometryFilter::executeImpl(DataStructure& data, const Arguments&
     }
     warningResults.warnings().insert(warningResults.warnings().end(), results.warnings().begin(), results.warnings().end());
   }
-  // triangle and quad geometries
-  if(geometryType == 4 || geometryType == 5)
+  if(geometryType == k_TriangleGeometry || geometryType == k_QuadGeometry)
   {
     // copy over the face data
     const DataPath destFaceListPath = geometryPath.createChildPath(sharedFaceListArrayPath.getTargetName());
@@ -547,8 +559,7 @@ Result<> CreateGeometryFilter::executeImpl(DataStructure& data, const Arguments&
     }
     warningResults.warnings().insert(warningResults.warnings().end(), results.warnings().begin(), results.warnings().end());
   }
-  // tetrahedral and hexahedral geometries
-  if(geometryType == 6 || geometryType == 7)
+  if(geometryType == k_TetGeometry || geometryType == k_HexGeometry)
   {
     // copy over the cell data
     const DataPath destCellListPath = geometryPath.createChildPath(sharedCellListArrayPath.getTargetName());
@@ -569,8 +580,7 @@ Result<> CreateGeometryFilter::executeImpl(DataStructure& data, const Arguments&
     }
     warningResults.warnings().insert(warningResults.warnings().end(), results.warnings().begin(), results.warnings().end());
   }
-  // rectilinear grid geometry
-  if(geometryType == 1)
+  if(geometryType == k_RectGridGeometry)
   {
     auto xBoundsArrayPath = filterArgs.value<DataPath>(k_XBounds_Key);
     auto yBoundsArrayPath = filterArgs.value<DataPath>(k_YBounds_Key);
