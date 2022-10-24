@@ -1,15 +1,8 @@
 #include "CreateGeometryFilter.hpp"
 
-#include "Core/Filters/Algorithms/CreateGeometry.hpp"
 #include "complex/Common/TypesUtility.hpp"
 #include "complex/DataStructure/DataPath.hpp"
-#include "complex/DataStructure/Geometry/EdgeGeom.hpp"
-#include "complex/DataStructure/Geometry/HexahedralGeom.hpp"
 #include "complex/DataStructure/Geometry/ImageGeom.hpp"
-#include "complex/DataStructure/Geometry/QuadGeom.hpp"
-#include "complex/DataStructure/Geometry/TetrahedralGeom.hpp"
-#include "complex/DataStructure/Geometry/TriangleGeom.hpp"
-#include "complex/DataStructure/Geometry/VertexGeom.hpp"
 #include "complex/Filter/Actions/CreateGeometry1DAction.hpp"
 #include "complex/Filter/Actions/CreateGeometry2DAction.hpp"
 #include "complex/Filter/Actions/CreateGeometry3DAction.hpp"
@@ -17,14 +10,13 @@
 #include "complex/Filter/Actions/CreateRectGridGeometryAction.hpp"
 #include "complex/Filter/Actions/CreateVertexGeometryAction.hpp"
 #include "complex/Filter/Actions/DeleteDataAction.hpp"
-#include "complex/Filter/Actions/MoveDataAction.hpp"
 #include "complex/Parameters/ArraySelectionParameter.hpp"
 #include "complex/Parameters/BoolParameter.hpp"
 #include "complex/Parameters/ChoicesParameter.hpp"
 #include "complex/Parameters/DataGroupCreationParameter.hpp"
 #include "complex/Parameters/DataObjectNameParameter.hpp"
-#include "complex/Parameters/StringParameter.hpp"
 #include "complex/Parameters/VectorParameter.hpp"
+#include "complex/Utilities/FilterUtilities.hpp"
 
 #include <sstream>
 #include <string>
@@ -35,6 +27,80 @@ using namespace complex;
 
 namespace complex
 {
+
+struct CopyDataArrayFunctor
+{
+  template <typename T>
+  bool operator()(DataStructure& dataStruct, const DataPath& inDataRef, const DataPath& outDataRef)
+  {
+    const DataArray<T>& inputDataArray = dataStruct.getDataRefAs<DataArray<T>>(inDataRef);
+    const auto& inputData = inputDataArray.getDataStoreRef();
+    auto& outputDataArray = dataStruct.getDataRefAs<DataArray<T>>(outDataRef);
+    auto& outputData = outputDataArray.getDataStoreRef();
+    if(inputData.getSize() == outputData.getSize())
+    {
+      for(usize i = 0; i < inputData.getSize(); ++i)
+      {
+        outputData[i] = inputData[i];
+      }
+    }
+    else
+    {
+      return false;
+    }
+    return true;
+  }
+};
+
+namespace
+{
+Result<> checkGeometryArraysCompatible(const Float32Array& vertices, const UInt64Array& cells, bool treatWarningsAsErrors, const std::string& cellType)
+{
+  Result<> warningResults;
+  usize numVertices = vertices.getNumberOfTuples();
+  uint64 idx = 0;
+  for(usize i = 0; i < cells.getSize(); i++)
+  {
+    if(cells[i] > idx)
+    {
+      idx = cells[i];
+    }
+  }
+  if((idx + 1) > numVertices)
+  {
+    std::string msg =
+        fmt::format("Supplied {} list contains a vertex index larger than the total length of the supplied shared vertex list\nIndex Value: {}\nNumber of Vertices: {}", cellType, idx, numVertices);
+    if(treatWarningsAsErrors)
+    {
+      return {nonstd::make_unexpected(std::vector<Error>{Error{-9844, msg}})};
+    }
+    warningResults.warnings().push_back(Warning{-9844, msg});
+  }
+  return warningResults;
+}
+
+Result<> checkGridBoundsResolution(const Float32Array& bounds, bool treatWarningsAsErrors, const std::string& boundType)
+{
+  Result<> warningResults;
+  float val = bounds[0];
+  for(size_t i = 1; i < bounds.getNumberOfTuples(); i++)
+  {
+    if(val > bounds[i])
+    {
+      std::string msg =
+          fmt::format("Supplied {} Bounds array is not strictly increasing; this results in negative resolutions\nIndex {} Value: {}\nIndex {} Value: {}", boundType, (i - 1), val, i, bounds[i]);
+      if(treatWarningsAsErrors)
+      {
+        return MakeErrorResult(-8344, msg);
+      }
+      warningResults.warnings().push_back(Warning{-8344, msg});
+    }
+    val = bounds[i];
+  }
+  return warningResults;
+}
+} // namespace
+
 //------------------------------------------------------------------------------
 std::string CreateGeometryFilter::name() const
 {
@@ -75,7 +141,7 @@ Parameters CreateGeometryFilter::parameters() const
   params.insertSeparator(Parameters::Separator{"Input Parameters"});
   params.insertLinkableParameter(std::make_unique<ChoicesParameter>(k_GeometryType_Key, "Geometry Type", "", 0, GetAllGeometryTypesAsStrings()));
   params.insert(std::make_unique<BoolParameter>(k_WarningsAsErrors_Key, "Treat Geometry Warnings as Errors", "", false));
-  params.insert(std::make_unique<ChoicesParameter>(k_ArrayHandling_Key, "Array Handling", "", 0, ChoicesParameter::Choices{"Copy Array", "Move Array "}));
+  params.insert(std::make_unique<ChoicesParameter>(k_ArrayHandling_Key, "Array Handling", "", 0, ChoicesParameter::Choices{"Copy Array", "Move Array"}));
 
   params.insert(std::make_unique<VectorUInt64Parameter>(k_Dimensions_Key, "Dimensions", "The number of cells in each of the X, Y, Z directions", std::vector<uint64_t>{20ULL, 60ULL, 200ULL},
                                                         std::vector<std::string>{"X"s, "Y"s, "Z"s}));
@@ -392,67 +458,164 @@ IFilter::PreflightResult CreateGeometryFilter::preflightImpl(const DataStructure
 Result<> CreateGeometryFilter::executeImpl(DataStructure& data, const Arguments& filterArgs, const PipelineFilter* pipelineNode, const MessageHandler& messageHandler,
                                            const std::atomic_bool& shouldCancel) const
 {
-  CreateGeometryInputValues inputValues;
-  inputValues.GeometryPath = filterArgs.value<DataPath>(k_GeometryName_Key);
-  inputValues.GeometryType = filterArgs.value<ChoicesParameter::ValueType>(k_GeometryType_Key);
-  inputValues.TreatWarningsAsErrors = filterArgs.value<bool>(k_WarningsAsErrors_Key);
-  inputValues.MoveArrays = filterArgs.value<ChoicesParameter::ValueType>(k_ArrayHandling_Key) == 1;
+  auto geometryPath = filterArgs.value<DataPath>(k_GeometryName_Key);
+  auto geometryType = filterArgs.value<ChoicesParameter::ValueType>(k_GeometryType_Key);
+  auto treatWarningsAsErrors = filterArgs.value<bool>(k_WarningsAsErrors_Key);
+  auto moveArrays = filterArgs.value<ChoicesParameter::ValueType>(k_ArrayHandling_Key) == 1;
 
-  if(inputValues.GeometryType == 0) // ImageGeom
+  DataPath sharedVertexListArrayPath;
+  DataPath sharedFaceListArrayPath;
+  DataPath sharedCellListArrayPath;
+
+  if(geometryType == 2 || geometryType == 3 || geometryType == 4 || geometryType == 5 || geometryType == 6 || geometryType == 7)
   {
-    inputValues.Dimensions = filterArgs.value<VectorUInt64Parameter::ValueType>(k_Dimensions_Key);
-    inputValues.Origin = filterArgs.value<VectorFloat32Parameter::ValueType>(k_Origin_Key);
-    inputValues.Spacing = filterArgs.value<VectorFloat32Parameter::ValueType>(k_Spacing_Key);
-    inputValues.CellAttributeMatrixPath = inputValues.GeometryPath.createChildPath(filterArgs.value<std::string>(k_CellAttributeMatrixName_Key));
+    sharedVertexListArrayPath = filterArgs.value<DataPath>(k_VertexListName_Key);
   }
-  if(inputValues.GeometryType == 1) // RectGridGeom
+  if(geometryType == 4)
   {
-    inputValues.XBoundsArrayPath = filterArgs.value<DataPath>(k_XBounds_Key);
-    inputValues.YBoundsArrayPath = filterArgs.value<DataPath>(k_YBounds_Key);
-    inputValues.ZBoundsArrayPath = filterArgs.value<DataPath>(k_ZBounds_Key);
-    inputValues.CellAttributeMatrixPath = inputValues.GeometryPath.createChildPath(filterArgs.value<std::string>(k_CellAttributeMatrixName_Key));
+    sharedFaceListArrayPath = filterArgs.value<DataPath>(k_TriangleListName_Key);
   }
-  if(inputValues.GeometryType == 2) // VertexGeom
+  if(geometryType == 5)
   {
-    inputValues.SharedVertexListArrayPath = filterArgs.value<DataPath>(k_VertexListName_Key);
-    inputValues.VertexAttributeMatrixPath = inputValues.GeometryPath.createChildPath(filterArgs.value<std::string>(k_VertexAttributeMatrixName_Key));
+    sharedFaceListArrayPath = filterArgs.value<DataPath>(k_QuadrilateralListName_Key);
   }
-  if(inputValues.GeometryType == 3) // EdgeGeom
+  if(geometryType == 6)
   {
-    inputValues.SharedVertexListArrayPath = filterArgs.value<DataPath>(k_VertexListName_Key);
-    inputValues.VertexAttributeMatrixPath = inputValues.GeometryPath.createChildPath(filterArgs.value<std::string>(k_VertexAttributeMatrixName_Key));
-    inputValues.SharedEdgeListArrayPath = filterArgs.value<DataPath>(k_EdgeListName_Key);
-    inputValues.EdgeAttributeMatrixPath = inputValues.GeometryPath.createChildPath(filterArgs.value<std::string>(k_EdgeAttributeMatrixName_Key));
+    sharedCellListArrayPath = filterArgs.value<DataPath>(k_TetrahedralListName_Key);
   }
-  if(inputValues.GeometryType == 4) // TriangleGeom
+  if(geometryType == 7)
   {
-    inputValues.SharedVertexListArrayPath = filterArgs.value<DataPath>(k_VertexListName_Key);
-    inputValues.VertexAttributeMatrixPath = inputValues.GeometryPath.createChildPath(filterArgs.value<std::string>(k_VertexAttributeMatrixName_Key));
-    inputValues.SharedFaceListArrayPath = filterArgs.value<DataPath>(k_TriangleListName_Key);
-    inputValues.FaceAttributeMatrixPath = inputValues.GeometryPath.createChildPath(filterArgs.value<std::string>(k_FaceAttributeMatrixName_Key));
-  }
-  if(inputValues.GeometryType == 5) // QuadGeom
-  {
-    inputValues.SharedVertexListArrayPath = filterArgs.value<DataPath>(k_VertexListName_Key);
-    inputValues.VertexAttributeMatrixPath = inputValues.GeometryPath.createChildPath(filterArgs.value<std::string>(k_VertexAttributeMatrixName_Key));
-    inputValues.SharedFaceListArrayPath = filterArgs.value<DataPath>(k_QuadrilateralListName_Key);
-    inputValues.FaceAttributeMatrixPath = inputValues.GeometryPath.createChildPath(filterArgs.value<std::string>(k_FaceAttributeMatrixName_Key));
-  }
-  if(inputValues.GeometryType == 6) // TetrahedralGeom
-  {
-    inputValues.SharedVertexListArrayPath = filterArgs.value<DataPath>(k_VertexListName_Key);
-    inputValues.VertexAttributeMatrixPath = inputValues.GeometryPath.createChildPath(filterArgs.value<std::string>(k_VertexAttributeMatrixName_Key));
-    inputValues.SharedCellListArrayPath = filterArgs.value<DataPath>(k_TetrahedralListName_Key);
-    inputValues.CellAttributeMatrixPath = inputValues.GeometryPath.createChildPath(filterArgs.value<std::string>(k_CellAttributeMatrixName_Key));
-  }
-  if(inputValues.GeometryType == 7) // HexahedralGeom
-  {
-    inputValues.SharedVertexListArrayPath = filterArgs.value<DataPath>(k_VertexListName_Key);
-    inputValues.VertexAttributeMatrixPath = inputValues.GeometryPath.createChildPath(filterArgs.value<std::string>(k_VertexAttributeMatrixName_Key));
-    inputValues.SharedCellListArrayPath = filterArgs.value<DataPath>(k_HexahedralListName_Key);
-    inputValues.CellAttributeMatrixPath = inputValues.GeometryPath.createChildPath(filterArgs.value<std::string>(k_CellAttributeMatrixName_Key));
+    sharedCellListArrayPath = filterArgs.value<DataPath>(k_HexahedralListName_Key);
   }
 
-  return CreateGeometry(data, messageHandler, shouldCancel, &inputValues)();
+  Result<> warningResults;
+  // copy over the vertex data in the case of vertex, edge, triangle, quad, tet, and hex geometries
+  if(geometryType == 2 || geometryType == 3 || geometryType == 4 || geometryType == 5 || geometryType == 6 || geometryType == 7)
+  {
+    const DataPath destVertexListPath = geometryPath.createChildPath(sharedVertexListArrayPath.getTargetName());
+    const auto& vertexList = data.getDataRefAs<Float32Array>(destVertexListPath);
+    if(!ExecuteDataFunction(CopyDataArrayFunctor{}, DataType::float32, data, sharedVertexListArrayPath, destVertexListPath))
+    {
+      const auto& srcVertexList = data.getDataRefAs<Float32Array>(sharedVertexListArrayPath);
+      return MakeErrorResult(-8340, fmt::format("Could not copy data array at path '{}' with size {} to data array at path '{}' with size {}.", sharedVertexListArrayPath.toString(),
+                                                srcVertexList.getSize(), destVertexListPath.toString(), vertexList.getSize()));
+    }
+  }
+  // edge geometry
+  if(geometryType == 3)
+  {
+    auto sharedEdgeListArrayPath = filterArgs.value<DataPath>(k_EdgeListName_Key);
+
+    // copy over the edge data
+    const DataPath destEdgeListPath = geometryPath.createChildPath(sharedEdgeListArrayPath.getTargetName());
+    const auto& edgesList = data.getDataRefAs<UInt64Array>(destEdgeListPath);
+    if(!ExecuteDataFunction(CopyDataArrayFunctor{}, DataType::uint64, data, sharedEdgeListArrayPath, destEdgeListPath))
+    {
+      const auto& srcEdgeList = data.getDataRefAs<UInt64Array>(sharedEdgeListArrayPath);
+      return MakeErrorResult(-8341, fmt::format("Could not copy data array at path '{}' with size {} to data array at path '{}' with size {}.", sharedEdgeListArrayPath.toString(),
+                                                srcEdgeList.getSize(), destEdgeListPath.toString(), edgesList.getSize()));
+    }
+
+    // This check must be done in execute since we are accessing the array values!
+    const auto& vertexList = data.getDataRefAs<Float32Array>(geometryPath.createChildPath(sharedVertexListArrayPath.getTargetName()));
+    auto results = checkGeometryArraysCompatible(vertexList, edgesList, treatWarningsAsErrors, "edge");
+    if(results.invalid())
+    {
+      return results;
+    }
+    warningResults.warnings().insert(warningResults.warnings().end(), results.warnings().begin(), results.warnings().end());
+  }
+  // triangle and quad geometries
+  if(geometryType == 4 || geometryType == 5)
+  {
+    // copy over the face data
+    const DataPath destFaceListPath = geometryPath.createChildPath(sharedFaceListArrayPath.getTargetName());
+    const auto& faceList = data.getDataRefAs<UInt64Array>(destFaceListPath);
+    if(!ExecuteDataFunction(CopyDataArrayFunctor{}, DataType::uint64, data, sharedFaceListArrayPath, destFaceListPath))
+    {
+      const auto& srcFaceList = data.getDataRefAs<UInt64Array>(sharedFaceListArrayPath);
+      return MakeErrorResult(-8342, fmt::format("Could not copy data array at path '{}' with size {} to data array at path '{}' with size {}.", sharedFaceListArrayPath.toString(),
+                                                srcFaceList.getSize(), destFaceListPath.toString(), faceList.getSize()));
+    }
+
+    // This check must be done in execute since we are accessing the array values!
+    const auto& vertexList = data.getDataRefAs<Float32Array>(geometryPath.createChildPath(sharedVertexListArrayPath.getTargetName()));
+    auto results = checkGeometryArraysCompatible(vertexList, faceList, treatWarningsAsErrors, (geometryType == 4 ? "triangle" : "quadrilateral"));
+    if(results.invalid())
+    {
+      return results;
+    }
+    warningResults.warnings().insert(warningResults.warnings().end(), results.warnings().begin(), results.warnings().end());
+  }
+  // tetrahedral and hexahedral geometries
+  if(geometryType == 6 || geometryType == 7)
+  {
+    // copy over the cell data
+    const DataPath destCellListPath = geometryPath.createChildPath(sharedCellListArrayPath.getTargetName());
+    const auto& cellList = data.getDataRefAs<UInt64Array>(destCellListPath);
+    if(!ExecuteDataFunction(CopyDataArrayFunctor{}, DataType::uint64, data, sharedCellListArrayPath, destCellListPath))
+    {
+      const auto& srcCellList = data.getDataRefAs<UInt64Array>(sharedCellListArrayPath);
+      return MakeErrorResult(-8343, fmt::format("Could not copy data array at path '{}' with size {} to data array at path '{}' with size {}.", sharedCellListArrayPath.toString(),
+                                                srcCellList.getSize(), destCellListPath.toString(), cellList.getSize()));
+    }
+
+    // This check must be done in execute since we are accessing the array values!
+    const auto& vertexList = data.getDataRefAs<Float32Array>(geometryPath.createChildPath(sharedVertexListArrayPath.getTargetName()));
+    auto results = checkGeometryArraysCompatible(vertexList, cellList, treatWarningsAsErrors, (geometryType == 6 ? "tetrahedral" : "hexahedral"));
+    if(results.invalid())
+    {
+      return results;
+    }
+    warningResults.warnings().insert(warningResults.warnings().end(), results.warnings().begin(), results.warnings().end());
+  }
+  // rectilinear grid geometry
+  if(geometryType == 1)
+  {
+    auto xBoundsArrayPath = filterArgs.value<DataPath>(k_XBounds_Key);
+    auto yBoundsArrayPath = filterArgs.value<DataPath>(k_YBounds_Key);
+    auto zBoundsArrayPath = filterArgs.value<DataPath>(k_ZBounds_Key);
+    auto cellAttributeMatrixPath = geometryPath.createChildPath(filterArgs.value<std::string>(k_CellAttributeMatrixName_Key));
+
+    // This check must be done in execute since we are accessing the array values!
+    const auto& srcXBounds = data.getDataRefAs<Float32Array>(xBoundsArrayPath);
+    const auto& srcYBounds = data.getDataRefAs<Float32Array>(yBoundsArrayPath);
+    const auto& srcZBounds = data.getDataRefAs<Float32Array>(zBoundsArrayPath);
+    auto xResults = checkGridBoundsResolution(srcXBounds, treatWarningsAsErrors, "X");
+    auto yResults = checkGridBoundsResolution(srcYBounds, treatWarningsAsErrors, "Y");
+    auto zResults = checkGridBoundsResolution(srcZBounds, treatWarningsAsErrors, "Z");
+    auto results = MergeResults(MergeResults(xResults, yResults), zResults);
+    if(results.invalid())
+    {
+      return results;
+    }
+    warningResults.warnings().insert(warningResults.warnings().end(), results.warnings().begin(), results.warnings().end());
+
+    // copy over the bounds data
+    const DataPath destXBoundsListPath = geometryPath.createChildPath(xBoundsArrayPath.getTargetName());
+    const auto& xBounds = data.getDataRefAs<Float32Array>(destXBoundsListPath);
+    if(!ExecuteDataFunction(CopyDataArrayFunctor{}, DataType::float32, data, xBoundsArrayPath, destXBoundsListPath))
+    {
+      return MakeErrorResult(-8340, fmt::format("Could not copy data array at path '{}' with size {} to data array at path '{}' with size {}.", xBoundsArrayPath.toString(), srcXBounds.getSize(),
+                                                destXBoundsListPath.toString(), xBounds.getSize()));
+    }
+
+    const DataPath destYBoundsListPath = geometryPath.createChildPath(yBoundsArrayPath.getTargetName());
+    const auto& yBounds = data.getDataRefAs<Float32Array>(destYBoundsListPath);
+    if(!ExecuteDataFunction(CopyDataArrayFunctor{}, DataType::float32, data, yBoundsArrayPath, destYBoundsListPath))
+    {
+      return MakeErrorResult(-8340, fmt::format("Could not copy data array at path '{}' with size {} to data array at path '{}' with size {}.", yBoundsArrayPath.toString(), srcYBounds.getSize(),
+                                                destYBoundsListPath.toString(), yBounds.getSize()));
+    }
+
+    const DataPath destZBoundsListPath = geometryPath.createChildPath(zBoundsArrayPath.getTargetName());
+    const auto& zBounds = data.getDataRefAs<Float32Array>(destZBoundsListPath);
+    if(!ExecuteDataFunction(CopyDataArrayFunctor{}, DataType::float32, data, zBoundsArrayPath, destZBoundsListPath))
+    {
+      return MakeErrorResult(-8340, fmt::format("Could not copy data array at path '{}' with size {} to data array at path '{}' with size {}.", zBoundsArrayPath.toString(), srcYBounds.getSize(),
+                                                destZBoundsListPath.toString(), zBounds.getSize()));
+    }
+  }
+  return warningResults;
 }
 } // namespace complex
