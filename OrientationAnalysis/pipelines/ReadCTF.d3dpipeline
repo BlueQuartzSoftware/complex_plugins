@@ -24,7 +24,7 @@
         "CellIPFColorsArrayName": "IPFColors",
         "CellPhasesArrayPath": "DataContainer/Cell Data/Phases",
         "CrystalStructuresArrayPath": "DataContainer/CellEnsembleData/CrystalStructures",
-        "GoodVoxelsArrayPath": "",
+        "good_voxels_array_path": "",
         "ReferenceDir": [
           0.0,
           0.0,
