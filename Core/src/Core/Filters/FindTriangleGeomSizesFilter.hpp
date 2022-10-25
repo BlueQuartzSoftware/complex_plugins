@@ -1,6 +1,6 @@
 #pragma once
 
-#include "SurfaceMeshing/SurfaceMeshing_export.hpp"
+#include "Core/Core_export.hpp"
 
 #include "complex/Filter/FilterTraits.hpp"
 #include "complex/Filter/IFilter.hpp"
@@ -8,25 +8,26 @@
 namespace complex
 {
 /**
- * @class FindTriangleGeomSizes
+ * @class FindTriangleGeomSizesFilter
  * @brief This filter will ....
  */
-class SURFACEMESHING_EXPORT FindTriangleGeomSizes : public IFilter
+class CORE_EXPORT FindTriangleGeomSizesFilter : public IFilter
 {
 public:
-  FindTriangleGeomSizes() = default;
-  ~FindTriangleGeomSizes() noexcept override = default;
+  FindTriangleGeomSizesFilter() = default;
+  ~FindTriangleGeomSizesFilter() noexcept override = default;
 
-  FindTriangleGeomSizes(const FindTriangleGeomSizes&) = delete;
-  FindTriangleGeomSizes(FindTriangleGeomSizes&&) noexcept = delete;
+  FindTriangleGeomSizesFilter(const FindTriangleGeomSizesFilter&) = delete;
+  FindTriangleGeomSizesFilter(FindTriangleGeomSizesFilter&&) noexcept = delete;
 
-  FindTriangleGeomSizes& operator=(const FindTriangleGeomSizes&) = delete;
-  FindTriangleGeomSizes& operator=(FindTriangleGeomSizes&&) noexcept = delete;
+  FindTriangleGeomSizesFilter& operator=(const FindTriangleGeomSizesFilter&) = delete;
+  FindTriangleGeomSizesFilter& operator=(FindTriangleGeomSizesFilter&&) noexcept = delete;
 
   // Parameter Keys
   static inline constexpr StringLiteral k_FaceLabelsArrayPath_Key = "face_labels_array_path";
   static inline constexpr StringLiteral k_FeatureAttributeMatrixName_Key = "feature_attribute_matrix_name";
   static inline constexpr StringLiteral k_VolumesArrayName_Key = "volumes_array_name";
+  static inline constexpr StringLiteral k_TriGeometryDataPath_Key = "triangle_geometry_path";
 
   /**
    * @brief Returns the name of the filter.
@@ -94,4 +95,4 @@ protected:
 };
 } // namespace complex
 
-COMPLEX_DEF_FILTER_TRAITS(complex, FindTriangleGeomSizes, "a979bd9b-834e-4497-84b0-ab7a8add341a");
+COMPLEX_DEF_FILTER_TRAITS(complex, FindTriangleGeomSizesFilter, "a979bd9b-834e-4497-84b0-ab7a8add341a");

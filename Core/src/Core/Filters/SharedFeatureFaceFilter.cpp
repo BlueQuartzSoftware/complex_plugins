@@ -3,6 +3,10 @@
 #include "complex/DataStructure/DataPath.hpp"
 #include "complex/Parameters/ArrayCreationParameter.hpp"
 #include "complex/Parameters/ArraySelectionParameter.hpp"
+#include "complex/Parameters/DataObjectNameParameter.hpp"
+#include "complex/Parameters/GeometrySelectionParameter.hpp"
+
+#include "Core/Filters/Algorithms/SharedFeatureFace.hpp"
 
 using namespace complex;
 
@@ -35,7 +39,7 @@ std::string SharedFeatureFaceFilter::humanName() const
 //------------------------------------------------------------------------------
 std::vector<std::string> SharedFeatureFaceFilter::defaultTags() const
 {
-  return {"#Surface Meshing", "#Connectivity Arrangement"};
+  return {"#Surface Meshing", "#Connectivity Arrangement", "#SurfaceMesh"};
 }
 
 //------------------------------------------------------------------------------
@@ -43,14 +47,20 @@ Parameters SharedFeatureFaceFilter::parameters() const
 {
   Parameters params;
   // Create the parameter descriptors that are needed for this filter
-  params.insertSeparator(Parameters::Separator{"Face Data"});
+  params.insert(std::make_unique<GeometrySelectionParameter>(k_TriGeometryDataPath_Key, "Triangle Geometry", "The complete path to the Geometry for which to calculate the normals", DataPath{},
+                                                             GeometrySelectionParameter::AllowedTypes{IGeometry::Type::Triangle}));
+  params.insertSeparator(Parameters::Separator{"Required Face Data"});
   params.insert(std::make_unique<ArraySelectionParameter>(k_SurfaceMeshFaceLabelsArrayPath_Key, "Face Labels", "", DataPath{}, ArraySelectionParameter::AllowedTypes{}));
-  params.insertSeparator(Parameters::Separator{"Face Data"});
-  params.insert(std::make_unique<ArrayCreationParameter>(k_SurfaceMeshFeatureFaceIdsArrayName_Key, "Feature Face Ids", "", DataPath{}));
-  params.insertSeparator(Parameters::Separator{"Face Feature Data"});
+
+  params.insertSeparator(Parameters::Separator{"Required Face Data"});
+
+  params.insertSeparator(Parameters::Separator{"Created Face Feature Data"});
   params.insert(std::make_unique<ArrayCreationParameter>(k_FaceFeatureAttributeMatrixName_Key, "Face Feature Attribute Matrix", "", DataPath{}));
-  params.insert(std::make_unique<ArrayCreationParameter>(k_SurfaceMeshFeatureFaceLabelsArrayName_Key, "Face Labels", "", DataPath{}));
-  params.insert(std::make_unique<ArrayCreationParameter>(k_SurfaceMeshFeatureFaceNumTrianglesArrayName_Key, "Number of Triangles", "", DataPath{}));
+  params.insert(std::make_unique<ArrayCreationParameter>(k_SurfaceMeshFeatureFaceLabelsArrayName_Key, "Feature Face Labels", "", DataPath{}));
+  params.insert(std::make_unique<ArrayCreationParameter>(k_SurfaceMeshFeatureFaceNumTrianglesArrayName_Key, "Feature Number of Triangles", "", DataPath{}));
+
+  params.insertSeparator(Parameters::Separator{"Created Face Data Arrays"});
+  params.insert(std::make_unique<ArrayCreationParameter>(k_SurfaceMeshFeatureFaceIdsArrayName_Key, "Feature Face Ids", "", DataPath{}));
 
   return params;
 }
@@ -126,19 +136,14 @@ IFilter::PreflightResult SharedFeatureFaceFilter::preflightImpl(const DataStruct
 Result<> SharedFeatureFaceFilter::executeImpl(DataStructure& dataStructure, const Arguments& filterArgs, const PipelineFilter* pipelineNode, const MessageHandler& messageHandler,
                                               const std::atomic_bool& shouldCancel) const
 {
-  /****************************************************************************
-   * Extract the actual input values from the 'filterArgs' object
-   ***************************************************************************/
-  auto pSurfaceMeshFaceLabelsArrayPathValue = filterArgs.value<DataPath>(k_SurfaceMeshFaceLabelsArrayPath_Key);
-  auto pSurfaceMeshFeatureFaceIdsArrayNameValue = filterArgs.value<DataPath>(k_SurfaceMeshFeatureFaceIdsArrayName_Key);
-  auto pFaceFeatureAttributeMatrixNameValue = filterArgs.value<DataPath>(k_FaceFeatureAttributeMatrixName_Key);
-  auto pSurfaceMeshFeatureFaceLabelsArrayNameValue = filterArgs.value<DataPath>(k_SurfaceMeshFeatureFaceLabelsArrayName_Key);
-  auto pSurfaceMeshFeatureFaceNumTrianglesArrayNameValue = filterArgs.value<DataPath>(k_SurfaceMeshFeatureFaceNumTrianglesArrayName_Key);
+  SharedFeatureFaceInputValues inputValues;
 
-  /****************************************************************************
-   * Write your algorithm implementation in this function
-   ***************************************************************************/
+  inputValues.SurfaceMeshFaceLabelsArrayPath = filterArgs.value<DataPath>(k_SurfaceMeshFaceLabelsArrayPath_Key);
+  inputValues.SurfaceMeshFeatureFaceIdsArrayName = filterArgs.value<DataPath>(k_SurfaceMeshFeatureFaceIdsArrayName_Key);
+  inputValues.FaceFeatureAttributeMatrixName = filterArgs.value<DataPath>(k_FaceFeatureAttributeMatrixName_Key);
+  inputValues.SurfaceMeshFeatureFaceLabelsArrayName = filterArgs.value<DataPath>(k_SurfaceMeshFeatureFaceLabelsArrayName_Key);
+  inputValues.SurfaceMeshFeatureFaceNumTrianglesArrayName = filterArgs.value<DataPath>(k_SurfaceMeshFeatureFaceNumTrianglesArrayName_Key);
 
-  return {};
+  return SharedFeatureFace(dataStructure, messageHandler, shouldCancel, &inputValues)();
 }
 } // namespace complex

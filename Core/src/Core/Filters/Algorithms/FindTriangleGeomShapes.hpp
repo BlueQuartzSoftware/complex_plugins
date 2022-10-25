@@ -1,6 +1,6 @@
 #pragma once
 
-#include "SurfaceMeshing/SurfaceMeshing_export.hpp"
+#include "Core/Core_export.hpp"
 
 #include "complex/DataStructure/DataPath.hpp"
 #include "complex/DataStructure/DataStructure.hpp"
@@ -8,24 +8,13 @@
 
 /**
 * This is example code to put in the Execute Method of the filter.
-  FindTriangleGeomShapesInputValues inputValues;
 
-  inputValues.FaceLabelsArrayPath = filterArgs.value<DataPath>(k_FaceLabelsArrayPath_Key);
-  inputValues.FeatureAttributeMatrixName = filterArgs.value<DataPath>(k_FeatureAttributeMatrixName_Key);
-  inputValues.CentroidsArrayPath = filterArgs.value<DataPath>(k_CentroidsArrayPath_Key);
-  inputValues.VolumesArrayPath = filterArgs.value<DataPath>(k_VolumesArrayPath_Key);
-  inputValues.Omega3sArrayName = filterArgs.value<DataPath>(k_Omega3sArrayName_Key);
-  inputValues.AxisLengthsArrayName = filterArgs.value<DataPath>(k_AxisLengthsArrayName_Key);
-  inputValues.AxisEulerAnglesArrayName = filterArgs.value<DataPath>(k_AxisEulerAnglesArrayName_Key);
-  inputValues.AspectRatiosArrayName = filterArgs.value<DataPath>(k_AspectRatiosArrayName_Key);
-
-  return FindTriangleGeomShapes(dataStructure, messageHandler, shouldCancel, &inputValues)();
 */
 
 namespace complex
 {
 
-struct SURFACEMESHING_EXPORT FindTriangleGeomShapesInputValues
+struct CORE_EXPORT FindTriangleGeomShapesInputValues
 {
   DataPath FaceLabelsArrayPath;
   DataPath FeatureAttributeMatrixName;
@@ -43,7 +32,7 @@ struct SURFACEMESHING_EXPORT FindTriangleGeomShapesInputValues
  * where a bool mask array specifies.
  */
 
-class SURFACEMESHING_EXPORT FindTriangleGeomShapes
+class CORE_EXPORT FindTriangleGeomShapes
 {
 public:
   FindTriangleGeomShapes(DataStructure& dataStructure, const IFilter::MessageHandler& mesgHandler, const std::atomic_bool& shouldCancel, FindTriangleGeomShapesInputValues* inputValues);

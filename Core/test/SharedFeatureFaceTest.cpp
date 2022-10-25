@@ -25,8 +25,8 @@
 #include "complex/Parameters/ArrayCreationParameter.hpp"
 #include "complex/Parameters/ArraySelectionParameter.hpp"
 
-#include "SurfaceMeshing/Filters/SharedFeatureFaceFilter.hpp"
-#include "SurfaceMeshing/SurfaceMeshing_test_dirs.hpp"
+#include "Core/Core_test_dirs.hpp"
+#include "Core/Filters/SharedFeatureFaceFilter.hpp"
 
 using namespace complex;
 

@@ -26,27 +26,27 @@
 #include "complex/Parameters/ArraySelectionParameter.hpp"
 #include "complex/Parameters/DataGroupSelectionParameter.hpp"
 
-#include "SurfaceMeshing/Filters/FindTriangleGeomShapes.hpp"
-#include "SurfaceMeshing/SurfaceMeshing_test_dirs.hpp"
+#include "Core/Core_test_dirs.hpp"
+#include "Core/Filters/FindTriangleGeomShapesFilter.hpp"
 
 using namespace complex;
 
 TEST_CASE("SurfaceMeshing::FindTriangleGeomShapes: Instantiation and Parameter Check", "[SurfaceMeshing][FindTriangleGeomShapes][.][UNIMPLEMENTED][!mayfail]")
 {
   // Instantiate the filter, a DataStructure object and an Arguments Object
-  FindTriangleGeomShapes filter;
+  FindTriangleGeomShapesFilter filter;
   DataStructure ds;
   Arguments args;
 
   // Create default Parameters for the filter.
-  args.insertOrAssign(FindTriangleGeomShapes::k_FaceLabelsArrayPath_Key, std::make_any<DataPath>(DataPath{}));
-  args.insertOrAssign(FindTriangleGeomShapes::k_FeatureAttributeMatrixName_Key, std::make_any<DataPath>(DataPath{}));
-  args.insertOrAssign(FindTriangleGeomShapes::k_CentroidsArrayPath_Key, std::make_any<DataPath>(DataPath{}));
-  args.insertOrAssign(FindTriangleGeomShapes::k_VolumesArrayPath_Key, std::make_any<DataPath>(DataPath{}));
-  args.insertOrAssign(FindTriangleGeomShapes::k_Omega3sArrayName_Key, std::make_any<DataPath>(DataPath{}));
-  args.insertOrAssign(FindTriangleGeomShapes::k_AxisLengthsArrayName_Key, std::make_any<DataPath>(DataPath{}));
-  args.insertOrAssign(FindTriangleGeomShapes::k_AxisEulerAnglesArrayName_Key, std::make_any<DataPath>(DataPath{}));
-  args.insertOrAssign(FindTriangleGeomShapes::k_AspectRatiosArrayName_Key, std::make_any<DataPath>(DataPath{}));
+  args.insertOrAssign(FindTriangleGeomShapesFilter::k_FaceLabelsArrayPath_Key, std::make_any<DataPath>(DataPath{}));
+  args.insertOrAssign(FindTriangleGeomShapesFilter::k_FeatureAttributeMatrixName_Key, std::make_any<DataPath>(DataPath{}));
+  args.insertOrAssign(FindTriangleGeomShapesFilter::k_CentroidsArrayPath_Key, std::make_any<DataPath>(DataPath{}));
+  args.insertOrAssign(FindTriangleGeomShapesFilter::k_VolumesArrayPath_Key, std::make_any<DataPath>(DataPath{}));
+  args.insertOrAssign(FindTriangleGeomShapesFilter::k_Omega3sArrayName_Key, std::make_any<DataPath>(DataPath{}));
+  args.insertOrAssign(FindTriangleGeomShapesFilter::k_AxisLengthsArrayName_Key, std::make_any<DataPath>(DataPath{}));
+  args.insertOrAssign(FindTriangleGeomShapesFilter::k_AxisEulerAnglesArrayName_Key, std::make_any<DataPath>(DataPath{}));
+  args.insertOrAssign(FindTriangleGeomShapesFilter::k_AspectRatiosArrayName_Key, std::make_any<DataPath>(DataPath{}));
 
   // Preflight the filter and check result
   auto preflightResult = filter.preflight(ds, args);

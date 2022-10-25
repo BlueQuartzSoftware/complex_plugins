@@ -1,81 +1,81 @@
-#include "FindTriangleGeomCentroids.hpp"
+#include "FindTriangleGeomSizesFilter.hpp"
 
 #include "complex/DataStructure/DataPath.hpp"
 #include "complex/Parameters/ArrayCreationParameter.hpp"
 #include "complex/Parameters/ArraySelectionParameter.hpp"
 #include "complex/Parameters/DataGroupSelectionParameter.hpp"
+#include "complex/Parameters/DataObjectNameParameter.hpp"
+#include "complex/Parameters/GeometrySelectionParameter.hpp"
+
+#include "Core/Filters/Algorithms/FindTriangleGeomSizes.hpp"
 
 using namespace complex;
 
 namespace complex
 {
 //------------------------------------------------------------------------------
-std::string FindTriangleGeomCentroids::name() const
+std::string FindTriangleGeomSizesFilter::name() const
 {
-  return FilterTraits<FindTriangleGeomCentroids>::name.str();
+  return FilterTraits<FindTriangleGeomSizesFilter>::name.str();
 }
 
 //------------------------------------------------------------------------------
-std::string FindTriangleGeomCentroids::className() const
+std::string FindTriangleGeomSizesFilter::className() const
 {
-  return FilterTraits<FindTriangleGeomCentroids>::className;
+  return FilterTraits<FindTriangleGeomSizesFilter>::className;
 }
 
 //------------------------------------------------------------------------------
-Uuid FindTriangleGeomCentroids::uuid() const
+Uuid FindTriangleGeomSizesFilter::uuid() const
 {
-  return FilterTraits<FindTriangleGeomCentroids>::uuid;
+  return FilterTraits<FindTriangleGeomSizesFilter>::uuid;
 }
 
 //------------------------------------------------------------------------------
-std::string FindTriangleGeomCentroids::humanName() const
+std::string FindTriangleGeomSizesFilter::humanName() const
 {
-  return "Find Feature Centroids from Triangle Geometry";
+  return "Find Feature Volumes from Triangle Geometry";
 }
 
 //------------------------------------------------------------------------------
-std::vector<std::string> FindTriangleGeomCentroids::defaultTags() const
+std::vector<std::string> FindTriangleGeomSizesFilter::defaultTags() const
 {
-  return {"#Generic", "#Morphological"};
+  return {"#Statistics", "#Morphological", "#SurfaceMesh"};
 }
 
 //------------------------------------------------------------------------------
-Parameters FindTriangleGeomCentroids::parameters() const
+Parameters FindTriangleGeomSizesFilter::parameters() const
 {
   Parameters params;
   // Create the parameter descriptors that are needed for this filter
-  params.insertSeparator(Parameters::Separator{"Face Data"});
+  params.insert(std::make_unique<GeometrySelectionParameter>(k_TriGeometryDataPath_Key, "Triangle Geometry", "The complete path to the Geometry for which to calculate the normals", DataPath{},
+                                                             GeometrySelectionParameter::AllowedTypes{IGeometry::Type::Triangle}));
+  params.insertSeparator(Parameters::Separator{"Required Face Data"});
   params.insert(std::make_unique<ArraySelectionParameter>(k_FaceLabelsArrayPath_Key, "Face Labels", "", DataPath{}, ArraySelectionParameter::AllowedTypes{}));
-  params.insertSeparator(Parameters::Separator{"Face Feature Data"});
-  params.insert(std::make_unique<DataGroupSelectionParameter>(k_FeatureAttributeMatrixName_Key, "Face Feature Attribute Matrix", "", DataPath{}));
-  params.insertSeparator(Parameters::Separator{"Face Feature Data"});
-  params.insert(std::make_unique<ArrayCreationParameter>(k_CentroidsArrayName_Key, "Centroids", "", DataPath{}));
+  params.insertSeparator(Parameters::Separator{"Required Face Feature Data"});
+  params.insert(std::make_unique<DataGroupSelectionParameter>(k_FeatureAttributeMatrixName_Key, "Face Feature Attribute Matrix", "", DataPath{},
+                                                              DataGroupSelectionParameter::AllowedTypes{BaseGroup::GroupType::AttributeMatrix}));
+  params.insertSeparator(Parameters::Separator{"Created Face Feature Data Arrays"});
+  params.insert(std::make_unique<DataObjectNameParameter>(k_VolumesArrayName_Key, "Volumes", "", "Volumes"));
 
   return params;
 }
 
 //------------------------------------------------------------------------------
-IFilter::UniquePointer FindTriangleGeomCentroids::clone() const
+IFilter::UniquePointer FindTriangleGeomSizesFilter::clone() const
 {
-  return std::make_unique<FindTriangleGeomCentroids>();
+  return std::make_unique<FindTriangleGeomSizesFilter>();
 }
 
 //------------------------------------------------------------------------------
-IFilter::PreflightResult FindTriangleGeomCentroids::preflightImpl(const DataStructure& dataStructure, const Arguments& filterArgs, const MessageHandler& messageHandler,
-                                                                  const std::atomic_bool& shouldCancel) const
+IFilter::PreflightResult FindTriangleGeomSizesFilter::preflightImpl(const DataStructure& dataStructure, const Arguments& filterArgs, const MessageHandler& messageHandler,
+                                                                    const std::atomic_bool& shouldCancel) const
 {
-  /****************************************************************************
-   * Write any preflight sanity checking codes in this function
-   ***************************************************************************/
-
-  /**
-   * These are the values that were gathered from the UI or the pipeline file or
-   * otherwise passed into the filter. These are here for your convenience. If you
-   * do not need some of them remove them.
-   */
   auto pFaceLabelsArrayPathValue = filterArgs.value<DataPath>(k_FaceLabelsArrayPath_Key);
   auto pFeatureAttributeMatrixNameValue = filterArgs.value<DataPath>(k_FeatureAttributeMatrixName_Key);
-  auto pCentroidsArrayNameValue = filterArgs.value<DataPath>(k_CentroidsArrayName_Key);
+  auto volumesArrayNameValue = filterArgs.value<DataObjectNameParameter::ValueType>(k_VolumesArrayName_Key);
+
+  DataPath volumesArrayPath = pFeatureAttributeMatrixNameValue.createChildPath(volumesArrayNameValue);
 
   // Declare the preflightResult variable that will be populated with the results
   // of the preflight. The PreflightResult type contains the output Actions and
@@ -120,20 +120,18 @@ IFilter::PreflightResult FindTriangleGeomCentroids::preflightImpl(const DataStru
 }
 
 //------------------------------------------------------------------------------
-Result<> FindTriangleGeomCentroids::executeImpl(DataStructure& dataStructure, const Arguments& filterArgs, const PipelineFilter* pipelineNode, const MessageHandler& messageHandler,
-                                                const std::atomic_bool& shouldCancel) const
+Result<> FindTriangleGeomSizesFilter::executeImpl(DataStructure& dataStructure, const Arguments& filterArgs, const PipelineFilter* pipelineNode, const MessageHandler& messageHandler,
+                                                  const std::atomic_bool& shouldCancel) const
 {
-  /****************************************************************************
-   * Extract the actual input values from the 'filterArgs' object
-   ***************************************************************************/
-  auto pFaceLabelsArrayPathValue = filterArgs.value<DataPath>(k_FaceLabelsArrayPath_Key);
-  auto pFeatureAttributeMatrixNameValue = filterArgs.value<DataPath>(k_FeatureAttributeMatrixName_Key);
-  auto pCentroidsArrayNameValue = filterArgs.value<DataPath>(k_CentroidsArrayName_Key);
+  FindTriangleGeomSizesInputValues inputValues;
 
-  /****************************************************************************
-   * Write your algorithm implementation in this function
-   ***************************************************************************/
+  inputValues.FaceLabelsArrayPath = filterArgs.value<DataPath>(k_FaceLabelsArrayPath_Key);
+  inputValues.FeatureAttributeMatrixName = filterArgs.value<DataPath>(k_FeatureAttributeMatrixName_Key);
 
-  return {};
+  auto volumesArrayNameValue = filterArgs.value<DataObjectNameParameter::ValueType>(k_VolumesArrayName_Key);
+
+  DataPath volumesArrayPath = inputValues.FeatureAttributeMatrixName.createChildPath(volumesArrayNameValue);
+
+  return FindTriangleGeomSizes(dataStructure, messageHandler, shouldCancel, &inputValues)();
 }
 } // namespace complex

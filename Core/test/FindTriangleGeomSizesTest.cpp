@@ -1,5 +1,5 @@
 /**
- * This file is auto generated from the original SurfaceMeshing/FindTriangleGeomCentroids
+ * This file is auto generated from the original SurfaceMeshing/FindTriangleGeomSizes
  * runtime information. These are the steps that need to be taken to utilize this
  * unit test in the proper way.
  *
@@ -15,7 +15,7 @@
  * NOTE the format of the ```TEST_CASE``` macro. Please stick to this format to
  * allow easier parsing of the unit tests.
  *
- * When you start working on this unit test remove "[FindTriangleGeomCentroids][.][UNIMPLEMENTED]"
+ * When you start working on this unit test remove "[FindTriangleGeomSizes][.][UNIMPLEMENTED]"
  * from the TEST_CASE macro. This will enable this unit test to be run by default
  * and report errors.
  */
@@ -26,22 +26,22 @@
 #include "complex/Parameters/ArraySelectionParameter.hpp"
 #include "complex/Parameters/DataGroupSelectionParameter.hpp"
 
-#include "SurfaceMeshing/Filters/FindTriangleGeomCentroids.hpp"
-#include "SurfaceMeshing/SurfaceMeshing_test_dirs.hpp"
+#include "Core/Core_test_dirs.hpp"
+#include "Core/Filters/FindTriangleGeomSizesFilter.hpp"
 
 using namespace complex;
 
-TEST_CASE("SurfaceMeshing::FindTriangleGeomCentroids: Instantiation and Parameter Check", "[SurfaceMeshing][FindTriangleGeomCentroids][.][UNIMPLEMENTED][!mayfail]")
+TEST_CASE("SurfaceMeshing::FindTriangleGeomSizes: Instantiation and Parameter Check", "[SurfaceMeshing][FindTriangleGeomSizes][.][UNIMPLEMENTED][!mayfail]")
 {
   // Instantiate the filter, a DataStructure object and an Arguments Object
-  FindTriangleGeomCentroids filter;
+  FindTriangleGeomSizesFilter filter;
   DataStructure ds;
   Arguments args;
 
   // Create default Parameters for the filter.
-  args.insertOrAssign(FindTriangleGeomCentroids::k_FaceLabelsArrayPath_Key, std::make_any<DataPath>(DataPath{}));
-  args.insertOrAssign(FindTriangleGeomCentroids::k_FeatureAttributeMatrixName_Key, std::make_any<DataPath>(DataPath{}));
-  args.insertOrAssign(FindTriangleGeomCentroids::k_CentroidsArrayName_Key, std::make_any<DataPath>(DataPath{}));
+  args.insertOrAssign(FindTriangleGeomSizesFilter::k_FaceLabelsArrayPath_Key, std::make_any<DataPath>(DataPath{}));
+  args.insertOrAssign(FindTriangleGeomSizesFilter::k_FeatureAttributeMatrixName_Key, std::make_any<DataPath>(DataPath{}));
+  args.insertOrAssign(FindTriangleGeomSizesFilter::k_VolumesArrayName_Key, std::make_any<DataPath>(DataPath{}));
 
   // Preflight the filter and check result
   auto preflightResult = filter.preflight(ds, args);
@@ -52,12 +52,12 @@ TEST_CASE("SurfaceMeshing::FindTriangleGeomCentroids: Instantiation and Paramete
   REQUIRE(executeResult.result.valid());
 }
 
-// TEST_CASE("SurfaceMeshing::FindTriangleGeomCentroids: Valid filter execution")
+// TEST_CASE("SurfaceMeshing::FindTriangleGeomSizes: Valid filter execution")
 //{
 //
 //}
 
-// TEST_CASE("SurfaceMeshing::FindTriangleGeomCentroids: InValid filter execution")
+// TEST_CASE("SurfaceMeshing::FindTriangleGeomSizes: InValid filter execution")
 //{
 //
 //}

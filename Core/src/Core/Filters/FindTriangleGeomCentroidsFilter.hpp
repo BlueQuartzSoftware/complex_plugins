@@ -1,6 +1,6 @@
 #pragma once
 
-#include "SurfaceMeshing/SurfaceMeshing_export.hpp"
+#include "Core/Core_export.hpp"
 
 #include "complex/Filter/FilterTraits.hpp"
 #include "complex/Filter/IFilter.hpp"
@@ -8,30 +8,26 @@
 namespace complex
 {
 /**
- * @class FindTriangleGeomShapes
+ * @class FindTriangleGeomCentroidsFilter
  * @brief This filter will ....
  */
-class SURFACEMESHING_EXPORT FindTriangleGeomShapes : public IFilter
+class CORE_EXPORT FindTriangleGeomCentroidsFilter : public IFilter
 {
 public:
-  FindTriangleGeomShapes() = default;
-  ~FindTriangleGeomShapes() noexcept override = default;
+  FindTriangleGeomCentroidsFilter() = default;
+  ~FindTriangleGeomCentroidsFilter() noexcept override = default;
 
-  FindTriangleGeomShapes(const FindTriangleGeomShapes&) = delete;
-  FindTriangleGeomShapes(FindTriangleGeomShapes&&) noexcept = delete;
+  FindTriangleGeomCentroidsFilter(const FindTriangleGeomCentroidsFilter&) = delete;
+  FindTriangleGeomCentroidsFilter(FindTriangleGeomCentroidsFilter&&) noexcept = delete;
 
-  FindTriangleGeomShapes& operator=(const FindTriangleGeomShapes&) = delete;
-  FindTriangleGeomShapes& operator=(FindTriangleGeomShapes&&) noexcept = delete;
+  FindTriangleGeomCentroidsFilter& operator=(const FindTriangleGeomCentroidsFilter&) = delete;
+  FindTriangleGeomCentroidsFilter& operator=(FindTriangleGeomCentroidsFilter&&) noexcept = delete;
 
   // Parameter Keys
   static inline constexpr StringLiteral k_FaceLabelsArrayPath_Key = "face_labels_array_path";
   static inline constexpr StringLiteral k_FeatureAttributeMatrixName_Key = "feature_attribute_matrix_name";
-  static inline constexpr StringLiteral k_CentroidsArrayPath_Key = "centroids_array_path";
-  static inline constexpr StringLiteral k_VolumesArrayPath_Key = "volumes_array_path";
-  static inline constexpr StringLiteral k_Omega3sArrayName_Key = "omega3s_array_name";
-  static inline constexpr StringLiteral k_AxisLengthsArrayName_Key = "axis_lengths_array_name";
-  static inline constexpr StringLiteral k_AxisEulerAnglesArrayName_Key = "axis_euler_angles_array_name";
-  static inline constexpr StringLiteral k_AspectRatiosArrayName_Key = "aspect_ratios_array_name";
+  static inline constexpr StringLiteral k_CentroidsArrayName_Key = "centroids_array_name";
+  static inline constexpr StringLiteral k_TriGeometryDataPath_Key = "triangle_geometry_path";
 
   /**
    * @brief Returns the name of the filter.
@@ -99,4 +95,4 @@ protected:
 };
 } // namespace complex
 
-COMPLEX_DEF_FILTER_TRAITS(complex, FindTriangleGeomShapes, "e8f0fed3-d0d8-456e-b5a1-7961cc17b739");
+COMPLEX_DEF_FILTER_TRAITS(complex, FindTriangleGeomCentroidsFilter, "074c0523-ab7a-4097-b0c3-c4dcbfb9a05e");

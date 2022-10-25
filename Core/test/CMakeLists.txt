@@ -20,6 +20,14 @@ set(${PLUGIN_NAME}UnitTest_SRCS
   FindNeighborhoodsTest.cpp
   FindSurfaceAreaToVolumeTest.cpp
   FeatureDataCSVWriterTest.cpp
+  CalculateArrayHistogramTest.cpp
+  RemoveFlaggedFeaturesTest.cpp
+  SplitAttributeArrayTest.cpp
+
+  FindTriangleGeomCentroidsTest.cpp
+  FindTriangleGeomShapesTest.cpp
+  FindTriangleGeomSizesTest.cpp
+  SharedFeatureFaceTest.cpp
 )
 
 create_complex_plugin_unit_test(PLUGIN_NAME ${PLUGIN_NAME}

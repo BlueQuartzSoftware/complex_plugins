@@ -32,6 +32,10 @@ set(FilterList
   RemoveFlaggedFeaturesFilter
   SplitAttributeArrayFilter
   FeatureDataCSVWriterFilter
+  FindTriangleGeomCentroidsFilter
+  FindTriangleGeomShapesFilter
+  FindTriangleGeomSizesFilter
+  SharedFeatureFaceFilter
 )
 
 set(STUB_FILTERS
@@ -105,6 +109,11 @@ set(filter_algorithms
   CalculateArrayHistogram
   RemoveFlaggedFeatures
   SplitAttributeArray
+
+  FindTriangleGeomCentroids
+  FindTriangleGeomShapes
+  FindTriangleGeomSizes
+  SharedFeatureFace
 )
 
 
