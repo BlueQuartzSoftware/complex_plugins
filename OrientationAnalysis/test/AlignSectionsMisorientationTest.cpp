@@ -359,7 +359,7 @@ TEST_CASE("OrientationAnalysis::AlignSectionsMisorientation Small IN100 Pipeline
     },
     {
       "args": {
-        "Export_File_Path": "align_sections_misorientations.dream3d"
+        "export_file_path": "align_sections_misorientations.dream3d"
       },
       "filter": {
         "name": "complex::ExportDREAM3DFilter",
