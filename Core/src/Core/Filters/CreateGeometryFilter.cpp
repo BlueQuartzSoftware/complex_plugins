@@ -130,7 +130,7 @@ Parameters CreateGeometryFilter::parameters() const
   params.insertSeparator(Parameters::Separator{"Input Parameters"});
   params.insertLinkableParameter(std::make_unique<ChoicesParameter>(k_GeometryType_Key, "Geometry Type", "", 0, GetAllGeometryTypesAsStrings()));
   params.insert(std::make_unique<BoolParameter>(k_WarningsAsErrors_Key, "Treat Geometry Warnings as Errors", "", false));
-  params.insert(std::make_unique<ChoicesParameter>(k_ArrayHandling_Key, "Array Handling", "", 0, ChoicesParameter::Choices{"Copy Array", "Move Array", "Reference Array"}));
+  params.insert(std::make_unique<ChoicesParameter>(k_ArrayHandling_Key, "Array Handling", "", 0, ChoicesParameter::Choices{"Copy Array", "Move Array" /*, "Reference Array"*/}));
 
   params.insert(std::make_unique<VectorUInt64Parameter>(k_Dimensions_Key, "Dimensions", "The number of cells in each of the X, Y, Z directions", std::vector<uint64_t>{20ULL, 60ULL, 200ULL},
                                                         std::vector<std::string>{"X"s, "Y"s, "Z"s}));
