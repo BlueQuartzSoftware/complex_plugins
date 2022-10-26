@@ -110,10 +110,10 @@ set(filter_algorithms
   RemoveFlaggedFeatures
   SplitAttributeArray
 
-  FindTriangleGeomCentroids
-  FindTriangleGeomShapes
+#  FindTriangleGeomCentroids
+#  FindTriangleGeomShapes
   FindTriangleGeomSizes
-  SharedFeatureFace
+#  SharedFeatureFace
 )
 
 

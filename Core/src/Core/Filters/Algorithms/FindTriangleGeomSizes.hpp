@@ -16,9 +16,10 @@ namespace complex
 
 struct CORE_EXPORT FindTriangleGeomSizesInputValues
 {
+  DataPath TriangleGeometryPath;
   DataPath FaceLabelsArrayPath;
-  DataPath FeatureAttributeMatrixName;
-  DataPath VolumesArrayName;
+  DataPath FeatureAttributeMatrixPath;
+  DataPath VolumesArrayPath;
 };
 
 /**
