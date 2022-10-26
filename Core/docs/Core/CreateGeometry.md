@@ -7,18 +7,18 @@ DREAM3D Review (Geometry)
 
 ## Description ##
 
-This **Filter** creates a **Geometry** object within a **Data Container**.  The **Data Container** must not already contain a **Geometry**; empty **Data Containers** may be created using the [Create Data Container](@ref createdatacontainer) **Filter**.  This **Filter** will also create the necessary **Element Attribute Matrices** on which to store **Attribute Arrays**.  The type of **Attribute Matrices** created depends on the kind of **Geometry** being created:
+This **Filter** creates a **Geometry** object and the necessary **Element Attribute Matrices** on which to store **Attribute Arrays** and **Element Attribute Arrays** which define the geometry.  The type of **Attribute Matrices** and **Attribute Arrays** created depends on the kind of **Geometry** being created:
 
-| Type             | Attribute Matrices |
-|------------------|--------------------|
+| Type             | Attribute Matrices | Attribute Arrays |
+|------------------|--------------------|-------------|
 | Image | Cell | 
-| Rectilinear Grid | Cell |
-| Vertex | Vertex | 
-| Edge | Vertex + Edge | 
-| Triangle | Vertex + Face |
-| Quadrilateral | Vertex + Face |
-| Tetrahedral | Vertex + Cell |
-| Hexahedral | Vertex + Cell |
+| Rectilinear Grid | Cell | x, y, & z Bounds |
+| Vertex | Vertex | Vertices |
+| Edge | Vertex + Edge | Vertices + Edges |
+| Triangle | Vertex + Face | Vertices + Faces |
+| Quadrilateral | Vertex + Face | Vertices + Faces |
+| Tetrahedral | Vertex + Cell | Vertices + Cells |
+| Hexahedral | Vertex + Cell | Vertices + Cells |
 
 ### Understanding Geometries ###
 
@@ -152,7 +152,7 @@ None
 
 | Kind | Default Name | Type | Component Dimensions | Description |
 |------|--------------|------|----------------------|-------------|
-| **Data Container** | None | N/A | N/A | **Data Container** in which to place the created **Geometry** |
+| **Geometry Path** | None | N/A | N/A | **Data Path** in which to place the created **Geometry** |
 | Various **Attribute Arrays** | None | float/int64_t | 1/2/3/4 | Various **Attribute Arrays** used to define the **Geometry** topology; see the above documentation for a detailed discussion of what kinds of information are needed for each **Geometry** |
 
 ## Created Objects ##
