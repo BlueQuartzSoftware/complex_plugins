@@ -16,8 +16,9 @@ namespace complex
 
 struct CORE_EXPORT FindTriangleGeomCentroidsInputValues
 {
+  DataPath TriangleGeometryPath;
   DataPath FaceLabelsArrayPath;
-  DataPath FeatureAttributeMatrixName;
+  DataPath FeatureAttributeMatrixPath;
   DataPath CentroidsArrayPath;
 };
 
