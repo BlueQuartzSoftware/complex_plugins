@@ -9,14 +9,12 @@
 #include "complex/Filter/Actions/CreateImageGeometryAction.hpp"
 #include "complex/Filter/Actions/CreateRectGridGeometryAction.hpp"
 #include "complex/Filter/Actions/CreateVertexGeometryAction.hpp"
-#include "complex/Filter/Actions/DeleteDataAction.hpp"
 #include "complex/Parameters/ArraySelectionParameter.hpp"
 #include "complex/Parameters/BoolParameter.hpp"
 #include "complex/Parameters/ChoicesParameter.hpp"
 #include "complex/Parameters/DataGroupCreationParameter.hpp"
 #include "complex/Parameters/DataObjectNameParameter.hpp"
 #include "complex/Parameters/VectorParameter.hpp"
-#include "complex/Utilities/FilterUtilities.hpp"
 
 #include <sstream>
 #include <string>
@@ -27,19 +25,6 @@ using namespace complex;
 
 namespace complex
 {
-
-static constexpr uint64 k_ImageGeometry = 0;
-static constexpr uint64 k_RectGridGeometry = 1;
-static constexpr uint64 k_VertexGeometry = 2;
-static constexpr uint64 k_EdgeGeometry = 3;
-static constexpr uint64 k_TriangleGeometry = 4;
-static constexpr uint64 k_QuadGeometry = 5;
-static constexpr uint64 k_TetGeometry = 6;
-static constexpr uint64 k_HexGeometry = 7;
-
-static constexpr uint64 k_CopyArray = 0;
-static constexpr uint64 k_MoveArray = 1;
-static constexpr uint64 k_ReferenceArray = 2;
 
 namespace
 {

@@ -36,7 +36,7 @@ public:
   static inline constexpr StringLiteral k_XBounds_Key = "XBounds";
   static inline constexpr StringLiteral k_YBounds_Key = "YBounds";
   static inline constexpr StringLiteral k_ZBounds_Key = "ZBounds";
-  // Vertex, Edge, Triangle, Quadrilateral, Tetrahedral,  Geometry
+  // Vertex, Edge, Triangle, Quadrilateral, Tetrahedral, & Hexahedral Geometry
   static inline constexpr StringLiteral k_VertexListName_Key = "VertexListName";
   static inline constexpr StringLiteral k_VertexAttributeMatrixName_Key = "VertexAttributeMatrixName";
   // Edge Geometry
@@ -54,6 +54,20 @@ public:
   static inline constexpr StringLiteral k_HexahedralListName_Key = "HexahedralListName";
   // Image, RectilinearGrid, Tetrahedral, & Hexahedral Geometry
   static inline constexpr StringLiteral k_CellAttributeMatrixName_Key = "CellAttributeMatrixName";
+
+  // GeometryType values
+  static inline constexpr uint64 k_ImageGeometry = 0;
+  static inline constexpr uint64 k_RectGridGeometry = 1;
+  static inline constexpr uint64 k_VertexGeometry = 2;
+  static inline constexpr uint64 k_EdgeGeometry = 3;
+  static inline constexpr uint64 k_TriangleGeometry = 4;
+  static inline constexpr uint64 k_QuadGeometry = 5;
+  static inline constexpr uint64 k_TetGeometry = 6;
+  static inline constexpr uint64 k_HexGeometry = 7;
+  // ArrayHandling values
+  static inline constexpr uint64 k_CopyArray = 0;
+  static inline constexpr uint64 k_MoveArray = 1;
+  static inline constexpr uint64 k_ReferenceArray = 2;
 
   /**
    * @brief Returns the name of the filter.
