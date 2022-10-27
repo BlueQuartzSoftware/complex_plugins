@@ -32,7 +32,7 @@ set(FilterList
     SplitAttributeArrayFilter
     FindTriangleGeomSizesFilter
     FindTriangleGeomCentroidsFilter
-    #  SharedFeatureFaceFilter
+    SharedFeatureFaceFilter
     )
 
 set(STUB_FILTERS
@@ -139,7 +139,7 @@ set(filter_algorithms
     SplitAttributeArray
     FindTriangleGeomCentroids
     FindTriangleGeomSizes
-    #  SharedFeatureFace
+    SharedFeatureFace
     )
 >>>>>>> b6e42905 (FindTriangleGeomShapes: Implemented. Matches 6.6 output)
 

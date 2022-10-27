@@ -26,7 +26,7 @@ set(${PLUGIN_NAME}UnitTest_SRCS
 
   FindTriangleGeomCentroidsTest.cpp
   FindTriangleGeomSizesTest.cpp
-#  SharedFeatureFaceTest.cpp
+  SharedFeatureFaceTest.cpp
 )
 
 create_complex_plugin_unit_test(PLUGIN_NAME ${PLUGIN_NAME}

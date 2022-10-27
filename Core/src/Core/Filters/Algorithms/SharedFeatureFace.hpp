@@ -6,21 +6,18 @@
 #include "complex/DataStructure/DataStructure.hpp"
 #include "complex/Filter/IFilter.hpp"
 
-/**
-* This is example code to put in the Execute Method of the filter.
-
-*/
-
 namespace complex
 {
 
 struct CORE_EXPORT SharedFeatureFaceInputValues
 {
-  DataPath SurfaceMeshFaceLabelsArrayPath;
-  DataPath SurfaceMeshFeatureFaceIdsArrayName;
-  DataPath FaceFeatureAttributeMatrixName;
-  DataPath SurfaceMeshFeatureFaceLabelsArrayName;
-  DataPath SurfaceMeshFeatureFaceNumTrianglesArrayName;
+  DataPath TriangleGeometryPath;
+
+  DataPath FaceLabelsArrayPath;
+  DataPath FeatureFaceIdsArrayPath;
+  DataPath GrainBoundaryAttributeMatrixPath;
+  DataPath FeatureFaceLabelsArrayPath;
+  DataPath FeatureFaceNumTrianglesArrayPath;
 };
 
 /**
