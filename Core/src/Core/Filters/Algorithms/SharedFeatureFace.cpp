@@ -2,7 +2,6 @@
 
 #include "complex/DataStructure/DataArray.hpp"
 #include "complex/DataStructure/DataGroup.hpp"
-#include "complex/DataStructure/Geometry/IGeometry.hpp"
 #include "complex/DataStructure/Geometry/TriangleGeom.hpp"
 
 #include <map>
@@ -39,7 +38,7 @@ Result<> SharedFeatureFace::operator()()
   auto& m_SurfaceMeshFeatureFaceIds = m_DataStructure.getDataRefAs<Int32Array>(m_InputValues->FeatureFaceIdsArrayPath);
 
   std::map<uint64_t, int32_t> faceSizeMap;
-  std::map<uint64_t, int32_t> faceIdMap; // This maps a unique 64 bit integer to an increasing 32 bit integer
+  std::map<uint64_t, int32_t> faceIdMap; // This maps a unique 64-bit integer to an increasing 32-bit integer
   int32_t index = 1;
   struct
   {
@@ -47,8 +46,6 @@ Result<> SharedFeatureFace::operator()()
     int r = 0;
   } faceId;
   auto* faceId_64 = reinterpret_cast<uint64_t*>(&faceId);
-  int32_t fl0 = -1;
-  int32_t fl1 = -1;
 
   std::vector<std::pair<int32_t, int32_t>> faceLabelMap;
   faceLabelMap.emplace_back(std::pair<int32_t, int32_t>(0, 0));
@@ -56,8 +53,8 @@ Result<> SharedFeatureFace::operator()()
   // Loop through all the Triangles and figure out how many triangles we have in each one.
   for(int64_t t = 0; t < totalPoints; ++t)
   {
-    fl0 = m_SurfaceMeshFaceLabels[t * 2];
-    fl1 = m_SurfaceMeshFaceLabels[t * 2 + 1];
+    int32_t fl0 = m_SurfaceMeshFaceLabels[t * 2];
+    int32_t fl1 = m_SurfaceMeshFaceLabels[t * 2 + 1];
     if(fl0 < fl1)
     {
       faceId.g = fl0;
