@@ -1,29 +1,25 @@
 #pragma once
 
-#include "Core/Core_export.hpp"
+#include "OrientationAnalysis/OrientationAnalysis_export.hpp"
 
 #include "complex/DataStructure/DataPath.hpp"
 #include "complex/DataStructure/DataStructure.hpp"
 #include "complex/Filter/IFilter.hpp"
 
-/**
-* This is example code to put in the Execute Method of the filter.
-
-*/
-
 namespace complex
 {
 
-struct CORE_EXPORT FindTriangleGeomShapesInputValues
+struct ORIENTATIONANALYSIS_EXPORT FindTriangleGeomShapesInputValues
 {
+  DataPath TriangleGeometryPath;
   DataPath FaceLabelsArrayPath;
-  DataPath FeatureAttributeMatrixName;
+  DataPath FeatureAttributeMatrixPath;
   DataPath CentroidsArrayPath;
   DataPath VolumesArrayPath;
-  DataPath Omega3sArrayName;
-  DataPath AxisLengthsArrayName;
-  DataPath AxisEulerAnglesArrayName;
-  DataPath AspectRatiosArrayName;
+  DataPath Omega3sArrayPath;
+  DataPath AxisLengthsArrayPath;
+  DataPath AxisEulerAnglesArrayPath;
+  DataPath AspectRatiosArrayPath;
 };
 
 /**
@@ -32,7 +28,7 @@ struct CORE_EXPORT FindTriangleGeomShapesInputValues
  * where a bool mask array specifies.
  */
 
-class CORE_EXPORT FindTriangleGeomShapes
+class ORIENTATIONANALYSIS_EXPORT FindTriangleGeomShapes
 {
 public:
   FindTriangleGeomShapes(DataStructure& dataStructure, const IFilter::MessageHandler& mesgHandler, const std::atomic_bool& shouldCancel, FindTriangleGeomShapesInputValues* inputValues);
@@ -52,6 +48,12 @@ private:
   const FindTriangleGeomShapesInputValues* m_InputValues = nullptr;
   const std::atomic_bool& m_ShouldCancel;
   const IFilter::MessageHandler& m_MessageHandler;
+
+  std::vector<double> m_FeatureMoments;
+  std::vector<double> m_FeatureEigenVals;
+  void findMoments();
+  void findAxes();
+  void findAxisEulers();
 };
 
 } // namespace complex

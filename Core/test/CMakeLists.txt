@@ -24,8 +24,7 @@ set(${PLUGIN_NAME}UnitTest_SRCS
   RemoveFlaggedFeaturesTest.cpp
   SplitAttributeArrayTest.cpp
 
-#  FindTriangleGeomCentroidsTest.cpp
-#  FindTriangleGeomShapesTest.cpp
+  FindTriangleGeomCentroidsTest.cpp
   FindTriangleGeomSizesTest.cpp
 #  SharedFeatureFaceTest.cpp
 )

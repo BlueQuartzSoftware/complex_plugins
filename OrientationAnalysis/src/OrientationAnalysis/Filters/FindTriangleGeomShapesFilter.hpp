@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Core/Core_export.hpp"
+#include "OrientationAnalysis/OrientationAnalysis_export.hpp"
 
 #include "complex/Filter/FilterTraits.hpp"
 #include "complex/Filter/IFilter.hpp"
@@ -11,7 +11,7 @@ namespace complex
  * @class FindTriangleGeomShapesFilter
  * @brief This filter will ....
  */
-class CORE_EXPORT FindTriangleGeomShapesFilter : public IFilter
+class ORIENTATIONANALYSIS_EXPORT FindTriangleGeomShapesFilter : public IFilter
 {
 public:
   FindTriangleGeomShapesFilter() = default;
