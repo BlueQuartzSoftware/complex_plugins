@@ -30,12 +30,13 @@ T findTetrahedronVolume(const std::array<usize, 3>& vertIds, const DataArray<T>&
       vertexCoords[3 * vertIds[1] + 1] - vertexCoords[3 * vertIds[0] + 1], vertexCoords[3 * vertIds[2] + 1] - vertexCoords[3 * vertIds[0] + 1], 0.0f - vertexCoords[3 * vertIds[0] + 1],
       vertexCoords[3 * vertIds[1] + 2] - vertexCoords[3 * vertIds[0] + 2], vertexCoords[3 * vertIds[2] + 2] - vertexCoords[3 * vertIds[0] + 2], 0.0f - vertexCoords[3 * vertIds[0] + 2]};
 
-  T determinant = (volumeMatrix[k_00] * (volumeMatrix[k_11] * volumeMatrix[k_22] - volumeMatrix[k_12] * volumeMatrix[k_21])) - (volumeMatrix[k_01] * (volumeMatrix[k_10] * volumeMatrix[k_22] - volumeMatrix[k_12] * volumeMatrix[k_20])) + (volumeMatrix[k_02] * (volumeMatrix[k_10] * volumeMatrix[k_21] - volumeMatrix[k_11] * volumeMatrix[k_20]));
+  T determinant = (volumeMatrix[k_00] * (volumeMatrix[k_11] * volumeMatrix[k_22] - volumeMatrix[k_12] * volumeMatrix[k_21])) -
+                  (volumeMatrix[k_01] * (volumeMatrix[k_10] * volumeMatrix[k_22] - volumeMatrix[k_12] * volumeMatrix[k_20])) +
+                  (volumeMatrix[k_02] * (volumeMatrix[k_10] * volumeMatrix[k_21] - volumeMatrix[k_11] * volumeMatrix[k_20]));
   return determinant / 6.0f;
 }
 
 } // namespace
-
 
 // -----------------------------------------------------------------------------
 FindTriangleGeomSizes::FindTriangleGeomSizes(DataStructure& dataStructure, const IFilter::MessageHandler& mesgHandler, const std::atomic_bool& shouldCancel,

@@ -74,7 +74,7 @@ IFilter::PreflightResult FindTriangleGeomSizesFilter::preflightImpl(const DataSt
                                                                     const std::atomic_bool& shouldCancel) const
 {
   auto pFaceLabelsArrayPath = filterArgs.value<DataPath>(k_FaceLabelsArrayPath_Key);
-  auto pFeatureAttributeMatrixPath= filterArgs.value<DataPath>(k_FeatureAttributeMatrixName_Key);
+  auto pFeatureAttributeMatrixPath = filterArgs.value<DataPath>(k_FeatureAttributeMatrixName_Key);
 
   PreflightResult preflightResult;
 
@@ -84,7 +84,8 @@ IFilter::PreflightResult FindTriangleGeomSizesFilter::preflightImpl(const DataSt
   const auto* featureAttrMatrix = dataStructure.getDataAs<AttributeMatrix>(pFeatureAttributeMatrixPath);
   if(featureAttrMatrix == nullptr)
   {
-    return IFilter::MakePreflightErrorResult(-12801,  fmt::format("Feature AttributeMatrix does not exist at path '{}' or the path does not point to an AttributeMatrix.", pFeatureAttributeMatrixPath.toString()));
+    return IFilter::MakePreflightErrorResult(
+        -12801, fmt::format("Feature AttributeMatrix does not exist at path '{}' or the path does not point to an AttributeMatrix.", pFeatureAttributeMatrixPath.toString()));
   }
 
   // Create the Volumes Output Array

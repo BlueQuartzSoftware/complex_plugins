@@ -338,7 +338,7 @@ void FindTriangleGeomShapes::findAxisEulers()
       std::array<std::array<double, 1>, 3> uberbelim{};
       int32_t elimcount = 0;
       int32_t elimcount1 = 0;
-      
+
       for(int32_t a = 0; a < 3; a++)
       {
         elimcount1 = 0;
