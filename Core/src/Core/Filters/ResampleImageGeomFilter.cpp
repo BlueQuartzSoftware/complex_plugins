@@ -173,7 +173,7 @@ IFilter::PreflightResult ResampleImageGeomFilter::preflightImpl(const DataStruct
   // These values should have been updated during the preflightImpl(...) method
   preflightUpdatedValues.push_back({"Input Geometry Info", ::GenerateGeometryInfo(oldDims, oldSpacing, oldOrigin)});
   preflightUpdatedValues.push_back(
-      {"Created Image Geometry Info", ::GenerateGeometryInfo(complex::SizeVec3(m_XP, m_YP, m_ZP), complex::FloatVec3(pSpacingValue[0], pSpacingValue[1], pSpacingValue[2]), oldOrigin)});
+      {"Resampled Image Geometry Info", ::GenerateGeometryInfo(complex::SizeVec3(m_XP, m_YP, m_ZP), complex::FloatVec3(pSpacingValue[0], pSpacingValue[1], pSpacingValue[2]), oldOrigin)});
   std::vector<std::string> cellDataArrayNames = cellDataGroup->getDataMap().getNames();
 
   usize originalImageSize = std::accumulate(oldDims.begin(), oldDims.end(), static_cast<usize>(1), std::multiplies<>{});
