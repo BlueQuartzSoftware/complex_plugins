@@ -32,6 +32,11 @@ set(FilterList
   RemoveFlaggedFeaturesFilter
   SplitAttributeArrayFilter
   FeatureDataCSVWriterFilter
+
+  KMedoidsFilter
+  KMeansFilter
+  SilhouetteFilter
+  ImportDeformKeyFilev12Filter
 )
 
 set(STUB_FILTERS
@@ -105,6 +110,11 @@ set(filter_algorithms
   CalculateArrayHistogram
   RemoveFlaggedFeatures
   SplitAttributeArray
+
+  KMedoids
+  KMeans
+  Silhouette
+  ImportDeformKeyFilev12
 )
 
 
