@@ -65,7 +65,11 @@ create_complex_plugin(NAME ${PLUGIN_NAME}
 # can use the target_sources(...) cmake call
 target_sources(${PLUGIN_NAME}
   PUBLIC
-  "${${PLUGIN_NAME}_SOURCE_DIR}/src/${PLUGIN_NAME}/Utilities/CoreUtilities.hpp"
+    "${${PLUGIN_NAME}_SOURCE_DIR}/src/${PLUGIN_NAME}/Utilities/CoreUtilities.hpp"
+    "${${PLUGIN_NAME}_SOURCE_DIR}/src/${PLUGIN_NAME}/Utilities/DistanceTemplate.hpp"
+    "${${PLUGIN_NAME}_SOURCE_DIR}/src/${PLUGIN_NAME}/Utilities/ClusteringAlgorithms/DBSCANTemplate.hpp"
+    "${${PLUGIN_NAME}_SOURCE_DIR}/src/${PLUGIN_NAME}/Utilities/ClusteringAlgorithms/KMedoidsTemplate.hpp"
+    "${${PLUGIN_NAME}_SOURCE_DIR}/src/${PLUGIN_NAME}/Utilities/ClusteringAlgorithms/KMeansTemplate.hpp"
 )
 source_group(TREE "${${PLUGIN_NAME}_SOURCE_DIR}/src/${PLUGIN_NAME}"
   PREFIX ${PLUGIN_NAME}

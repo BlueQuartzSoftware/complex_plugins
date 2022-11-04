@@ -2,6 +2,9 @@
 
 #include "complex/DataStructure/DataArray.hpp"
 #include "complex/DataStructure/DataGroup.hpp"
+#include "complex/Utilities/FilterUtilities.hpp"
+
+#include "Core/Utilities/ClusteringAlgorithms/KMedoidsTemplate.hpp"
 
 using namespace complex;
 
@@ -26,23 +29,17 @@ const std::atomic_bool& KMedoids::getCancel()
 // -----------------------------------------------------------------------------
 Result<> KMedoids::operator()()
 {
-  /**
-  * This section of the code should contain the actual algorithmic codes that
-  * will accomplish the goal of the file.
-  *
-  * If you can parallelize the code there are a number of examples on how to do that.
-  *    GenerateIPFColors is one example
-  *
-  * If you need to determine what kind of array you have (Int32Array, Float32Array, etc)
-  * look to the ExecuteDataFunction() in complex/Utilities/FilterUtilities.hpp template 
-  * function to help with that code.
-  *   An Example algorithm class is `CombineAttributeArrays` and `RemoveFlaggedVertices`
-  * 
-  * There are other utility classes that can help alleviate the amount of code that needs
-  * to be written.
-  *
-  * REMOVE THIS COMMENT BLOCK WHEN YOU ARE FINISHED WITH THE FILTER_HUMAN_NAME
-  */
+  if(m_InputValues->UseMask)
+  {
+    ExecuteDataFunction(KMedoidsTemplate{}, m_InDataPtr.getDataType(), m_InDataPtr, m_MedoidsArrayPtr, m_MaskPtr, m_InitClusters, m_FeatureIdsPtr, m_DistanceMetric)
+  }
+  else
+  {
+    size_t numTuples = m_InDataPtr->getNumberOfTuples();
+    std::vector<bool> tmpMask(numTuples, true);
+    ExecuteDataFunction(KMedoidsTemplate{},  m_InDataPtr.getDataType(), m_InDataPtr, this, m_InDataPtr, m_MedoidsArrayPtr, tmpMask, m_InitClusters, m_FeatureIdsPtr, m_DistanceMetric)
+  }
+
 
   return {};
 }

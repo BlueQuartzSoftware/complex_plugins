@@ -10,11 +10,12 @@
 #include "complex/Parameters/ChoicesParameter.hpp"
 #include "complex/Parameters/NumberParameter.hpp"
 
+#include "Core/Utilities/DistanceTemplate.hpp"
+
 using namespace complex;
 
 namespace
 {
-ChoicesParameter::Choices k_ClusterChoices = {"Euclidean", "Squared Euclidean", "Manhattan", "Cosine", "Pearson", "Squared Pearson"};
 }
 
 namespace complex
@@ -58,16 +59,16 @@ Parameters KMedoidsFilter::parameters() const
   params.insertSeparator(Parameters::Separator{"Input Parameters"});
 
   params.insert(std::make_unique<Int32Parameter>(k_InitClusters_Key, "Number of Clusters", "", 2));
-  params.insert(std::make_unique<ChoicesParameter>(k_DistanceMetric_Key, "Distance Metric", "", 0, k_ClusterChoices));
+  params.insert(std::make_unique<ChoicesParameter>(k_DistanceMetric_Key, "Distance Metric", "", 0, DistanceTemplate::GetDistanceMetricsOptions()));
 
   params.insertSeparator(Parameters::Separator{"Optional Mask Array"});
   params.insertLinkableParameter(std::make_unique<BoolParameter>(k_UseMask_Key, "Use Mask", "", false));
-  params.insert(std::make_unique<ArraySelectionParameter>(k_MaskArrayPath_Key, "Mask", "", DataPath{}, complex::GetAllDataTypes()));
+  params.insert(std::make_unique<ArraySelectionParameter>(k_MaskArrayPath_Key, "Mask", "", DataPath{}, ArraySelectionParameter::AllowedTypes{DataType::boolean, DataType::uint8}));
 
   params.insertSeparator(Parameters::Separator{"Required Input Data"});
   params.insert(std::make_unique<ArraySelectionParameter>(k_SelectedArrayPath_Key, "Attribute Array to Cluster", "", DataPath{}, complex::GetAllDataTypes()));
-  params.insertSeparator(Parameters::Separator{"Created Cell Data Objects"});
 
+  params.insertSeparator(Parameters::Separator{"Created Cell Data Objects"});
   params.insert(std::make_unique<ArrayCreationParameter>(k_FeatureIdsArrayName_Key, "Cluster Ids", "", DataPath{}));
 
   params.insertSeparator(Parameters::Separator{"Created Attribute Matrix Data Objects"});
