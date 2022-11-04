@@ -1,4 +1,4 @@
-# CalculateArrayHistogram #
+# CalculateArrayHistogram
 
 
 

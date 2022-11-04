@@ -1,4 +1,4 @@
-# Find Surface Area to Volume #
+# Find Surface Area to Volume
 
 ## Group (Subgroup) ##
 

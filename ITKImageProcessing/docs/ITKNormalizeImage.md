@@ -1,4 +1,4 @@
-# ITK::Normalize Image Filter (KW)  #
+# ITK::Normalize Image Filter (KW) 
 
 
 ## Group (Subgroup) ##

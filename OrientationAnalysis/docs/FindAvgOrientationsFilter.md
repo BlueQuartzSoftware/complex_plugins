@@ -1,4 +1,4 @@
-# Find Feature Average Orientations  #
+# Find Feature Average Orientations 
 
 
 ## Group (Subgroup) ##

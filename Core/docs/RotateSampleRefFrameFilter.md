@@ -1,4 +1,4 @@
-# Rotate Sample Reference Frame #
+# Rotate Sample Reference Frame
 
 ## Group (Subgroup) ##
 

@@ -1,4 +1,4 @@
-# ITK::Sqrt Image Filter (KW)  #
+# ITK::Sqrt Image Filter (KW) 
 
 
 ## Group (Subgroup) ##

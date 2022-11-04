@@ -1,4 +1,4 @@
-# ITK::Log10 Image Filter (KW)  #
+# ITK::Log10 Image Filter (KW) 
 
 
 ## Group (Subgroup) ##

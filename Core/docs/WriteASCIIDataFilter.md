@@ -1,4 +1,4 @@
-# WriteASCIIData #
+# WriteASCIIData
 
 
 ## Group (Subgroup) ##

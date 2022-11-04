@@ -1,4 +1,4 @@
-# ITK::Acos Image Filter (KW)  #
+# ITK::Acos Image Filter (KW) 
 
 
 ## Group (Subgroup) ##

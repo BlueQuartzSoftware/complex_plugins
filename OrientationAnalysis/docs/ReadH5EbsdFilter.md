@@ -1,4 +1,4 @@
-# ReadH5Ebsd #
+# ReadH5Ebsd
 
 | Ready | Parameter Key | Human Name | Parameter Type | Parameter Class |
 |-------|---------------|------------|-----------------|----------------|
