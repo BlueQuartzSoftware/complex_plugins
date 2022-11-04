@@ -71,11 +71,13 @@ Parameters WriteBinaryDataFilter::parameters() const
 {
   Parameters params;
   // Create the parameter descriptors that are needed for this filter
+  params.insertSeparator(Parameters::Separator{"Input Parameters"});
   params.insert(std::make_unique<ChoicesParameter>(k_Endianess_Key, "Endianess", "Default is little endian", to_underlying(Endianess::Little),
                                                    ChoicesParameter::Choices{"Little Endian", "Big Endian"})); // sequence dependent DO NOT REORDER
   params.insert(std::make_unique<FileSystemPathParameter>(k_OutputPath_Key, "Output Path", "", fs::path("<default output directory>"), FileSystemPathParameter::ExtensionsType{},
                                                           FileSystemPathParameter::PathType::OutputDir, true));
   params.insert(std::make_unique<StringParameter>(k_FileExtension_Key, "File Extension", "", ".bin"));
+  params.insertSeparator(Parameters::Separator{"Required Data Objects"});
   params.insert(std::make_unique<MultiArraySelectionParameter>(k_SelectedDataArrayPaths_Key, "Attribute Arrays to Export", "", MultiArraySelectionParameter::ValueType{}, complex::GetAllDataTypes()));
 
   return params;
@@ -109,7 +111,7 @@ IFilter::PreflightResult WriteBinaryDataFilter::preflightImpl(const DataStructur
 Result<> WriteBinaryDataFilter::executeImpl(DataStructure& dataStructure, const Arguments& filterArgs, const PipelineFilter* pipelineNode, const MessageHandler& messageHandler,
                                             const std::atomic_bool& shouldCancel) const
 {
-  const auto endianess = static_cast<endian>(static_cast<uint8>(filterArgs.value<ChoicesParameter::ValueType>(k_Endianess_Key)));
+  const auto endianess = static_cast<endian>(filterArgs.value<ChoicesParameter::ValueType>(k_Endianess_Key));
   auto selectedDataArrayPaths = filterArgs.value<MultiArraySelectionParameter::ValueType>(k_SelectedDataArrayPaths_Key);
   for(const auto& selectedArrayPath : selectedDataArrayPaths)
   {
