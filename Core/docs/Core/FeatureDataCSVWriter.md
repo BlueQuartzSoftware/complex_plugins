@@ -48,7 +48,7 @@ The *CSV* file with Write Neighbor Data checked:
 | Output File | File Path | The output .csv file path |
 | Write Neighbor Data | bool | Whether to write the **Feature** neighbor data |
 | Write Number of Features Line | bool | Write the total number of features as the first line. Writing this line may interfere with standard CSV parsers. Default=ON |
-| Delimiter | char | The delimiter character used to parse the file (Takes _COMMA_, _SEMICOLON_, _COLON_, _TAB_, or _SPACE_) |
+| Delimiter | choice | The delimiter character used to parse the file (Takes _COMMA_, _SEMICOLON_, _COLON_, _TAB_, or _SPACE_) |
 
 ## Required Geometry ##
 
@@ -58,7 +58,7 @@ Not Applicable
 
 | Kind | Default Name | Type | Component Dimensions | Description |
 |------|--------------|------|----------------------|-------------|
-| **DataGroup** | None | Feature | N/A | **DataGroup** that holds the data to write |
+| **AttributeMatrix** | None | Feature | N/A | **AttributeMatrix** that holds the data to write |
 
 ## Created Objects ##
 
