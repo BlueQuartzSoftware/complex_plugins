@@ -56,7 +56,7 @@ Parameters FindMisorientationsFilter::parameters() const
 
   params.insertSeparator(Parameters::Separator{"Input Feature Data"});
   params.insert(std::make_unique<NeighborListSelectionParameter>(k_NeighborListArrayPath_Key, "Feature Neighbor List", "", DataPath({"DataContainer", "FeatureData", "NeighborList"}),
-                                                                 NeighborListSelectionParameter::AllowedTypes{complex::DataType::int32}, NeighborListSelectionParameter::ComponentTypes{{1}}));
+                                                                 NeighborListSelectionParameter::AllowedTypes{complex::DataType::int32}));
   params.insert(std::make_unique<ArraySelectionParameter>(k_AvgQuatsArrayPath_Key, "Feature Average Quaternions", "", DataPath({"DataContainer", "FeatureData", "AvgQuats"}),
                                                           ArraySelectionParameter::AllowedTypes{complex::DataType::float32}, ArraySelectionParameter::ComponentTypes{{4}}));
   params.insert(std::make_unique<ArraySelectionParameter>(k_FeaturePhasesArrayPath_Key, "Feature Phases", "", DataPath({"DataContainer", "FeatureData", "Phases"}),

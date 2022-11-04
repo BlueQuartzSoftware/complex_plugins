@@ -66,9 +66,9 @@ Parameters MergeTwinsFilter::parameters() const
 
   params.insertSeparator(Parameters::Separator{"Required Feature Data"});
   params.insert(std::make_unique<NeighborListSelectionParameter>(k_ContiguousNeighborListArrayPath_Key, "Contiguous Neighbor List", "", DataPath({"NeighborList2"}),
-                                                                 NeighborListSelectionParameter::AllowedTypes{DataType::int32}, NeighborListSelectionParameter::ComponentTypes{{1}}));
+                                                                 NeighborListSelectionParameter::AllowedTypes{DataType::int32}));
   params.insert(std::make_unique<NeighborListSelectionParameter>(k_NonContiguousNeighborListArrayPath_Key, "Non-Contiguous Neighbor List", "", DataPath{},
-                                                                 NeighborListSelectionParameter::AllowedTypes{DataType::int32}, NeighborListSelectionParameter::ComponentTypes{{1}}));
+                                                                 NeighborListSelectionParameter::AllowedTypes{DataType::int32}));
   params.linkParameters(k_UseNonContiguousNeighbors_Key, k_ContiguousNeighborListArrayPath_Key, false);
   params.linkParameters(k_UseNonContiguousNeighbors_Key, k_NonContiguousNeighborListArrayPath_Key, true);
 
