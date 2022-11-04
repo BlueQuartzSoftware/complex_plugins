@@ -102,8 +102,7 @@ A **Hexahedral Geometry** is a _mesh-like_ **Geometry**, consisting of a collect
 
 ### Defining Geometries with Attribute Arrays ###
 
-
-### For **Geometries** that require the selection of **Attribute Arrays** (all **Geometries** except **Image**), the arrays will be _copied_ to create the new **Geometry**.  Therefore, any operations on the original array will not affect the topology of the **Geometry**, and any geometric operations will not affect the original array. This behavior can be adjusted in the filter by using the _Array Handling_ boolean. ###
+ For **Geometries** that require the selection of **Attribute Arrays** (all **Geometries** except **Image**), the arrays will be _copied_ to create the new **Geometry**.  Therefore, any operations on the original array will not affect the topology of the **Geometry**, and any geometric operations will not affect the original array. This behavior can be adjusted in the filter by using the _Array Handling_ boolean. ###
 
 This **Filter** will validate that the arrays selected to define a **Geometry** "make sense", given the above information for how **Geometries** are stored in **DREAM.3D** (for example, no dimension for an **Image** may be less than or equal to zero, no bounds arrays for a **Rectilinear Grid** may have less than two values, and no **Vertex** Ids stored in a shared **Element** list may be larger than the total number of **Vertices** in the shared **Vertex** list).  The checks that require accessing the actual array values (as opposed to just descriptive information) will be performed at run time.  By default, these checks will only produce warnings, allowing the **Pipeline** to continue; the user may opt to change these warnings to errors by selecting the _Treat Geometry Warnings as Errors_ option. 
 
