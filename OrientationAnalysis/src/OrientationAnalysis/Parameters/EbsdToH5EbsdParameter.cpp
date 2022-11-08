@@ -1,4 +1,4 @@
-#include "H5EbsdReaderParameter.hpp"
+#include "EbsdToH5EbsdParameter.hpp"
 
 #include "complex/Common/StringLiteral.hpp"
 
@@ -10,45 +10,40 @@
 #include <nlohmann/json.hpp>
 
 #include "complex/Common/Any.hpp"
-#include "complex/Common/TypeTraits.hpp"
-
-#include "EbsdLib/Core/EbsdMacros.h"
-#include "EbsdLib/IO/H5EbsdVolumeInfo.h"
-#include "EbsdLib/IO/HKL/CtfFields.h"
-#include "EbsdLib/IO/HKL/H5CtfVolumeReader.h"
-#include "EbsdLib/IO/TSL/AngFields.h"
-#include "EbsdLib/IO/TSL/H5AngVolumeReader.h"
+#include "complex/Common/TypeTraits.hpp
 
 namespace fs = std::filesystem;
+
 
 namespace complex
 {
 namespace
 {
-constexpr StringLiteral k_InputFilePath = "input_file_path";
-constexpr StringLiteral k_StartSlice = "start_slice";
-constexpr StringLiteral k_EndSlice = "end_slice";
-constexpr StringLiteral k_UseRecommendedTransform = "use_recommended_transform";
-constexpr StringLiteral k_EulerRepresentation = "euler_representation";
-constexpr StringLiteral k_HDF5DataPaths = "hdf5_data_paths";
+constexpr StringLiteral k_InputFilePath = "inputFilePath";
+constexpr StringLiteral k_StartSlice = "startSlice";
+constexpr StringLiteral k_EndSlice = "endSlice";
+constexpr StringLiteral k_UseRecommendedTransform = "useRecommendedTransform";
+constexpr StringLiteral k_EulerRepresentation = "eulerRepresentation";
+constexpr StringLiteral k_HDF5DataPaths = "hdf5DataPaths";
 
 } // namespace
 
+
 //-----------------------------------------------------------------------------
-H5EbsdReaderParameter::H5EbsdReaderParameter(const std::string& name, const std::string& humanName, const std::string& helpText, const ValueType& defaultValue)
+EbsdToH5EbsdParameter::H5EbsdReaderParameter(const std::string& name, const std::string& humanName, const std::string& helpText, const ValueType& defaultValue)
 : ValueParameter(name, humanName, helpText)
 , m_DefaultValue(defaultValue)
 {
 }
 
 //-----------------------------------------------------------------------------
-Uuid H5EbsdReaderParameter::uuid() const
+Uuid EbsdToH5EbsdParameter::uuid() const
 {
-  return ParameterTraits<H5EbsdReaderParameter>::uuid;
+  return ParameterTraits<EbsdToH5EbsdParameter>::uuid;
 }
 
 //-----------------------------------------------------------------------------
-IParameter::AcceptedTypes H5EbsdReaderParameter::acceptedTypes() const
+IParameter::AcceptedTypes EbsdToH5EbsdParameter::acceptedTypes() const
 {
   return {typeid(ValueType)};
 }
@@ -81,6 +76,7 @@ nlohmann::json H5EbsdReaderParameter::toJson(const std::any& value) const
 
   return json;
 }
+
 
 //-----------------------------------------------------------------------------
 Result<std::any> H5EbsdReaderParameter::fromJson(const nlohmann::json& json) const

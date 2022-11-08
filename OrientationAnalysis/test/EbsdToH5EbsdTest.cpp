@@ -22,9 +22,7 @@
 
 #include <catch2/catch.hpp>
 
-#include "complex/Parameters/EbsdToH5EbsdFilterParameter.hpp"
-
-#include "OrientationAnalysis/Filters/EbsdToH5Ebsd.hpp"
+#include "OrientationAnalysis/Filters/EbsdToH5EbsdFilter.hpp"
 #include "OrientationAnalysis/OrientationAnalysis_test_dirs.hpp"
 
 using namespace complex;
@@ -32,12 +30,12 @@ using namespace complex;
 TEST_CASE("OrientationAnalysis::EbsdToH5Ebsd: Instantiation and Parameter Check", "[OrientationAnalysis][EbsdToH5Ebsd][.][UNIMPLEMENTED][!mayfail]")
 {
   // Instantiate the filter, a DataStructure object and an Arguments Object
-  EbsdToH5Ebsd filter;
+  EbsdToH5EbsdFilter filter;
   DataStructure ds;
   Arguments args;
 
   // Create default Parameters for the filter.
-  /*[x]*/ args.insertOrAssign(EbsdToH5Ebsd::k_OrientationData_Key, std::make_any<<<<NOT_IMPLEMENTED>>>>({}));
+  // args.insertOrAssign(EbsdToH5EbsdFilter::k_OrientationData_Key, std::make_any<<<<NOT_IMPLEMENTED>>>>({}));
 
   // Preflight the filter and check result
   auto preflightResult = filter.preflight(ds, args);
@@ -47,13 +45,3 @@ TEST_CASE("OrientationAnalysis::EbsdToH5Ebsd: Instantiation and Parameter Check"
   auto executeResult = filter.execute(ds, args);
   REQUIRE(executeResult.result.valid());
 }
-
-// TEST_CASE("OrientationAnalysis::EbsdToH5Ebsd: Valid filter execution")
-//{
-//
-//}
-
-// TEST_CASE("OrientationAnalysis::EbsdToH5Ebsd: InValid filter execution")
-//{
-//
-//}

@@ -44,6 +44,7 @@ set(FilterList
   FindSchmidsFilter
   ReadAngDataFilter
   ReadCtfDataFilter
+  EbsdToH5EbsdFilter
 )
   
 set(STUB_FILTERS
@@ -109,15 +110,16 @@ create_complex_plugin(NAME ${PLUGIN_NAME}
 # ------------------------------------------------------------------------------
 set(Parameter_List
   H5EbsdReaderParameter
+  #EbsdToH5EbsdParameter
 )
 
 foreach(source ${Parameter_List})
   target_sources(${PLUGIN_NAME} PRIVATE
-    ${${PLUGIN_NAME}_SOURCE_DIR}/src/${PLUGIN_NAME}/Parameters/${source}.h
+    ${${PLUGIN_NAME}_SOURCE_DIR}/src/${PLUGIN_NAME}/Parameters/${source}.hpp
     ${${PLUGIN_NAME}_SOURCE_DIR}/src/${PLUGIN_NAME}/Parameters/${source}.cpp)
 
   source_group(TREE "${${PLUGIN_NAME}_SOURCE_DIR}/src/${PLUGIN_NAME}" PREFIX ${PLUGIN_NAME}
-    FILES ${${PLUGIN_NAME}_SOURCE_DIR}/src/${PLUGIN_NAME}/Parameters/${source}.h
+    FILES ${${PLUGIN_NAME}_SOURCE_DIR}/src/${PLUGIN_NAME}/Parameters/${source}.hpp
     ${${PLUGIN_NAME}_SOURCE_DIR}/src/${PLUGIN_NAME}/Parameters/${source}.cpp)
 endforeach()
 
@@ -164,6 +166,7 @@ set(filter_algorithms
   FindSchmids
   ReadAngData
   ReadCtfData
+  EbsdToH5Ebsd
 )
 
 
