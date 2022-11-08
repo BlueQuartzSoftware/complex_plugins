@@ -1,0 +1,30 @@
+{
+  "isDisabled": false,
+  "name": "Untitled Pipeline",
+  "pipeline": [
+    {
+      "args": {
+        "input_file_list_info": {
+          "endIndex": 117,
+          "fileExtension": ".ang",
+          "filePrefix": "Slice_",
+          "fileSuffix": "",
+          "incrementIndex": 1,
+          "inputPath": "Data/SmallIN100/",
+          "ordering": 1,
+          "paddingDigits": 1,
+          "startIndex": 1
+        },
+        "output_file_path": "Data/Output/Reconstruction/Small_IN100.h5ebsd",
+        "reference_frame": 0,
+        "stacking_order": 1,
+        "z_spacing": 0.25
+      },
+      "filter": {
+        "name": "complex::EbsdToH5EbsdFilter",
+        "uuid": "2d05ca72-0a1b-4aec-b9b0-bc470845c448"
+      },
+      "isDisabled": false
+    }
+  ]
+}
