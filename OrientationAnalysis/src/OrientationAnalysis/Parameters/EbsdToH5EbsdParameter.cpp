@@ -14,7 +14,6 @@
 
 namespace fs = std::filesystem;
 
-
 namespace complex
 {
 namespace
@@ -27,7 +26,6 @@ constexpr StringLiteral k_EulerRepresentation = "eulerRepresentation";
 constexpr StringLiteral k_HDF5DataPaths = "hdf5DataPaths";
 
 } // namespace
-
 
 //-----------------------------------------------------------------------------
 EbsdToH5EbsdParameter::H5EbsdReaderParameter(const std::string& name, const std::string& humanName, const std::string& helpText, const ValueType& defaultValue)
@@ -76,7 +74,6 @@ nlohmann::json H5EbsdReaderParameter::toJson(const std::any& value) const
 
   return json;
 }
-
 
 //-----------------------------------------------------------------------------
 Result<std::any> H5EbsdReaderParameter::fromJson(const nlohmann::json& json) const
