@@ -143,6 +143,7 @@ std::vector<std::string> GenerateFZQuaternions::defaultTags() const
 Parameters GenerateFZQuaternions::parameters() const
 {
   Parameters params;
+  params.insert(std::make_unique<CommentParameter>(k_FilterComment_Key, "Comments", "User notes/comments", ""));
 
   std::vector<std::string> names = LaueOps::GetLaueNames();
   names.pop_back();

@@ -56,6 +56,7 @@ std::vector<std::string> ReadH5EbsdFilter::defaultTags() const
 Parameters ReadH5EbsdFilter::parameters() const
 {
   Parameters params;
+  params.insert(std::make_unique<CommentParameter>(k_FilterComment_Key, "Comments", "User notes/comments", ""));
   // Create the parameter descriptors that are needed for this filter
   params.insert(std::make_unique<H5EbsdReaderParameter>(k_ReadH5EbsdFilter_Key, "Import H5Ebsd File", "The input .h5ebsd file path", H5EbsdReaderParameter::ValueType{}));
 

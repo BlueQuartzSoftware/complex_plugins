@@ -62,6 +62,7 @@ std::vector<std::string> AlignSectionsFeatureCentroidFilter::defaultTags() const
 Parameters AlignSectionsFeatureCentroidFilter::parameters() const
 {
   Parameters params;
+  params.insert(std::make_unique<CommentParameter>(k_FilterComment_Key, "Comments", "User notes/comments", ""));
   // Create the parameter descriptors that are needed for this filter
   params.insertLinkableParameter(std::make_unique<BoolParameter>(k_UseReferenceSlice_Key, "Use Reference Slice",
                                                                  "Whether the centroids of each section should be compared to a reference slice instead of their neighboring section", false));

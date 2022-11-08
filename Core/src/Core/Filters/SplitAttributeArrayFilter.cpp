@@ -51,6 +51,7 @@ std::vector<std::string> SplitAttributeArrayFilter::defaultTags() const
 Parameters SplitAttributeArrayFilter::parameters() const
 {
   Parameters params;
+  params.insert(std::make_unique<CommentParameter>(k_FilterComment_Key, "Comments", "User notes/comments", ""));
 
   params.insertSeparator(Parameters::Separator{"Input Parameters"});
   params.insert(std::make_unique<ArraySelectionParameter>(k_MultiCompArray_Key, "Multicomponent Attribute Array", "The multicomponent Attribute Array to split", DataPath{}, GetAllDataTypes()));

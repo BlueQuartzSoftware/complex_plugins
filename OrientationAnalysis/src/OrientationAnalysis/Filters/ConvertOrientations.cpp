@@ -204,6 +204,7 @@ Parameters ConvertOrientations::parameters() const
   using OrientationConverterType = OrientationConverter<EbsdDataArray<float>, float>;
 
   Parameters params;
+  params.insert(std::make_unique<CommentParameter>(k_FilterComment_Key, "Comments", "User notes/comments", ""));
   // Create the parameter descriptors that are needed for this filter
   params.insert(std::make_unique<ChoicesParameter>(k_InputType_Key, "Input Orientation Type", "Specifies the incoming orientation representation", 0,
                                                    OrientationConverterType::GetOrientationTypeStrings<ChoicesParameter::Choices>()));
