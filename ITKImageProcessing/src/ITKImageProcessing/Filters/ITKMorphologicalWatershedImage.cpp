@@ -74,7 +74,9 @@ std::vector<std::string> ITKMorphologicalWatershedImage::defaultTags() const
 Parameters ITKMorphologicalWatershedImage::parameters() const
 {
   Parameters params;
+  params.insertSeparator(Parameters::Separator{"Comments"});
   params.insert(std::make_unique<CommentParameter>(k_FilterComment_Key, "Comments", "User notes/comments", ""));
+
   params.insertSeparator(Parameters::Separator{"Filter Parameters"});
   params.insert(std::make_unique<Float64Parameter>(k_Level_Key, "Level", "", 0.0));
   params.insert(std::make_unique<BoolParameter>(k_MarkWatershedLine_Key, "MarkWatershedLine",

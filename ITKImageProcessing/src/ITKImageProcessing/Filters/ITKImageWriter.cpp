@@ -249,6 +249,7 @@ std::vector<std::string> ITKImageWriter::defaultTags() const
 Parameters ITKImageWriter::parameters() const
 {
   Parameters params;
+  params.insertSeparator(Parameters::Separator{"Comments"});
   params.insert(std::make_unique<CommentParameter>(k_FilterComment_Key, "Comments", "User notes/comments", ""));
   using ExtensionListType = std::unordered_set<std::string>;
   params.insertSeparator(Parameters::Separator{"Input Parameters"});

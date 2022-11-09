@@ -76,7 +76,9 @@ std::vector<std::string> ITKSignedMaurerDistanceMapImage::defaultTags() const
 Parameters ITKSignedMaurerDistanceMapImage::parameters() const
 {
   Parameters params;
+  params.insertSeparator(Parameters::Separator{"Comments"});
   params.insert(std::make_unique<CommentParameter>(k_FilterComment_Key, "Comments", "User notes/comments", ""));
+
   params.insertSeparator(Parameters::Separator{"Filter Parameters"});
   params.insert(std::make_unique<BoolParameter>(k_InsideIsPositive_Key, "InsideIsPositive",
                                                 "Set if the inside represents positive values in the signed distance map. By convention ON pixels are treated as inside pixels.", false));

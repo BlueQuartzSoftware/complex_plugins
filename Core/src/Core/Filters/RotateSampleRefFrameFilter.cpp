@@ -408,7 +408,7 @@ Parameters RotateSampleRefFrameFilter::parameters() const
   Parameters params;
   params.insert(std::make_unique<CommentParameter>(k_FilterComment_Key, "Comments", "User notes/comments", ""));
 
-  params.insertSeparator({"Filter Parameters"});
+  params.insertSeparator({"Input Parameters"});
   params.insert(std::make_unique<BoolParameter>(k_RotateSliceBySlice_Key, "Perform Slice By Slice Transform", "This option is specific to EBSD Data and is not generally used.", false));
 
   params.insertLinkableParameter(std::make_unique<ChoicesParameter>(k_RotationRepresentation_Key, "Rotation Representation", "Which form used to represent rotation (axis angle or rotation matrix)",

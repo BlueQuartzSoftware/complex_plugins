@@ -64,6 +64,7 @@ std::vector<std::string> ITKLog10Image::defaultTags() const
 Parameters ITKLog10Image::parameters() const
 {
   Parameters params;
+  params.insertSeparator(Parameters::Separator{"Comments"});
   params.insert(std::make_unique<CommentParameter>(k_FilterComment_Key, "Comments", "User notes/comments", ""));
 
   params.insertSeparator(Parameters::Separator{"Input Data Structure Items"});
