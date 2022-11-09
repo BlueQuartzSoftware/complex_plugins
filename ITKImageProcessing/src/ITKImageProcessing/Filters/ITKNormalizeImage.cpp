@@ -67,7 +67,6 @@ Parameters ITKNormalizeImage::parameters() const
 {
   Parameters params;
 
-
   params.insertSeparator(Parameters::Separator{"Required Input Data Objects"});
   params.insert(std::make_unique<GeometrySelectionParameter>(k_SelectedImageGeomPath_Key, "Image Geometry", "Select the Image Geometry Group from the DataStructure.", DataPath{},
                                                              GeometrySelectionParameter::AllowedTypes{IGeometry::Type::Image}));

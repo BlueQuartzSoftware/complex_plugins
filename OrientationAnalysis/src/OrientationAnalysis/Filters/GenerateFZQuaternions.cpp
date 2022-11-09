@@ -144,7 +144,6 @@ Parameters GenerateFZQuaternions::parameters() const
 {
   Parameters params;
 
-
   std::vector<std::string> names = LaueOps::GetLaueNames();
   names.pop_back();
 

@@ -70,7 +70,6 @@ Parameters ITKMedianImage::parameters() const
 {
   Parameters params;
 
-
   params.insertSeparator(Parameters::Separator{"Parameters"});
   params.insert(std::make_unique<VectorUInt64Parameter>(k_Radius_Key, "Radius", "", std::vector<uint64>(3, 1), std::vector<std::string>(3)));
 

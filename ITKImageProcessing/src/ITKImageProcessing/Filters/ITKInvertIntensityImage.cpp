@@ -69,7 +69,6 @@ Parameters ITKInvertIntensityImage::parameters() const
 {
   Parameters params;
 
-
   params.insertSeparator(Parameters::Separator{"Filter Parameters"});
   params.insert(std::make_unique<Float64Parameter>(k_Maximum_Key, "Maximum", "The maximum intensity value for the inversion.", 255));
 

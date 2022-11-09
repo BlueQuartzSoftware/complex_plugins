@@ -60,7 +60,6 @@ Parameters EBSDSegmentFeaturesFilter::parameters() const
 {
   Parameters params;
 
-
   // Create the parameter descriptors that are needed for this filter
   params.insertSeparator(Parameters::Separator{"Segmentation Parameters"});
   params.insert(std::make_unique<Float32Parameter>(k_MisorientationTolerance_Key, "Misorientation Tolerance (Degrees)",

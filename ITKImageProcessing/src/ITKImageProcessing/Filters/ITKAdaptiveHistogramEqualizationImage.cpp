@@ -77,7 +77,6 @@ Parameters ITKAdaptiveHistogramEqualizationImage::parameters() const
 {
   Parameters params;
 
-
   params.insertSeparator(Parameters::Separator{"Filter Parameters"});
   params.insert(std::make_unique<VectorFloat32Parameter>(k_Radius_Key, "Radius", "Radius Dimensions XYZ", std::vector<float>(3, 5.0F), std::vector<std::string>{"X", "Y", "Z"}));
 
