@@ -48,7 +48,6 @@ std::vector<std::string> ConvertDataFilter::defaultTags() const
 Parameters ConvertDataFilter::parameters() const
 {
   Parameters params;
-  params.insert(std::make_unique<CommentParameter>(k_FilterComment_Key, "Comments", "User notes/comments", ""));
 
   params.insertSeparator(Parameters::Separator{"Input Parameters"});
   params.insert(std::make_unique<ChoicesParameter>(k_ScalarType_Key, "Scalar Type", "Convert to this data type", 0, GetAllDataTypesAsStrings()));

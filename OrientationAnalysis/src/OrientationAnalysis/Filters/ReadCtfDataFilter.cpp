@@ -58,7 +58,6 @@ std::vector<std::string> ReadCtfDataFilter::defaultTags() const
 Parameters ReadCtfDataFilter::parameters() const
 {
   Parameters params;
-  params.insert(std::make_unique<CommentParameter>(k_FilterComment_Key, "Comments", "User notes/comments", ""));
   // Create the parameter descriptors that are needed for this filter
   params.insertSeparator(Parameters::Separator{"Input Parameters"});
   params.insert(std::make_unique<FileSystemPathParameter>(k_InputFile_Key, "Input File", "The input .ctf file path", fs::path("input.ctf"), FileSystemPathParameter::ExtensionsType{".ctf"},

@@ -50,8 +50,7 @@ std::vector<std::string> FindFeatureCentroidsFilter::defaultTags() const
 Parameters FindFeatureCentroidsFilter::parameters() const
 {
   Parameters params;
-  params.insertSeparator(Parameters::Separator{"Comments"});
-  params.insert(std::make_unique<CommentParameter>(k_FilterComment_Key, "Comments", "User notes/comments", ""));
+
   // Create the parameter descriptors that are needed for this filter
   params.insertSeparator(Parameters::Separator{"Required Input Cell Data"});
   params.insert(std::make_unique<GeometrySelectionParameter>(k_SelectedImageGeometry_Key, "Selected Image Geometry", "The target geometry whose Features' centroids will be calculated", DataPath{},

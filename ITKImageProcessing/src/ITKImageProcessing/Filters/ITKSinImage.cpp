@@ -64,8 +64,7 @@ std::vector<std::string> ITKSinImage::defaultTags() const
 Parameters ITKSinImage::parameters() const
 {
   Parameters params;
-  params.insertSeparator(Parameters::Separator{"Comments"});
-  params.insert(std::make_unique<CommentParameter>(k_FilterComment_Key, "Comments", "User notes/comments", ""));
+
 
   params.insertSeparator(Parameters::Separator{"Input Data Structure Items"});
   params.insert(std::make_unique<GeometrySelectionParameter>(k_SelectedImageGeomPath_Key, "Image Geometry", "Select the Image Geometry Group from the DataStructure.", DataPath({"Image Geometry"}),

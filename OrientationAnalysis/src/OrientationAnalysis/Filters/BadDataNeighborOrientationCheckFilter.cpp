@@ -55,7 +55,6 @@ std::vector<std::string> BadDataNeighborOrientationCheckFilter::defaultTags() co
 Parameters BadDataNeighborOrientationCheckFilter::parameters() const
 {
   Parameters params;
-  params.insert(std::make_unique<CommentParameter>(k_FilterComment_Key, "Comments", "User notes/comments", ""));
   // Create the parameter descriptors that are needed for this filter
   params.insertSeparator(Parameters::Separator{"Input Parameters"});
   params.insert(std::make_unique<Float32Parameter>(k_MisorientationTolerance_Key, "Misorientation Tolerance (Degrees)", "Angular tolerance used to compare with neighboring Cells", 5.0f));

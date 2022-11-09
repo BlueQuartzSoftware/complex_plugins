@@ -69,8 +69,7 @@ std::vector<std::string> ITKMedianImage::defaultTags() const
 Parameters ITKMedianImage::parameters() const
 {
   Parameters params;
-  params.insertSeparator(Parameters::Separator{"Comments"});
-  params.insert(std::make_unique<CommentParameter>(k_FilterComment_Key, "Comments", "User notes/comments", ""));
+
 
   params.insertSeparator(Parameters::Separator{"Parameters"});
   params.insert(std::make_unique<VectorUInt64Parameter>(k_Radius_Key, "Radius", "", std::vector<uint64>(3, 1), std::vector<std::string>(3)));

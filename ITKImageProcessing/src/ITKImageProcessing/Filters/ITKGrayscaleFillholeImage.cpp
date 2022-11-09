@@ -67,7 +67,6 @@ std::vector<std::string> ITKGrayscaleFillholeImage::defaultTags() const
 Parameters ITKGrayscaleFillholeImage::parameters() const
 {
   Parameters params;
-  params.insert(std::make_unique<CommentParameter>(k_FilterComment_Key, "Comments", "User notes/comments", ""));
 
   params.insertSeparator(Parameters::Separator{"Input Parameters"});
   params.insert(std::make_unique<BoolParameter>(

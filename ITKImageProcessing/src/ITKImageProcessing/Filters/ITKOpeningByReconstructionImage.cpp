@@ -75,8 +75,7 @@ std::vector<std::string> ITKOpeningByReconstructionImage::defaultTags() const
 Parameters ITKOpeningByReconstructionImage::parameters() const
 {
   Parameters params;
-  params.insertSeparator(Parameters::Separator{"Comments"});
-  params.insert(std::make_unique<CommentParameter>(k_FilterComment_Key, "Comments", "User notes/comments", ""));
+
 
   params.insertSeparator(Parameters::Separator{"Filter Parameters"});
   params.insert(std::make_unique<VectorParameter<uint32>>(k_KernelRadius_Key, "KernelRadius", "", std::vector<uint32>(3, 1), std::vector<std::string>(3)));

@@ -111,8 +111,7 @@ std::vector<std::string> CreateGeometryFilter::defaultTags() const
 Parameters CreateGeometryFilter::parameters() const
 {
   Parameters params;
-  params.insertSeparator(Parameters::Separator{"Comments"});
-  params.insert(std::make_unique<CommentParameter>(k_FilterComment_Key, "Comments", "User notes/comments", ""));
+
 
   params.insertSeparator(Parameters::Separator{"Input Parameters"});
   params.insertLinkableParameter(std::make_unique<ChoicesParameter>(k_GeometryType_Key, "Geometry Type", "The type of Geometry to create", 0, GetAllGeometryTypesAsStrings()));
