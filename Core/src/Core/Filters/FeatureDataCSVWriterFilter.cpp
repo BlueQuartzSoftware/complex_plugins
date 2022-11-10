@@ -112,7 +112,7 @@ Result<> FeatureDataCSVWriterFilter::executeImpl(DataStructure& dataStructure, c
   auto& cellFeatureAttributeMatrix = dataStructure.getDataRefAs<AttributeMatrix>(pCellFeatureAttributeMatrixPathValue);
 
   // load list of datapaths
-  std::array<DataObject::Type, 3> dataTypesToExtract;
+  std::vector<DataObject::Type> dataTypesToExtract;
   if(filterArgs.value<bool>(k_WriteNeighborListData_Key))
   {
     dataTypesToExtract = {DataObject::Type::DataArray, DataObject::Type::StringArray, DataObject::Type::NeighborList};
@@ -144,7 +144,7 @@ Result<> FeatureDataCSVWriterFilter::executeImpl(DataStructure& dataStructure, c
   }
 
   // call ostream function
-  OStreamUtilities::PrintDataSetsToSingleFile(fout, arrayPaths, dataStructure, messageHandler, shouldCancel, delimiter, pWriteNumFeaturesLineValue, true, 0, neighborPaths);
+  OStreamUtilities::PrintDataSetsToSingleFile(fout, arrayPaths, dataStructure, messageHandler, shouldCancel, delimiter, true, true, neighborPaths, pWriteNumFeaturesLineValue);
 
   return {};
 }

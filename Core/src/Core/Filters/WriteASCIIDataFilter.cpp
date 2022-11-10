@@ -62,14 +62,14 @@ Parameters WriteASCIIDataFilter::parameters() const
   params.insertSeparator(Parameters::Separator{"Input Parameters"});
   params.insertLinkableParameter(std::make_unique<ChoicesParameter>(k_OutputStyle_Key, "Output Type", "", to_underlying(OutputStyle::MultipleFiles),
                                                                     ChoicesParameter::Choices{"Multiple Files", "Single File"})); // sequence dependent DO NOT REORDER
-  params.insert(std::make_unique<FileSystemPathParameter>(k_OutputPath_Key, "Output Path", "", fs::path("<default output directory>"), FileSystemPathParameter::ExtensionsType{},
-                                                          FileSystemPathParameter::PathType::OutputDir, true));
+  params.insert(
+      std::make_unique<FileSystemPathParameter>(k_OutputPath_Key, "Output Path", "", fs::path(""), FileSystemPathParameter::ExtensionsType{}, FileSystemPathParameter::PathType::OutputDir, true));
   params.insert(std::make_unique<StringParameter>(k_FileName_Key, "Name of New File", "", "collection1"));
-  params.insert(std::make_unique<StringParameter>(k_FileExtension_Key, "File Extension", "", ".txt"));
+  params.insert(std::make_unique<StringParameter>(k_FileExtension_Key, "File Extension", "", ".csv"));
   params.insert(std::make_unique<Int32Parameter>(k_MaxValPerLine_Key, "Maximum Elements Per Line", "", 0));
   params.insert(std::make_unique<ChoicesParameter>(k_Delimiter_Key, "Delimiter", "Default Delimiter is Comma", to_underlying(OStreamUtilities::Delimiter::Comma),
                                                    ChoicesParameter::Choices{"Space", "Semicolon", "Comma", "Colon", "Tab"})); // sequence dependent DO NOT REORDER
-  params.insert(std::make_unique<ChoicesParameter>(k_Includes_Key, "Include", "Default Include is Neither", to_underlying(Includes::Neither),
+  params.insert(std::make_unique<ChoicesParameter>(k_Includes_Key, "Header and Index Options", "Default Include is Headers only", to_underlying(Includes::Headers),
                                                    ChoicesParameter::Choices{"Neither", "Headers", "Index", "Both"})); // sequence dependent DO NOT REORDER
   params.insertSeparator(Parameters::Separator{"Required Data Objects"});
   params.insert(std::make_unique<MultiArraySelectionParameter>(k_SelectedDataArrayPaths_Key, "Attribute Arrays to Export", "", MultiArraySelectionParameter::ValueType{}, complex::GetAllDataTypes()));
@@ -187,7 +187,7 @@ Result<> WriteASCIIDataFilter::executeImpl(DataStructure& dataStructure, const A
       return MakeErrorResult(-11021, fmt::format("Unable to create output file {}", outputFilePath));
     }
 
-    OStreamUtilities::PrintDataSetsToSingleFile(outStrm, selectedDataArrayPaths, dataStructure, messageHandler, shouldCancel, delimiter, includeIndex, includeHeaders, maxValPerLine);
+    OStreamUtilities::PrintDataSetsToSingleFile(outStrm, selectedDataArrayPaths, dataStructure, messageHandler, shouldCancel, delimiter, includeIndex, includeHeaders);
   }
 
   if(static_cast<WriteASCIIDataFilter::OutputStyle>(fileType) == WriteASCIIDataFilter::OutputStyle::MultipleFiles)
