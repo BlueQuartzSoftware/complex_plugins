@@ -224,7 +224,7 @@ private:
   }
 };
 
-TEST_CASE("Processing::WriteASCIIData: Valid filter execution")
+TEST_CASE("Core::WriteASCIIData: Valid filter execution")
 {
   DataStructure dataStructure;
   DataStructure& dsRef = dataStructure;

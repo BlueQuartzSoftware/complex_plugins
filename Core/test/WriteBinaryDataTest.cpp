@@ -194,7 +194,7 @@ private:
   }
 };
 
-TEST_CASE("Processing::WriteBinaryData: Valid filter execution")
+TEST_CASE("Core::WriteBinaryData: Valid filter execution")
 {
   DataStructure dataStructure;
   DataStructure& dsRef = dataStructure;
