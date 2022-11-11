@@ -64,7 +64,7 @@ Parameters WriteASCIIDataFilter::parameters() const
                                                                     ChoicesParameter::Choices{"Multiple Files", "Single File"})); // sequence dependent DO NOT REORDER
   params.insert(
       std::make_unique<FileSystemPathParameter>(k_OutputPath_Key, "Output Path", "", fs::path(""), FileSystemPathParameter::ExtensionsType{}, FileSystemPathParameter::PathType::OutputDir, true));
-  params.insert(std::make_unique<StringParameter>(k_FileName_Key, "Name of New File", "", "collection1"));
+  params.insert(std::make_unique<StringParameter>(k_FileName_Key, "Name of Output File", "", "Data"));
   params.insert(std::make_unique<StringParameter>(k_FileExtension_Key, "File Extension", "", ".csv"));
   params.insert(std::make_unique<Int32Parameter>(k_MaxValPerLine_Key, "Maximum Elements Per Line", "", 0));
   params.insert(std::make_unique<ChoicesParameter>(k_Delimiter_Key, "Delimiter", "Default Delimiter is Comma", to_underlying(OStreamUtilities::Delimiter::Comma),
