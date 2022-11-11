@@ -39,19 +39,12 @@ set(STUB_FILTERS
     )
 
 create_complex_plugin(NAME ${PLUGIN_NAME}
-<<<<<<< HEAD
-  FILTER_LIST ${FilterList}
-  DESCRIPTION "Plugin for ${PLUGIN_NAME}"
-  VERSION "0.1.0"
-  DOC_CHECK
-  ADD_TO_GLOBAL_LIST
-  )
-=======
                       FILTER_LIST ${FilterList}
+                      ACTION_LIST ${ActionList}
+                      ALGORITHM_LIST ${AlgorithmList}                      
                       DESCRIPTION "Plugin for ${PLUGIN_NAME}"
                       VERSION "0.1.0"
                       )
->>>>>>> b6e42905 (FindTriangleGeomShapes: Implemented. Matches 6.6 output)
 
 # ------------------------------------------------------------------------------
 # If there are additional library packages that need to be found, this is where
@@ -95,6 +88,7 @@ target_sources(${PLUGIN_NAME}
 source_group(TREE "${${PLUGIN_NAME}_SOURCE_DIR}/src/${PLUGIN_NAME}" PREFIX ${PLUGIN_NAME} FILES ${hidden_filter_HDRS} ${hidden_filter_SRCS})
 
 # ------------------------------------------------------------------------------
+<<<<<<< HEAD
 # Algorithms
 # This should be integrated with the `create_complex_plugin` function call
 # ------------------------------------------------------------------------------
@@ -157,6 +151,8 @@ endforeach()
 
 
 # ------------------------------------------------------------------------------
+=======
+>>>>>>> 8cc4150a (Starting unit test implementation)
 # If there are additional libraries that this plugin needs to link against you
 # can use the target_link_libraries() cmake call
 # ------------------------------------------------------------------------------

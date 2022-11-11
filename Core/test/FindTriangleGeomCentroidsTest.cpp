@@ -26,13 +26,21 @@
 #include "complex/Parameters/ArraySelectionParameter.hpp"
 #include "complex/Parameters/DataGroupSelectionParameter.hpp"
 
+#include "complex_plugins/Utilities/TestUtilities.hpp"
+
+
 #include "Core/Core_test_dirs.hpp"
 #include "Core/Filters/FindTriangleGeomCentroidsFilter.hpp"
 
 using namespace complex;
 
-TEST_CASE("SurfaceMeshing::FindTriangleGeomCentroids: Instantiation and Parameter Check", "[SurfaceMeshing][FindTriangleGeomCentroids][.][UNIMPLEMENTED][!mayfail]")
+TEST_CASE("Core::FindTriangleGeomCentroids: Instantiation and Parameter Check", "[Core][FindTriangleGeomCentroids]")
 {
+  // Read Exemplar DREAM3D File Filter
+  auto exemplarFilePath = fs::path(fmt::format("{}/TestFiles/12_IN625_GBCD/12_IN625_GBCD.dream3d", unit_test::k_DREAM3DDataDir));
+  DataStructure exemplarDataStructure = complex::LoadDataStructure(exemplarFilePath);
+
+
   // Instantiate the filter, a DataStructure object and an Arguments Object
   FindTriangleGeomCentroidsFilter filter;
   DataStructure ds;
@@ -52,12 +60,3 @@ TEST_CASE("SurfaceMeshing::FindTriangleGeomCentroids: Instantiation and Paramete
   REQUIRE(executeResult.result.valid());
 }
 
-// TEST_CASE("SurfaceMeshing::FindTriangleGeomCentroids: Valid filter execution")
-//{
-//
-//}
-
-// TEST_CASE("SurfaceMeshing::FindTriangleGeomCentroids: InValid filter execution")
-//{
-//
-//}

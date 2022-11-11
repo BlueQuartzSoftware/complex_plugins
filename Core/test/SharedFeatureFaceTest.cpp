@@ -3,13 +3,20 @@
 #include "complex/Parameters/ArrayCreationParameter.hpp"
 #include "complex/Parameters/DataObjectNameParameter.hpp"
 
+#include "complex_plugins/Utilities/TestUtilities.hpp"
+
+
 #include "Core/Core_test_dirs.hpp"
 #include "Core/Filters/SharedFeatureFaceFilter.hpp"
 
 using namespace complex;
 
-TEST_CASE("SurfaceMeshing::SharedFeatureFaceFilter: Instantiation and Parameter Check", "[SurfaceMeshing][SharedFeatureFaceFilter][.][UNIMPLEMENTED][!mayfail]")
+TEST_CASE("Core::SharedFeatureFaceFilter: Instantiation and Parameter Check", "[Core][SharedFeatureFaceFilter]")
 {
+    // Read Exemplar DREAM3D File Filter
+  auto exemplarFilePath = fs::path(fmt::format("{}/TestFiles/12_IN625_GBCD/12_IN625_GBCD.dream3d", unit_test::k_DREAM3DDataDir));
+  DataStructure exemplarDataStructure = complex::LoadDataStructure(exemplarFilePath);
+
   // Instantiate the filter, a DataStructure object and an Arguments Object
   SharedFeatureFaceFilter filter;
   DataStructure ds;

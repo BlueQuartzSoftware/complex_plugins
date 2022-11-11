@@ -7,11 +7,17 @@
 
 #include "OrientationAnalysis/Filters/FindTriangleGeomShapesFilter.hpp"
 #include "OrientationAnalysis/OrientationAnalysis_test_dirs.hpp"
+#include "complex_plugins/Utilities/TestUtilities.hpp"
+
 
 using namespace complex;
 
-TEST_CASE("SurfaceMeshing::FindTriangleGeomShapes: Instantiation and Parameter Check", "[SurfaceMeshing][FindTriangleGeomShapes][.][UNIMPLEMENTED][!mayfail]")
+TEST_CASE("Core::FindTriangleGeomShapes: Instantiation and Parameter Check", "[Core][FindTriangleGeomShapes]")
 {
+    // Read Exemplar DREAM3D File Filter
+  auto exemplarFilePath = fs::path(fmt::format("{}/TestFiles/12_IN625_GBCD/12_IN625_GBCD.dream3d", unit_test::k_DREAM3DDataDir));
+  DataStructure exemplarDataStructure = complex::LoadDataStructure(exemplarFilePath);
+
   // Instantiate the filter, a DataStructure object and an Arguments Object
   FindTriangleGeomShapesFilter filter;
   DataStructure ds;
