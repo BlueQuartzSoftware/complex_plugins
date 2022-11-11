@@ -5,17 +5,17 @@
     {
       "args": {
         "input_file_list_info": {
-          "endIndex": 117,
-          "fileExtension": ".ang",
-          "filePrefix": "Slice_",
-          "fileSuffix": "",
-          "incrementIndex": 1,
-          "inputPath": "Data/SmallIN100/",
-          "ordering": 1,
-          "paddingDigits": 1,
-          "startIndex": 1
+          "end_index": 117,
+          "file_extension": ".ang",
+          "file_prefix": "Slice_",
+          "file_suffix": "",
+          "increment_index": 1,
+          "input_path": "Data/SmallIN100",
+          "ordering": 0,
+          "padding_digits": 0,
+          "start_index": 1
         },
-        "output_file_path": "Data/Output/Reconstruction/Small_IN100.h5ebsd",
+        "output_file_path": "Data/Output/Reconstruction/SmallIN100.h5ebsd",
         "reference_frame": 0,
         "stacking_order": 1,
         "z_spacing": 0.25
