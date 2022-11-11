@@ -76,10 +76,6 @@ IFilter::UniquePointer EbsdToH5EbsdFilter::clone() const
 IFilter::PreflightResult EbsdToH5EbsdFilter::preflightImpl(const DataStructure& dataStructure, const Arguments& filterArgs, const MessageHandler& messageHandler,
                                                            const std::atomic_bool& shouldCancel) const
 {
-  //  auto zSpacing = filterArgs.value<Float32Parameter::ValueType>(k_ZSpacing_Key);
-  //  auto stackingOrder = filterArgs.value<ChoicesParameter::ValueType>(k_StackingOrder_Key);
-  //  auto referenceFrame = filterArgs.value<ChoicesParameter::ValueType>(k_ReferenceFrame_Key);
-  //  auto outputPath = filterArgs.value<FileSystemPathParameter::ValueType>(k_OutputPath_Key);
   auto generatedFileListInfo = filterArgs.value<GeneratedFileListParameter::ValueType>(k_InputFileListInfo_Key);
 
   PreflightResult preflightResult;
@@ -108,9 +104,10 @@ Result<> EbsdToH5EbsdFilter::executeImpl(DataStructure& dataStructure, const Arg
   inputValues.ReferenceFrame = filterArgs.value<ChoicesParameter::ValueType>(k_ReferenceFrame_Key);
   inputValues.OutputPath = filterArgs.value<FileSystemPathParameter::ValueType>(k_OutputPath_Key);
   inputValues.InputFileListInfo = filterArgs.value<GeneratedFileListParameter::ValueType>(k_InputFileListInfo_Key);
-  // Grab the stacking order that the user selected and push that into the InputFileListInfo. This is an additional step
-  // over the SIMPL based codes because in SIMPL the FileListInfo did not have the ordering.
-  inputValues.InputFileListInfo.ordering = static_cast<FilePathGenerator::Ordering>(inputValues.StackingOrder);
+  // ALWAYS use LowToHigh (no matter what the user happened to click in the UI). We need
+  // the list ordered from low to high to be correct. The Stacking Order is a piece of
+  // meta-data that is stored in the HDF5 file and used when reading the .h5ebsd file
+  inputValues.InputFileListInfo.ordering = complex::FilePathGenerator::Ordering::LowToHigh;
 
   return EbsdToH5Ebsd(dataStructure, messageHandler, shouldCancel, &inputValues)();
 }
