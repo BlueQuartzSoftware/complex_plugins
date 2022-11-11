@@ -56,10 +56,10 @@ Parameters FeatureDataCSVWriterFilter::parameters() const
   Parameters params;
   // Create the parameter descriptors that are needed for this filter
   params.insertSeparator(Parameters::Separator{"Input Parameters"});
-  params.insert(std::make_unique<FileSystemPathParameter>(k_FeatureDataFile_Key, "Output File", "", fs::path("<default file to write to goes here>"), FileSystemPathParameter::ExtensionsType{},
-                                                          FileSystemPathParameter::PathType::OutputFile));
-  params.insert(std::make_unique<BoolParameter>(k_WriteNeighborListData_Key, "Write Neighbor Data", "", false));
-  params.insert(std::make_unique<BoolParameter>(k_WriteNumFeaturesLine_Key, "Write Number of Features Line", "", false));
+  params.insert(
+      std::make_unique<FileSystemPathParameter>(k_FeatureDataFile_Key, "Output File", "", fs::path(""), FileSystemPathParameter::ExtensionsType{}, FileSystemPathParameter::PathType::OutputFile));
+  params.insert(std::make_unique<BoolParameter>(k_WriteNeighborListData_Key, "Write Neighbor Data", "", true));
+  params.insert(std::make_unique<BoolParameter>(k_WriteNumFeaturesLine_Key, "Write Number of Features Line", "", true));
   params.insert(std::make_unique<ChoicesParameter>(k_DelimiterChoiceInt_Key, "Delimiter", "Default Delimiter is Comma", to_underlying(OStreamUtilities::Delimiter::Comma),
                                                    ChoicesParameter::Choices{"Space", "Semicolon", "Comma", "Colon", "Tab"})); // sequence dependent DO NOT REORDER
   params.insertSeparator(Parameters::Separator{"Required Data Objects"});
@@ -98,18 +98,25 @@ IFilter::PreflightResult FeatureDataCSVWriterFilter::preflightImpl(const DataStr
 Result<> FeatureDataCSVWriterFilter::executeImpl(DataStructure& dataStructure, const Arguments& filterArgs, const PipelineFilter* pipelineNode, const MessageHandler& messageHandler,
                                                  const std::atomic_bool& shouldCancel) const
 {
-  auto pFeatureDataFileValue = filterArgs.value<FileSystemPathParameter::ValueType>(k_FeatureDataFile_Key);
+  auto pOutputFilePath = filterArgs.value<FileSystemPathParameter::ValueType>(k_FeatureDataFile_Key);
   auto pWriteNeighborListDataValue = filterArgs.value<bool>(k_WriteNeighborListData_Key);
   auto pWriteNumFeaturesLineValue = filterArgs.value<bool>(k_WriteNumFeaturesLine_Key);
   auto pDelimiterChoiceIntValue = filterArgs.value<ChoicesParameter::ValueType>(k_DelimiterChoiceInt_Key);
   auto pCellFeatureAttributeMatrixPathValue = filterArgs.value<DataPath>(k_CellFeatureAttributeMatrixPath_Key);
 
-  /****************************************************************************
-   * Write your algorithm implementation in this function
-   ***************************************************************************/
   const std::string delimiter = OStreamUtilities::DelimiterToString(pDelimiterChoiceIntValue);
 
   auto& cellFeatureAttributeMatrix = dataStructure.getDataRefAs<AttributeMatrix>(pCellFeatureAttributeMatrixPathValue);
+
+  // Ensure the complete path to the output file exists or can be created
+  auto parentPath = pOutputFilePath.parent_path();
+  if(!std::filesystem::exists(parentPath))
+  {
+    if(!std::filesystem::create_directories(parentPath))
+    {
+      return MakeErrorResult(-64641, fmt::format("Error creating Output file at path '{}'. Parent path could not be created.", pOutputFilePath.string()));
+    }
+  }
 
   // load list of datapaths
   std::vector<DataObject::Type> dataTypesToExtract;
@@ -137,10 +144,10 @@ Result<> FeatureDataCSVWriterFilter::executeImpl(DataStructure& dataStructure, c
     }
   }
 
-  std::ofstream fout(pFeatureDataFileValue.string(), std::ofstream::out); // test name resolution and create file
+  std::ofstream fout(pOutputFilePath.string(), std::ofstream::out); // test name resolution and create file
   if(!fout.is_open())
   {
-    return MakeErrorResult(-64640, fmt::format("Error opening path {}", pFeatureDataFileValue.string()));
+    return MakeErrorResult(-64640, fmt::format("Error opening path {}", pOutputFilePath.string()));
   }
 
   // call ostream function
