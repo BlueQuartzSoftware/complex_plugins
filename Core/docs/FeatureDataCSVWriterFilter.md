@@ -1,4 +1,4 @@
-# Write Feature Data as CSV File #
+# Write Feature Data as CSV File
 
 ## Group (Subgroup) ##
 
