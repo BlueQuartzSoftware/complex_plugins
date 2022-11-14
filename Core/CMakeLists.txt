@@ -14,6 +14,7 @@ set(${PLUGIN_NAME}_SOURCE_DIR ${CMAKE_CURRENT_LIST_DIR})
 # Core/src/Core/Filters/ directory.
 set(FilterList
   AlignSectionsFeatureCentroidFilter
+  ArrayCalculatorFilter
   CreateGeometryFilter
   ConvertColorToGrayScaleFilter
   ConvertDataFilter
@@ -58,13 +59,77 @@ create_complex_plugin(NAME ${PLUGIN_NAME}
 # ------------------------------------------------------------------------------
 # If there are additional source files that need to be compiled for this plugin
 # can use the target_sources(...) cmake call
+set(Utilities 
+	"${${PLUGIN_NAME}_SOURCE_DIR}/src/${PLUGIN_NAME}/Utilities/CoreUtilities.hpp"
+	"${${PLUGIN_NAME}_SOURCE_DIR}/src/${PLUGIN_NAME}/Utilities/CalculatorItem.h"
+	"${${PLUGIN_NAME}_SOURCE_DIR}/src/${PLUGIN_NAME}/Utilities/CalculatorItem.cpp"
+	"${${PLUGIN_NAME}_SOURCE_DIR}/src/${PLUGIN_NAME}/Utilities/ICalculatorArray.h"
+	"${${PLUGIN_NAME}_SOURCE_DIR}/src/${PLUGIN_NAME}/Utilities/ICalculatorArray.cpp"
+	"${${PLUGIN_NAME}_SOURCE_DIR}/src/${PLUGIN_NAME}/Utilities/CalculatorArray.hpp"
+	"${${PLUGIN_NAME}_SOURCE_DIR}/src/${PLUGIN_NAME}/Utilities/CalculatorOperator.h"
+	"${${PLUGIN_NAME}_SOURCE_DIR}/src/${PLUGIN_NAME}/Utilities/CalculatorOperator.cpp"
+	"${${PLUGIN_NAME}_SOURCE_DIR}/src/${PLUGIN_NAME}/Utilities/UnaryOperator.h"
+	"${${PLUGIN_NAME}_SOURCE_DIR}/src/${PLUGIN_NAME}/Utilities/UnaryOperator.cpp"
+	"${${PLUGIN_NAME}_SOURCE_DIR}/src/${PLUGIN_NAME}/Utilities/BinaryOperator.h"
+	"${${PLUGIN_NAME}_SOURCE_DIR}/src/${PLUGIN_NAME}/Utilities/BinaryOperator.cpp"
+	"${${PLUGIN_NAME}_SOURCE_DIR}/src/${PLUGIN_NAME}/Utilities/ABSOperator.h"
+	"${${PLUGIN_NAME}_SOURCE_DIR}/src/${PLUGIN_NAME}/Utilities/ABSOperator.cpp"
+	"${${PLUGIN_NAME}_SOURCE_DIR}/src/${PLUGIN_NAME}/Utilities/PowOperator.h"
+	"${${PLUGIN_NAME}_SOURCE_DIR}/src/${PLUGIN_NAME}/Utilities/PowOperator.cpp"
+	"${${PLUGIN_NAME}_SOURCE_DIR}/src/${PLUGIN_NAME}/Utilities/ExpOperator.h"
+	"${${PLUGIN_NAME}_SOURCE_DIR}/src/${PLUGIN_NAME}/Utilities/ExpOperator.cpp"
+	"${${PLUGIN_NAME}_SOURCE_DIR}/src/${PLUGIN_NAME}/Utilities/SinOperator.h"
+	"${${PLUGIN_NAME}_SOURCE_DIR}/src/${PLUGIN_NAME}/Utilities/SinOperator.cpp"
+	"${${PLUGIN_NAME}_SOURCE_DIR}/src/${PLUGIN_NAME}/Utilities/CosOperator.h"
+	"${${PLUGIN_NAME}_SOURCE_DIR}/src/${PLUGIN_NAME}/Utilities/CosOperator.cpp"
+	"${${PLUGIN_NAME}_SOURCE_DIR}/src/${PLUGIN_NAME}/Utilities/TanOperator.h"
+	"${${PLUGIN_NAME}_SOURCE_DIR}/src/${PLUGIN_NAME}/Utilities/TanOperator.cpp"
+	"${${PLUGIN_NAME}_SOURCE_DIR}/src/${PLUGIN_NAME}/Utilities/ASinOperator.h"
+	"${${PLUGIN_NAME}_SOURCE_DIR}/src/${PLUGIN_NAME}/Utilities/ASinOperator.cpp"
+	"${${PLUGIN_NAME}_SOURCE_DIR}/src/${PLUGIN_NAME}/Utilities/ACosOperator.h"
+	"${${PLUGIN_NAME}_SOURCE_DIR}/src/${PLUGIN_NAME}/Utilities/ACosOperator.cpp"
+	"${${PLUGIN_NAME}_SOURCE_DIR}/src/${PLUGIN_NAME}/Utilities/ATanOperator.h"
+	"${${PLUGIN_NAME}_SOURCE_DIR}/src/${PLUGIN_NAME}/Utilities/ATanOperator.cpp"
+	"${${PLUGIN_NAME}_SOURCE_DIR}/src/${PLUGIN_NAME}/Utilities/SqrtOperator.h"
+	"${${PLUGIN_NAME}_SOURCE_DIR}/src/${PLUGIN_NAME}/Utilities/SqrtOperator.cpp"
+	"${${PLUGIN_NAME}_SOURCE_DIR}/src/${PLUGIN_NAME}/Utilities/RootOperator.h"
+	"${${PLUGIN_NAME}_SOURCE_DIR}/src/${PLUGIN_NAME}/Utilities/RootOperator.cpp"
+	"${${PLUGIN_NAME}_SOURCE_DIR}/src/${PLUGIN_NAME}/Utilities/LogOperator.h"
+	"${${PLUGIN_NAME}_SOURCE_DIR}/src/${PLUGIN_NAME}/Utilities/LogOperator.cpp"
+	"${${PLUGIN_NAME}_SOURCE_DIR}/src/${PLUGIN_NAME}/Utilities/Log10Operator.h"
+	"${${PLUGIN_NAME}_SOURCE_DIR}/src/${PLUGIN_NAME}/Utilities/Log10Operator.cpp"
+	"${${PLUGIN_NAME}_SOURCE_DIR}/src/${PLUGIN_NAME}/Utilities/LnOperator.h"
+	"${${PLUGIN_NAME}_SOURCE_DIR}/src/${PLUGIN_NAME}/Utilities/LnOperator.cpp"
+	"${${PLUGIN_NAME}_SOURCE_DIR}/src/${PLUGIN_NAME}/Utilities/AdditionOperator.h"
+	"${${PLUGIN_NAME}_SOURCE_DIR}/src/${PLUGIN_NAME}/Utilities/AdditionOperator.cpp"
+	"${${PLUGIN_NAME}_SOURCE_DIR}/src/${PLUGIN_NAME}/Utilities/SubtractionOperator.h"
+	"${${PLUGIN_NAME}_SOURCE_DIR}/src/${PLUGIN_NAME}/Utilities/SubtractionOperator.cpp"
+	"${${PLUGIN_NAME}_SOURCE_DIR}/src/${PLUGIN_NAME}/Utilities/NegativeOperator.h"
+	"${${PLUGIN_NAME}_SOURCE_DIR}/src/${PLUGIN_NAME}/Utilities/NegativeOperator.cpp"
+	"${${PLUGIN_NAME}_SOURCE_DIR}/src/${PLUGIN_NAME}/Utilities/MultiplicationOperator.h"
+	"${${PLUGIN_NAME}_SOURCE_DIR}/src/${PLUGIN_NAME}/Utilities/MultiplicationOperator.cpp"
+	"${${PLUGIN_NAME}_SOURCE_DIR}/src/${PLUGIN_NAME}/Utilities/DivisionOperator.h"
+	"${${PLUGIN_NAME}_SOURCE_DIR}/src/${PLUGIN_NAME}/Utilities/DivisionOperator.cpp"
+	"${${PLUGIN_NAME}_SOURCE_DIR}/src/${PLUGIN_NAME}/Utilities/LeftParenthesisItem.h"
+	"${${PLUGIN_NAME}_SOURCE_DIR}/src/${PLUGIN_NAME}/Utilities/LeftParenthesisItem.cpp"
+	"${${PLUGIN_NAME}_SOURCE_DIR}/src/${PLUGIN_NAME}/Utilities/RightParenthesisItem.h"
+	"${${PLUGIN_NAME}_SOURCE_DIR}/src/${PLUGIN_NAME}/Utilities/RightParenthesisItem.cpp"
+	"${${PLUGIN_NAME}_SOURCE_DIR}/src/${PLUGIN_NAME}/Utilities/CalculatorSeparator.h"
+	"${${PLUGIN_NAME}_SOURCE_DIR}/src/${PLUGIN_NAME}/Utilities/CalculatorSeparator.cpp"
+	"${${PLUGIN_NAME}_SOURCE_DIR}/src/${PLUGIN_NAME}/Utilities/CommaSeparator.h"
+	"${${PLUGIN_NAME}_SOURCE_DIR}/src/${PLUGIN_NAME}/Utilities/CommaSeparator.cpp"
+	"${${PLUGIN_NAME}_SOURCE_DIR}/src/${PLUGIN_NAME}/Utilities/FloorOperator.h"
+	"${${PLUGIN_NAME}_SOURCE_DIR}/src/${PLUGIN_NAME}/Utilities/FloorOperator.cpp"
+	"${${PLUGIN_NAME}_SOURCE_DIR}/src/${PLUGIN_NAME}/Utilities/CeilOperator.h"
+	"${${PLUGIN_NAME}_SOURCE_DIR}/src/${PLUGIN_NAME}/Utilities/CeilOperator.cpp"
+)
+
 target_sources(${PLUGIN_NAME}
-  PUBLIC
-  "${${PLUGIN_NAME}_SOURCE_DIR}/src/${PLUGIN_NAME}/Utilities/CoreUtilities.hpp"
+  PUBLIC ${Utilities}
 )
 source_group(TREE "${${PLUGIN_NAME}_SOURCE_DIR}/src/${PLUGIN_NAME}"
   PREFIX ${PLUGIN_NAME}
-  FILES "${${PLUGIN_NAME}_SOURCE_DIR}/src/${PLUGIN_NAME}/Utilities/CoreUtilities.hpp"
+  FILES ${Utilities}
 )
 
 # ------------------------------------------------------------------------------
@@ -92,6 +157,7 @@ source_group(TREE "${${PLUGIN_NAME}_SOURCE_DIR}/src/${PLUGIN_NAME}" PREFIX ${PLU
 # ------------------------------------------------------------------------------
 set(filter_algorithms
   AlignSectionsFeatureCentroid
+  ArrayCalculator
   ConvertColorToGrayScale
   ConvertData
   FillBadData
