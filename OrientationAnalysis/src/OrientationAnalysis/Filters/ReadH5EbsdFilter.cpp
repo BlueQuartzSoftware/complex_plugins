@@ -1,7 +1,7 @@
 #include "ReadH5EbsdFilter.hpp"
 
 #include "OrientationAnalysis/Filters/Algorithms/ReadH5Ebsd.hpp"
-#include "OrientationAnalysis/Parameters/H5EbsdReaderParameter.hpp"
+#include "OrientationAnalysis/Parameters/H5EbsdReaderParameter.h"
 
 #include "complex/DataStructure/DataPath.hpp"
 #include "complex/Filter/Actions/CreateArrayAction.hpp"

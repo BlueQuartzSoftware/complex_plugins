@@ -1,4 +1,4 @@
-#include "H5EbsdReaderParameter.hpp"
+#include "H5EbsdReaderParameter.h"
 
 #include "complex/Common/StringLiteral.hpp"
 

@@ -10,7 +10,7 @@
 
 #include "OrientationAnalysis/Filters/ReadH5EbsdFilter.hpp"
 #include "OrientationAnalysis/OrientationAnalysis_test_dirs.hpp"
-#include "OrientationAnalysis/Parameters/H5EbsdReaderParameter.hpp"
+#include "OrientationAnalysis/Parameters/H5EbsdReaderParameter.h"
 
 TEST_CASE("OrientationAnalysis::ReadH5Ebsd: Instantiation and Parameter Check", "[OrientationAnalysis][ReadH5Ebsd]")
 {

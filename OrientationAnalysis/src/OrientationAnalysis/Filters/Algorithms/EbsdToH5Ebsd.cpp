@@ -58,7 +58,7 @@ Result<> EbsdToH5Ebsd::operator()()
   }
 
   // Create output H5Ebsd File
-  hid_t fileId = H5Support::H5Utilities::createFile(m_InputValues->OutputPath);
+  hid_t fileId = H5Support::H5Utilities::createFile(m_InputValues->OutputPath.string());
   if(fileId < 0)
   {
     return MakeErrorResult(-99501, fmt::format("The output HDF5 file could not be created. Check permissions or if the file is in use by another program"));
