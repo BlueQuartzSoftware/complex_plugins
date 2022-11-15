@@ -6,24 +6,24 @@
 # ------------------------------------------------------------------------------
 # Define the list of unit test source files
 set(${PLUGIN_NAME}UnitTest_SRCS
-  AlignSectionsMisorientationTest.cpp
-  BadDataNeighborOrientationCheckTest.cpp
-  ConvertOrientationsTest.cpp
-  EBSDSegmentFeaturesFilterTest.cpp   
-  FindAvgOrientationsTest.cpp
-  GenerateFZQuaternionsTest.cpp
-  GenerateIPFColorsTest.cpp
-  NeighborOrientationCorrelationTest.cpp
-  RotateEulerRefFrameTest.cpp
-  MergeTwinsTest.cpp
-  ReadH5EbsdTest.cpp
-  FindFeatureReferenceMisorientationsTest.cpp
-  FindKernelAvgMisorientationsTest.cpp
-  FindMisorientationsTest.cpp
-  FindSchmidsTest.cpp
-  ReadAngDataTest.cpp
-  ReadCtfDataTest.cpp
-  EbsdToH5EbsdTest.cpp
+  # AlignSectionsMisorientationTest.cpp
+  # BadDataNeighborOrientationCheckTest.cpp
+  # ConvertOrientationsTest.cpp
+  # EBSDSegmentFeaturesFilterTest.cpp   
+  # FindAvgOrientationsTest.cpp
+  # GenerateFZQuaternionsTest.cpp
+  # GenerateIPFColorsTest.cpp
+  # NeighborOrientationCorrelationTest.cpp
+  # RotateEulerRefFrameTest.cpp
+  # MergeTwinsTest.cpp
+  # ReadH5EbsdTest.cpp
+  # FindFeatureReferenceMisorientationsTest.cpp
+  # FindKernelAvgMisorientationsTest.cpp
+  # FindMisorientationsTest.cpp
+  # FindSchmidsTest.cpp
+  # ReadAngDataTest.cpp
+  # ReadCtfDataTest.cpp
+   EbsdToH5EbsdTest.cpp
 )
 set(DISABLED_TESTS
 

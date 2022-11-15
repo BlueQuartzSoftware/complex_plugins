@@ -139,7 +139,10 @@ Result<> EbsdToH5Ebsd::operator()()
 
   // Now generate all the file names the user is asking for and populate the table
   std::vector<std::string> fileList = m_InputValues->InputFileListInfo.generate();
-
+  if(fileList.empty())
+  {
+    return MakeErrorResult(-99509, fmt::format("Generated File List was empty. Parent path to files is '{}'", m_InputValues->InputFileListInfo.inputPath));
+  }
   EbsdImporter::Pointer fileImporter;
 
   int32 zStartIndex = m_InputValues->InputFileListInfo.startIndex;

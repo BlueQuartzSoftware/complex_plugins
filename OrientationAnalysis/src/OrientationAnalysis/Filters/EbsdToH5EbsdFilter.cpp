@@ -89,6 +89,14 @@ IFilter::PreflightResult EbsdToH5EbsdFilter::preflightImpl(const DataStructure& 
     return {MakePreflightErrorResult(-60800, "Only .ang and .ctf files are supported")};
   }
 
+  generatedFileListInfo.ordering = complex::FilePathGenerator::Ordering::LowToHigh;
+  std::vector<std::string> fileList = generatedFileListInfo.generate();
+  if(fileList.empty())
+  {
+    return {MakePreflightErrorResult(-60801, "Generated file list is empty.")};
+  }
+
+
   // Return both the resultOutputActions and the preflightUpdatedValues via std::move()
   return {std::move(resultOutputActions), std::move(preflightUpdatedValues)};
 }
