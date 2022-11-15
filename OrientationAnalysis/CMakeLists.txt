@@ -221,8 +221,6 @@ if(EXISTS "${${PLUGIN_NAME}_SOURCE_DIR}/pipelines")
   )
 endif()
 
-
-
 # -----------------------------------------------------------------------
 # Copy Example Data Files to binary directory
 # -----------------------------------------------------------------------
@@ -243,4 +241,15 @@ install(FILES
   COMPONENT Applications
 )
 
-
+# -----------------------------------------------------------------------
+# Ensure the DREAM3D_Data files are decompressed
+# -----------------------------------------------------------------------
+set(DREAM3D_DATA_ARCHIVES "SmallIN100;Image;T12-MAI-2010")
+foreach(archive ${DREAM3D_DATA_ARCHIVES})
+  message(STATUS "Decompressing ${archive}.tar.gz")
+  if(NOT EXISTS ${DREAM3D_DATA_DIR}/Data/${archive}/)
+    execute_process(COMMAND ${CMAKE_COMMAND} -E tar xvzf "${DREAM3D_DATA_DIR}/Data/${archive}.tar.gz"
+      WORKING_DIRECTORY ${DREAM3D_DATA_DIR}/Data/
+    )
+  endif()
+endforeach()
