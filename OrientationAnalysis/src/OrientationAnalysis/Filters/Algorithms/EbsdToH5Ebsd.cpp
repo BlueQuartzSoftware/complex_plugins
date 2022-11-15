@@ -147,7 +147,7 @@ Result<> EbsdToH5Ebsd::operator()()
   // Write the Manufacturer of the OIM file here
   // This list will grow to be the number of EBSD file formats we support
   auto firstFilePath = fs::path(fileList[0]);
-  std::string ext = firstFilePath.extension();
+  std::string ext = firstFilePath.extension().string();
   ext.erase(0, 1); // Remove the '.' from the string
   if(ext == EbsdLib::Ang::FileExt)
   {
