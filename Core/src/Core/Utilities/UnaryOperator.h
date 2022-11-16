@@ -67,7 +67,7 @@ public:
       }                                                                                                                                                                                                \
     }                                                                                                                                                                                                  \
                                                                                                                                                                                                        \
-    executionStack.push(CalculatorArray<double>::New(newArray, arrayPtr->getType()));                                                                                                                  \
+    executionStack.push(CalculatorArray<double>::New(dataStructure, newArray, arrayPtr->getType(), true));                                                                                             \
     return;                                                                                                                                                                                            \
   }
 
@@ -98,7 +98,7 @@ public:
       }                                                                                                                                                                                                \
     }                                                                                                                                                                                                  \
                                                                                                                                                                                                        \
-    executionStack.push(CalculatorArray<double>::New(newArray, arrayPtr->getType()));                                                                                                                  \
+    executionStack.push(CalculatorArray<double>::New(dataStructure, newArray, arrayPtr->getType(), true));                                                                                             \
     return;                                                                                                                                                                                            \
   }
 
@@ -130,7 +130,7 @@ public:
       }                                                                                                                                                                                                \
     }                                                                                                                                                                                                  \
                                                                                                                                                                                                        \
-    executionStack.push(CalculatorArray<double>::New(newArray, arrayPtr->getType()));                                                                                                                  \
+    executionStack.push(CalculatorArray<double>::New(dataStructure, newArray, arrayPtr->getType(), true));                                                                                             \
     return;                                                                                                                                                                                            \
   }
 

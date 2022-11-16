@@ -28,12 +28,12 @@ public:
 
   ~ICalculatorArray() override;
 
-  virtual IDataArray* getArray() = 0;
+  virtual Float64Array* getArray() = 0;
   virtual double getValue(int i) = 0;
   virtual void setValue(int i, double value) = 0;
   virtual ValueType getType() = 0;
 
-  // virtual DoubleArrayType::Pointer reduceToOneComponent(int c, bool allocate = true) = 0;
+  virtual Float64Array* reduceToOneComponent(int c, bool allocate = true) = 0;
 
 protected:
   ICalculatorArray();

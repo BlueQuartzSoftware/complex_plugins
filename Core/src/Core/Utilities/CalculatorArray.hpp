@@ -37,18 +37,18 @@ public:
     return "CalculatorArray<T>";
   }
 
-  static Pointer New(DataArray<T>* array, ValueType type)
+  static Pointer New(DataStructure& dataStructure, const DataArray<T>* array, ValueType type, bool allocate)
   {
-    return Pointer(new CalculatorArray(array, type));
+    return Pointer(new CalculatorArray(dataStructure, array, type, allocate));
   }
 
   ~CalculatorArray() override = default;
 
-  IDataArray* getArray() override
+  Float64Array* getArray() override
   {
     if(m_ArrayId.has_value())
     {
-      return m_DataStructure->getDataAs<IDataArray>(m_ArrayId.value());
+      return m_DataStructure.getDataAs<Float64Array>(m_ArrayId.value());
     }
     return nullptr;
   }
@@ -57,7 +57,7 @@ public:
   {
     if(m_ArrayId.has_value())
     {
-      m_DataStructure->getDataRefAs<Float64Array>(m_ArrayId.value())[i] = val;
+      m_DataStructure.getDataRefAs<Float64Array>(m_ArrayId.value())[i] = val;
     }
   }
 
@@ -68,7 +68,7 @@ public:
       // ERROR: The array is empty!
       return 0.0;
     }
-    auto& array = m_DataStructure->getDataRefAs<Float64Array>(m_ArrayId.value());
+    auto& array = m_DataStructure.getDataRefAs<Float64Array>(m_ArrayId.value());
     if(array.getNumberOfTuples() > 1)
     {
       return static_cast<double>(array[i]);
@@ -86,27 +86,33 @@ public:
     return m_Type;
   }
 
-  // Float64Array* reduceToOneComponent(int c, bool allocate = true) override
-  //{
-  //   if(c >= 0 && c <= m_Array->getNumberOfComponents())
-  //   {
-  //     if(m_Array->getNumberOfComponents() > 1)
-  //     {
-  //       DoubleArrayType::Pointer newArray = DoubleArrayType::CreateArray(m_Array->getNumberOfTuples(), {1}, m_Array->getName(), allocate);
-  //       if(allocate)
-  //       {
-  //         for(int i = 0; i < m_Array->getNumberOfTuples(); i++)
-  //         {
-  //           newArray->setComponent(i, 0, m_Array->getComponent(i, c));
-  //         }
-  //       }
-  //
-  //      return newArray;
-  //    }
-  //  }
-  //
-  //  return nullptr;
-  //}
+  Float64Array* reduceToOneComponent(int c, bool allocate = true) override
+  {
+    if(!m_ArrayId.has_value())
+    {
+      return nullptr;
+    }
+    auto* array = m_DataStructure.getDataAs<Float64Array>(m_ArrayId.value());
+    auto numComponents = array->getNumberOfComponents();
+    if(c >= 0 && c <= numComponents)
+    {
+      if(numComponents > 1)
+      {
+        Float64Array* newArray = Float64Array::CreateWithStore<Float64DataStore>(m_DataStructure, array->getName(), array->getTupleShape(), {1});
+        if(allocate)
+        {
+          for(int i = 0; i < array->getNumberOfTuples(); i++)
+          {
+            (*newArray)[i] = (*array)[i * numComponents + c];
+          }
+        }
+
+        return newArray;
+      }
+    }
+
+    return nullptr;
+  }
 
   CalculatorItem::ErrorCode checkValidity(std::vector<CalculatorItem::Pointer> infixVector, int currentIndex, std::string& msg) override
   {
@@ -116,18 +122,40 @@ public:
 protected:
   CalculatorArray() = default;
 
-  CalculatorArray(DataArray<T>* array, ValueType type)
+  CalculatorArray(DataStructure& dataStructure, const DataArray<T>* dataArray, ValueType type, bool allocate)
   : ICalculatorArray()
-  , m_ArrayId(std::optional{array->getId()})
   , m_Type(type)
-  , m_DataStructure(array->getDataStructure())
+  , m_DataStructure(dataStructure)
   {
+    DataPath targetPath({dataArray->getName()});
+    if(dataStructure.containsData(targetPath))
+    {
+      m_ArrayId = dataStructure.getId(targetPath);
+    }
+    else
+    {
+      if(allocate)
+      {
+        auto* tempArray = Float64Array::CreateWithStore<Float64DataStore>(dataStructure, dataArray->getName(), dataArray->getTupleShape(), dataArray->getComponentShape());
+        for(int i = 0; i < dataArray->getSize(); i++)
+        {
+          (*tempArray)[i] = static_cast<double>(dataArray->at(i));
+        }
+        m_ArrayId = std::optional{tempArray->getId()};
+      }
+      else
+      {
+        auto* tempArray =
+            Float64Array::Create(dataStructure, dataArray->getName(), std::make_shared<Float64DataStore>(Float64DataStore(nullptr, dataArray->getTupleShape(), dataArray->getComponentShape())));
+        m_ArrayId = std::optional{tempArray->getId()};
+      }
+    }
   }
 
 private:
   std::optional<DataObject::IdType> m_ArrayId = {};
   ValueType m_Type;
-  DataStructure* m_DataStructure = nullptr;
+  DataStructure& m_DataStructure;
 
 public:
   CalculatorArray(const CalculatorArray&) = delete;            // Copy Constructor Not Implemented

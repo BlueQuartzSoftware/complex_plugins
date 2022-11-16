@@ -46,7 +46,7 @@ void NegativeOperator::calculate(DataStructure& dataStructure, CalculatorParamet
       }
     }
 
-    executionStack.push(CalculatorArray<double>::New(newArray, arrayPtr->getType()));
+    executionStack.push(CalculatorArray<double>::New(dataStructure, newArray, arrayPtr->getType(), true));
     return;
   }
 }

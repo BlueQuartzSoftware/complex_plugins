@@ -96,19 +96,19 @@ public:
       for(int c = 0; c < newArray->getNumberOfComponents(); c++)                                                                                                                                       \
       {                                                                                                                                                                                                \
         int index = numComps * i + c;                                                                                                                                                                  \
-        double num1 = (*array1)[index];                                                                                                                                                                \
-        double num2 = (*array2)[index];                                                                                                                                                                \
+        double num1 = array1->getValue(index);                                                                                                                                                         \
+        double num2 = array2->getValue(index);                                                                                                                                                         \
         (*newArray)[index] = func(num2, num1);                                                                                                                                                         \
       }                                                                                                                                                                                                \
     }                                                                                                                                                                                                  \
                                                                                                                                                                                                        \
     if(array1->getType() == ICalculatorArray::Array || array2->getType() == ICalculatorArray::Array)                                                                                                   \
     {                                                                                                                                                                                                  \
-      executionStack.push(CalculatorArray<double>::New(newArray, ICalculatorArray::Array));                                                                                                            \
+      executionStack.push(CalculatorArray<double>::New(dataStructure, newArray, ICalculatorArray::Array, true));                                                                                       \
     }                                                                                                                                                                                                  \
     else                                                                                                                                                                                               \
     {                                                                                                                                                                                                  \
-      executionStack.push(CalculatorArray<double>::New(newArray, ICalculatorArray::Number));                                                                                                           \
+      executionStack.push(CalculatorArray<double>::New(dataStructure, newArray, ICalculatorArray::Number, true));                                                                                      \
     }                                                                                                                                                                                                  \
     return;                                                                                                                                                                                            \
   }

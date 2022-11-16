@@ -1,6 +1,7 @@
 #include "ArrayCalculatorFilter.hpp"
 
 #include "Core/Filters/Algorithms/ArrayCalculator.hpp"
+#include "Core/Utilities/ICalculatorArray.h"
 
 #include "complex/Common/TypesUtility.hpp"
 #include "complex/DataStructure/DataPath.hpp"
@@ -52,7 +53,7 @@ Parameters ArrayCalculatorFilter::parameters() const
   params.insertSeparator(Parameters::Separator{"Input Parameters"});
   params.insert(std::make_unique<AttributeMatrixSelectionParameter>(k_SelectedAttributeMatrix_Key, "Cell Attribute Matrix",
                                                                     "The attribute matrix containing the target source arrays to be used in the calculation", DataPath{}));
-  params.insert(std::make_unique<CalculatorParameter>(k_InfixEquation_Key, "Infix Expression", "The mathematical expression used to calculate the output array", ""));
+  params.insert(std::make_unique<CalculatorParameter>(k_InfixEquation_Key, "Infix Expression", "The mathematical expression used to calculate the output array", CalculatorParameter::ValueType{}));
   params.insertSeparator(Parameters::Separator{"Created Cell Data"});
   params.insert(std::make_unique<NumericTypeParameter>(k_ScalarType_Key, "Scalar Type", "The data type of the calculated array", NumericType::float64));
   params.insert(std::make_unique<ArrayCreationParameter>(k_CalculatedArray_Key, "Calculated Array", "The path to the calculated array", DataPath{}));
@@ -70,34 +71,105 @@ IFilter::UniquePointer ArrayCalculatorFilter::clone() const
 IFilter::PreflightResult ArrayCalculatorFilter::preflightImpl(const DataStructure& dataStructure, const Arguments& filterArgs, const MessageHandler& messageHandler,
                                                               const std::atomic_bool& shouldCancel) const
 {
-  auto pSelectedAttributeMatrixValue = filterArgs.value<DataPath>(k_SelectedAttributeMatrix_Key);
+  auto pSelectedAttributeMatrixPath = filterArgs.value<DataPath>(k_SelectedAttributeMatrix_Key);
   auto pInfixEquationValue = filterArgs.value<CalculatorParameter::ValueType>(k_InfixEquation_Key);
   auto pScalarTypeValue = filterArgs.value<NumericTypeParameter::ValueType>(k_ScalarType_Key);
-  auto pCalculatedArrayValue = filterArgs.value<DataPath>(k_CalculatedArray_Key);
+  auto pCalculatedArrayPath = filterArgs.value<DataPath>(k_CalculatedArray_Key);
 
   PreflightResult preflightResult;
   complex::Result<OutputActions> resultOutputActions;
   std::vector<PreflightValue> preflightUpdatedValues;
 
   // check selected attribute matrix type
-  const auto& selectedAm = dataStructure.getDataRefAs<AttributeMatrix>(pSelectedAttributeMatrixValue);
+  const auto& selectedAm = dataStructure.getDataRefAs<AttributeMatrix>(pSelectedAttributeMatrixPath);
 
-  // TODO : parse infix
-  // std::vector<CalculatorItem::Pointer> parsedInfix = parseInfixEquation();
-
-  // TODO : check infix individual items validity
-
-  // TODO : collect calculated array dimensions, check for consistent array component dimensions in infix & make sure it yields a numeric result
-
-  // TODO : check expected calculated results dimensions with destination array parent
-
+  // parse the infix expression
+  ArrayCalculatorParser parser(dataStructure, pSelectedAttributeMatrixPath, pInfixEquationValue.m_Equation, true);
+  Result<ArrayCalculatorParser::ParsedEquation> parsedEquationResults = parser.parseInfixEquation();
+  resultOutputActions.warnings() = parsedEquationResults.warnings();
+  if(parsedEquationResults.invalid())
   {
-    auto createArrayAction = std::make_unique<CreateArrayAction>(ConvertNumericTypeToDataType(pScalarTypeValue), std::vector<usize>{NUM_TUPLES_VALUE}, NUM_COMPONENTS, pCalculatedArrayValue);
+    resultOutputActions.errors() = parsedEquationResults.errors();
+    return {std::move(resultOutputActions), std::move(preflightUpdatedValues)};
+  }
+  std::vector<CalculatorItem::Pointer> parsedInfix = parsedEquationResults.value();
+  if(parsedInfix.empty())
+  {
+    resultOutputActions.errors().push_back(Error{-7760, "Error while parsing infix expression."});
+    return {std::move(resultOutputActions), std::move(preflightUpdatedValues)};
+  }
+
+  // check individual infix expression items for validity
+  for(int i = 0; i < parsedInfix.size(); i++)
+  {
+    CalculatorItem::Pointer calcItem = parsedInfix[i];
+    std::string errMsg = "";
+    CalculatorItem::ErrorCode err = calcItem->checkValidity(parsedInfix, i, errMsg);
+    int errInt = static_cast<int>(err);
+    if(errInt < 0)
+    {
+      resultOutputActions.errors().push_back(Error{errInt, errMsg});
+      return {std::move(resultOutputActions), std::move(preflightUpdatedValues)};
+    }
+  }
+
+  // collect calculated array dimensions, check for consistent array component dimensions in infix expression & make sure it yields a numeric result
+  std::vector<usize> calculatedTupleShape = selectedAm.getShape();
+  std::vector<usize> calculatedComponentShape;
+  ICalculatorArray::ValueType resultType = ICalculatorArray::ValueType::Unknown;
+  for(const auto& item1 : parsedInfix)
+  {
+    if(item1->isICalculatorArray())
+    {
+      ICalculatorArray::Pointer array1 = std::dynamic_pointer_cast<ICalculatorArray>(item1);
+      if(item1->isArray())
+      {
+        if(!calculatedComponentShape.empty() && resultType == ICalculatorArray::ValueType::Array && calculatedComponentShape != array1->getArray()->getComponentShape())
+        {
+          resultOutputActions.errors().push_back(
+              Error{static_cast<int>(CalculatorItem::ErrorCode::INCONSISTENT_COMP_DIMS), "Attribute Array symbols in the infix expression have mismatching component dimensions"});
+          return {std::move(resultOutputActions), std::move(preflightUpdatedValues)};
+        }
+
+        resultType = ICalculatorArray::ValueType::Array;
+        calculatedComponentShape = array1->getArray()->getComponentShape();
+      }
+      else if(resultType == ICalculatorArray::ValueType::Unknown)
+      {
+        resultType = ICalculatorArray::ValueType::Number;
+        calculatedComponentShape = array1->getArray()->getComponentShape();
+      }
+    }
+  }
+  if(resultType == ICalculatorArray::ValueType::Unknown)
+  {
+    return {MakeErrorResult<OutputActions>(static_cast<int>(CalculatorItem::ErrorCode::NO_NUMERIC_ARGUMENTS), "The expression does not have any arguments that simplify down to a number.")};
+  }
+
+  if(resultType == ICalculatorArray::ValueType::Number)
+  {
+    resultOutputActions.warnings().push_back(
+        Warning{static_cast<int>(CalculatorItem::WarningCode::NUMERIC_VALUE_WARNING),
+                "The result of the chosen expression will be a numeric value or contain one tuple. This numeric value will be stored in an array with the number of tuples equal to 1"});
+  }
+
+  // convert to postfix notation
+  Result<ArrayCalculatorParser::ParsedEquation> rpnResults = ArrayCalculatorParser::ToRPN(pInfixEquationValue.m_Equation, parsedInfix);
+  std::vector<CalculatorItem::Pointer> rpn = rpnResults.value();
+  if(rpnResults.invalid() || rpn.empty())
+  {
+    resultOutputActions.errors().push_back(Error{-7761, "Error while converting parsed infix expression to postfix notation"});
+    return {std::move(resultOutputActions), std::move(preflightUpdatedValues)};
+  }
+
+  // create the destination array for the calculated results
+  {
+    auto createArrayAction = std::make_unique<CreateArrayAction>(ConvertNumericTypeToDataType(pScalarTypeValue), calculatedTupleShape, calculatedComponentShape, pCalculatedArrayPath);
     resultOutputActions.value().actions.push_back(std::move(createArrayAction));
   }
 
   return {std::move(resultOutputActions), std::move(preflightUpdatedValues)};
-}
+} // namespace complex
 
 //------------------------------------------------------------------------------
 Result<> ArrayCalculatorFilter::executeImpl(DataStructure& dataStructure, const Arguments& filterArgs, const PipelineFilter* pipelineNode, const MessageHandler& messageHandler,
@@ -105,10 +177,11 @@ Result<> ArrayCalculatorFilter::executeImpl(DataStructure& dataStructure, const 
 {
 
   ArrayCalculatorInputValues inputValues;
-
   inputValues.SelectedAttributeMatrix = filterArgs.value<DataPath>(k_SelectedAttributeMatrix_Key);
-  inputValues.InfixEquation = filterArgs.value<<<<NOT_IMPLEMENTED>>>>(k_InfixEquation_Key);
-  inputValues.ScalarType = filterArgs.value<<<<NOT_IMPLEMENTED>>>>(k_ScalarType_Key);
+  auto pInfixEquationValue = filterArgs.value<CalculatorParameter::ValueType>(k_InfixEquation_Key);
+  inputValues.InfixEquation = pInfixEquationValue.m_Equation;
+  inputValues.Units = pInfixEquationValue.m_Units;
+  inputValues.ScalarType = filterArgs.value<NumericTypeParameter::ValueType>(k_ScalarType_Key);
   inputValues.CalculatedArray = filterArgs.value<DataPath>(k_CalculatedArray_Key);
 
   return ArrayCalculator(dataStructure, messageHandler, shouldCancel, &inputValues)();
