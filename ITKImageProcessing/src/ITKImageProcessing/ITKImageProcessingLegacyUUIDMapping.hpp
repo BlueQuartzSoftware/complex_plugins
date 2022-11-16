@@ -5,8 +5,8 @@
 
 namespace complex
 {
-  // Regex to grep UUIDs : /{\"([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})\",\s\"([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}(?:\s,\s[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})*)\"},\s\/\/\s(\w+)
-  static const std::map<std::string, std::string> ITKImageProcessingLegacyUUIDMapping::k_SIMPL_to_ITKImageProcessing
+  // Regex to grep UUIDs : {\"([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})\",\s\"([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}(?:\s,\s[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})*)\"},\s\/\/\s(\w+)
+  static const std::map<std::string, std::string> k_SIMPL_to_ITKImageProcessing
   {
     // syntax std::make_pair {Dream3d UUID , Dream3dnx UUID}, // dream3d-class-name
     {"09f45c29-1cfb-566c-b3ae-d832b4f95905", "e9dd12bc-f7fa-4ba2-98b0-fec3326bf620"}, // ITKAbsImage
@@ -115,7 +115,7 @@ namespace complex
     // {insert DREAM3D UUID here, insert DREAM3DNX UUID here}, // dream3d-class-name
   };
 
-  static const std::map<std::string, std::string> ITKImageProcessingLegacyUUIDMapping::k_ITKImageProcessing_to_SIMPL
+  static const std::map<std::string, std::string> k_ITKImageProcessing_to_SIMPL
   {
     // syntax std::make_pair {Dream3dnx UUID , Dream3d UUID}, // dream3dnx-class-name
     {"e9dd12bc-f7fa-4ba2-98b0-fec3326bf620", "09f45c29-1cfb-566c-b3ae-d832b4f95905"}, // ITKAbsImage
