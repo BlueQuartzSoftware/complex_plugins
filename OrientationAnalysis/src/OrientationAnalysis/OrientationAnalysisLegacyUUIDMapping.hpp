@@ -2,11 +2,11 @@
 
 #include <map>
 #include <string>
-
+// clang-format off
 namespace complex
 {
-  // Regex to grep UUIDs : /{\"([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})\",\s\"([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}(?:\s,\s[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})*)\"},\s\/\/\s(\w+)
-  static const std::map<std::string, std::string> OrientationAnalysisLegacyUUIDMapping::k_SIMPL_to_OrientationAnalysis
+  // Regex to grep UUIDs : {\"([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})\",\s\"([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}(?:\s,\s[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})*)\"},\s\/\/\s(\w+)
+  static const std::map<std::string, std::string> k_SIMPL_to_OrientationAnalysis
   {
     // syntax std::make_pair {Dream3d UUID , Dream3dnx UUID}, // dream3d-class-name
     {"4fb2b9de-3124-534b-b914-dbbbdbc14604", "8df2135c-7079-49f4-9756-4f3c028a5ced"}, // AlignSectionsMisorientation
@@ -62,7 +62,7 @@ namespace complex
     // {insert DREAM3D UUID here, insert DREAM3DNX UUID here}, // dream3d-class-name
   };
 
-  static const std::map<std::string, std::string> OrientationAnalysisLegacyUUIDMapping::k_OrientationAnalysis_to_SIMPL
+  static const std::map<std::string, std::string> k_OrientationAnalysis_to_SIMPL
   {
     // syntax std::make_pair {Dream3dnx UUID , Dream3d UUID}, // dream3dnx-class-name
     {"8df2135c-7079-49f4-9756-4f3c028a5ced", "4fb2b9de-3124-534b-b914-dbbbdbc14604"}, // AlignSectionsMisorientationFilter
@@ -119,3 +119,4 @@ namespace complex
   };
 
 } // namespace complex
+// clang-format on
