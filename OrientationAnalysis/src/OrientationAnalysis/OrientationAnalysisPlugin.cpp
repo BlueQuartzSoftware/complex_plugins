@@ -77,4 +77,14 @@ std::vector<complex::H5::IDataFactory*> OrientationAnalysisPlugin::getDataFactor
   return {};
 }
 
+std::map<std::string, std::string> OrientationAnalysisPlugin::getSimplToComplexMap() const
+{
+  return complex::k_SIMPL_to_OrientationAnalysis;
+}
+
+std::map<std::string, std::string> OrientationAnalysisPlugin::getComplexToSimplMap() const
+{
+  return complex::k_OrientationAnalysis_to_SIMPL;
+}
+
 COMPLEX_DEF_PLUGIN(OrientationAnalysisPlugin)
