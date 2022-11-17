@@ -1,4 +1,6 @@
 #include "ITKImageProcessingPlugin.hpp"
+
+#include "ITKImageProcessingLegacyUUIDMapping.hpp"
 #include "ITKImageProcessing/ITKImageProcessing_filter_registration.hpp"
 
 #include <itkBMPImageIOFactory.h>

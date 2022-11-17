@@ -2,7 +2,6 @@
 
 #include <vector>
 
-#include "OrientationAnalysisLegacyUUIDMapping.hpp"
 #include "complex/Plugin/AbstractPlugin.hpp"
 #include "complex/Utilities/Parsing/HDF5/H5IDataFactory.hpp"
 
