@@ -260,7 +260,7 @@ Result<> ArrayCalculatorParser::parseInfixEquation(ParsedEquation& parsedInfix)
         parsedInfix.push_back(itemPtr);
       }
       // It doesn't matter which path we use for the selected attribute matrix since we are only checking the target names
-      else if(ContainsArrayName(m_DataStructure, m_SelectedGroupPath, strItem) || (!strItem.empty() && strItem[0] == '\"' && strItem[strItem.size() - 1] == '\"'))
+      else if(ContainsDataArrayName(m_DataStructure, m_SelectedGroupPath, strItem) || (!strItem.empty() && strItem[0] == '\"' && strItem[strItem.size() - 1] == '\"'))
       {
         auto parsedArrayResults = parseArray(strItem, parsedInfix);
         results = MergeResults(results, parsedArrayResults);
@@ -273,7 +273,7 @@ Result<> ArrayCalculatorParser::parseInfixEquation(ParsedEquation& parsedInfix)
       else
       {
         parsedInfix.clear();
-        std::string ss = fmt::format("An unrecognized item '{}' was found in the chosen infix expression", strItem);
+        std::string ss = fmt::format("An unrecognized or invalid item '{}' was found in the chosen infix expression", strItem);
         return MakeErrorResult(static_cast<int>(CalculatorItem::ErrorCode::UNRECOGNIZED_ITEM), ss);
       }
     }
@@ -446,7 +446,7 @@ Result<> ArrayCalculatorParser::parseArray(std::string token, std::vector<Calcul
   std::string firstArray_Name = "";
 
   token = StringUtilities::replace(token, "\"", "");
-  if(!ContainsArrayName(m_DataStructure, m_SelectedGroupPath, token))
+  if(!ContainsDataArrayName(m_DataStructure, m_SelectedGroupPath, token))
   {
     std::string ss = fmt::format("The item '{}' is not the name of any valid array in the selected Attribute Matrix", token);
     results.errors().push_back(Error{static_cast<int>(CalculatorItem::ErrorCode::INVALID_ARRAY_NAME), ss});
@@ -474,7 +474,7 @@ Result<> ArrayCalculatorParser::parseArray(std::string token, std::vector<Calcul
 // -----------------------------------------------------------------------------
 Result<> ArrayCalculatorParser::checkForAmbiguousArrayName(std::string strItem, std::string warningMsg)
 {
-  if(m_IsPreflight && ContainsArrayName(m_DataStructure, m_SelectedGroupPath, strItem))
+  if(m_IsPreflight && ContainsDataArrayName(m_DataStructure, m_SelectedGroupPath, strItem))
   {
     warningMsg.append("\nTo treat this item as an array name, please add double quotes around the item (i.e. \"" + strItem + "\").");
     return MakeWarningVoidResult(static_cast<int>(CalculatorItem::WarningCode::AMBIGUOUS_NAME_WARNING), warningMsg);
