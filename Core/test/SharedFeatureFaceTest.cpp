@@ -5,7 +5,6 @@
 
 #include "complex_plugins/Utilities/TestUtilities.hpp"
 
-
 #include "Core/Core_test_dirs.hpp"
 #include "Core/Filters/SharedFeatureFaceFilter.hpp"
 
@@ -13,7 +12,7 @@ using namespace complex;
 
 TEST_CASE("Core::SharedFeatureFaceFilter: Instantiation and Parameter Check", "[Core][SharedFeatureFaceFilter]")
 {
-    // Read Exemplar DREAM3D File Filter
+  // Read Exemplar DREAM3D File Filter
   auto exemplarFilePath = fs::path(fmt::format("{}/TestFiles/12_IN625_GBCD/12_IN625_GBCD.dream3d", unit_test::k_DREAM3DDataDir));
   DataStructure exemplarDataStructure = complex::LoadDataStructure(exemplarFilePath);
 

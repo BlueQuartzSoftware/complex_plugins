@@ -33,10 +33,31 @@ set(FilterList
     FindTriangleGeomSizesFilter
     FindTriangleGeomCentroidsFilter
     SharedFeatureFaceFilter
+    FeatureDataCSVWriterFilter
     )
-
-set(STUB_FILTERS
-    )
+# ------------------------------------------------------------------------------
+# Algorithms
+# This should be integrated with the `create_complex_plugin` function call
+# ------------------------------------------------------------------------------
+set(AlgorithmList
+  AlignSectionsFeatureCentroid
+  ConvertColorToGrayScale
+  ConvertData
+  FillBadData
+  FindFeatureCentroids
+  FindShapes
+  ResampleImageGeom
+  ErodeDilateBadData
+  FindEuclideanDistMap
+  FindNeighborhoods
+  FindSurfaceAreaToVolume
+  CalculateArrayHistogram
+  RemoveFlaggedFeatures
+  SplitAttributeArray
+  FindTriangleGeomCentroids
+  FindTriangleGeomSizes
+  SharedFeatureFace
+)
 
 create_complex_plugin(NAME ${PLUGIN_NAME}
                       FILTER_LIST ${FilterList}
@@ -88,71 +109,6 @@ target_sources(${PLUGIN_NAME}
 source_group(TREE "${${PLUGIN_NAME}_SOURCE_DIR}/src/${PLUGIN_NAME}" PREFIX ${PLUGIN_NAME} FILES ${hidden_filter_HDRS} ${hidden_filter_SRCS})
 
 # ------------------------------------------------------------------------------
-<<<<<<< HEAD
-# Algorithms
-# This should be integrated with the `create_complex_plugin` function call
-# ------------------------------------------------------------------------------
-set(filter_algorithms
-<<<<<<< HEAD
-  AlignSectionsFeatureCentroid
-  ConvertColorToGrayScale
-  ConvertData
-  FillBadData
-  FindFeatureCentroids
-  FindShapes
-  ResampleImageGeom
-  ErodeDilateBadData
-  FindEuclideanDistMap
-  FindNeighborhoods
-  FindSurfaceAreaToVolume
-  CalculateArrayHistogram
-  RemoveFlaggedFeatures
-  SplitAttributeArray
-
-  FindTriangleGeomCentroids
-#  FindTriangleGeomShapes
-  FindTriangleGeomSizes
-#  SharedFeatureFace
-)
-=======
-    AlignSectionsFeatureCentroid
-    ConvertColorToGrayScale
-    ConvertData
-    FillBadData
-    FindFeatureCentroids
-    FindShapes
-    ResampleImageGeom
-    ErodeDilateBadData
-    WriteASCIIData
-    WriteBinaryData
-    FindEuclideanDistMap
-    FindNeighborhoods
-    FindSurfaceAreaToVolume
-    CalculateArrayHistogram
-    RemoveFlaggedFeatures
-    SplitAttributeArray
-    FindTriangleGeomCentroids
-    FindTriangleGeomSizes
-    SharedFeatureFace
-    )
->>>>>>> b6e42905 (FindTriangleGeomShapes: Implemented. Matches 6.6 output)
-
-
-foreach(algorithm ${filter_algorithms})
-  target_sources(${PLUGIN_NAME}
-                 PRIVATE "${${PLUGIN_NAME}_SOURCE_DIR}/src/${PLUGIN_NAME}/Filters/Algorithms/${algorithm}.cpp"
-                 "${${PLUGIN_NAME}_SOURCE_DIR}/src/${PLUGIN_NAME}/Filters/Algorithms/${algorithm}.hpp"
-                 )
-  source_group(TREE "${${PLUGIN_NAME}_SOURCE_DIR}/src/${PLUGIN_NAME}" PREFIX ${PLUGIN_NAME}
-               FILES "${${PLUGIN_NAME}_SOURCE_DIR}/src/${PLUGIN_NAME}/Filters/Algorithms/${algorithm}.cpp"
-               "${${PLUGIN_NAME}_SOURCE_DIR}/src/${PLUGIN_NAME}/Filters/Algorithms/${algorithm}.hpp"
-               )
-endforeach()
-
-
-# ------------------------------------------------------------------------------
-=======
->>>>>>> 8cc4150a (Starting unit test implementation)
 # If there are additional libraries that this plugin needs to link against you
 # can use the target_link_libraries() cmake call
 # ------------------------------------------------------------------------------

@@ -9,12 +9,11 @@
 #include "OrientationAnalysis/OrientationAnalysis_test_dirs.hpp"
 #include "complex_plugins/Utilities/TestUtilities.hpp"
 
-
 using namespace complex;
 
 TEST_CASE("Core::FindTriangleGeomShapes: Instantiation and Parameter Check", "[Core][FindTriangleGeomShapes]")
 {
-    // Read Exemplar DREAM3D File Filter
+  // Read Exemplar DREAM3D File Filter
   auto exemplarFilePath = fs::path(fmt::format("{}/TestFiles/12_IN625_GBCD/12_IN625_GBCD.dream3d", unit_test::k_DREAM3DDataDir));
   DataStructure exemplarDataStructure = complex::LoadDataStructure(exemplarFilePath);
 
