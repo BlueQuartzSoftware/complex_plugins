@@ -94,7 +94,7 @@ Result<> ArrayCalculator::operator()()
   Result<> results;
 
   // Parse the infix expression from the user interface
-  ArrayCalculatorParser parser(m_DataStructure, m_InputValues->SelectedAttributeMatrix, m_InputValues->InfixEquation, false);
+  ArrayCalculatorParser parser(m_DataStructure, m_InputValues->SelectedGroup, m_InputValues->InfixEquation, false);
   Result<ArrayCalculatorParser::ParsedEquation> parsedEquationResults = parser.parseInfixEquation();
   results.warnings() = parsedEquationResults.warnings();
   if(parsedEquationResults.invalid())
@@ -260,7 +260,7 @@ Result<ArrayCalculatorParser::ParsedEquation> ArrayCalculatorParser::parseInfixE
         parsedInfix.push_back(itemPtr);
       }
       // It doesn't matter which path we use for the selected attribute matrix since we are only checking the target names
-      else if(ContainsArrayName(m_DataStructure, m_SelectedAttributeMatrixPath, strItem) || (!strItem.empty() && strItem[0] == '\"' && strItem[strItem.size() - 1] == '\"'))
+      else if(ContainsArrayName(m_DataStructure, m_SelectedGroupPath, strItem) || (!strItem.empty() && strItem[0] == '\"' && strItem[strItem.size() - 1] == '\"'))
       {
         auto parsedArrayResults = parseArray(strItem, parsedInfix);
         results.warnings() = parsedArrayResults.warnings();
@@ -447,14 +447,14 @@ Result<> ArrayCalculatorParser::parseArray(std::string token, std::vector<Calcul
   std::string firstArray_Name = "";
 
   token = StringUtilities::replace(token, "\"", "");
-  if(!ContainsArrayName(m_DataStructure, m_SelectedAttributeMatrixPath, token))
+  if(!ContainsArrayName(m_DataStructure, m_SelectedGroupPath, token))
   {
     std::string ss = fmt::format("The item '{}' is not the name of any valid array in the selected Attribute Matrix", token);
     results.errors().push_back(Error{static_cast<int>(CalculatorItem::ErrorCode::INVALID_ARRAY_NAME), ss});
     return results;
   }
 
-  const IDataArray* dataArray = m_DataStructure.getDataAs<IDataArray>(m_SelectedAttributeMatrixPath.createChildPath(token));
+  const IDataArray* dataArray = m_DataStructure.getDataAs<IDataArray>(m_SelectedGroupPath.createChildPath(token));
   if(firstArray_NumTuples < 0 && firstArray_Name.empty())
   {
     firstArray_NumTuples = dataArray->getNumberOfTuples();
@@ -477,7 +477,7 @@ Result<> ArrayCalculatorParser::parseArray(std::string token, std::vector<Calcul
 // -----------------------------------------------------------------------------
 Result<> ArrayCalculatorParser::checkForAmbiguousArrayName(std::string strItem, std::string warningMsg)
 {
-  if(m_IsPreflight && ContainsArrayName(m_DataStructure, m_SelectedAttributeMatrixPath, strItem))
+  if(m_IsPreflight && ContainsArrayName(m_DataStructure, m_SelectedGroupPath, strItem))
   {
     warningMsg.append("\nTo treat this item as an array name, please add double quotes around the item (i.e. \"" + strItem + "\").");
     return MakeWarningVoidResult(static_cast<int>(CalculatorItem::WarningCode::AMBIGUOUS_NAME_WARNING), warningMsg);

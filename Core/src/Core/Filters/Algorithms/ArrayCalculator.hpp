@@ -15,7 +15,7 @@ namespace complex
 
 struct CORE_EXPORT ArrayCalculatorInputValues
 {
-  DataPath SelectedAttributeMatrix;
+  DataPath SelectedGroup;
   std::string InfixEquation;
   CalculatorParameter::AngleUnits Units;
   NumericType ScalarType;
@@ -27,10 +27,9 @@ class CORE_EXPORT ArrayCalculatorParser
 public:
   using ParsedEquation = std::vector<CalculatorItem::Pointer>;
 
-  ArrayCalculatorParser(const DataStructure& dataStruct, const DataPath& selectedAttributeMatrixPath, const std::string& infixEquation, bool isPreflight)
+  ArrayCalculatorParser(const DataStructure& dataStruct, const DataPath& selectedGroupPath, const std::string& infixEquation, bool isPreflight)
   : m_DataStructure(dataStruct)
-  , m_SelectedAttributeMatrixPath(selectedAttributeMatrixPath)
-  , m_SelectedAttributeMatrix(dataStruct.getDataRefAs<AttributeMatrix>(selectedAttributeMatrixPath))
+  , m_SelectedGroupPath(selectedGroupPath)
   , m_InfixEquation(infixEquation)
   , m_IsPreflight(isPreflight)
   {
@@ -53,8 +52,7 @@ protected:
 private:
   const DataStructure& m_DataStructure;
   DataStructure m_TemporaryDataStructure; // data structure for holding the temporary calculator array items
-  DataPath m_SelectedAttributeMatrixPath;
-  const AttributeMatrix& m_SelectedAttributeMatrix;
+  DataPath m_SelectedGroupPath;
   std::string m_InfixEquation;
   bool m_IsPreflight;
 

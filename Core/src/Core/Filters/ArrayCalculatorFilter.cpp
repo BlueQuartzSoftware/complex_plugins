@@ -4,10 +4,11 @@
 #include "Core/Utilities/ICalculatorArray.h"
 
 #include "complex/Common/TypesUtility.hpp"
+#include "complex/DataStructure/BaseGroup.hpp"
 #include "complex/DataStructure/DataPath.hpp"
 #include "complex/Filter/Actions/CreateArrayAction.hpp"
 #include "complex/Parameters/ArrayCreationParameter.hpp"
-#include "complex/Parameters/AttributeMatrixSelectionParameter.hpp"
+// #include "complex/Parameters/DataGroupSelectionParameter.hpp"
 #include "complex/Parameters/CalculatorParameter.hpp"
 #include "complex/Parameters/NumericTypeParameter.hpp"
 
@@ -51,8 +52,8 @@ Parameters ArrayCalculatorFilter::parameters() const
   Parameters params;
   // Create the parameter descriptors that are needed for this filter
   params.insertSeparator(Parameters::Separator{"Input Parameters"});
-  params.insert(std::make_unique<AttributeMatrixSelectionParameter>(k_SelectedAttributeMatrix_Key, "Cell Attribute Matrix",
-                                                                    "The attribute matrix containing the target source arrays to be used in the calculation", DataPath{}));
+  // params.insert(std::make_unique<DataGroupSelectionParameter>(k_SelectedDataGroup_Key, "Target Group", "The group containing the target source arrays to be used in the calculation", DataPath{},
+  //                                                             BaseGroup::GetAllGroupTypes()));
   params.insert(std::make_unique<CalculatorParameter>(k_InfixEquation_Key, "Infix Expression", "The mathematical expression used to calculate the output array", CalculatorParameter::ValueType{}));
   params.insertSeparator(Parameters::Separator{"Created Cell Data"});
   params.insert(std::make_unique<NumericTypeParameter>(k_ScalarType_Key, "Scalar Type", "The data type of the calculated array", NumericType::float64));
@@ -71,20 +72,21 @@ IFilter::UniquePointer ArrayCalculatorFilter::clone() const
 IFilter::PreflightResult ArrayCalculatorFilter::preflightImpl(const DataStructure& dataStructure, const Arguments& filterArgs, const MessageHandler& messageHandler,
                                                               const std::atomic_bool& shouldCancel) const
 {
-  auto pSelectedAttributeMatrixPath = filterArgs.value<DataPath>(k_SelectedAttributeMatrix_Key);
   auto pInfixEquationValue = filterArgs.value<CalculatorParameter::ValueType>(k_InfixEquation_Key);
   auto pScalarTypeValue = filterArgs.value<NumericTypeParameter::ValueType>(k_ScalarType_Key);
   auto pCalculatedArrayPath = filterArgs.value<DataPath>(k_CalculatedArray_Key);
+
+  auto pSelectedGroupPath = pInfixEquationValue.m_SelectedGroup;
 
   PreflightResult preflightResult;
   complex::Result<OutputActions> resultOutputActions;
   std::vector<PreflightValue> preflightUpdatedValues;
 
   // check selected attribute matrix type
-  const auto& selectedAm = dataStructure.getDataRefAs<AttributeMatrix>(pSelectedAttributeMatrixPath);
+  const auto& selectedGroup = dataStructure.getDataRefAs<BaseGroup>(pSelectedGroupPath);
 
   // parse the infix expression
-  ArrayCalculatorParser parser(dataStructure, pSelectedAttributeMatrixPath, pInfixEquationValue.m_Equation, true);
+  ArrayCalculatorParser parser(dataStructure, pSelectedGroupPath, pInfixEquationValue.m_Equation, true);
   Result<ArrayCalculatorParser::ParsedEquation> parsedEquationResults = parser.parseInfixEquation();
   resultOutputActions.warnings() = parsedEquationResults.warnings();
   if(parsedEquationResults.invalid())
@@ -114,7 +116,7 @@ IFilter::PreflightResult ArrayCalculatorFilter::preflightImpl(const DataStructur
   }
 
   // collect calculated array dimensions, check for consistent array component dimensions in infix expression & make sure it yields a numeric result
-  std::vector<usize> calculatedTupleShape = selectedAm.getShape();
+  std::vector<usize> calculatedTupleShape;
   std::vector<usize> calculatedComponentShape;
   ICalculatorArray::ValueType resultType = ICalculatorArray::ValueType::Unknown;
   for(const auto& item1 : parsedInfix)
@@ -130,14 +132,22 @@ IFilter::PreflightResult ArrayCalculatorFilter::preflightImpl(const DataStructur
               Error{static_cast<int>(CalculatorItem::ErrorCode::INCONSISTENT_COMP_DIMS), "Attribute Array symbols in the infix expression have mismatching component dimensions"});
           return {std::move(resultOutputActions), std::move(preflightUpdatedValues)};
         }
+        if(!calculatedTupleShape.empty() && resultType == ICalculatorArray::ValueType::Array && calculatedTupleShape[0] != array1->getArray()->getNumberOfTuples())
+        {
+          resultOutputActions.errors().push_back(
+              Error{static_cast<int>(CalculatorItem::ErrorCode::INCONSISTENT_TUPLES), "Attribute Array symbols in the infix expression have mismatching number of tuples"});
+          return {std::move(resultOutputActions), std::move(preflightUpdatedValues)};
+        }
 
         resultType = ICalculatorArray::ValueType::Array;
         calculatedComponentShape = array1->getArray()->getComponentShape();
+        calculatedTupleShape = {array1->getArray()->getNumberOfTuples()};
       }
       else if(resultType == ICalculatorArray::ValueType::Unknown)
       {
         resultType = ICalculatorArray::ValueType::Number;
         calculatedComponentShape = array1->getArray()->getComponentShape();
+        calculatedTupleShape = {array1->getArray()->getNumberOfTuples()};
       }
     }
   }
@@ -177,10 +187,10 @@ Result<> ArrayCalculatorFilter::executeImpl(DataStructure& dataStructure, const 
 {
 
   ArrayCalculatorInputValues inputValues;
-  inputValues.SelectedAttributeMatrix = filterArgs.value<DataPath>(k_SelectedAttributeMatrix_Key);
   auto pInfixEquationValue = filterArgs.value<CalculatorParameter::ValueType>(k_InfixEquation_Key);
   inputValues.InfixEquation = pInfixEquationValue.m_Equation;
   inputValues.Units = pInfixEquationValue.m_Units;
+  inputValues.SelectedGroup = pInfixEquationValue.m_SelectedGroup;
   inputValues.ScalarType = filterArgs.value<NumericTypeParameter::ValueType>(k_ScalarType_Key);
   inputValues.CalculatedArray = filterArgs.value<DataPath>(k_CalculatedArray_Key);
 
