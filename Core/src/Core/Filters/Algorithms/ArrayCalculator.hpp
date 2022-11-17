@@ -36,7 +36,7 @@ public:
     createSymbolMap();
   }
 
-  Result<ParsedEquation> parseInfixEquation();
+  Result<> parseInfixEquation(ParsedEquation& parsedInfix);
 
   static Result<ArrayCalculatorParser::ParsedEquation> ToRPN(const std::string& unparsedInfixExpression, std::vector<CalculatorItem::Pointer> infixEquation);
 

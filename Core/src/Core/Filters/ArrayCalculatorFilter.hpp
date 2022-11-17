@@ -24,7 +24,6 @@ public:
   ArrayCalculatorFilter& operator=(ArrayCalculatorFilter&&) noexcept = delete;
 
   // Parameter Keys
-  // static inline constexpr StringLiteral k_SelectedDataGroup_Key = "selected_group";
   static inline constexpr StringLiteral k_InfixEquation_Key = "infix_equation";
   static inline constexpr StringLiteral k_ScalarType_Key = "scalar_type";
   static inline constexpr StringLiteral k_CalculatedArray_Key = "calculated_array";

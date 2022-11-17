@@ -52,8 +52,6 @@ Parameters ArrayCalculatorFilter::parameters() const
   Parameters params;
   // Create the parameter descriptors that are needed for this filter
   params.insertSeparator(Parameters::Separator{"Input Parameters"});
-  // params.insert(std::make_unique<DataGroupSelectionParameter>(k_SelectedDataGroup_Key, "Target Group", "The group containing the target source arrays to be used in the calculation", DataPath{},
-  //                                                             BaseGroup::GetAllGroupTypes()));
   params.insert(std::make_unique<CalculatorParameter>(k_InfixEquation_Key, "Infix Expression", "The mathematical expression used to calculate the output array", CalculatorParameter::ValueType{}));
   params.insertSeparator(Parameters::Separator{"Created Cell Data"});
   params.insert(std::make_unique<NumericTypeParameter>(k_ScalarType_Key, "Scalar Type", "The data type of the calculated array", NumericType::float64));
@@ -87,18 +85,16 @@ IFilter::PreflightResult ArrayCalculatorFilter::preflightImpl(const DataStructur
 
   // parse the infix expression
   ArrayCalculatorParser parser(dataStructure, pSelectedGroupPath, pInfixEquationValue.m_Equation, true);
-  Result<ArrayCalculatorParser::ParsedEquation> parsedEquationResults = parser.parseInfixEquation();
+  std::vector<CalculatorItem::Pointer> parsedInfix;
+  Result<> parsedEquationResults = parser.parseInfixEquation(parsedInfix);
   resultOutputActions.warnings() = parsedEquationResults.warnings();
   if(parsedEquationResults.invalid())
   {
-    resultOutputActions.errors() = parsedEquationResults.errors();
-    return {std::move(resultOutputActions), std::move(preflightUpdatedValues)};
+    return {nonstd::make_unexpected(parsedEquationResults.errors())};
   }
-  std::vector<CalculatorItem::Pointer> parsedInfix = parsedEquationResults.value();
   if(parsedInfix.empty())
   {
-    resultOutputActions.errors().push_back(Error{-7760, "Error while parsing infix expression."});
-    return {std::move(resultOutputActions), std::move(preflightUpdatedValues)};
+    return MakePreflightErrorResult(-7760, "Error while parsing infix expression.");
   }
 
   // check individual infix expression items for validity
@@ -110,8 +106,7 @@ IFilter::PreflightResult ArrayCalculatorFilter::preflightImpl(const DataStructur
     int errInt = static_cast<int>(err);
     if(errInt < 0)
     {
-      resultOutputActions.errors().push_back(Error{errInt, errMsg});
-      return {std::move(resultOutputActions), std::move(preflightUpdatedValues)};
+      return MakePreflightErrorResult(errInt, errMsg);
     }
   }
 
@@ -128,15 +123,11 @@ IFilter::PreflightResult ArrayCalculatorFilter::preflightImpl(const DataStructur
       {
         if(!calculatedComponentShape.empty() && resultType == ICalculatorArray::ValueType::Array && calculatedComponentShape != array1->getArray()->getComponentShape())
         {
-          resultOutputActions.errors().push_back(
-              Error{static_cast<int>(CalculatorItem::ErrorCode::INCONSISTENT_COMP_DIMS), "Attribute Array symbols in the infix expression have mismatching component dimensions"});
-          return {std::move(resultOutputActions), std::move(preflightUpdatedValues)};
+          return MakePreflightErrorResult(static_cast<int>(CalculatorItem::ErrorCode::INCONSISTENT_COMP_DIMS), "Attribute Array symbols in the infix expression have mismatching component dimensions");
         }
         if(!calculatedTupleShape.empty() && resultType == ICalculatorArray::ValueType::Array && calculatedTupleShape[0] != array1->getArray()->getNumberOfTuples())
         {
-          resultOutputActions.errors().push_back(
-              Error{static_cast<int>(CalculatorItem::ErrorCode::INCONSISTENT_TUPLES), "Attribute Array symbols in the infix expression have mismatching number of tuples"});
-          return {std::move(resultOutputActions), std::move(preflightUpdatedValues)};
+          return MakePreflightErrorResult(static_cast<int>(CalculatorItem::ErrorCode::INCONSISTENT_TUPLES), "Attribute Array symbols in the infix expression have mismatching number of tuples");
         }
 
         resultType = ICalculatorArray::ValueType::Array;
@@ -153,7 +144,7 @@ IFilter::PreflightResult ArrayCalculatorFilter::preflightImpl(const DataStructur
   }
   if(resultType == ICalculatorArray::ValueType::Unknown)
   {
-    return {MakeErrorResult<OutputActions>(static_cast<int>(CalculatorItem::ErrorCode::NO_NUMERIC_ARGUMENTS), "The expression does not have any arguments that simplify down to a number.")};
+    return MakePreflightErrorResult(static_cast<int>(CalculatorItem::ErrorCode::NO_NUMERIC_ARGUMENTS), "The expression does not have any arguments that simplify down to a number.");
   }
 
   if(resultType == ICalculatorArray::ValueType::Number)
@@ -168,8 +159,7 @@ IFilter::PreflightResult ArrayCalculatorFilter::preflightImpl(const DataStructur
   std::vector<CalculatorItem::Pointer> rpn = rpnResults.value();
   if(rpnResults.invalid() || rpn.empty())
   {
-    resultOutputActions.errors().push_back(Error{-7761, "Error while converting parsed infix expression to postfix notation"});
-    return {std::move(resultOutputActions), std::move(preflightUpdatedValues)};
+    return MakePreflightErrorResult(-7761, "Error while converting parsed infix expression to postfix notation");
   }
 
   // create the destination array for the calculated results

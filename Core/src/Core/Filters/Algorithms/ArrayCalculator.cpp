@@ -43,10 +43,11 @@ namespace
 struct CreateCalculatorArrayFunctor
 {
   template <typename T>
-  void operator()(DataStructure& dataStructure, bool allocate, const IDataArray* iDataArrayPtr, CalculatorItem::Pointer itemPtr)
+  CalculatorItem::Pointer operator()(DataStructure& dataStructure, bool allocate, const IDataArray* iDataArrayPtr)
   {
     const DataArray<T>* inputDataArray = dynamic_cast<const DataArray<T>*>(iDataArrayPtr);
-    itemPtr = CalculatorArray<T>::New(dataStructure, inputDataArray, ICalculatorArray::Array, allocate);
+    CalculatorItem::Pointer itemPtr = CalculatorArray<T>::New(dataStructure, inputDataArray, ICalculatorArray::Array, allocate);
+    return itemPtr;
   }
 };
 
@@ -95,14 +96,14 @@ Result<> ArrayCalculator::operator()()
 
   // Parse the infix expression from the user interface
   ArrayCalculatorParser parser(m_DataStructure, m_InputValues->SelectedGroup, m_InputValues->InfixEquation, false);
-  Result<ArrayCalculatorParser::ParsedEquation> parsedEquationResults = parser.parseInfixEquation();
+  std::vector<CalculatorItem::Pointer> parsedInfix;
+  Result<> parsedEquationResults = parser.parseInfixEquation(parsedInfix);
   results.warnings() = parsedEquationResults.warnings();
   if(parsedEquationResults.invalid())
   {
     results.errors() = parsedEquationResults.errors();
     return results;
   }
-  std::vector<CalculatorItem::Pointer> parsedInfix = parsedEquationResults.value();
   if(parsedInfix.empty())
   {
     results.errors().push_back(Error{-6550, "Error while parsing infix expression."});
@@ -177,14 +178,13 @@ Result<> ArrayCalculator::operator()()
 }
 
 // -----------------------------------------------------------------------------
-Result<ArrayCalculatorParser::ParsedEquation> ArrayCalculatorParser::parseInfixEquation()
+Result<> ArrayCalculatorParser::parseInfixEquation(ParsedEquation& parsedInfix)
 {
-  Result<std::vector<CalculatorItem::Pointer>> results = {};
+  parsedInfix.clear();
+  Result<> results = {};
   std::vector<std::string> itemList = getRegularExpressionMatches();
 
   // Iterate through the QStringList and create the proper CalculatorItems
-  std::vector<CalculatorItem::Pointer> parsedInfix;
-
   for(int i = 0; i < itemList.size(); i++)
   {
     std::string strItem = itemList[i];
@@ -203,10 +203,10 @@ Result<ArrayCalculatorParser::ParsedEquation> ArrayCalculatorParser::parseInfixE
     {
       // This is a numeric value
       auto parsedNumericResults = parseNumericValue(strItem, parsedInfix, num);
-      results.warnings() = parsedNumericResults.warnings();
-      if(parsedNumericResults.invalid())
+      results = MergeResults(results, parsedNumericResults);
+      if(results.invalid())
       {
-        results.errors() = parsedNumericResults.errors();
+        parsedInfix.clear();
         return results;
       }
     }
@@ -214,10 +214,10 @@ Result<ArrayCalculatorParser::ParsedEquation> ArrayCalculatorParser::parseInfixE
     {
       // This is a minus sign
       auto parsedMinusResults = parseMinusSign(strItem, parsedInfix, i);
-      results.warnings() = parsedMinusResults.warnings();
-      if(parsedMinusResults.invalid())
+      results = MergeResults(results, parsedMinusResults);
+      if(results.invalid())
       {
-        results.errors() = parsedMinusResults.errors();
+        parsedInfix.clear();
         return results;
       }
     }
@@ -225,10 +225,10 @@ Result<ArrayCalculatorParser::ParsedEquation> ArrayCalculatorParser::parseInfixE
     {
       // This is an index operator
       auto parsedIndexResults = parseIndexOperator(strItem, parsedInfix);
-      results.warnings() = parsedIndexResults.warnings();
-      if(parsedIndexResults.invalid())
+      results = MergeResults(results, parsedIndexResults);
+      if(results.invalid())
       {
-        results.errors() = parsedIndexResults.errors();
+        parsedInfix.clear();
         return results;
       }
     }
@@ -243,10 +243,10 @@ Result<ArrayCalculatorParser::ParsedEquation> ArrayCalculatorParser::parseInfixE
       {
         // This is a comma operator
         auto parsedCommaResults = parseCommaOperator(strItem, parsedInfix);
-        results.warnings() = parsedCommaResults.warnings();
-        if(parsedCommaResults.invalid())
+        results = MergeResults(results, parsedCommaResults);
+        if(results.invalid())
         {
-          results.errors() = parsedCommaResults.errors();
+          parsedInfix.clear();
           return results;
         }
       }
@@ -263,24 +263,23 @@ Result<ArrayCalculatorParser::ParsedEquation> ArrayCalculatorParser::parseInfixE
       else if(ContainsArrayName(m_DataStructure, m_SelectedGroupPath, strItem) || (!strItem.empty() && strItem[0] == '\"' && strItem[strItem.size() - 1] == '\"'))
       {
         auto parsedArrayResults = parseArray(strItem, parsedInfix);
-        results.warnings() = parsedArrayResults.warnings();
-        if(parsedArrayResults.invalid())
+        results = MergeResults(results, parsedArrayResults);
+        if(results.invalid())
         {
-          results.errors() = parsedArrayResults.errors();
+          parsedInfix.clear();
           return results;
         }
       }
       else
       {
+        parsedInfix.clear();
         std::string ss = fmt::format("An unrecognized item '{}' was found in the chosen infix expression", strItem);
-        results.errors().push_back(Error{static_cast<int>(CalculatorItem::ErrorCode::UNRECOGNIZED_ITEM), ss});
-        return results;
+        return MakeErrorResult(static_cast<int>(CalculatorItem::ErrorCode::UNRECOGNIZED_ITEM), ss);
       }
     }
   }
 
   // Return the parsed infix expression as a vector of CalculatorItems
-  results.value() = std::move(parsedInfix);
   return results;
 }
 
@@ -467,9 +466,7 @@ Result<> ArrayCalculatorParser::parseArray(std::string token, std::vector<Calcul
     return results;
   }
 
-  CalculatorItem::Pointer itemPtr = nullptr;
-
-  ExecuteDataFunction(CreateCalculatorArrayFunctor{}, dataArray->getDataType(), m_TemporaryDataStructure, !m_IsPreflight, dataArray, itemPtr);
+  CalculatorItem::Pointer itemPtr = ExecuteDataFunction(CreateCalculatorArrayFunctor{}, dataArray->getDataType(), m_TemporaryDataStructure, !m_IsPreflight, dataArray);
   parsedInfix.push_back(itemPtr);
   return results;
 }
