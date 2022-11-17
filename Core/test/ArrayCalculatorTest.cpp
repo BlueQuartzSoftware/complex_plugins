@@ -20,20 +20,19 @@
  * and report errors.
  */
 
-
 #include <catch2/catch.hpp>
 
-#include "complex/Parameters/ScalarTypeFilterParameter.hpp"
+#include "complex/Parameters/ArrayCreationParameter.hpp"
 #include "complex/Parameters/CalculatorFilterParameter.hpp"
 #include "complex/Parameters/DataGroupSelectionParameter.hpp"
-#include "complex/Parameters/ArrayCreationParameter.hpp"
+#include "complex/Parameters/ScalarTypeFilterParameter.hpp"
 
-#include "Core/Filters/ArrayCalculatorFilter.hpp"
 #include "Core/Core_test_dirs.hpp"
+#include "Core/Filters/ArrayCalculatorFilter.hpp"
 
 using namespace complex;
 
-TEST_CASE("Core::ArrayCalculatorFilter: Instantiation and Parameter Check","[Core][ArrayCalculatorFilter][.][UNIMPLEMENTED][!mayfail]")
+TEST_CASE("Core::ArrayCalculatorFilter: Instantiation and Parameter Check", "[Core][ArrayCalculatorFilter][.][UNIMPLEMENTED][!mayfail]")
 {
   // Instantiate the filter, a DataStructure object and an Arguments Object
   ArrayCalculatorFilter filter;
@@ -42,10 +41,9 @@ TEST_CASE("Core::ArrayCalculatorFilter: Instantiation and Parameter Check","[Cor
 
   // Create default Parameters for the filter.
   args.insertOrAssign(ArrayCalculatorFilter::k_SelectedAttributeMatrix_Key, std::make_any<DataPath>(DataPath{}));
-/*[x]*/  args.insertOrAssign(ArrayCalculatorFilter::k_InfixEquation_Key, std::make_any<<<<NOT_IMPLEMENTED>>>>({}));
-/*[x]*/  args.insertOrAssign(ArrayCalculatorFilter::k_ScalarType_Key, std::make_any<<<<NOT_IMPLEMENTED>>>>({}));
+  /*[x]*/ args.insertOrAssign(ArrayCalculatorFilter::k_InfixEquation_Key, std::make_any<<<<NOT_IMPLEMENTED>>>>({}));
+  /*[x]*/ args.insertOrAssign(ArrayCalculatorFilter::k_ScalarType_Key, std::make_any<<<<NOT_IMPLEMENTED>>>>({}));
   args.insertOrAssign(ArrayCalculatorFilter::k_CalculatedArray_Key, std::make_any<DataPath>(DataPath{}));
-
 
   // Preflight the filter and check result
   auto preflightResult = filter.preflight(ds, args);
@@ -56,12 +54,12 @@ TEST_CASE("Core::ArrayCalculatorFilter: Instantiation and Parameter Check","[Cor
   REQUIRE(executeResult.result.valid());
 }
 
-//TEST_CASE("Core::ArrayCalculatorFilter: Valid filter execution")
+// TEST_CASE("Core::ArrayCalculatorFilter: Valid filter execution")
 //{
 //
-//}
+// }
 
-//TEST_CASE("Core::ArrayCalculatorFilter: InValid filter execution")
+// TEST_CASE("Core::ArrayCalculatorFilter: InValid filter execution")
 //{
 //
-//}
+// }
