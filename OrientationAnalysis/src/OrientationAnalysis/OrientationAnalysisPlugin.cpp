@@ -1,5 +1,7 @@
 #include "OrientationAnalysisPlugin.hpp"
+
 #include "OrientationAnalysis/OrientationAnalysis_filter_registration.hpp"
+#include "OrientationAnalysisLegacyUUIDMapping.hpp"
 
 using namespace complex;
 
@@ -77,14 +79,9 @@ std::vector<complex::H5::IDataFactory*> OrientationAnalysisPlugin::getDataFactor
   return {};
 }
 
-std::map<std::string, std::string> OrientationAnalysisPlugin::getSimplToComplexMap() const
+std::map<complex::Uuid, complex::Uuid> OrientationAnalysisPlugin::getSimplToComplexMap() const
 {
   return complex::k_SIMPL_to_OrientationAnalysis;
-}
-
-std::map<std::string, std::string> OrientationAnalysisPlugin::getComplexToSimplMap() const
-{
-  return complex::k_OrientationAnalysis_to_SIMPL;
 }
 
 COMPLEX_DEF_PLUGIN(OrientationAnalysisPlugin)
