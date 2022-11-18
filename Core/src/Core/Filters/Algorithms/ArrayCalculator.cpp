@@ -69,6 +69,20 @@ struct CopyArrayFunctor
     }
   }
 };
+
+struct InitializeArrayFunctor
+{
+  template <typename T>
+  void operator()(DataStructure& dataStructure, const DataPath& calculatedArrayPath, const Float64Array* inputArray)
+  {
+    DataArray<T>& convertedArray = dataStructure.getDataRefAs<DataArray<T>>(calculatedArrayPath);
+    if(nullptr != inputArray && inputArray->getSize() == 1)
+    {
+      const T& initializeValue = inputArray->at(0);
+      convertedArray.fill(initializeValue);
+    }
+  }
+};
 } // namespace
 
 // -----------------------------------------------------------------------------
@@ -164,8 +178,14 @@ Result<> ArrayCalculator::operator()()
   if(arrayItem != ICalculatorArray::NullPointer())
   {
     const Float64Array* resultArray = arrayItem->getArray();
-
-    ExecuteDataFunction(CopyArrayFunctor{}, ConvertNumericTypeToDataType(m_InputValues->ScalarType), m_DataStructure, m_InputValues->CalculatedArray, resultArray);
+    if(arrayItem->isNumber() && m_DataStructure.getDataAs<AttributeMatrix>(m_InputValues->CalculatedArray.getParent()) != nullptr)
+    {
+      ExecuteDataFunction(InitializeArrayFunctor{}, ConvertNumericTypeToDataType(m_InputValues->ScalarType), m_DataStructure, m_InputValues->CalculatedArray, resultArray);
+    }
+    else
+    {
+      ExecuteDataFunction(CopyArrayFunctor{}, ConvertNumericTypeToDataType(m_InputValues->ScalarType), m_DataStructure, m_InputValues->CalculatedArray, resultArray);
+    }
   }
   else
   {
@@ -308,7 +328,8 @@ std::vector<std::string> ArrayCalculatorParser::getRegularExpressionMatches()
 Result<> ArrayCalculatorParser::parseNumericValue(std::string token, std::vector<CalculatorItem::Pointer>& parsedInfix, double number)
 {
   // This is a number, so create an array with numOfTuples equal to 1 and set the value into it
-  Float64Array* ptr = Float64Array::CreateWithStore<Float64DataStore>(m_TemporaryDataStructure, "INTERNAL_USE_ONLY_NumberArray", std::vector<size_t>{1}, std::vector<size_t>{1});
+  Float64Array* ptr = Float64Array::CreateWithStore<Float64DataStore>(m_TemporaryDataStructure, "INTERNAL_USE_ONLY_NumberArray" + StringUtilities::number(++m_NumberArrayCounter),
+                                                                      std::vector<size_t>{1}, std::vector<size_t>{1});
   (*ptr)[0] = number;
   CalculatorItem::Pointer itemPtr = CalculatorArray<float64>::New(m_TemporaryDataStructure, ptr, ICalculatorArray::Number, !m_IsPreflight);
   parsedInfix.push_back(itemPtr);

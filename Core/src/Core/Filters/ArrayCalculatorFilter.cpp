@@ -75,13 +75,14 @@ IFilter::PreflightResult ArrayCalculatorFilter::preflightImpl(const DataStructur
   auto pCalculatedArrayPath = filterArgs.value<DataPath>(k_CalculatedArray_Key);
 
   auto pSelectedGroupPath = pInfixEquationValue.m_SelectedGroup;
+  auto outputGroupPath = pCalculatedArrayPath.getParent();
 
   PreflightResult preflightResult;
   complex::Result<OutputActions> resultOutputActions;
   std::vector<PreflightValue> preflightUpdatedValues;
 
-  // check selected attribute matrix type
-  const auto& selectedGroup = dataStructure.getDataRefAs<BaseGroup>(pSelectedGroupPath);
+  // check that the selected group type
+  // const auto& selectedGroup = dataStructure.getDataRefAs<BaseGroup>(pSelectedGroupPath);
 
   // parse the infix expression
   ArrayCalculatorParser parser(dataStructure, pSelectedGroupPath, pInfixEquationValue.m_Equation, true);
@@ -149,9 +150,19 @@ IFilter::PreflightResult ArrayCalculatorFilter::preflightImpl(const DataStructur
 
   if(resultType == ICalculatorArray::ValueType::Number)
   {
-    resultOutputActions.warnings().push_back(
-        Warning{static_cast<int>(CalculatorItem::WarningCode::NUMERIC_VALUE_WARNING),
-                "The result of the chosen expression will be a numeric value or contain one tuple. This numeric value will be stored in an array with the number of tuples equal to 1"});
+    if(const auto* attributeMatrix = dataStructure.getDataAs<AttributeMatrix>(outputGroupPath); attributeMatrix != nullptr)
+    {
+      calculatedTupleShape = attributeMatrix->getShape();
+      resultOutputActions.warnings().push_back(Warning{static_cast<int>(CalculatorItem::WarningCode::NUMERIC_VALUE_WARNING),
+                                                       "The result of the chosen expression will be a numeric value. This numeric value will be used to initialize an "
+                                                       "array with the number of tuples equal to the number of tuples in the destination group."});
+    }
+    else
+    {
+      resultOutputActions.warnings().push_back(
+          Warning{static_cast<int>(CalculatorItem::WarningCode::NUMERIC_VALUE_WARNING),
+                  "The result of the chosen expression will be a numeric value or contain one tuple. This numeric value will be stored in an array with the number of tuples equal to 1"});
+    }
   }
 
   // convert to postfix notation

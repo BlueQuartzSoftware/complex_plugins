@@ -56,6 +56,8 @@ private:
   std::string m_InfixEquation;
   bool m_IsPreflight;
 
+  usize m_NumberArrayCounter = 0; // used for creating unique array names for internal number arrays
+
   std::map<std::string, std::shared_ptr<CalculatorItem>> m_SymbolMap;
 
   void createSymbolMap();
