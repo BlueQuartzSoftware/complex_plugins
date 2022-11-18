@@ -59,7 +59,7 @@ create_complex_plugin(NAME ${PLUGIN_NAME}
 # ------------------------------------------------------------------------------
 # If there are additional source files that need to be compiled for this plugin
 # can use the target_sources(...) cmake call
-set(Utilities 
+set(Utilities_SRCS
 	"${${PLUGIN_NAME}_SOURCE_DIR}/src/${PLUGIN_NAME}/Utilities/CoreUtilities.hpp"
 	"${${PLUGIN_NAME}_SOURCE_DIR}/src/${PLUGIN_NAME}/Utilities/CalculatorItem.h"
 	"${${PLUGIN_NAME}_SOURCE_DIR}/src/${PLUGIN_NAME}/Utilities/CalculatorItem.cpp"
@@ -125,11 +125,11 @@ set(Utilities
 )
 
 target_sources(${PLUGIN_NAME}
-  PUBLIC ${Utilities}
+  PRIVATE ${Utilities_SRCS}
 )
 source_group(TREE "${${PLUGIN_NAME}_SOURCE_DIR}/src/${PLUGIN_NAME}"
   PREFIX ${PLUGIN_NAME}
-  FILES ${Utilities}
+  FILES ${Utilities_SRCS}
 )
 
 # ------------------------------------------------------------------------------
