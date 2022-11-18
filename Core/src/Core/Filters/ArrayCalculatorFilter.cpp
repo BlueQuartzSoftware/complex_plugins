@@ -81,9 +81,6 @@ IFilter::PreflightResult ArrayCalculatorFilter::preflightImpl(const DataStructur
   complex::Result<OutputActions> resultOutputActions;
   std::vector<PreflightValue> preflightUpdatedValues;
 
-  // check that the selected group type
-  // const auto& selectedGroup = dataStructure.getDataRefAs<BaseGroup>(pSelectedGroupPath);
-
   // parse the infix expression
   ArrayCalculatorParser parser(dataStructure, pSelectedGroupPath, pInfixEquationValue.m_Equation, true);
   std::vector<CalculatorItem::Pointer> parsedInfix;
