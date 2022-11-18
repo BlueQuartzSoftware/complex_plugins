@@ -63,14 +63,9 @@ std::vector<complex::H5::IDataFactory*> ITKImageProcessingPlugin::getDataFactori
   return {};
 }
 
-std::map<std::string, std::string> ITKImageProcessingPlugin::getSimplToComplexMap() const
+std::map<complex::Uuid, complex::Uuid> ITKImageProcessingPlugin::getSimplToComplexMap() const
 {
   return complex::k_SIMPL_to_ITKImageProcessing;
-}
-
-std::map<std::string, std::string> ITKImageProcessingPlugin::getComplexToSimplMap() const
-{
-  return complex::k_ITKImageProcessing_to_SIMPL;
 }
 
 std::vector<std::string> ITKImageProcessingPlugin::GetList2DSupportedFileExtensions()
