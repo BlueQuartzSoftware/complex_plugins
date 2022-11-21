@@ -154,3 +154,106 @@ UnaryOperator::Pointer UnaryOperator::NullPointer()
 {
   return Pointer(static_cast<Self*>(nullptr));
 }
+
+// -----------------------------------------------------------------------------
+void UnaryOperator::CreateNewArrayStandardUnary(DataStructure& dataStructure, CalculatorParameter::AngleUnits units, DataPath calculatedArrayPath,
+                                                std::stack<ICalculatorArray::Pointer>& executionStack, std::function<double(double)> op)
+{
+  ICalculatorArray::Pointer arrayPtr = executionStack.top();
+  if(!executionStack.empty() && nullptr != arrayPtr)
+  {
+    executionStack.pop();
+    calculatedArrayPath = GetUniquePathName(dataStructure, calculatedArrayPath);
+
+    Float64Array* newArray =
+        Float64Array::CreateWithStore<Float64DataStore>(dataStructure, calculatedArrayPath.getTargetName(), arrayPtr->getArray()->getTupleShape(), arrayPtr->getArray()->getComponentShape());
+
+    int numComps = newArray->getNumberOfComponents();
+    for(int i = 0; i < newArray->getNumberOfTuples(); i++)
+    {
+      for(int c = 0; c < newArray->getNumberOfComponents(); c++)
+      {
+        int index = numComps * i + c;
+        double num = arrayPtr->getValue(index);
+        (*newArray)[index] = op(num);
+      }
+    }
+
+    executionStack.push(CalculatorArray<double>::New(dataStructure, newArray, arrayPtr->getType(), true));
+    return;
+  }
+}
+
+// -----------------------------------------------------------------------------
+void UnaryOperator::CreateNewArrayTrig(DataStructure& dataStructure, CalculatorParameter::AngleUnits units, DataPath calculatedArrayPath, std::stack<ICalculatorArray::Pointer>& executionStack,
+                                       std::function<double(double)> op)
+{
+  ICalculatorArray::Pointer arrayPtr = executionStack.top();
+  if(!executionStack.empty() && nullptr != arrayPtr)
+  {
+    executionStack.pop();
+    calculatedArrayPath = GetUniquePathName(dataStructure, calculatedArrayPath);
+
+    Float64Array* newArray =
+        Float64Array::CreateWithStore<Float64DataStore>(dataStructure, calculatedArrayPath.getTargetName(), arrayPtr->getArray()->getTupleShape(), arrayPtr->getArray()->getComponentShape());
+
+    int numComps = newArray->getNumberOfComponents();
+    for(int i = 0; i < newArray->getNumberOfTuples(); i++)
+    {
+      for(int c = 0; c < newArray->getNumberOfComponents(); c++)
+      {
+        int index = numComps * i + c;
+        double num = arrayPtr->getValue(index);
+
+        if(units == CalculatorParameter::AngleUnits::Degrees)
+        {
+          (*newArray)[index] = op(toRadians(num));
+        }
+        else
+        {
+          (*newArray)[index] = op(num);
+        }
+      }
+    }
+
+    executionStack.push(CalculatorArray<double>::New(dataStructure, newArray, arrayPtr->getType(), true));
+    return;
+  }
+}
+
+// -----------------------------------------------------------------------------
+void UnaryOperator::CreateNewArrayArcTrig(DataStructure& dataStructure, CalculatorParameter::AngleUnits units, DataPath calculatedArrayPath, std::stack<ICalculatorArray::Pointer>& executionStack,
+                                          std::function<double(double)> op)
+{
+  ICalculatorArray::Pointer arrayPtr = executionStack.top();
+  if(!executionStack.empty() && nullptr != arrayPtr)
+  {
+    executionStack.pop();
+    calculatedArrayPath = GetUniquePathName(dataStructure, calculatedArrayPath);
+
+    Float64Array* newArray =
+        Float64Array::CreateWithStore<Float64DataStore>(dataStructure, calculatedArrayPath.getTargetName(), arrayPtr->getArray()->getTupleShape(), arrayPtr->getArray()->getComponentShape());
+
+    int numComps = newArray->getNumberOfComponents();
+    for(int i = 0; i < newArray->getNumberOfTuples(); i++)
+    {
+      for(int c = 0; c < newArray->getNumberOfComponents(); c++)
+      {
+        int index = numComps * i + c;
+        double num = arrayPtr->getValue(index);
+
+        if(units == CalculatorParameter::AngleUnits::Degrees)
+        {
+          (*newArray)[index] = toDegrees(op(num));
+        }
+        else
+        {
+          (*newArray)[index] = op(num);
+        }
+      }
+    }
+
+    executionStack.push(CalculatorArray<double>::New(dataStructure, newArray, arrayPtr->getType(), true));
+    return;
+  }
+}

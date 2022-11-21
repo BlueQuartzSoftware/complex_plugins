@@ -1,9 +1,10 @@
 #pragma once
 
 #include "Core/Core_export.hpp"
-#include "complex/DataStructure/DataArray.hpp"
-
 #include "Core/Utilities/ICalculatorArray.h"
+
+#include "complex/DataStructure/DataArray.hpp"
+#include "complex/Utilities/StringUtilities.hpp"
 
 namespace complex
 {
@@ -98,7 +99,8 @@ public:
     {
       if(numComponents > 1)
       {
-        Float64Array* newArray = Float64Array::CreateWithStore<Float64DataStore>(m_DataStructure, array->getName(), array->getTupleShape(), {1});
+        DataPath reducedArrayPath = GetUniquePathName(m_DataStructure, array->getDataPaths()[0]); // doesn't matter which path since we only use the target name
+        Float64Array* newArray = Float64Array::CreateWithStore<Float64DataStore>(m_DataStructure, reducedArrayPath.getTargetName(), array->getTupleShape(), {1});
         if(allocate)
         {
           for(int i = 0; i < array->getNumberOfTuples(); i++)

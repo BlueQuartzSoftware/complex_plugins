@@ -23,8 +23,10 @@ PowOperator::~PowOperator() = default;
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-void PowOperator::calculate(DataStructure& dataStructure, CalculatorParameter::AngleUnits units, DataPath calculatedArrayPath,
-                            std::stack<ICalculatorArray::Pointer>& executionStack){CREATE_NEW_ARRAY_TWO_ARGUMENTS(dataStructure, units, calculatedArrayPath, executionStack, pow)}
+void PowOperator::calculate(DataStructure& dataStructure, CalculatorParameter::AngleUnits units, DataPath calculatedArrayPath, std::stack<ICalculatorArray::Pointer>& executionStack)
+{
+  CreateNewArrayTwoArguments(dataStructure, units, calculatedArrayPath, executionStack, [](double num1, double num2) -> double { return pow(num1, num2); });
+}
 
 // -----------------------------------------------------------------------------
 PowOperator::Pointer PowOperator::NullPointer()

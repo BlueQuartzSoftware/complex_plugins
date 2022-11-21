@@ -23,8 +23,10 @@ TanOperator::~TanOperator() = default;
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-void TanOperator::calculate(DataStructure& dataStructure, CalculatorParameter::AngleUnits units, DataPath calculatedArrayPath,
-                            std::stack<ICalculatorArray::Pointer>& executionStack){CREATE_NEW_ARRAY_TRIG(dataStructure, units, calculatedArrayPath, executionStack, tan)}
+void TanOperator::calculate(DataStructure& dataStructure, CalculatorParameter::AngleUnits units, DataPath calculatedArrayPath, std::stack<ICalculatorArray::Pointer>& executionStack)
+{
+  CreateNewArrayTrig(dataStructure, units, calculatedArrayPath, executionStack, [](double num) -> double { return tan(num); });
+}
 
 // -----------------------------------------------------------------------------
 TanOperator::Pointer TanOperator::NullPointer()

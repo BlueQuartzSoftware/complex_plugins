@@ -23,8 +23,10 @@ SinOperator::~SinOperator() = default;
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
-void SinOperator::calculate(DataStructure& dataStructure, CalculatorParameter::AngleUnits units, DataPath calculatedArrayPath,
-                            std::stack<ICalculatorArray::Pointer>& executionStack){CREATE_NEW_ARRAY_TRIG(dataStructure, units, calculatedArrayPath, executionStack, sin)}
+void SinOperator::calculate(DataStructure& dataStructure, CalculatorParameter::AngleUnits units, DataPath calculatedArrayPath, std::stack<ICalculatorArray::Pointer>& executionStack)
+{
+  CreateNewArrayTrig(dataStructure, units, calculatedArrayPath, executionStack, [](double num) -> double { return sin(num); });
+}
 
 // -----------------------------------------------------------------------------
 SinOperator::Pointer SinOperator::NullPointer()

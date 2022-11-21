@@ -45,93 +45,13 @@ public:
   UnaryOperator(UnaryOperator&&) = delete;                 // Move Constructor Not Implemented
   UnaryOperator& operator=(const UnaryOperator&) = delete; // Copy Assignment Not Implemented
   UnaryOperator& operator=(UnaryOperator&&) = delete;      // Move Assignment Not Implemented
+
+  static void CreateNewArrayStandardUnary(DataStructure& dataStructure, CalculatorParameter::AngleUnits units, DataPath calculatedArrayPath, std::stack<ICalculatorArray::Pointer>& executionStack,
+                                          std::function<double(double)> op);
+  static void CreateNewArrayTrig(DataStructure& dataStructure, CalculatorParameter::AngleUnits units, DataPath calculatedArrayPath, std::stack<ICalculatorArray::Pointer>& executionStack,
+                                 std::function<double(double)> op);
+  static void CreateNewArrayArcTrig(DataStructure& dataStructure, CalculatorParameter::AngleUnits units, DataPath calculatedArrayPath, std::stack<ICalculatorArray::Pointer>& executionStack,
+                                    std::function<double(double)> op);
 };
-
-#define CREATE_NEW_ARRAY_STANDARD_UNARY(dataStructure, units, calculatedArrayPath, executionStack, func)                                                                                               \
-  ICalculatorArray::Pointer arrayPtr = executionStack.top();                                                                                                                                           \
-  if(!executionStack.empty() && nullptr != arrayPtr)                                                                                                                                                   \
-  {                                                                                                                                                                                                    \
-    executionStack.pop();                                                                                                                                                                              \
-                                                                                                                                                                                                       \
-    Float64Array* newArray =                                                                                                                                                                           \
-        Float64Array::CreateWithStore<Float64DataStore>(dataStructure, calculatedArrayPath.getTargetName(), arrayPtr->getArray()->getTupleShape(), arrayPtr->getArray()->getComponentShape());         \
-                                                                                                                                                                                                       \
-    int numComps = newArray->getNumberOfComponents();                                                                                                                                                  \
-    for(int i = 0; i < newArray->getNumberOfTuples(); i++)                                                                                                                                             \
-    {                                                                                                                                                                                                  \
-      for(int c = 0; c < newArray->getNumberOfComponents(); c++)                                                                                                                                       \
-      {                                                                                                                                                                                                \
-        int index = numComps * i + c;                                                                                                                                                                  \
-        double num = arrayPtr->getValue(index);                                                                                                                                                        \
-        (*newArray)[index] = func(num);                                                                                                                                                                \
-      }                                                                                                                                                                                                \
-    }                                                                                                                                                                                                  \
-                                                                                                                                                                                                       \
-    executionStack.push(CalculatorArray<double>::New(dataStructure, newArray, arrayPtr->getType(), true));                                                                                             \
-    return;                                                                                                                                                                                            \
-  }
-
-#define CREATE_NEW_ARRAY_TRIG(dataStructure, units, calculatedArrayPath, executionStack, func)                                                                                                         \
-  ICalculatorArray::Pointer arrayPtr = executionStack.top();                                                                                                                                           \
-  if(!executionStack.empty() && nullptr != arrayPtr)                                                                                                                                                   \
-  {                                                                                                                                                                                                    \
-    executionStack.pop();                                                                                                                                                                              \
-    Float64Array* newArray =                                                                                                                                                                           \
-        Float64Array::CreateWithStore<Float64DataStore>(dataStructure, calculatedArrayPath.getTargetName(), arrayPtr->getArray()->getTupleShape(), arrayPtr->getArray()->getComponentShape());         \
-                                                                                                                                                                                                       \
-    int numComps = newArray->getNumberOfComponents();                                                                                                                                                  \
-    for(int i = 0; i < newArray->getNumberOfTuples(); i++)                                                                                                                                             \
-    {                                                                                                                                                                                                  \
-      for(int c = 0; c < newArray->getNumberOfComponents(); c++)                                                                                                                                       \
-      {                                                                                                                                                                                                \
-        int index = numComps * i + c;                                                                                                                                                                  \
-        double num = arrayPtr->getValue(index);                                                                                                                                                        \
-                                                                                                                                                                                                       \
-        if(units == CalculatorParameter::AngleUnits::Degrees)                                                                                                                                          \
-        {                                                                                                                                                                                              \
-          (*newArray)[index] = func(toRadians(num));                                                                                                                                                   \
-        }                                                                                                                                                                                              \
-        else                                                                                                                                                                                           \
-        {                                                                                                                                                                                              \
-          (*newArray)[index] = func(num);                                                                                                                                                              \
-        }                                                                                                                                                                                              \
-      }                                                                                                                                                                                                \
-    }                                                                                                                                                                                                  \
-                                                                                                                                                                                                       \
-    executionStack.push(CalculatorArray<double>::New(dataStructure, newArray, arrayPtr->getType(), true));                                                                                             \
-    return;                                                                                                                                                                                            \
-  }
-
-#define CREATE_NEW_ARRAY_ARCTRIG(dataStructure, units, calculatedArrayPath, executionStack, func)                                                                                                      \
-  ICalculatorArray::Pointer arrayPtr = executionStack.top();                                                                                                                                           \
-  if(!executionStack.empty() && nullptr != arrayPtr)                                                                                                                                                   \
-  {                                                                                                                                                                                                    \
-    executionStack.pop();                                                                                                                                                                              \
-                                                                                                                                                                                                       \
-    Float64Array* newArray =                                                                                                                                                                           \
-        Float64Array::CreateWithStore<Float64DataStore>(dataStructure, calculatedArrayPath.getTargetName(), arrayPtr->getArray()->getTupleShape(), arrayPtr->getArray()->getComponentShape());         \
-                                                                                                                                                                                                       \
-    int numComps = newArray->getNumberOfComponents();                                                                                                                                                  \
-    for(int i = 0; i < newArray->getNumberOfTuples(); i++)                                                                                                                                             \
-    {                                                                                                                                                                                                  \
-      for(int c = 0; c < newArray->getNumberOfComponents(); c++)                                                                                                                                       \
-      {                                                                                                                                                                                                \
-        int index = numComps * i + c;                                                                                                                                                                  \
-        double num = arrayPtr->getValue(index);                                                                                                                                                        \
-                                                                                                                                                                                                       \
-        if(units == CalculatorParameter::AngleUnits::Degrees)                                                                                                                                          \
-        {                                                                                                                                                                                              \
-          (*newArray)[index] = toDegrees(func(num));                                                                                                                                                   \
-        }                                                                                                                                                                                              \
-        else                                                                                                                                                                                           \
-        {                                                                                                                                                                                              \
-          (*newArray)[index] = func(num);                                                                                                                                                              \
-        }                                                                                                                                                                                              \
-      }                                                                                                                                                                                                \
-    }                                                                                                                                                                                                  \
-                                                                                                                                                                                                       \
-    executionStack.push(CalculatorArray<double>::New(dataStructure, newArray, arrayPtr->getType(), true));                                                                                             \
-    return;                                                                                                                                                                                            \
-  }
 
 } // namespace complex

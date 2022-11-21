@@ -31,6 +31,7 @@ void NegativeOperator::calculate(DataStructure& dataStructure, CalculatorParamet
   {
     ICalculatorArray::Pointer arrayPtr = executionStack.top();
     executionStack.pop();
+    calculatedArrayPath = GetUniquePathName(dataStructure, calculatedArrayPath);
 
     Float64Array* newArray =
         Float64Array::CreateWithStore<Float64DataStore>(dataStructure, calculatedArrayPath.getTargetName(), arrayPtr->getArray()->getTupleShape(), arrayPtr->getArray()->getComponentShape());

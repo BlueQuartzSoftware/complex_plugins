@@ -1,6 +1,7 @@
 #include "Core/Utilities/CalculatorItem.h"
 
 #include "Core/Utilities/ICalculatorArray.h"
+#include "complex/Utilities/StringUtilities.hpp"
 
 using namespace complex;
 
@@ -70,4 +71,17 @@ bool CalculatorItem::isNumber()
 CalculatorItem::Pointer CalculatorItem::NullPointer()
 {
   return Pointer(static_cast<Self*>(nullptr));
+}
+
+// -----------------------------------------------------------------------------
+DataPath CalculatorItem::GetUniquePathName(const DataStructure& dataStructure, DataPath path)
+{
+  if(dataStructure.containsData(path))
+  {
+    auto calculatedPathVector = path.getPathVector();
+    auto& targetName = calculatedPathVector.back();
+    targetName = targetName + StringUtilities::number(dataStructure.getSize());
+    path = DataPath(calculatedPathVector);
+  }
+  return path;
 }

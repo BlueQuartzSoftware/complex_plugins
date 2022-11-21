@@ -25,7 +25,7 @@ LnOperator::~LnOperator() = default;
 // -----------------------------------------------------------------------------
 void LnOperator::calculate(DataStructure& dataStructure, CalculatorParameter::AngleUnits units, DataPath calculatedArrayPath, std::stack<ICalculatorArray::Pointer>& executionStack)
 {
-  CREATE_NEW_ARRAY_STANDARD_UNARY(dataStructure, units, calculatedArrayPath, executionStack, log);
+  CreateNewArrayStandardUnary(dataStructure, units, calculatedArrayPath, executionStack, [](double num) -> double { return log(num); });
 }
 
 // -----------------------------------------------------------------------------

@@ -8,6 +8,9 @@
 
 namespace complex
 {
+class DataStructure;
+class DataPath;
+
 /**
  * @brief The CalculatorItem class
  */
@@ -75,6 +78,8 @@ public:
   bool isArray();
 
   bool isNumber();
+
+  static DataPath GetUniquePathName(const DataStructure& dataStructure, DataPath path);
 
 protected:
   CalculatorItem();

@@ -25,7 +25,7 @@ LogOperator::~LogOperator() = default;
 // -----------------------------------------------------------------------------
 void LogOperator::calculate(DataStructure& dataStructure, CalculatorParameter::AngleUnits units, DataPath calculatedArrayPath, std::stack<ICalculatorArray::Pointer>& executionStack)
 {
-  CREATE_NEW_ARRAY_TWO_ARGUMENTS(dataStructure, units, calculatedArrayPath, executionStack, log_arbitrary_base)
+  CreateNewArrayTwoArguments(dataStructure, units, calculatedArrayPath, executionStack, [this](double num1, double num2) -> double { return log_arbitrary_base(num1, num2); });
 }
 
 // -----------------------------------------------------------------------------

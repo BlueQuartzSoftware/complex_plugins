@@ -25,7 +25,7 @@ ABSOperator::~ABSOperator() = default;
 // -----------------------------------------------------------------------------
 void ABSOperator::calculate(DataStructure& dataStructure, CalculatorParameter::AngleUnits units, DataPath calculatedArrayPath, std::stack<ICalculatorArray::Pointer>& executionStack)
 {
-  CREATE_NEW_ARRAY_STANDARD_UNARY(dataStructure, units, calculatedArrayPath, executionStack, fabs);
+  CreateNewArrayStandardUnary(dataStructure, units, calculatedArrayPath, executionStack, [](double num) -> double { return fabs(num); });
 }
 
 // -----------------------------------------------------------------------------

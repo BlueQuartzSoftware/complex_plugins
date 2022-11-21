@@ -328,7 +328,7 @@ std::vector<std::string> ArrayCalculatorParser::getRegularExpressionMatches()
 Result<> ArrayCalculatorParser::parseNumericValue(std::string token, std::vector<CalculatorItem::Pointer>& parsedInfix, double number)
 {
   // This is a number, so create an array with numOfTuples equal to 1 and set the value into it
-  Float64Array* ptr = Float64Array::CreateWithStore<Float64DataStore>(m_TemporaryDataStructure, "INTERNAL_USE_ONLY_NumberArray" + StringUtilities::number(++m_NumberArrayCounter),
+  Float64Array* ptr = Float64Array::CreateWithStore<Float64DataStore>(m_TemporaryDataStructure, "INTERNAL_USE_ONLY_NumberArray" + StringUtilities::number(m_TemporaryDataStructure.getSize()),
                                                                       std::vector<size_t>{1}, std::vector<size_t>{1});
   (*ptr)[0] = number;
   CalculatorItem::Pointer itemPtr = CalculatorArray<float64>::New(m_TemporaryDataStructure, ptr, ICalculatorArray::Number, !m_IsPreflight);
