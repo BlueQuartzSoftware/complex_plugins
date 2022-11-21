@@ -6,6 +6,7 @@
 # ------------------------------------------------------------------------------
 # Define the list of unit test source files
 set(${PLUGIN_NAME}UnitTest_SRCS
+  ArrayCalculatorTest.cpp
   AlignSectionsFeatureCentroidTest.cpp
   ConvertColorToGrayScaleTest.cpp
   FillBadDataTest.cpp # NEEDS TEST IMPLEMENTED
