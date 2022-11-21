@@ -370,25 +370,21 @@ Result<> ArrayCalculatorParser::parseMinusSign(std::string token, std::vector<Ca
 // -----------------------------------------------------------------------------
 Result<> ArrayCalculatorParser::parseIndexOperator(std::string token, std::vector<CalculatorItem::Pointer>& parsedInfix)
 {
-  Result<> results;
   int idx = parsedInfix.size() - 1;
 
   std::string errorMsg = fmt::format("Index operator '{}' is not paired with a valid array name.", token);
   int errCode = static_cast<int>(CalculatorItem::ErrorCode::ORPHANED_COMPONENT);
   if(idx < 0)
   {
-    results.errors().push_back(Error{errCode, errorMsg});
-    return results;
+    return MakeErrorResult(errCode, errorMsg);
   }
   if(!parsedInfix[idx]->isICalculatorArray())
   {
-    results.errors().push_back(Error{errCode, errorMsg});
-    return results;
+    return MakeErrorResult(errCode, errorMsg);
   }
   if(parsedInfix[idx]->isNumber())
   {
-    results.errors().push_back(Error{errCode, errorMsg});
-    return results;
+    return MakeErrorResult(errCode, errorMsg);
   }
 
   token = StringUtilities::replace(token, "[", "");
@@ -401,16 +397,14 @@ Result<> ArrayCalculatorParser::parseIndexOperator(std::string token, std::vecto
   } catch(std::exception& e)
   {
     std::string ss = "The chosen infix expression is not a valid expression";
-    results.errors().push_back(Error{static_cast<int>(CalculatorItem::ErrorCode::INVALID_COMPONENT), ss});
-    return results;
+    return MakeErrorResult(static_cast<int>(CalculatorItem::ErrorCode::INVALID_COMPONENT), ss);
   }
 
   ICalculatorArray::Pointer calcArray = std::dynamic_pointer_cast<ICalculatorArray>(parsedInfix.back());
   if(nullptr != calcArray && index >= calcArray->getArray()->getNumberOfComponents())
   {
     std::string ss = fmt::format("'{}' has an component index that is out of range", calcArray->getArray()->getName());
-    results.errors().push_back(Error{static_cast<int>(CalculatorItem::ErrorCode::COMPONENT_OUT_OF_RANGE), ss});
-    return results;
+    return MakeErrorResult(static_cast<int>(CalculatorItem::ErrorCode::COMPONENT_OUT_OF_RANGE), ss);
   }
 
   parsedInfix.pop_back();
@@ -420,9 +414,7 @@ Result<> ArrayCalculatorParser::parseIndexOperator(std::string token, std::vecto
   parsedInfix.push_back(itemPtr);
 
   std::string ss = fmt::format("Item '{}' in the infix expression is the name of an array in the selected Attribute Matrix, but it is currently being used as an indexing operator", token);
-  auto checkNameResults = checkForAmbiguousArrayName(token, ss);
-  results.warnings() = checkNameResults.warnings();
-  return results;
+  return checkForAmbiguousArrayName(token, ss);
 }
 
 // -----------------------------------------------------------------------------
@@ -462,7 +454,6 @@ Result<> ArrayCalculatorParser::parseCommaOperator(std::string token, std::vecto
 // -----------------------------------------------------------------------------
 Result<> ArrayCalculatorParser::parseArray(std::string token, std::vector<CalculatorItem::Pointer>& parsedInfix)
 {
-  Result<> results;
   int firstArray_NumTuples = -1;
   std::string firstArray_Name = "";
 
@@ -470,8 +461,7 @@ Result<> ArrayCalculatorParser::parseArray(std::string token, std::vector<Calcul
   if(!ContainsDataArrayName(m_DataStructure, m_SelectedGroupPath, token))
   {
     std::string ss = fmt::format("The item '{}' is not the name of any valid array in the selected Attribute Matrix", token);
-    results.errors().push_back(Error{static_cast<int>(CalculatorItem::ErrorCode::INVALID_ARRAY_NAME), ss});
-    return results;
+    return MakeErrorResult(static_cast<int>(CalculatorItem::ErrorCode::INVALID_ARRAY_NAME), ss);
   }
 
   const IDataArray* dataArray = m_DataStructure.getDataAs<IDataArray>(m_SelectedGroupPath.createChildPath(token));
@@ -483,13 +473,12 @@ Result<> ArrayCalculatorParser::parseArray(std::string token, std::vector<Calcul
   else if(dataArray->getNumberOfTuples() != firstArray_NumTuples)
   {
     std::string ss = fmt::format("Arrays '{}' and '{}' in the infix expression have an inconsistent number of tuples", firstArray_Name, dataArray->getName());
-    results.errors().push_back(Error{static_cast<int>(CalculatorItem::ErrorCode::INCONSISTENT_TUPLES), ss});
-    return results;
+    return MakeErrorResult(static_cast<int>(CalculatorItem::ErrorCode::INCONSISTENT_TUPLES), ss);
   }
 
   CalculatorItem::Pointer itemPtr = ExecuteDataFunction(CreateCalculatorArrayFunctor{}, dataArray->getDataType(), m_TemporaryDataStructure, !m_IsPreflight, dataArray);
   parsedInfix.push_back(itemPtr);
-  return results;
+  return {};
 }
 
 // -----------------------------------------------------------------------------
@@ -604,7 +593,6 @@ void ArrayCalculatorParser::createSymbolMap()
 // -----------------------------------------------------------------------------
 Result<ArrayCalculatorParser::ParsedEquation> ArrayCalculatorParser::ToRPN(const std::string& unparsedInfixExpression, std::vector<CalculatorItem::Pointer> infixEquation)
 {
-  Result<ArrayCalculatorParser::ParsedEquation> results;
   std::stack<CalculatorItem::Pointer> itemStack;
   std::vector<CalculatorItem::Pointer> rpnEquation;
 
