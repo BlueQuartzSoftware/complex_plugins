@@ -56,10 +56,10 @@ Parameters SharedFeatureFaceFilter::parameters() const
   params.insert(std::make_unique<ArraySelectionParameter>(k_FaceLabelsArrayPath_Key, "Face Labels", "", DataPath{}, ArraySelectionParameter::AllowedTypes{complex::DataType::int32}));
 
   params.insertSeparator(Parameters::Separator{"Created Face Data Arrays"});
-  params.insert(std::make_unique<DataObjectNameParameter>(k_FeatureFaceIdsArrayName_Key, "Feature Face Ids", "", "FeatureFaceId"));
+  params.insert(std::make_unique<DataObjectNameParameter>(k_FeatureFaceIdsArrayName_Key, "Feature Face Ids", "", "SharedFeatureFaceId"));
 
   params.insertSeparator(Parameters::Separator{"Created Face Feature Data"});
-  params.insert(std::make_unique<DataObjectNameParameter>(k_GrainBoundaryAttributeMatrixName_Key, "Face Feature Attribute Matrix", "", "GrainBoundaryData"));
+  params.insert(std::make_unique<DataObjectNameParameter>(k_GrainBoundaryAttributeMatrixName_Key, "Face Feature Attribute Matrix", "", "SharedFeatureFace"));
   params.insert(std::make_unique<DataObjectNameParameter>(k_FeatureFaceLabelsArrayName_Key, "Feature Face Labels", "", "FaceLabels"));
   params.insert(std::make_unique<DataObjectNameParameter>(k_FeatureNumTrianglesArrayName_Key, "Feature Number of Triangles", "", "NumTriangles"));
 
@@ -91,7 +91,7 @@ IFilter::PreflightResult SharedFeatureFaceFilter::preflightImpl(const DataStruct
 
   // Create the Face Data/FeatureIds Array
   {
-    auto* faceLabelDataArray = dataStructure.getDataAs<Int32Array>(pFaceLabelsArrayPathValue);
+    const auto* faceLabelDataArray = dataStructure.getDataAs<Int32Array>(pFaceLabelsArrayPathValue);
     if(nullptr == faceLabelDataArray)
     {
       return IFilter::MakePreflightErrorResult(-12901, fmt::format("Face Labels does not exist at path '{}' or the path does not point to an Int32 Array", pFaceLabelsArrayPathValue.toString()));
@@ -101,8 +101,7 @@ IFilter::PreflightResult SharedFeatureFaceFilter::preflightImpl(const DataStruct
     faceDataGroupPathVector.pop_back();
     DataPath faceDataGroupPath = DataPath(faceDataGroupPathVector);
 
-    auto createdArrayName = filterArgs.value<DataObjectNameParameter::ValueType>(k_FeatureFaceIdsArrayName_Key);
-    DataPath createdArrayPath = faceDataGroupPath.createChildPath(createdArrayName);
+    DataPath createdArrayPath = faceDataGroupPath.createChildPath(featureFaceIdsArrayName);
     auto createArrayAction = std::make_unique<CreateArrayAction>(complex::DataType::int32, faceLabelDataArray->getTupleShape(), std::vector<usize>{1}, createdArrayPath);
     resultOutputActions.value().actions.push_back(std::move(createArrayAction));
   }
