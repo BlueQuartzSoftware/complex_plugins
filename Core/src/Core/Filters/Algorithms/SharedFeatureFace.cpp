@@ -14,7 +14,7 @@ using namespace complex;
 namespace
 {
 //------------------------------------------------------------------------------
-__attribute__((noinline)) uint64_t ConvertToUInt64(uint32_t highWord, uint32_t lowWord)
+uint64_t ConvertToUInt64(uint32_t highWord, uint32_t lowWord)
 {
   return ((uint64_t)highWord << 32) | lowWord;
 }
