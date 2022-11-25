@@ -3,10 +3,64 @@
 #include "complex/DataStructure/DataArray.hpp"
 #include "complex/DataStructure/DataGroup.hpp"
 #include "complex/DataStructure/Geometry/TriangleGeom.hpp"
+#include "complex/Utilities/DataArrayUtilities.hpp"
+#include "complex/Utilities/ParallelDataAlgorithm.hpp"
 
 #include <map>
+#include <vector>
 
 using namespace complex;
+
+namespace
+{
+//------------------------------------------------------------------------------
+__attribute__((noinline)) uint64_t ConvertToUInt64(uint32_t highWord, uint32_t lowWord)
+{
+  return ((uint64_t)highWord << 32) | lowWord;
+}
+
+//------------------------------------------------------------------------------
+class SharedFeatureFaceImpl
+{
+public:
+  SharedFeatureFaceImpl(const std::vector<std::pair<int32_t, int32_t>>& faceLabelVector, Int32Array& surfaceMeshFeatureFaceLabels, Int32Array& surfaceMeshFeatureFaceNumTriangles,
+                        std::map<uint64_t, int32_t>& faceSizeMap, const std::atomic_bool& shouldCancel)
+  : m_FaceLabelVector(faceLabelVector)
+  , m_SurfaceMeshFeatureFaceLabels(surfaceMeshFeatureFaceLabels)
+  , m_SurfaceMeshFeatureFaceNumTriangles(surfaceMeshFeatureFaceNumTriangles)
+  , m_FaceSizeMap(faceSizeMap)
+  , m_ShouldCancel(shouldCancel)
+  {
+  }
+  ~SharedFeatureFaceImpl() = default;
+
+  void operator()(const Range& range) const
+  {
+    for(size_t i = range.min(); i < range.max(); i++)
+    {
+      const auto& faceLabelMapEntry = m_FaceLabelVector[i];
+      // get feature face labels
+      m_SurfaceMeshFeatureFaceLabels[2 * i + 0] = faceLabelMapEntry.first;
+      m_SurfaceMeshFeatureFaceLabels[2 * i + 1] = faceLabelMapEntry.second;
+
+      // get feature triangle count
+      uint64 faceId64 = ConvertToUInt64(faceLabelMapEntry.first, faceLabelMapEntry.second);
+      m_SurfaceMeshFeatureFaceNumTriangles[i] = m_FaceSizeMap[faceId64];
+      if(m_ShouldCancel)
+      {
+        break;
+      }
+    }
+  }
+
+private:
+  const std::vector<std::pair<int32_t, int32_t>>& m_FaceLabelVector;
+  Int32Array& m_SurfaceMeshFeatureFaceLabels;
+  Int32Array& m_SurfaceMeshFeatureFaceNumTriangles;
+  std::map<uint64_t, int32_t>& m_FaceSizeMap;
+  const std::atomic_bool& m_ShouldCancel;
+};
+} // namespace
 
 // -----------------------------------------------------------------------------
 SharedFeatureFace::SharedFeatureFace(DataStructure& dataStructure, const IFilter::MessageHandler& mesgHandler, const std::atomic_bool& shouldCancel, SharedFeatureFaceInputValues* inputValues)
@@ -33,75 +87,73 @@ Result<> SharedFeatureFace::operator()()
   const auto& triangleGeom = m_DataStructure.getDataRefAs<TriangleGeom>(m_InputValues->TriangleGeometryPath);
   usize totalPoints = triangleGeom.getNumberOfFaces();
 
-  const Int32Array& m_SurfaceMeshFaceLabels = m_DataStructure.getDataRefAs<Int32Array>(m_InputValues->FaceLabelsArrayPath);
+  const Int32Array& surfaceMeshFaceLabels = m_DataStructure.getDataRefAs<Int32Array>(m_InputValues->FaceLabelsArrayPath);
 
-  auto& m_SurfaceMeshFeatureFaceIds = m_DataStructure.getDataRefAs<Int32Array>(m_InputValues->FeatureFaceIdsArrayPath);
+  auto& surfaceMeshFeatureFaceIds = m_DataStructure.getDataRefAs<Int32Array>(m_InputValues->FeatureFaceIdsArrayPath);
 
   std::map<uint64_t, int32_t> faceSizeMap;
   std::map<uint64_t, int32_t> faceIdMap; // This maps a unique 64-bit integer to an increasing 32-bit integer
   int32_t index = 1;
-  struct
-  {
-    int g = 0;
-    int r = 0;
-  } faceId;
-  auto* faceId_64 = reinterpret_cast<uint64_t*>(&faceId);
 
-  std::vector<std::pair<int32_t, int32_t>> faceLabelMap;
-  faceLabelMap.emplace_back(std::pair<int32_t, int32_t>(0, 0));
+  std::vector<std::pair<int32_t, int32_t>> faceLabelVector;
+  faceLabelVector.emplace_back(std::pair<int32_t, int32_t>(0, 0));
 
   // Loop through all the Triangles and figure out how many triangles we have in each one.
-  for(int64_t t = 0; t < totalPoints; ++t)
+  for(usize t = 0; t < totalPoints; ++t)
   {
-    int32_t fl0 = m_SurfaceMeshFaceLabels[t * 2];
-    int32_t fl1 = m_SurfaceMeshFaceLabels[t * 2 + 1];
+    uint32 high = 0;
+    uint32 low = 0;
+    int32_t fl0 = surfaceMeshFaceLabels[t * 2];
+    int32_t fl1 = surfaceMeshFaceLabels[t * 2 + 1];
     if(fl0 < fl1)
     {
-      faceId.g = fl0;
-      faceId.r = fl1;
+      high = fl0;
+      low = fl1;
     }
     else
     {
-      faceId.g = fl1;
-      faceId.r = fl0;
+      high = fl1;
+      low = fl0;
     }
-
-    if(faceSizeMap.find(*faceId_64) == faceSizeMap.end())
+    uint64 faceId64 = ConvertToUInt64(high, low);
+    if(faceSizeMap.find(faceId64) == faceSizeMap.end())
     {
-      faceSizeMap[*faceId_64] = 1;
-      faceIdMap[*faceId_64] = index;
-      m_SurfaceMeshFeatureFaceIds[t] = index;
-      faceLabelMap.emplace_back(std::pair<int32_t, int32_t>(faceId.g, faceId.r));
+      faceSizeMap[faceId64] = 1;
+      faceIdMap[faceId64] = index;
+      surfaceMeshFeatureFaceIds[t] = index;
+      faceLabelVector.emplace_back(std::pair<int32_t, int32_t>(high, low));
       ++index;
     }
     else
     {
-      faceSizeMap[*faceId_64]++;
-      m_SurfaceMeshFeatureFaceIds[t] = faceIdMap[*faceId_64];
+      faceSizeMap[faceId64]++;
+      surfaceMeshFeatureFaceIds[t] = faceIdMap[faceId64];
     }
   }
-
+  if(m_ShouldCancel)
+  {
+    return {};
+  }
   // resize + update pointers
   // Grain Boundary Attribute Matrix
   auto& faceFeatureAttrMat = m_DataStructure.getDataRefAs<AttributeMatrix>(m_InputValues->GrainBoundaryAttributeMatrixPath);
   std::vector<size_t> tDims = {static_cast<size_t>(index)};
   faceFeatureAttrMat.setShape(tDims);
+  ResizeAttributeMatrix(faceFeatureAttrMat, tDims);
 
-  auto& m_SurfaceMeshFeatureFaceLabels = m_DataStructure.getDataRefAs<Int32Array>(m_InputValues->FeatureFaceLabelsArrayPath);
-  auto& m_SurfaceMeshFeatureFaceNumTriangles = m_DataStructure.getDataRefAs<Int32Array>(m_InputValues->FeatureFaceNumTrianglesArrayPath);
-  m_SurfaceMeshFeatureFaceLabels.getDataStore()->reshapeTuples(tDims);
-  m_SurfaceMeshFeatureFaceNumTriangles.getDataStore()->reshapeTuples(tDims);
+  auto& surfaceMeshFeatureFaceLabels = m_DataStructure.getDataRefAs<Int32Array>(m_InputValues->FeatureFaceLabelsArrayPath);
+  auto& surfaceMeshFeatureFaceNumTriangles = m_DataStructure.getDataRefAs<Int32Array>(m_InputValues->FeatureFaceNumTrianglesArrayPath);
+  surfaceMeshFeatureFaceLabels.getDataStore()->reshapeTuples(tDims);
+  surfaceMeshFeatureFaceNumTriangles.getDataStore()->reshapeTuples(tDims);
 
-  for(int32_t i = 0; i < index; i++)
-  {
-    // get feature face labels
-    m_SurfaceMeshFeatureFaceLabels[2 * i + 0] = faceLabelMap[i].first;
-    m_SurfaceMeshFeatureFaceLabels[2 * i + 1] = faceLabelMap[i].second;
+  // For smaller data sets having data parallelization ON actually runs slower due to
+  // all the overhead of the threads. We are just going to turn this off for
+  // now until we hit a large data set that is better suited for parallelization
+  // Allow data-based parallelization
+  ParallelDataAlgorithm dataAlg;
+  dataAlg.setParallelizationEnabled(true);
+  dataAlg.setRange(0, index);
+  dataAlg.execute(SharedFeatureFaceImpl(faceLabelVector, surfaceMeshFeatureFaceLabels, surfaceMeshFeatureFaceNumTriangles, faceSizeMap, m_ShouldCancel));
 
-    // get feature triangle count
-    faceId.g = faceLabelMap[i].first;
-    faceId.r = faceLabelMap[i].second;
-    m_SurfaceMeshFeatureFaceNumTriangles[i] = faceSizeMap[*faceId_64];
-  }
   return {};
 }

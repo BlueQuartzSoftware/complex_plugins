@@ -213,26 +213,26 @@ void FindTriangleGeomShapes::findAxes()
 
   for(size_t i = 1; i < numFeatures; i++)
   {
-    double Ixx = m_FeatureMoments[i * 6 + 0];
-    double Iyy = m_FeatureMoments[i * 6 + 1];
-    double Izz = m_FeatureMoments[i * 6 + 2];
+    double ixx = m_FeatureMoments[i * 6 + 0];
+    double iyy = m_FeatureMoments[i * 6 + 1];
+    double izz = m_FeatureMoments[i * 6 + 2];
 
-    double Ixy = m_FeatureMoments[i * 6 + 3];
-    double Iyz = m_FeatureMoments[i * 6 + 4];
-    double Ixz = m_FeatureMoments[i * 6 + 5];
+    double ixy = m_FeatureMoments[i * 6 + 3];
+    double iyz = m_FeatureMoments[i * 6 + 4];
+    double ixz = m_FeatureMoments[i * 6 + 5];
 
     double a = 1.0;
-    double b = (-Ixx - Iyy - Izz);
-    double c = ((Ixx * Izz) + (Ixx * Iyy) + (Iyy * Izz) - (Ixz * Ixz) - (Ixy * Ixy) - (Iyz * Iyz));
-    double d = ((Ixz * Iyy * Ixz) + (Ixy * Izz * Ixy) + (Iyz * Ixx * Iyz) - (Ixx * Iyy * Izz) - (Ixy * Iyz * Ixz) - (Ixy * Iyz * Ixz));
+    double b = (-ixx - iyy - izz);
+    double c = ((ixx * izz) + (ixx * iyy) + (iyy * izz) - (ixz * ixz) - (ixy * ixy) - (iyz * iyz));
+    double d = ((ixz * iyy * ixz) + (ixy * izz * ixy) + (iyz * ixx * iyz) - (ixx * iyy * izz) - (ixy * iyz * ixz) - (ixy * iyz * ixz));
 
     // f and g are the p and q values when reducing the cubic equation to t^3 + pt + q = 0
     double f = ((3.0 * c / a) - ((b / a) * (b / a))) / 3.0;
     double g = ((2.0 * (b / a) * (b / a) * (b / a)) - (9.0 * b * c / (a * a)) + (27.0 * (d / a))) / 27.0;
     double h = (g * g / 4.0) + (f * f * f / 27.0);
-    double rsquare = (g * g / 4.0) - h;
-    double r = sqrt(rsquare);
-    if(rsquare < 0.0)
+    double rSquare = (g * g / 4.0) - h;
+    double r = sqrt(rSquare);
+    if(rSquare < 0.0)
     {
       r = 0.0;
     }
@@ -266,29 +266,29 @@ void FindTriangleGeomShapes::findAxes()
     m_FeatureEigenVals[3 * i + 1] = r2;
     m_FeatureEigenVals[3 * i + 2] = r3;
 
-    double I1 = (15.0 * r1) / (4.0 * M_PI);
-    double I2 = (15.0 * r2) / (4.0 * M_PI);
-    double I3 = (15.0 * r3) / (4.0 * M_PI);
-    double A = (I1 + I2 - I3) / 2.0f;
-    double B = (I1 + I3 - I2) / 2.0f;
-    double C = (I2 + I3 - I1) / 2.0f;
-    a = (A * A * A * A) / (B * C);
+    double i1 = (15.0 * r1) / (4.0 * M_PI);
+    double i2 = (15.0 * r2) / (4.0 * M_PI);
+    double i3 = (15.0 * r3) / (4.0 * M_PI);
+    double aRatio = (i1 + i2 - i3) / 2.0f;
+    double bRatio = (i1 + i3 - i2) / 2.0f;
+    double cRatio = (i2 + i3 - i1) / 2.0f;
+    a = (aRatio * aRatio * aRatio * aRatio) / (bRatio * cRatio);
     a = pow(a, 0.1);
-    b = B / A;
+    b = bRatio / aRatio;
     b = sqrt(b) * a;
-    c = A / (a * a * a * b);
+    c = aRatio / (a * a * a * b);
 
     axisLengths[3 * i] = static_cast<float>(a / k_ScaleFactor);
     axisLengths[3 * i + 1] = static_cast<float>(b / k_ScaleFactor);
     axisLengths[3 * i + 2] = static_cast<float>(c / k_ScaleFactor);
-    auto bovera = static_cast<float>(b / a);
-    auto covera = static_cast<float>(c / a);
-    if(A == 0 || B == 0 || C == 0)
+    auto bOverA = static_cast<float>(b / a);
+    auto cOverA = static_cast<float>(c / a);
+    if(aRatio == 0 || bRatio == 0 || cRatio == 0)
     {
-      bovera = 0.0f, covera = 0.0f;
+      bOverA = 0.0f, cOverA = 0.0f;
     }
-    aspectRatios[2 * i] = bovera;
-    aspectRatios[2 * i + 1] = covera;
+    aspectRatios[2 * i] = bOverA;
+    aspectRatios[2 * i + 1] = cOverA;
   }
 }
 
@@ -302,117 +302,114 @@ void FindTriangleGeomShapes::findAxisEulers()
 
   for(size_t i = 1; i < numFeatures; i++)
   {
-    double Ixx = m_FeatureMoments[i * 6 + 0];
-    double Iyy = m_FeatureMoments[i * 6 + 1];
-    double Izz = m_FeatureMoments[i * 6 + 2];
-    double Ixy = m_FeatureMoments[i * 6 + 3];
-    double Iyz = m_FeatureMoments[i * 6 + 4];
-    double Ixz = m_FeatureMoments[i * 6 + 5];
+    double ixx = m_FeatureMoments[i * 6 + 0];
+    double iyy = m_FeatureMoments[i * 6 + 1];
+    double izz = m_FeatureMoments[i * 6 + 2];
+    double ixy = m_FeatureMoments[i * 6 + 3];
+    double iyz = m_FeatureMoments[i * 6 + 4];
+    double ixz = m_FeatureMoments[i * 6 + 5];
     double radius1 = m_FeatureEigenVals[3 * i];
     double radius2 = m_FeatureEigenVals[3 * i + 1];
     double radius3 = m_FeatureEigenVals[3 * i + 2];
 
     double e[3][1];
-    double vect[3][3] = {{0.0, 0.0, 0.0}, {0.0, 0.0, 0.0}};
+    double vect[3][3] = {{0.0, 0.0, 0.0}, {0.0, 0.0, 0.0}, {0.0, 0.0, 0.0}};
     e[0][0] = radius1;
     e[1][0] = radius2;
     e[2][0] = radius3;
     double uber[3][3] = {{0.0, 0.0, 0.0}, {0.0, 0.0, 0.0}};
-    double bmat[3][1];
-    bmat[0][0] = 0.0000001;
-    bmat[1][0] = 0.0000001;
-    bmat[2][0] = 0.0000001;
+    double bMatrix[3];
+    bMatrix[0] = 0.0000001;
+    bMatrix[1] = 0.0000001;
+    bMatrix[2] = 0.0000001;
 
     for(int32_t j = 0; j < 3; j++)
     {
-      uber[0][0] = Ixx - e[j][0];
-      uber[0][1] = Ixy;
-      uber[0][2] = Ixz;
-      uber[1][0] = Ixy;
-      uber[1][1] = Iyy - e[j][0];
-      uber[1][2] = Iyz;
-      uber[2][0] = Ixz;
-      uber[2][1] = Iyz;
-      uber[2][2] = Izz - e[j][0];
+      uber[0][0] = ixx - e[j][0];
+      uber[0][1] = ixy;
+      uber[0][2] = ixz;
+      uber[1][0] = ixy;
+      uber[1][1] = iyy - e[j][0];
+      uber[1][2] = iyz;
+      uber[2][0] = ixz;
+      uber[2][1] = iyz;
+      uber[2][2] = izz - e[j][0];
       std::array<std::array<double, 3>, 3> uberelim{};
       std::array<std::array<double, 1>, 3> uberbelim{};
-      int32_t elimcount = 0;
-      int32_t elimcount1 = 0;
+      int32_t elimCount = 0;
 
       for(int32_t a = 0; a < 3; a++)
       {
-        elimcount1 = 0;
         for(int32_t b = 0; b < 3; b++)
         {
-          uberelim[elimcount][elimcount1] = uber[a][b];
-          elimcount1++;
+          uberelim[elimCount][b] = uber[a][b];
         }
-        uberbelim[elimcount][0] = bmat[a][0];
-        elimcount++;
+        uberbelim[elimCount][0] = bMatrix[a];
+        elimCount++;
       }
-      for(int32_t k = 0; k < elimcount - 1; k++)
+      for(int32_t k = 0; k < elimCount - 1; k++)
       {
-        for(int32_t l = k + 1; l < elimcount; l++)
+        for(int32_t l = k + 1; l < elimCount; l++)
         {
           double c = uberelim[l][k] / uberelim[k][k];
-          for(int32_t r = k + 1; r < elimcount; r++)
+          for(int32_t r = k + 1; r < elimCount; r++)
           {
             uberelim[l][r] = uberelim[l][r] - c * uberelim[k][r];
           }
           uberbelim[l][0] = uberbelim[l][0] - c * uberbelim[k][0];
         }
       }
-      uberbelim[elimcount - 1][0] = uberbelim[elimcount - 1][0] / uberelim[elimcount - 1][elimcount - 1];
-      for(int32_t l = 1; l < elimcount; l++)
+      uberbelim[elimCount - 1][0] = uberbelim[elimCount - 1][0] / uberelim[elimCount - 1][elimCount - 1];
+      for(int32_t l = 1; l < elimCount; l++)
       {
-        int32_t r = (elimcount - 1) - l;
+        int32_t r = (elimCount - 1) - l;
         double sum = 0.0;
-        for(int32_t n = r + 1; n < elimcount; n++)
+        for(int32_t n = r + 1; n < elimCount; n++)
         {
           sum = sum + (uberelim[r][n] * uberbelim[n][0]);
         }
         uberbelim[r][0] = (uberbelim[r][0] - sum) / uberelim[r][r];
       }
-      for(int32_t p = 0; p < elimcount; p++)
+      for(int32_t p = 0; p < elimCount; p++)
       {
         vect[j][p] = uberbelim[p][0];
       }
     }
 
-    double n1x = vect[0][0];
-    double n1y = vect[0][1];
-    double n1z = vect[0][2];
-    double n2x = vect[1][0];
-    double n2y = vect[1][1];
-    double n2z = vect[1][2];
-    double n3x = vect[2][0];
-    double n3y = vect[2][1];
-    double n3z = vect[2][2];
-    double norm1 = sqrt(((n1x * n1x) + (n1y * n1y) + (n1z * n1z)));
-    double norm2 = sqrt(((n2x * n2x) + (n2y * n2y) + (n2z * n2z)));
-    double norm3 = sqrt(((n3x * n3x) + (n3y * n3y) + (n3z * n3z)));
-    n1x = n1x / norm1;
-    n1y = n1y / norm1;
-    n1z = n1z / norm1;
-    n2x = n2x / norm2;
-    n2y = n2y / norm2;
-    n2z = n2z / norm2;
-    n3x = n3x / norm3;
-    n3y = n3y / norm3;
-    n3z = n3z / norm3;
+    double n1X = vect[0][0];
+    double n1Y = vect[0][1];
+    double n1Z = vect[0][2];
+    double n2X = vect[1][0];
+    double n2Y = vect[1][1];
+    double n2Z = vect[1][2];
+    double n3X = vect[2][0];
+    double n3Y = vect[2][1];
+    double n3Z = vect[2][2];
+    double norm1 = sqrt(((n1X * n1X) + (n1Y * n1Y) + (n1Z * n1Z)));
+    double norm2 = sqrt(((n2X * n2X) + (n2Y * n2Y) + (n2Z * n2Z)));
+    double norm3 = sqrt(((n3X * n3X) + (n3Y * n3Y) + (n3Z * n3Z)));
+    n1X = n1X / norm1;
+    n1Y = n1Y / norm1;
+    n1Z = n1Z / norm1;
+    n2X = n2X / norm2;
+    n2Y = n2Y / norm2;
+    n2Z = n2Z / norm2;
+    n3X = n3X / norm3;
+    n3Y = n3Y / norm3;
+    n3Z = n3Z / norm3;
 
     // insert principal unit vectors into rotation matrix representing Feature reference frame within the sample reference frame
     //(Note that the 3 direction is actually the long axis and the 1 direction is actually the short axis)
     float g[3][3] = {{0.0f, 0.0f, 0.0f}, {0.0f, 0.0f, 0.0f}, {0.0f, 0.0f, 0.0f}};
-    g[0][0] = static_cast<float>(n3x);
-    g[0][1] = static_cast<float>(n3y);
-    g[0][2] = static_cast<float>(n3z);
-    g[1][0] = static_cast<float>(n2x);
-    g[1][1] = static_cast<float>(n2y);
-    g[1][2] = static_cast<float>(n2z);
-    g[2][0] = static_cast<float>(n1x);
-    g[2][1] = static_cast<float>(n1y);
-    g[2][2] = static_cast<float>(n1z);
+    g[0][0] = static_cast<float>(n3X);
+    g[0][1] = static_cast<float>(n3Y);
+    g[0][2] = static_cast<float>(n3Z);
+    g[1][0] = static_cast<float>(n2X);
+    g[1][1] = static_cast<float>(n2Y);
+    g[1][2] = static_cast<float>(n2Z);
+    g[2][0] = static_cast<float>(n1X);
+    g[2][1] = static_cast<float>(n1Y);
+    g[2][2] = static_cast<float>(n1Z);
 
     // check for right-handedness
     OrientationTransformation::ResultType result = OrientationTransformation::om_check(OrientationF(g));

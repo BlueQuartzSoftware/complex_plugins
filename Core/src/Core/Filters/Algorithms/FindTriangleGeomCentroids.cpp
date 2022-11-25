@@ -42,21 +42,21 @@ Result<> FindTriangleGeomCentroids::operator()()
   MeshIndexType numFeatures = featAttrMat.getNumTuples();
   auto& centroids = m_DataStructure.getDataRefAs<Float32Array>(m_InputValues->CentroidsArrayPath);
   std::vector<std::set<MeshIndexType>> vertexSets(numFeatures);
-  const Int32Array& m_FaceLabels = m_DataStructure.getDataRefAs<Int32Array>(m_InputValues->FaceLabelsArrayPath);
+  const Int32Array& faceLabels = m_DataStructure.getDataRefAs<Int32Array>(m_InputValues->FaceLabelsArrayPath);
 
   for(MeshIndexType i = 0; i < numTriangles; i++)
   {
-    if(m_FaceLabels[2 * i + 0] > 0)
+    if(faceLabels[2 * i + 0] > 0)
     {
-      vertexSets[m_FaceLabels[2 * i + 0]].insert(triangles[3 * i + 0]);
-      vertexSets[m_FaceLabels[2 * i + 0]].insert(triangles[3 * i + 1]);
-      vertexSets[m_FaceLabels[2 * i + 0]].insert(triangles[3 * i + 2]);
+      vertexSets[faceLabels[2 * i + 0]].insert(triangles[3 * i + 0]);
+      vertexSets[faceLabels[2 * i + 0]].insert(triangles[3 * i + 1]);
+      vertexSets[faceLabels[2 * i + 0]].insert(triangles[3 * i + 2]);
     }
-    if(m_FaceLabels[2 * i + 1] > 0)
+    if(faceLabels[2 * i + 1] > 0)
     {
-      vertexSets[m_FaceLabels[2 * i + 1]].insert(triangles[3 * i + 0]);
-      vertexSets[m_FaceLabels[2 * i + 1]].insert(triangles[3 * i + 1]);
-      vertexSets[m_FaceLabels[2 * i + 1]].insert(triangles[3 * i + 2]);
+      vertexSets[faceLabels[2 * i + 1]].insert(triangles[3 * i + 0]);
+      vertexSets[faceLabels[2 * i + 1]].insert(triangles[3 * i + 1]);
+      vertexSets[faceLabels[2 * i + 1]].insert(triangles[3 * i + 2]);
     }
   }
 

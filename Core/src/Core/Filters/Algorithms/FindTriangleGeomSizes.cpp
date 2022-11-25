@@ -4,26 +4,26 @@
 #include "complex/DataStructure/DataGroup.hpp"
 #include "complex/DataStructure/Geometry/IGeometry.hpp"
 #include "complex/DataStructure/Geometry/TriangleGeom.hpp"
+#include "complex/Utilities/DataArrayUtilities.hpp"
 
 using namespace complex;
 
 namespace
 {
+constexpr usize k_00 = 0;
+constexpr usize k_01 = 1;
+constexpr usize k_02 = 2;
+constexpr usize k_10 = 3;
+constexpr usize k_11 = 4;
+constexpr usize k_12 = 5;
+constexpr usize k_20 = 6;
+constexpr usize k_21 = 7;
+constexpr usize k_22 = 8;
 
 // -----------------------------------------------------------------------------
 template <typename T>
-T findTetrahedronVolume(const std::array<usize, 3>& vertIds, const DataArray<T>& vertexCoords)
+T FindTetrahedronVolume(const std::array<usize, 3>& vertIds, const DataArray<T>& vertexCoords)
 {
-  constexpr usize k_00 = 0;
-  constexpr usize k_01 = 1;
-  constexpr usize k_02 = 2;
-  constexpr usize k_10 = 3;
-  constexpr usize k_11 = 4;
-  constexpr usize k_12 = 5;
-  constexpr usize k_20 = 6;
-  constexpr usize k_21 = 7;
-  constexpr usize k_22 = 8;
-
   // This is a 3x3 matrix laid out in typical "C" order where the columns raster the fastest, then the rows
   std::array<T, 9> volumeMatrix = {
       vertexCoords[3 * vertIds[1] + 0] - vertexCoords[3 * vertIds[0] + 0], vertexCoords[3 * vertIds[2] + 0] - vertexCoords[3 * vertIds[0] + 0], 0.0f - vertexCoords[3 * vertIds[0] + 0],
@@ -85,7 +85,7 @@ Result<> FindTriangleGeomSizes::operator()()
   AttributeMatrix::ShapeType tDims = {featureSet.size() + 1};
   auto& featAttrMat = m_DataStructure.getDataRefAs<AttributeMatrix>(m_InputValues->FeatureAttributeMatrixPath);
   featAttrMat.setShape(tDims);
-
+  ResizeAttributeMatrix(featAttrMat, tDims);
   auto& volumes = m_DataStructure.getDataRefAs<Float32Array>(m_InputValues->VolumesArrayPath);
 
   std::array<usize, 3> faceVertexIndices = {0, 0, 0};
@@ -96,17 +96,17 @@ Result<> FindTriangleGeomSizes::operator()()
     if(faceLabels[2 * i + 0] == -1)
     {
       std::swap(faceVertexIndices[2], faceVertexIndices[1]);
-      volumes[faceLabels[2 * i + 1]] += findTetrahedronVolume(faceVertexIndices, vertexCoords);
+      volumes[faceLabels[2 * i + 1]] += FindTetrahedronVolume(faceVertexIndices, vertexCoords);
     }
     else if(faceLabels[2 * i + 1] == -1)
     {
-      volumes[faceLabels[2 * i + 0]] += findTetrahedronVolume(faceVertexIndices, vertexCoords);
+      volumes[faceLabels[2 * i + 0]] += FindTetrahedronVolume(faceVertexIndices, vertexCoords);
     }
     else
     {
-      volumes[faceLabels[2 * i + 0]] += findTetrahedronVolume(faceVertexIndices, vertexCoords);
+      volumes[faceLabels[2 * i + 0]] += FindTetrahedronVolume(faceVertexIndices, vertexCoords);
       std::swap(faceVertexIndices[2], faceVertexIndices[1]);
-      volumes[faceLabels[2 * i + 1]] += findTetrahedronVolume(faceVertexIndices, vertexCoords);
+      volumes[faceLabels[2 * i + 1]] += FindTetrahedronVolume(faceVertexIndices, vertexCoords);
     }
   }
 
