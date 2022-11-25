@@ -64,7 +64,7 @@ TEST_CASE("Core::FindTriangleGeomSizes", "[Core][FindTriangleGeomSizes]")
     const auto& kExemplarsArray = dataStructure.getDataRefAs<IDataArray>(kExemplarArrayPath);
     const auto& kNxArray = dataStructure.getDataRefAs<IDataArray>(kNxArrayPath);
 
-    CompareDataArrays<float>(kExemplarsArray, kNxArray);
+    CompareDataArrays<float32>(kExemplarsArray, kNxArray);
   }
 
   WriteTestDataStructure(dataStructure, fs::path(fmt::format("{}/find_triangle_geom_sizes.dream3d", unit_test::k_BinaryTestOutputDir)));

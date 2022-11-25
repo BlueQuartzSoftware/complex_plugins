@@ -14,17 +14,17 @@ using namespace complex;
 namespace
 {
 //------------------------------------------------------------------------------
-uint64_t ConvertToUInt64(uint32_t highWord, uint32_t lowWord)
+uint64 ConvertToUInt64(uint32 highWord, uint32 lowWord)
 {
-  return ((uint64_t)highWord << 32) | lowWord;
+  return ((uint64)highWord << 32) | lowWord;
 }
 
 //------------------------------------------------------------------------------
 class SharedFeatureFaceImpl
 {
 public:
-  SharedFeatureFaceImpl(const std::vector<std::pair<int32_t, int32_t>>& faceLabelVector, Int32Array& surfaceMeshFeatureFaceLabels, Int32Array& surfaceMeshFeatureFaceNumTriangles,
-                        std::map<uint64_t, int32_t>& faceSizeMap, const std::atomic_bool& shouldCancel)
+  SharedFeatureFaceImpl(const std::vector<std::pair<int32, int32>>& faceLabelVector, Int32Array& surfaceMeshFeatureFaceLabels, Int32Array& surfaceMeshFeatureFaceNumTriangles,
+                        std::map<uint64, int32>& faceSizeMap, const std::atomic_bool& shouldCancel)
   : m_FaceLabelVector(faceLabelVector)
   , m_SurfaceMeshFeatureFaceLabels(surfaceMeshFeatureFaceLabels)
   , m_SurfaceMeshFeatureFaceNumTriangles(surfaceMeshFeatureFaceNumTriangles)
@@ -36,7 +36,7 @@ public:
 
   void operator()(const Range& range) const
   {
-    for(size_t i = range.min(); i < range.max(); i++)
+    for(usize i = range.min(); i < range.max(); i++)
     {
       const auto& faceLabelMapEntry = m_FaceLabelVector[i];
       // get feature face labels
@@ -54,10 +54,10 @@ public:
   }
 
 private:
-  const std::vector<std::pair<int32_t, int32_t>>& m_FaceLabelVector;
+  const std::vector<std::pair<int32, int32>>& m_FaceLabelVector;
   Int32Array& m_SurfaceMeshFeatureFaceLabels;
   Int32Array& m_SurfaceMeshFeatureFaceNumTriangles;
-  std::map<uint64_t, int32_t>& m_FaceSizeMap;
+  std::map<uint64, int32>& m_FaceSizeMap;
   const std::atomic_bool& m_ShouldCancel;
 };
 } // namespace
@@ -91,20 +91,20 @@ Result<> SharedFeatureFace::operator()()
 
   auto& surfaceMeshFeatureFaceIds = m_DataStructure.getDataRefAs<Int32Array>(m_InputValues->FeatureFaceIdsArrayPath);
 
-  std::map<uint64_t, int32_t> faceSizeMap;
-  std::map<uint64_t, int32_t> faceIdMap; // This maps a unique 64-bit integer to an increasing 32-bit integer
-  int32_t index = 1;
+  std::map<uint64, int32> faceSizeMap;
+  std::map<uint64, int32> faceIdMap; // This maps a unique 64-bit integer to an increasing 32-bit integer
+  int32 index = 1;
 
-  std::vector<std::pair<int32_t, int32_t>> faceLabelVector;
-  faceLabelVector.emplace_back(std::pair<int32_t, int32_t>(0, 0));
+  std::vector<std::pair<int32, int32>> faceLabelVector;
+  faceLabelVector.emplace_back(std::pair<int32, int32>(0, 0));
 
   // Loop through all the Triangles and figure out how many triangles we have in each one.
   for(usize t = 0; t < totalPoints; ++t)
   {
     uint32 high = 0;
     uint32 low = 0;
-    int32_t fl0 = surfaceMeshFaceLabels[t * 2];
-    int32_t fl1 = surfaceMeshFaceLabels[t * 2 + 1];
+    int32 fl0 = surfaceMeshFaceLabels[t * 2];
+    int32 fl1 = surfaceMeshFaceLabels[t * 2 + 1];
     if(fl0 < fl1)
     {
       high = fl0;
@@ -121,7 +121,7 @@ Result<> SharedFeatureFace::operator()()
       faceSizeMap[faceId64] = 1;
       faceIdMap[faceId64] = index;
       surfaceMeshFeatureFaceIds[t] = index;
-      faceLabelVector.emplace_back(std::pair<int32_t, int32_t>(high, low));
+      faceLabelVector.emplace_back(std::pair<int32, int32>(high, low));
       ++index;
     }
     else
@@ -137,7 +137,7 @@ Result<> SharedFeatureFace::operator()()
   // resize + update pointers
   // Grain Boundary Attribute Matrix
   auto& faceFeatureAttrMat = m_DataStructure.getDataRefAs<AttributeMatrix>(m_InputValues->GrainBoundaryAttributeMatrixPath);
-  std::vector<size_t> tDims = {static_cast<size_t>(index)};
+  std::vector<usize> tDims = {static_cast<usize>(index)};
   faceFeatureAttrMat.setShape(tDims);
   ResizeAttributeMatrix(faceFeatureAttrMat, tDims);
 

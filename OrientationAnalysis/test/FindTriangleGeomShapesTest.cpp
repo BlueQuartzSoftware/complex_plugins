@@ -73,7 +73,7 @@ TEST_CASE("Core::FindTriangleGeomShapes", "[Core][FindTriangleGeomShapes]")
 
   std::vector<std::string> outputArrayNames = {k_Omega3SArrayName, k_AxisLengthsArrayName, k_AxisEulerAnglesArrayName, k_AspectRatiosArrayName};
   std::vector<std::string> exemplarArrayNames = {"Omega3s", "AxisLengths", "AxisEulerAngles", "AspectRatios"};
-  for(size_t i = 0; i < 4; i++)
+  for(usize i = 0; i < 4; i++)
   {
     const DataPath kExemplarArrayPath = k_FaceFeatureAttributeMatrixPath.createChildPath(exemplarArrayNames[i]);
     const DataPath kNxArrayPath = k_FaceFeatureAttributeMatrixPath.createChildPath(outputArrayNames[i]);

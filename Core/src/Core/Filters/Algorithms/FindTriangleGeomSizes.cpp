@@ -68,7 +68,7 @@ Result<> FindTriangleGeomSizes::operator()()
   const SharedVertexListType& vertexCoords = triangleGeom.getVerticesRef();
   const Int32Array& faceLabels = m_DataStructure.getDataRefAs<Int32Array>(m_InputValues->FaceLabelsArrayPath);
 
-  std::set<int32_t> featureSet;
+  std::set<int32> featureSet;
 
   for(MeshIndexType i = 0; i < numTriangles; i++)
   {
