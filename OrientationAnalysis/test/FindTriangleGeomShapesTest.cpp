@@ -13,6 +13,7 @@
 #include "complex_plugins/Utilities/TestUtilities.hpp"
 
 using namespace complex;
+using namespace complex::UnitTest;
 
 namespace FindTriangleGeomShapesFilterTest
 {
@@ -41,7 +42,7 @@ TEST_CASE("Core::FindTriangleGeomShapes", "[Core][FindTriangleGeomShapes]")
 {
   // Read Exemplar DREAM3D File Filter
   auto exemplarFilePath = fs::path(fmt::format("{}/TestFiles/12_IN625_GBCD/12_IN625_GBCD.dream3d", unit_test::k_DREAM3DDataDir));
-  DataStructure dataStructure = complex::LoadDataStructure(exemplarFilePath);
+  DataStructure dataStructure = LoadDataStructure(exemplarFilePath);
 
   {
     // Instantiate the filter and an Arguments Object
