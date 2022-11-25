@@ -131,7 +131,6 @@ const FilterHandle k_FindNFeaturePhasesFilterHandle(k_FindFeaturePhasesObjectsId
 const Uuid k_FindNeighborsObjectsId = *Uuid::FromString("7177e88c-c3ab-4169-abe9-1fdaff20e598");
 const FilterHandle k_FindNeighborsFilterHandle(k_FindNeighborsObjectsId, k_ComplexCorePluginId);
 
-
 struct make_shared_enabler : public complex::Application
 {
 };
