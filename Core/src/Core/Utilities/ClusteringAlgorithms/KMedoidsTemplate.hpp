@@ -1,0 +1,236 @@
+/* ============================================================================
+ * Copyright (c) 2009-2016 BlueQuartz Software, LLC
+ *
+ * Redistribution and use in source and binary forms, with or without modification,
+ * are permitted provided that the following conditions are met:
+ *
+ * Redistributions of source code must retain the above copyright notice, this
+ * list of conditions and the following disclaimer.
+ *
+ * Redistributions in binary form must reproduce the above copyright notice, this
+ * list of conditions and the following disclaimer in the documentation and/or
+ * other materials provided with the distribution.
+ *
+ * Neither the name of BlueQuartz Software, the US Air Force, nor the names of its
+ * contributors may be used to endorse or promote products derived from this software
+ * without specific prior written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+ * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+ * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+ * DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE
+ * FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+ * DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+ * SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+ * CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
+ * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE
+ * USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ *
+ * The code contained herein was partially funded by the following contracts:
+ *    United States Air Force Prime Contract FA8650-07-D-5800
+ *    United States Air Force Prime Contract FA8650-10-D-5210
+ *    United States Prime Contract Navy N00173-07-C-2068
+ *
+ * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
+
+#pragma once
+
+#include "Core/Utilities/DistanceTemplate.hpp"
+
+#include "complex/Filter/IFilter.hpp"
+
+#include <chrono>
+#include <random>
+
+using namespace complex;
+
+template <typename T>
+struct KMedoidsTemplate
+{
+
+  /**
+   * @brief
+   * @param filter
+   * @param inputIDataArray
+   * @param outputIDataArray
+   * @param maskDataArray
+   * @param numClusters
+   * @param featureIDs
+   * @param distMetric
+   */
+
+  Result<> operator()(const IFilter::MessageHandler& mesgHandler, const std::atomic_bool& shouldCancel, const IDataArray& inputIDataArray, IDataArray& outputIDataArray, const BoolArray& maskDataArray,
+                      size_t numClusters, const Int32Array& featureIds, int32_t distMetric)
+  {
+    typename DataArray<T>::Pointer inputDataPtr = std::dynamic_pointer_cast<DataArray<T>>(inputIDataArray);
+    typename DataArray<T>::Pointer outputDataPtr = std::dynamic_pointer_cast<DataArray<T>>(outputIDataArray);
+    T* inputData = inputDataPtr->getPointer(0);
+    T* outputData = outputDataPtr->getPointer(0);
+
+    size_t numTuples = inputDataPtr->getNumberOfTuples();
+    int32_t numCompDims = inputDataPtr->getNumberOfComponents();
+
+    size_t rangeMin = 0;
+    size_t rangeMax = numTuples - 1;
+    std::mt19937_64::result_type seed = static_cast<std::mt19937_64::result_type>(std::chrono::steady_clock::now().time_since_epoch().count());
+    std::mt19937_64 gen(seed);
+    std::uniform_int_distribution<size_t> dist(rangeMin, rangeMax);
+
+    std::vector<size_t> clusterIdxs(numClusters);
+    size_t clusterChoices = 0;
+
+    while(clusterChoices < numClusters)
+    {
+      size_t index = dist(gen);
+      if(maskDataArray[index])
+      {
+        clusterIdxs[clusterChoices] = index;
+        clusterChoices++;
+      }
+    }
+
+    for(size_t i = 0; i < numClusters; i++)
+    {
+      for(int32_t j = 0; j < numCompDims; j++)
+      {
+        outputData[numCompDims * (i + 1) + j] = inputData[numCompDims * clusterIdxs[i] + j];
+      }
+    }
+
+    // size_t updateCheck = 0;
+
+    findClusters(mesgHandler, shouldCancel, maskDataArray, inputData, outputData, featureIds, numTuples, numClusters, numCompDims, distMetric);
+
+    std::vector<size_t> optClusterIdxs(clusterIdxs);
+    std::vector<double> costs;
+
+    costs = optimizeClusters(mesgHandler, shouldCancel, maskDataArray, inputData, outputData, featureIds, numTuples, numClusters, numCompDims, clusterIdxs, distMetric);
+
+    bool update = optClusterIdxs == clusterIdxs ? false : true;
+    size_t iteration = 1;
+
+    while(update)
+    {
+      findClusters(mesgHandler, shouldCancel, maskDataArray, inputData, outputData, featureIds, numTuples, numClusters, numCompDims, distMetric);
+
+      optClusterIdxs = clusterIdxs;
+
+      costs = optimizeClusters(mesgHandler, shouldCancel, maskDataArray, inputData, outputData, featureIds, numTuples, numClusters, numCompDims, clusterIdxs, distMetric);
+
+      update = optClusterIdxs == clusterIdxs ? false : true;
+
+      double sum = std::accumulate(std::begin(costs), std::end(costs), 0.0);
+      mesgHandler.operator()(IFilter::Message::Type::Info, fmt::format("Clustering Data || Iteration %1 || Total Cost: %2", iteration, sum));
+      iteration++;
+    }
+  }
+
+  /**
+   * @brief
+   * @param filter
+   * @param mask
+   * @param input
+   * @param medoids
+   * @param fIds
+   * @param tuples
+   * @param clusters
+   * @param dims
+   * @param distMetric
+   */
+  void findClusters(const IFilter::MessageHandler& mesgHandler, const std::atomic_bool& shouldCancel, bool* mask, T* input, T* medoids, int32_t* fIds, size_t tuples, int32_t clusters, int32_t dims,
+                    int32_t distMetric)
+  {
+    double dist = 0.0;
+    for(size_t i = 0; i < tuples; i++)
+    {
+      if(shouldCancel)
+      {
+        return;
+      }
+      if(mask[i])
+      {
+        double minDist = std::numeric_limits<double>::max();
+        for(size_t j = 0; j < clusters; j++)
+        {
+          dist = DistanceTemplate::GetDistance<T, T, double>(input + (dims * i), medoids + (dims * (j + 1)), dims, distMetric);
+          if(dist < minDist)
+          {
+            minDist = dist;
+            fIds[i] = j + 1;
+          }
+        }
+      }
+    }
+  }
+  /**
+   * @brief
+   * @param filter
+   * @param mask
+   * @param input
+   * @param medoids
+   * @param fIds
+   * @param tuples
+   * @param clusters
+   * @param dims
+   * @param clusterIdxs
+   * @param distMetric
+   * @return
+   */
+  std::vector<double> optimizeClusters(const IFilter::MessageHandler& mesgHandler, const std::atomic_bool& shouldCancel, bool* mask, T* input, T* medoids, int32_t* fIds, size_t tuples,
+                                       int32_t clusters, int32_t dims, std::vector<size_t>& clusterIdxs, int32_t distMetric)
+  {
+    double dist = 0.0;
+    std::vector<double> minCosts(clusters, std::numeric_limits<double>::max());
+
+    for(size_t i = 0; i < clusters; i++)
+    {
+      if(shouldCancel)
+      {
+        return {};
+      }
+      for(size_t j = 0; j < tuples; j++)
+      {
+        if(shouldCancel)
+        {
+          return {};
+        }
+        if(mask[j])
+        {
+          double cost = 0.0;
+          if(fIds[j] == i + 1)
+          {
+            for(size_t k = 0; k < tuples; k++)
+            {
+              if(shouldCancel)
+              {
+                return {};
+              }
+              if(fIds[k] == i + 1 && mask[k])
+              {
+                dist = DistanceTemplate::GetDistance<T, T, double>(input + (dims * k), input + (dims * j), dims, distMetric);
+                cost += dist;
+              }
+            }
+
+            if(cost < minCosts[i])
+            {
+              minCosts[i] = cost;
+              clusterIdxs[i] = j;
+            }
+          }
+        }
+      }
+    }
+
+    for(size_t i = 0; i < clusters; i++)
+    {
+      for(int32_t j = 0; j < dims; j++)
+      {
+        medoids[dims * (i + 1) + j] = input[dims * clusterIdxs[i] + j];
+      }
+    }
+
+    return minCosts;
+  }
+
+}; // namespace KMedoidsTemplate

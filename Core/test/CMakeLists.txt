@@ -19,7 +19,18 @@ set(${PLUGIN_NAME}UnitTest_SRCS
   FindEuclideanDistMapTest.cpp
   FindNeighborhoodsTest.cpp
   FindSurfaceAreaToVolumeTest.cpp
+<<<<<<< HEAD
   FeatureDataCSVWriterTest.cpp
+=======
+  CalculateArrayHistogramTest.cpp
+  RemoveFlaggedFeaturesTest.cpp
+  SplitAttributeArrayTest.cpp
+
+  KMedoidsTest.cpp
+  KMeansTest.cpp
+  SilhouetteTest.cpp
+  ImportDeformKeyFilev12Test.cpp
+>>>>>>> 88155031 (Clustering Filters for PW-Alarm project)
 )
 
 create_complex_plugin_unit_test(PLUGIN_NAME ${PLUGIN_NAME}
