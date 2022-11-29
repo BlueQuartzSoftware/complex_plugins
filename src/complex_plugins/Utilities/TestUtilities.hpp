@@ -11,10 +11,11 @@
 #include "complex/Parameters/ChoicesParameter.hpp"
 #include "complex/Parameters/GeometrySelectionParameter.hpp"
 #include "complex/Parameters/MultiArraySelectionParameter.hpp"
-#include "complex/UnitTest/UnitTestCommon.hpp"
 #include "complex/Utilities/Parsing/DREAM3D/Dream3dIO.hpp"
 #include "complex/Utilities/Parsing/HDF5/H5FileReader.hpp"
 #include "complex/Utilities/Parsing/HDF5/H5FileWriter.hpp"
+#include "complex/DataStructure/AttributeMatrix.hpp"
+#include "complex/UnitTest/UnitTestCommon.hpp"
 
 #include <cmath>
 #include <filesystem>
@@ -150,10 +151,6 @@ void CompareDataArrays(const IDataArray& left, const IDataArray& right)
     }
   }
 }
-
-struct make_shared_enabler : public complex::Application
-{
-};
 
 inline DataStructure LoadDataStructure(const fs::path& filepath)
 {

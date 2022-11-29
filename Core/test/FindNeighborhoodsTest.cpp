@@ -24,7 +24,7 @@ const std::string k_NumElements("NumElements");
 
 TEST_CASE("Core::FindNeighborhoods", "[Core][FindNeighborhoods]")
 {
-  //  std::shared_ptr<make_shared_enabler> app = std::make_shared<make_shared_enabler>();
+  //  std::shared_ptr<UnitTest::make_shared_enabler> app = std::make_shared<UnitTest::make_shared_enabler>();
   //  app->loadPlugins(unit_test::k_BuildDir.view(), true);
   //  auto* filterList = Application::Instance()->getFilterList();
 

@@ -18,7 +18,7 @@ using namespace complex;
 
 TEST_CASE("Core::FindFeatureCentroidsFilter", "[Core][FindFeatureCentroidsFilter]")
 {
-  std::shared_ptr<make_shared_enabler> app = std::make_shared<make_shared_enabler>();
+  std::shared_ptr<UnitTest::make_shared_enabler> app = std::make_shared<UnitTest::make_shared_enabler>();
   app->loadPlugins(unit_test::k_BuildDir.view(), true);
 
   // Read the Small IN100 Data set

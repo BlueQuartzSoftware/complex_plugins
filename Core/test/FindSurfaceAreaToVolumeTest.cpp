@@ -3,6 +3,7 @@
 
 #include "complex/Parameters/ArrayCreationParameter.hpp"
 #include "complex/Parameters/BoolParameter.hpp"
+#include "complex/UnitTest/UnitTestCommon.hpp"
 
 #include "Core/Core_test_dirs.hpp"
 #include "Core/Filters/FindSurfaceAreaToVolumeFilter.hpp"
