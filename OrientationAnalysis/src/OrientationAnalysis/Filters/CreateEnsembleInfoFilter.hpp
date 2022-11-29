@@ -24,7 +24,6 @@ public:
   CreateEnsembleInfoFilter& operator=(CreateEnsembleInfoFilter&&) noexcept = delete;
 
   // Parameter Keys
-  static inline constexpr StringLiteral k_GeometryName_Key = "geometry_name";
   static inline constexpr StringLiteral k_Ensemble_Key = "ensemble";
   static inline constexpr StringLiteral k_CellEnsembleAttributeMatrixName_Key = "cell_ensemble_attribute_matrix_name";
   static inline constexpr StringLiteral k_CrystalStructuresArrayName_Key = "crystal_structures_array_name";

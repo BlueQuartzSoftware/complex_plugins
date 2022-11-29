@@ -51,7 +51,6 @@ Parameters CreateEnsembleInfoFilter::parameters() const
 {
   Parameters params;
   // Create the parameter descriptors that are needed for this filter
-  params.insert(std::make_unique<GeometrySelectionParameter>(k_GeometryName_Key, "Geometry", "The complete path to the input geometry", DataPath{}, IGeometry::GetAllGeomTypes()));
   params.insert(std::make_unique<EnsembleInfoParameter>(
       k_Ensemble_Key, "Created Ensemble Info", "The values with which to populate the crystal structures, phase types, and phase names data arrays. Each row corresponds to an ensemble phase.",
       EnsembleInfoParameter::ValueType{}));
@@ -75,7 +74,6 @@ IFilter::UniquePointer CreateEnsembleInfoFilter::clone() const
 IFilter::PreflightResult CreateEnsembleInfoFilter::preflightImpl(const DataStructure& dataStructure, const Arguments& filterArgs, const MessageHandler& messageHandler,
                                                                  const std::atomic_bool& shouldCancel) const
 {
-  auto pDataContainerNameValue = filterArgs.value<DataPath>(k_GeometryName_Key);
   auto pEnsembleValue = filterArgs.value<EnsembleInfoParameter::ValueType>(k_Ensemble_Key);
   auto pCellEnsembleAttributeMatrixNameValue = filterArgs.value<DataPath>(k_CellEnsembleAttributeMatrixName_Key);
   auto pCrystalStructuresArrayNameValue = filterArgs.value<DataObjectNameParameter::ValueType>(k_CrystalStructuresArrayName_Key);
@@ -108,7 +106,6 @@ Result<> CreateEnsembleInfoFilter::executeImpl(DataStructure& dataStructure, con
                                                const std::atomic_bool& shouldCancel) const
 {
   CreateEnsembleInfoInputValues inputValues;
-  inputValues.DataContainerName = filterArgs.value<DataPath>(k_GeometryName_Key);
   inputValues.Ensemble = filterArgs.value<EnsembleInfoParameter::ValueType>(k_Ensemble_Key);
   inputValues.CellEnsembleAttributeMatrixName = filterArgs.value<DataPath>(k_CellEnsembleAttributeMatrixName_Key);
   inputValues.CrystalStructuresArrayName = filterArgs.value<DataObjectNameParameter::ValueType>(k_CrystalStructuresArrayName_Key);

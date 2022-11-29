@@ -23,7 +23,6 @@ enum class PhaseType : uint32
 
 struct ORIENTATIONANALYSIS_EXPORT CreateEnsembleInfoInputValues
 {
-  DataPath DataContainerName;
   EnsembleInfoParameter::ValueType Ensemble;
   DataPath CellEnsembleAttributeMatrixName;
   std::string CrystalStructuresArrayName;

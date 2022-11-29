@@ -59,7 +59,6 @@ const std::atomic_bool& CreateEnsembleInfo::getCancel()
 // -----------------------------------------------------------------------------
 Result<> CreateEnsembleInfo::operator()()
 {
-  IGeometry& geometry = m_DataStructure.getDataRefAs<IGeometry>(m_InputValues->DataContainerName);
   AttributeMatrix& cellEnsembleAttributeMatrix = m_DataStructure.getDataRefAs<AttributeMatrix>(m_InputValues->CellEnsembleAttributeMatrixName);
   UInt32Array& crystalStructures = m_DataStructure.getDataRefAs<UInt32Array>(m_InputValues->CellEnsembleAttributeMatrixName.createChildPath(m_InputValues->CrystalStructuresArrayName));
   UInt32Array& phaseTypes = m_DataStructure.getDataRefAs<UInt32Array>(m_InputValues->CellEnsembleAttributeMatrixName.createChildPath(m_InputValues->PhaseTypesArrayName));
