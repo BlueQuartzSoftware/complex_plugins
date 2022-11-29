@@ -71,6 +71,9 @@ Result<> CreateEnsembleInfo::operator()()
     return MakeErrorResult(-10001, "Check the group name EnsembleInfo and that the number of phases > 0");
   }
 
+  crystalStructures[0] = EbsdLib::CrystalStructure::UnknownCrystalStructure;
+  phaseTypes[0] = static_cast<uint32>(PhaseType::Unknown);
+
   for(int i = 0; i < numPhases; i++)
   {
     // Crystal Structure
