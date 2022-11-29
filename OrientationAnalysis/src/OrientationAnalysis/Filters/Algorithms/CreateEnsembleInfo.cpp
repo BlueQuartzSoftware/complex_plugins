@@ -11,33 +11,30 @@ using namespace complex;
 
 namespace
 {
+
 // -----------------------------------------------------------------------------
 uint32 CrystalStructureFromString(const std::string& structure)
 {
-  auto iterator = std::find(EnsembleInfoParameter::s_CrystalStructures.begin(), EnsembleInfoParameter::s_CrystalStructures.end(), structure);
+  auto iterator = std::find(EnsembleInfoParameter::k_CrystalStructures.begin(), EnsembleInfoParameter::k_CrystalStructures.end(), structure);
 
-  if(iterator == std::end(EnsembleInfoParameter::s_CrystalStructures))
+  if(iterator == std::end(EnsembleInfoParameter::k_CrystalStructures))
   {
     return EbsdLib::CrystalStructure::UnknownCrystalStructure;
   }
 
-  return static_cast<uint32>(iterator - EnsembleInfoParameter::s_CrystalStructures.begin());
+  return static_cast<uint32>(iterator - EnsembleInfoParameter::k_CrystalStructures.begin());
 }
 // -----------------------------------------------------------------------------
 uint32 PhaseTypeFromString(const std::string& phaseType)
 {
-  if(phaseType == EnsembleInfoParameter::s_PhaseTypes.back())
-  {
-    return static_cast<uint32>(PhaseType::Unknown);
-  }
-  auto iterator = std::find(EnsembleInfoParameter::s_PhaseTypes.begin(), EnsembleInfoParameter::s_PhaseTypes.end(), phaseType);
+  auto iterator = std::find(EnsembleInfoParameter::k_PhaseTypes.begin(), EnsembleInfoParameter::k_PhaseTypes.end(), phaseType);
 
-  if(iterator == std::end(EnsembleInfoParameter::s_PhaseTypes))
+  if(iterator == std::end(EnsembleInfoParameter::k_PhaseTypes))
   {
     return static_cast<uint32>(PhaseType::Unknown);
   }
 
-  return static_cast<uint32>(iterator - EnsembleInfoParameter::s_PhaseTypes.begin());
+  return static_cast<uint32>(iterator - EnsembleInfoParameter::k_PhaseTypes.begin());
 }
 } // namespace
 
