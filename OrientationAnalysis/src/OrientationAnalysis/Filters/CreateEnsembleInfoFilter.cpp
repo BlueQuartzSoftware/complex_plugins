@@ -94,7 +94,8 @@ IFilter::PreflightResult CreateEnsembleInfoFilter::preflightImpl(const DataStruc
   std::vector<size_t> cDims(1, 1);
   auto createCrystalStructuresAction = std::make_unique<CreateArrayAction>(DataType::uint32, tDims, cDims, pCellEnsembleAttributeMatrixNameValue.createChildPath(pCrystalStructuresArrayNameValue));
   auto createPhaseTypesAction = std::make_unique<CreateArrayAction>(DataType::uint32, tDims, cDims, pCellEnsembleAttributeMatrixNameValue.createChildPath(pPhaseTypesArrayNameValue));
-  auto createPhaseNamesAction = std::make_unique<CreateStringArrayAction>(tDims, pCellEnsembleAttributeMatrixNameValue.createChildPath(pPhaseNamesArrayNameValue));
+  auto createPhaseNamesAction =
+      std::make_unique<CreateStringArrayAction>(tDims, pCellEnsembleAttributeMatrixNameValue.createChildPath(pPhaseNamesArrayNameValue), EnsembleInfoParameter::k_DefaultPhaseName);
   outputActions.actions.push_back(std::move(createCrystalStructuresAction));
   outputActions.actions.push_back(std::move(createPhaseTypesAction));
   outputActions.actions.push_back(std::move(createPhaseNamesAction));
