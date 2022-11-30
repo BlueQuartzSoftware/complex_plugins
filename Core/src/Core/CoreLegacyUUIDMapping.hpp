@@ -8,7 +8,6 @@
 #include "Core/Filters/CalculateArrayHistogramFilter.hpp"
 #include "Core/Filters/ConvertColorToGrayScaleFilter.hpp"
 #include "Core/Filters/ConvertDataFilter.hpp"
-#include "Core/Filters/CreateGeometryFilter.hpp"
 #include "Core/Filters/ErodeDilateBadDataFilter.hpp"
 #include "Core/Filters/FeatureDataCSVWriterFilter.hpp"
 #include "Core/Filters/FillBadDataFilter.hpp"
@@ -33,7 +32,6 @@ namespace complex
     {complex::Uuid::FromString("289f0d8c-29ab-5fbc-91bd-08aac01e37c5").value(), complex::FilterTraits<CalculateArrayHistogramFilter>::uuid}, // CalculateArrayHistogram
     {complex::Uuid::FromString("eb5a89c4-4e71-59b1-9719-d10a652d961e").value(), complex::FilterTraits<ConvertColorToGrayScaleFilter>::uuid}, // ConvertColorToGrayScale
     {complex::Uuid::FromString("f4ba5fa4-bb5c-5dd1-9429-0dd86d0ecb37").value(), complex::FilterTraits<ConvertDataFilter>::uuid}, // ConvertData
-    {complex::Uuid::FromString("9ac220b9-14f9-581a-9bac-5714467589cc").value(), complex::FilterTraits<CreateGeometryFilter>::uuid}, // CreateGeometry
     {complex::Uuid::FromString("3adfe077-c3c9-5cd0-ad74-cf5f8ff3d254").value(), complex::FilterTraits<ErodeDilateBadDataFilter>::uuid}, // ErodeDilateBadData
     {complex::Uuid::FromString("737b8d5a-8622-50f9-9a8a-bfdb57608891").value(), complex::FilterTraits<FeatureDataCSVWriterFilter>::uuid}, // FeatureDataCSVWriter
     {complex::Uuid::FromString("30ae0a1e-3d94-5dab-b279-c5727ab5d7ff").value(), complex::FilterTraits<FillBadDataFilter>::uuid}, // FillBadData
