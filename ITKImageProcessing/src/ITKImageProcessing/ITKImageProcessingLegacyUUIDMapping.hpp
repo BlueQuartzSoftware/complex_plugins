@@ -14,7 +14,7 @@
 #include "ITKImageProcessing/Filters/ITKClosingByReconstructionImage.hpp"
 #include "ITKImageProcessing/Filters/ITKCosImage.hpp"
 #include "ITKImageProcessing/Filters/ITKGradientMagnitudeImage.hpp"
-#include "ITKImageProcessing/Filters/ITKGradientMagnitudeRecursiveGaussianImage.hpp"
+//#include "ITKImageProcessing/Filters/ITKGradientMagnitudeRecursiveGaussianImage.hpp"
 #include "ITKImageProcessing/Filters/ITKGrayscaleFillholeImage.hpp"
 #include "ITKImageProcessing/Filters/ITKImageReader.hpp"
 #include "ITKImageProcessing/Filters/ITKImageWriter.hpp"
@@ -124,7 +124,7 @@ namespace complex
     {complex::Uuid::FromString("99a7aa3c-f945-5e77-875a-23b5231ab3f4").value(), complex::FilterTraits<ITKClosingByReconstructionImage>::uuid}, // ITKClosingByReconstructionImage
     {complex::Uuid::FromString("2c2d7bf6-1e78-52e6-80aa-58b504ce0912").value(), complex::FilterTraits<ITKCosImage>::uuid}, // ITKCosImage
     {complex::Uuid::FromString("3aa99151-e722-51a0-90ba-71e93347ab09").value(), complex::FilterTraits<ITKGradientMagnitudeImage>::uuid}, // ITKGradientMagnitudeImage
-    {complex::Uuid::FromString("fd688b32-d90e-5945-905b-2b7187b46265").value(), complex::FilterTraits<ITKGradientMagnitudeRecursiveGaussianImage>::uuid}, // ITKGradientMagnitudeRecursiveGaussianImage
+    //{complex::Uuid::FromString("fd688b32-d90e-5945-905b-2b7187b46265").value(), complex::FilterTraits<ITKGradientMagnitudeRecursiveGaussianImage>::uuid}, // ITKGradientMagnitudeRecursiveGaussianImage
     {complex::Uuid::FromString("54c8dd45-88c4-5d4b-8a39-e3cc595e1cf8").value(), complex::FilterTraits<ITKGrayscaleFillholeImage>::uuid}, // ITKGrayscaleFillholeImage
     {complex::Uuid::FromString("653b7b5c-03cb-5b32-8c3e-3637745e5ff6").value(), complex::FilterTraits<ITKImageReader>::uuid}, // ITKImageReader
     {complex::Uuid::FromString("11473711-f94d-5d96-b749-ec36a81ad338").value(), complex::FilterTraits<ITKImageWriter>::uuid}, // ITKImageWriter
