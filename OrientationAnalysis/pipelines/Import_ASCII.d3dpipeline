@@ -26,20 +26,22 @@
       "comments": "",
       "filter": {
         "name": "complex::CreateImageGeometry",
-        "uuid": "c4320659-1a84-561d-939e-c7c10229a504"
+        "uuid": "c4320659-1a84-461d-939e-c7c10229a504"
       },
       "isDisabled": false
     },
     {
       "args": {
-        "created_data_group": "[Image Geometry]/Cell Data",
-        "selected_data_group": "",
+        "created_data_group": "",
+        "selected_data_group": "[Image Geometry]/CellData",
         "tuple_dimensions": [
           [
-            37989.0
+            1,
+			201,
+			189
           ]
         ],
-        "use_existing_group": false,
+        "use_existing_group": true,
         "wizard_data": {
           "Begin Index": 33,
           "Comma As Delimiter": false,
@@ -83,138 +85,7 @@
       "comments": "",
       "filter": {
         "name": "complex::ImportCSVDataFilter",
-        "uuid": "bdb978bc-96bf-5498-972c-b509c38b8d50"
-      },
-      "isDisabled": false
-    },
-    {
-      "args": {
-        "data": "[Image Geometry]/Cell Data/phi1",
-        "new_parent": "[Image Geometry]/CellData"
-      },
-      "comments": "",
-      "filter": {
-        "name": "complex::MoveData",
-        "uuid": "651e5894-ab7c-4176-b7f0-ea466c521753"
-      },
-      "isDisabled": false
-    },
-    {
-      "args": {
-        "data": "[Image Geometry]/Cell Data/phi2",
-        "new_parent": "[Image Geometry]/CellData"
-      },
-      "comments": "",
-      "filter": {
-        "name": "complex::MoveData",
-        "uuid": "651e5894-ab7c-4176-b7f0-ea466c521753"
-      },
-      "isDisabled": false
-    },
-    {
-      "args": {
-        "data": "[Image Geometry]/Cell Data/Phi",
-        "new_parent": "[Image Geometry]/CellData"
-      },
-      "comments": "",
-      "filter": {
-        "name": "complex::MoveData",
-        "uuid": "651e5894-ab7c-4176-b7f0-ea466c521753"
-      },
-      "isDisabled": false
-    },
-    {
-      "args": {
-        "data": "[Image Geometry]/Cell Data/x",
-        "new_parent": "[Image Geometry]/CellData"
-      },
-      "comments": "",
-      "filter": {
-        "name": "complex::MoveData",
-        "uuid": "651e5894-ab7c-4176-b7f0-ea466c521753"
-      },
-      "isDisabled": false
-    },
-    {
-      "args": {
-        "data": "[Image Geometry]/Cell Data/y",
-        "new_parent": "[Image Geometry]/CellData"
-      },
-      "comments": "",
-      "filter": {
-        "name": "complex::MoveData",
-        "uuid": "651e5894-ab7c-4176-b7f0-ea466c521753"
-      },
-      "isDisabled": false
-    },
-    {
-      "args": {
-        "data": "[Image Geometry]/Cell Data/Image Quality",
-        "new_parent": "[Image Geometry]/CellData"
-      },
-      "comments": "",
-      "filter": {
-        "name": "complex::MoveData",
-        "uuid": "651e5894-ab7c-4176-b7f0-ea466c521753"
-      },
-      "isDisabled": false
-    },
-    {
-      "args": {
-        "data": "[Image Geometry]/Cell Data/Confidence Index",
-        "new_parent": "[Image Geometry]/CellData"
-      },
-      "comments": "",
-      "filter": {
-        "name": "complex::MoveData",
-        "uuid": "651e5894-ab7c-4176-b7f0-ea466c521753"
-      },
-      "isDisabled": false
-    },
-    {
-      "args": {
-        "data": "[Image Geometry]/Cell Data/Phase",
-        "new_parent": "[Image Geometry]/CellData"
-      },
-      "comments": "",
-      "filter": {
-        "name": "complex::MoveData",
-        "uuid": "651e5894-ab7c-4176-b7f0-ea466c521753"
-      },
-      "isDisabled": false
-    },
-    {
-      "args": {
-        "data": "[Image Geometry]/Cell Data/SEM Signal",
-        "new_parent": "[Image Geometry]/CellData"
-      },
-      "comments": "",
-      "filter": {
-        "name": "complex::MoveData",
-        "uuid": "651e5894-ab7c-4176-b7f0-ea466c521753"
-      },
-      "isDisabled": false
-    },
-    {
-      "args": {
-        "data": "[Image Geometry]/Cell Data/Fit",
-        "new_parent": "[Image Geometry]/CellData"
-      },
-      "comments": "",
-      "filter": {
-        "name": "complex::MoveData",
-        "uuid": "651e5894-ab7c-4176-b7f0-ea466c521753"
-      },
-      "isDisabled": false
-    },
-    {
-      "args": {
-        "removed_data_path": "[Image Geometry]/Cell Data"
-      },
-      "comments": "",
-      "filter": {
-        "name": "complex::DeleteData",
-        "uuid": "bf286740-e987-49fe-a7c8-6e566e3a0606"
+        "uuid": "373be1f8-31cf-49f6-aa5d-e356f4f3f261"
       },
       "isDisabled": false
     },
@@ -324,7 +195,7 @@
         "name": "complex::ITKImageWriter",
         "uuid": "a181ee3e-1678-4133-b9c5-a9dd7bfec62f"
       },
-      "isDisabled": true
+      "isDisabled": false
     },
     {
       "args": {
@@ -334,9 +205,9 @@
       "comments": "",
       "filter": {
         "name": "complex::ExportDREAM3DFilter",
-        "uuid": "b3a95784-2ced-11ec-8d3d-0242ac130003"
+        "uuid": "b3a95784-2ced-41ec-8d3d-0242ac130003"
       },
-      "isDisabled": false
+      "isDisabled": true
     }
   ],
   "workflowParams": []
