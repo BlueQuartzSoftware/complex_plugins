@@ -8,23 +8,24 @@
 namespace complex
 {
 /**
- * @class FindGBCD
+ * @class FindGBCDFilter
  * @brief This filter will ....
  */
-class ORIENTATIONANALYSIS_EXPORT FindGBCD : public IFilter
+class ORIENTATIONANALYSIS_EXPORT FindGBCDFilter : public IFilter
 {
 public:
-  FindGBCD() = default;
-  ~FindGBCD() noexcept override = default;
+  FindGBCDFilter() = default;
+  ~FindGBCDFilter() noexcept override = default;
 
-  FindGBCD(const FindGBCD&) = delete;
-  FindGBCD(FindGBCD&&) noexcept = delete;
+  FindGBCDFilter(const FindGBCDFilter&) = delete;
+  FindGBCDFilter(FindGBCDFilter&&) noexcept = delete;
 
-  FindGBCD& operator=(const FindGBCD&) = delete;
-  FindGBCD& operator=(FindGBCD&&) noexcept = delete;
+  FindGBCDFilter& operator=(const FindGBCDFilter&) = delete;
+  FindGBCDFilter& operator=(FindGBCDFilter&&) noexcept = delete;
 
   // Parameter Keys
   static inline constexpr StringLiteral k_GBCDRes_Key = "g_bc_dres";
+  static inline constexpr StringLiteral k_TriangleGeometry_Key = "triangle_geometry";
   static inline constexpr StringLiteral k_SurfaceMeshFaceLabelsArrayPath_Key = "surface_mesh_face_labels_array_path";
   static inline constexpr StringLiteral k_SurfaceMeshFaceNormalsArrayPath_Key = "surface_mesh_face_normals_array_path";
   static inline constexpr StringLiteral k_SurfaceMeshFaceAreasArrayPath_Key = "surface_mesh_face_areas_array_path";
@@ -100,4 +101,4 @@ protected:
 };
 } // namespace complex
 
-COMPLEX_DEF_FILTER_TRAITS(complex, FindGBCD, "0cc592b7-a3d3-4c6a-8894-1533670a31b9");
+COMPLEX_DEF_FILTER_TRAITS(complex, FindGBCDFilter, "0cc592b7-a3d3-4c6a-8894-1533670a31b9");

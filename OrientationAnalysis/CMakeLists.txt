@@ -35,6 +35,7 @@ set(FilterList
   EbsdToH5EbsdFilter
   FindAvgOrientationsFilter
   FindFeatureReferenceMisorientationsFilter
+  FindGBCDFilter
   FindKernelAvgMisorientationsFilter
   FindMisorientationsFilter
   FindSchmidsFilter
@@ -67,7 +68,6 @@ set(STUB_FILTERS
   FindFeatureNeighborCAxisMisalignments
   FindFeatureReferenceCAxisMisorientations
 
-  FindGBCD
   FindGBCDMetricBased
   FindGBPDMetricBased
   FindKernelAvgMisorientations
@@ -160,6 +160,7 @@ set(filter_algorithms
   EbsdToH5Ebsd
   FindAvgOrientations
   FindFeatureReferenceMisorientations
+  FindGBCD
   FindKernelAvgMisorientations
   FindMisorientations
   FindSchmids

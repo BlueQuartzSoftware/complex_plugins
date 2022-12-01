@@ -10,6 +10,7 @@
 #include "OrientationAnalysis/Filters/EBSDSegmentFeaturesFilter.hpp"
 #include "OrientationAnalysis/Filters/FindAvgOrientationsFilter.hpp"
 #include "OrientationAnalysis/Filters/FindFeatureReferenceMisorientationsFilter.hpp"
+#include "OrientationAnalysis/Filters/FindGBCDFilter.hpp"
 #include "OrientationAnalysis/Filters/FindKernelAvgMisorientationsFilter.hpp"
 #include "OrientationAnalysis/Filters/FindMisorientationsFilter.hpp"
 #include "OrientationAnalysis/Filters/FindSchmidsFilter.hpp"
@@ -34,7 +35,6 @@
 // #include "OrientationAnalysis/Filters/FindDistsToCharactGBs.hpp"
 // #include "OrientationAnalysis/Filters/FindFeatureNeighborCAxisMisalignments.hpp"
 // #include "OrientationAnalysis/Filters/FindFeatureReferenceCAxisMisorientations.hpp"
-// #include "OrientationAnalysis/Filters/FindGBCD.hpp"
 // #include "OrientationAnalysis/Filters/FindGBCDMetricBased.hpp"
 // #include "OrientationAnalysis/Filters/FindGBPDMetricBased.hpp"
 // #include "OrientationAnalysis/Filters/FindSlipTransmissionMetrics.hpp"
@@ -68,6 +68,7 @@ namespace complex
     {complex::Uuid::FromString("7861c691-b821-537b-bd25-dc195578e0ea").value(), complex::FilterTraits<EBSDSegmentFeaturesFilter>::uuid}, // EBSDSegmentFeatures
     {complex::Uuid::FromString("bf7036d8-25bd-540e-b6de-3a5ab0e42c5f").value(), complex::FilterTraits<FindAvgOrientationsFilter>::uuid}, // FindAvgOrientations
     {complex::Uuid::FromString("428e1f5b-e6d8-5e8b-ad68-56ff14ee0e8c").value(), complex::FilterTraits<FindFeatureReferenceMisorientationsFilter>::uuid}, // FindFeatureReferenceMisorientations
+    {complex::Uuid::FromString("6e97ff50-48bf-5403-a049-1d271bd72df9").value(), complex::FilterTraits<FindGBCDFilter>::uuid}, // FindGBCDFilter
     {complex::Uuid::FromString("88d332c1-cf6c-52d3-a38d-22f6eae19fa6").value(), complex::FilterTraits<FindKernelAvgMisorientationsFilter>::uuid}, // FindKernelAvgMisorientations
     {complex::Uuid::FromString("286dd493-4fea-54f4-b59e-459dd13bbe57").value(), complex::FilterTraits<FindMisorientationsFilter>::uuid}, // FindMisorientations
     {complex::Uuid::FromString("e67ca06a-176f-58fc-a676-d6ee5553511a").value(), complex::FilterTraits<FindSchmidsFilter>::uuid}, // FindSchmids
