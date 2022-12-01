@@ -51,7 +51,7 @@ Parameters FindGBCDFilter::parameters() const
   Parameters params;
   // Create the parameter descriptors that are needed for this filter
   params.insertSeparator(Parameters::Separator{"Input Parameters"});
-  params.insert(std::make_unique<Float32Parameter>(k_GBCDRes_Key, "GBCD Spacing (Degrees)", "The resolution in degrees for the GBCD calculation", 1.23345f));
+  params.insert(std::make_unique<Float32Parameter>(k_GBCDRes_Key, "GBCD Spacing (Degrees)", "The resolution in degrees for the GBCD calculation", 9.0f));
   params.insertSeparator(Parameters::Separator{"Face Data"});
   params.insert(std::make_unique<GeometrySelectionParameter>(k_TriangleGeometry_Key, "Triangle Geometry", "Path to the triangle geometry for which to calculate the GBCD", DataPath{},
                                                              GeometrySelectionParameter::AllowedTypes{IGeometry::Type::Triangle}));
