@@ -7,9 +7,9 @@ Processing (Generation)
 
 ## Description ##
 
-This **Filter** reads in information about the crystal structure and phase types of all the **Features** that are contained in a **Cell** based volume. These values are needed to allow the calculation of statistics on the volume, if they have not already been provided by some other means. Each row in the table lists the __Crystal Structure__, __Phase Type__, and __Phase Name__. The proper values for the crystal structure and phase type come from internal constants within DREAM.3D and are listed here:
+This **Filter** allows the user to enter basic crystallographic information about each phase. The Laue class, Phase Type, and Phase Name can all be entered by the user. The information is stored in an EnsembleAttributeMatrix. These values are needed to allow the calculation of certain kinds of crystallographic statistics on the volume, if they have not already been provided by some other means. Each row in the table lists the __Crystal Structure__, __Phase Type__, and __Phase Name__. The proper values for the crystal structure and phase type come from internal constants within DREAM.3D and are listed here:
 
-**Crystal Structure**
+### Crystal Structure
 
 | String Name | Internal Value | Laue Name |
 | ------------|----------------|----------|
@@ -26,7 +26,7 @@ This **Filter** reads in information about the crystal structure and phase types
 | Trigonal_High | 10 |  Trigonal-High -3m |
 | UnknownCrystalStructure | 999 |  Undefined Crystal Structure |
 
-**Phase Type**
+### Phase Type
 
 | String Name | Internal Value |
 | ------------|----------------|
