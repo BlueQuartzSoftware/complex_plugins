@@ -50,6 +50,7 @@ set(FilterList
   ReadH5EbsdFilter
   RotateEulerRefFrameFilter
   VisualizeGBCDGMTFilter
+  VisualizeGBCDPoleFigureFilter
 )
   
 set(STUB_FILTERS
@@ -176,6 +177,7 @@ set(filter_algorithms
   ReadH5Ebsd
   RotateEulerRefFrame
   VisualizeGBCDGMT
+  VisualizeGBCDPoleFigure
 )
 
 
