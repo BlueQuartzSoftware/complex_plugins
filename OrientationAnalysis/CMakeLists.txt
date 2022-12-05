@@ -49,6 +49,7 @@ set(FilterList
   ReadCtfDataFilter
   ReadH5EbsdFilter
   RotateEulerRefFrameFilter
+  VisualizeGBCDGMTFilter
 )
   
 set(STUB_FILTERS
@@ -174,6 +175,7 @@ set(filter_algorithms
   ReadCtfData
   ReadH5Ebsd
   RotateEulerRefFrame
+  VisualizeGBCDGMT
 )
 
 

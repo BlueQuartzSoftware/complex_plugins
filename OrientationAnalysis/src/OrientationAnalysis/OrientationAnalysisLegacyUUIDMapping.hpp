@@ -11,6 +11,7 @@
 #include "OrientationAnalysis/Filters/FindAvgOrientationsFilter.hpp"
 #include "OrientationAnalysis/Filters/FindFeatureReferenceMisorientationsFilter.hpp"
 #include "OrientationAnalysis/Filters/FindGBCDFilter.hpp"
+#include "OrientationAnalysis/Filters/VisualizeGBCDGMTFilter.hpp"
 #include "OrientationAnalysis/Filters/FindKernelAvgMisorientationsFilter.hpp"
 #include "OrientationAnalysis/Filters/FindMisorientationsFilter.hpp"
 #include "OrientationAnalysis/Filters/FindSchmidsFilter.hpp"
