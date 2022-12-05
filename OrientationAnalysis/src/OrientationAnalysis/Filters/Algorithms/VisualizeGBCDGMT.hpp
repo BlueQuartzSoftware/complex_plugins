@@ -18,7 +18,6 @@ struct ORIENTATIONANALYSIS_EXPORT VisualizeGBCDGMTInputValues
   FileSystemPathParameter::ValueType OutputFile;
   DataPath GBCDArrayPath;
   DataPath CrystalStructuresArrayPath;
-  DataPath TriangleGeometryPath;
 };
 
 /**

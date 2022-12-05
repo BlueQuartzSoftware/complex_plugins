@@ -3,7 +3,6 @@
 #include "complex/Common/Constants.hpp"
 #include "complex/DataStructure/DataArray.hpp"
 #include "complex/DataStructure/DataGroup.hpp"
-#include "complex/DataStructure/Geometry/TriangleGeom.hpp"
 #include "complex/Utilities/Math/MatrixMath.hpp"
 
 #include "EbsdLib/Core/Orientation.hpp"
@@ -63,7 +62,6 @@ const std::atomic_bool& VisualizeGBCDGMT::getCancel()
 // -----------------------------------------------------------------------------
 Result<> VisualizeGBCDGMT::operator()()
 {
-  auto geometry = m_DataStructure.getDataRefAs<TriangleGeom>(m_InputValues->TriangleGeometryPath);
   auto gbcd = m_DataStructure.getDataRefAs<Float64Array>(m_InputValues->GBCDArrayPath);
   auto crystalStructures = m_DataStructure.getDataRefAs<UInt32Array>(m_InputValues->CrystalStructuresArrayPath);
 

@@ -24,7 +24,6 @@ public:
   VisualizeGBCDGMTFilter& operator=(VisualizeGBCDGMTFilter&&) noexcept = delete;
 
   // Parameter Keys
-  static inline constexpr StringLiteral k_TriangleGeometry_Key = "triangle_geometry";
   static inline constexpr StringLiteral k_PhaseOfInterest_Key = "phase_of_interest";
   static inline constexpr StringLiteral k_MisorientationRotation_Key = "misorientation_rotation";
   static inline constexpr StringLiteral k_OutputFile_Key = "output_file";
