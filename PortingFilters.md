@@ -128,39 +128,39 @@ This is an examplar use case and doesn't truly encompass all possible use cases 
 
 In an anonymous namespace:
 
-> class FilterNameImpl
-> {
-> public:
->   FilterNameImpl(DataObject& object, Type argument)
->   : m_Object(object)
->   , m_Argument(argument)
->   {
->   }
->   ~FilterNameImpl() noexcept = default;
+> class FilterNameImpl  
+> {  
+> public:  
+>   FilterNameImpl(DataObject& object, Type argument)  
+>   : m_Object(object)  
+>   , m_Argument(argument)  
+>   {  
+>   }  
+>   ~FilterNameImpl() noexcept = default;  
 >
->   void convert(size_t start, size_t end) const
->   {
->     for(size_t i = start; i < end; i++)
->     {
->       // Do something
->     }
->   }
+>   void convert(size_t start, size_t end) const  
+>   {  
+>     for(size_t i = start; i < end; i++)  
+>     {  
+>       // Do something  
+>     }  
+>   }  
 >
->   void operator()(const Range& range) const
->   {
->     convert(range.min(), range.max());
->   }
+>   void operator()(const Range& range) const  
+>   {  
+>     convert(range.min(), range.max());   
+>   }  
 >
-> private:
-> DataObject& m_Object;
-> Type m_Argument;
-> };
+> private:  
+> DataObject& m_Object;  
+> Type m_Argument;  
+> };  
 
 In the exectuting function:
 
-> ParallelDataAlgorithm dataAlg;
-> dataAlg.setRange(0ULL, object.getSize());
-> dataAlg.execute(::FilterNameImpl(object, argument));
+> ParallelDataAlgorithm dataAlg;  
+> dataAlg.setRange(0ULL, object.getSize());  
+> dataAlg.execute(::FilterNameImpl(object, argument));  
 
 
 ## SECTION 5 : Progress Updating ##
@@ -171,21 +171,21 @@ With out of core functionality on the way, it is now a requirement for each and 
 
 This is an example that aims to reduce the number of times a mutex lock is called. 
 
-> void updateThreadSafeProgress(size_t counter)
-> {
->   std::lock_guard<std::mutex> guard(m_ProgressMessage_Mutex);
+> void updateThreadSafeProgress(size_t counter)  
+> {  
+>   std::lock_guard<std::mutex> guard(m_ProgressMessage_Mutex);  
 >
->   m_ProgressCounter += counter;
+>   m_ProgressCounter += counter;  
 >
->   auto now = std::chrono::steady_clock::now();
->   if(std::chrono::duration_cast<std::chrono::milliseconds>(now - m_InitialTime).count() > 1000) // every second update
->   {
->     size_t progressInt = static_cast<size_t>((static_cast<double>(m_ProgressCounter) / m_TotalElements) * 100.0);
->     std::string progressMessage = "Calculating... ";
->     m_MessageHandler(IFilter::ProgressMessage{IFilter::Message::Type::Progress, progressMessage, static_cast<int32_t>(progressInt)});
->     m_InitialTime = std::chrono::steady_clock::now();
->   }
-> }
+>   auto now = std::chrono::steady_clock::now();  
+>   if(std::chrono::duration_cast<std::chrono::milliseconds>(now - m_InitialTime).count() > 1000) // every second update  
+>   {  
+>     size_t progressInt = static_cast<size_t>((static_cast<double>(m_ProgressCounter) / m_TotalElements) * 100.0);  
+>     std::string progressMessage = "Calculating... ";  
+>     m_MessageHandler(IFilter::ProgressMessage{IFilter::Message::Type::Progress, progressMessage, static_cast<int32_t>(progressInt)});  
+>     m_InitialTime = std::chrono::steady_clock::now();  
+>   }  
+> }  
 
 This function should avoid being called too many times in a thread as it would significantly slow it down.
 
@@ -208,20 +208,20 @@ These templated varg functions aim to eliminate the need for type switches, this
 
 In an Anonymous namespace:
 
-> struct FilterNameFunctor
-> {
->   template <class T>
->   void operator()(IDataArray& inputDataRef, bool argument)
+> struct FilterNameFunctor  
+> {  
+>   template \<class T>  
+>   void operator()(IDataArray& inputDataRef, bool argument)  
 >   {
->     auto& inputDataRef = dynamic_cast<DataArray<T>&>(inputDataPtr);
+>     auto& inputDataRef = dynamic_cast<DataArray<T>&>(inputDataPtr);  
 >
->     // DO Something
->   }
-> };
+>     // DO Something  
+>   }  
+> };  
 
 In the executing function:
 
-> ExecuteDataFunction(FilterNameFunctor{}, selectedArrayRef.getDataType(), selectedArrayRef, argumentBool);
+> ExecuteDataFunction(FilterNameFunctor{}, selectedArrayRef.getDataType(), selectedArrayRef, argumentBool);  
 
 
 ## SECTION 7 : Useful Tips and Tricks ##
