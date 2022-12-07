@@ -70,10 +70,10 @@ Parameters FindNeighborhoodsFilter::parameters() const
   params.insertSeparator(Parameters::Separator{"Created Feature Data"});
   params.insert(std::make_unique<ArrayCreationParameter>(k_NeighborhoodsArrayName_Key, "Neighborhoods",
                                                          "Number of Features that have their centroid within the user specified multiple of equivalent sphere diameters from each Feature",
-                                                         DataPath({"CellFeatureData", "Neighborhoods"})));
+                                                         DataPath({"CellFeatureData", "Neighborhoods"}), ArrayCreationParameter::AllowedParentGroupType{BaseGroup::GroupType::BaseGroup}));
   params.insert(std::make_unique<ArrayCreationParameter>(k_NeighborhoodListArrayName_Key, "NeighborhoodList",
                                                          "List of the Features whose centroids are within the user specified multiple of equivalent sphere diameter from each Feature",
-                                                         DataPath({"CellFeatureData", "NeighborhoodList"})));
+                                                         DataPath({"CellFeatureData", "NeighborhoodList"}), ArrayCreationParameter::AllowedParentGroupType{BaseGroup::GroupType::BaseGroup}));
 
   return params;
 }

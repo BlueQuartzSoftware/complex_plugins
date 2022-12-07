@@ -321,7 +321,7 @@ Parameters ITKImageReader::parameters() const
   params.insert(
       std::make_unique<DataObjectNameParameter>(k_CellDataName_Key, "Created Cell Data Path", "The 'DataPath' within the 'DataStructure' to store the imported image data", ImageGeom::k_CellDataName));
   params.insert(std::make_unique<ArrayCreationParameter>(k_ImageDataArrayPath_Key, "Created Image Data", "The 'DataPath' within the 'DataStructure' to store the imported image",
-                                                         DataPath({"Image Geometry", "Cell Data", "Image Data"})));
+                                                         DataPath({"Image Geometry", "Cell Data", "Image Data"}), ArrayCreationParameter::AllowedParentGroupType{BaseGroup::GroupType::BaseGroup}));
 
   return params;
 }

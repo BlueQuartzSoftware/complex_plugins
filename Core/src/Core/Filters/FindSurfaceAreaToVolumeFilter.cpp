@@ -64,8 +64,10 @@ Parameters FindSurfaceAreaToVolumeFilter::parameters() const
       DataPath({"CellFeatureData", "NumElements"}), ArraySelectionParameter::AllowedTypes{DataType::int32}, ArraySelectionParameter::AllowedComponentShapes{{1}}));
   params.insertSeparator(Parameters::Separator{"Created Feature Data"});
   params.insert(std::make_unique<ArrayCreationParameter>(k_SurfaceAreaVolumeRatioArrayName_Key, "Surface Area to Volume Ratio",
-                                                         "Ratio of surface area to volume for each Feature. The units are inverse length", DataPath({"CellFeatureData", "SurfaceAreaVolumeRatio"})));
-  params.insert(std::make_unique<ArrayCreationParameter>(k_SphericityArrayName_Key, "Sphericity Array Name", "The sphericity of each feature", DataPath({"CellFeatureData", "Sphericity"})));
+                                                         "Ratio of surface area to volume for each Feature. The units are inverse length", DataPath({"CellFeatureData", "SurfaceAreaVolumeRatio"}),
+                                                         ArrayCreationParameter::AllowedParentGroupType{BaseGroup::GroupType::BaseGroup}));
+  params.insert(std::make_unique<ArrayCreationParameter>(k_SphericityArrayName_Key, "Sphericity Array Name", "The sphericity of each feature", DataPath({"CellFeatureData", "Sphericity"}),
+                                                         ArrayCreationParameter::AllowedParentGroupType{BaseGroup::GroupType::BaseGroup}));
   // Associate the Linkable Parameter(s) to the children parameters that they control
   params.linkParameters(k_CalculateSphericity_Key, k_SphericityArrayName_Key, true);
 
