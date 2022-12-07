@@ -96,8 +96,8 @@ Parameters ResampleImageGeomFilter::parameters() const
   params.linkParameters(k_RenumberFeatures_Key, k_CellFeatureIdsArrayPath_Key, true);
 
   params.insertSeparator(Parameters::Separator{"Created Image Geometry"});
-  params.insert(
-      std::make_unique<DataGroupCreationParameter>(k_NewDataContainerPath_Key, "Resampled Image Geometry", "Location to store the resampled image geometry", DataPath({"Resampled Image Geometry"})));
+  params.insert(std::make_unique<DataGroupCreationParameter>(k_NewDataContainerPath_Key, "Resampled Image Geometry", "Location to store the resampled image geometry",
+                                                             DataPath({"Resampled Image Geometry"}), DataGroupCreationParameter::AllowedParentGroupType{BaseGroup::GroupType::BaseGroup}));
   return params;
 }
 

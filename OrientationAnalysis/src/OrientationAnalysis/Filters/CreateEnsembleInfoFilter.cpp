@@ -57,7 +57,8 @@ Parameters CreateEnsembleInfoFilter::parameters() const
       EnsembleInfoParameter::ValueType{}));
   params.insertSeparator(Parameters::Separator{"Created Cell Ensemble Data"});
   params.insert(std::make_unique<DataGroupCreationParameter>(k_CellEnsembleAttributeMatrixName_Key, "Ensemble Attribute Matrix",
-                                                             "The complete path to the attribute matrix in which to store the ensemble phase data arrays", DataPath({"EnsembleAttributeMatrix"})));
+                                                             "The complete path to the attribute matrix in which to store the ensemble phase data arrays", DataPath({"EnsembleAttributeMatrix"}),
+                                                             DataGroupCreationParameter::AllowedParentGroupType{BaseGroup::GroupType::BaseGroup}));
   params.insert(std::make_unique<DataObjectNameParameter>(k_CrystalStructuresArrayName_Key, "Crystal Structures", "The name of the data array representing the crystal structure for each Ensemble",
                                                           "CrystalStructures"));
   params.insert(std::make_unique<DataObjectNameParameter>(k_PhaseTypesArrayName_Key, "Phase Types", "The name of the data array representing the phase types for each Ensemble", "PhaseTypes"));

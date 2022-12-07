@@ -59,7 +59,8 @@ Parameters ReadAngDataFilter::parameters() const
   params.insert(std::make_unique<FileSystemPathParameter>(k_InputFile_Key, "Input File", "The input .ang file path", fs::path("input.ang"), FileSystemPathParameter::ExtensionsType{".ang"},
                                                           FileSystemPathParameter::PathType::InputFile));
   params.insertSeparator(Parameters::Separator{"Created Data Structure Objects"});
-  params.insert(std::make_unique<DataGroupCreationParameter>(k_DataContainerName_Key, "Created Image Geometry", "The complete path to the Geometry being created.", DataPath({"DataContainer"})));
+  params.insert(std::make_unique<DataGroupCreationParameter>(k_DataContainerName_Key, "Created Image Geometry", "The complete path to the Geometry being created.", DataPath({"DataContainer"}),
+                                                             DataGroupCreationParameter::AllowedParentGroupType{BaseGroup::GroupType::BaseGroup}));
   params.insert(
       std::make_unique<DataObjectNameParameter>(k_CellAttributeMatrixName_Key, "Created Cell Attribute Matrix", "The Attribute Matrix where the scan data is stored.", ImageGeom::k_CellDataName));
   params.insert(std::make_unique<DataObjectNameParameter>(k_CellEnsembleAttributeMatrixName_Key, "Created Cell Ensemble Attribute Matrix",
