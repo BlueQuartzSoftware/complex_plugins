@@ -45,8 +45,8 @@ bool GetSquareCoord(float* xstl1_norm1, float* sqCoord)
 int32 WriteCoords(FILE* f, const char* axis, const char* type, int64 npoints, float min, float step)
 {
   int32 err = 0;
-  fprintf(f, "%s %lld %s\n", axis, (long long int)(npoints), type);
-  float* data = new float[npoints];
+  fprintf(f, "%s %lld %s\n", axis, static_cast<long long int>(npoints), type);
+  std::vector<float> data(npoints);
   float d;
   for(int64 idx = 0; idx < npoints; ++idx)
   {
@@ -54,9 +54,8 @@ int32 WriteCoords(FILE* f, const char* axis, const char* type, int64 npoints, fl
     d = FromSystemToBigEndian(d);
     data[idx] = d;
   }
-  usize totalWritten = fwrite(static_cast<void*>(data), sizeof(float), static_cast<size_t>(npoints), f);
-  delete[] data;
-  if(totalWritten != static_cast<size_t>(npoints))
+  usize totalWritten = fwrite(static_cast<void*>(data.data()), sizeof(float), static_cast<usize>(npoints), f);
+  if(totalWritten != static_cast<usize>(npoints))
   {
     err = -1;
   }
@@ -105,9 +104,9 @@ Result<> VisualizeGBCDPoleFigure::operator()()
     return MakeErrorResult(-23511, fmt::format("Error creating output file {}", m_InputValues->OutputFile.string()));
   }
 
-  std::vector<float32> gbcdDeltas = std::vector<float32>(5, 0);
-  std::vector<float32> gbcdLimits = std::vector<float32>(10, 0);
-  std::vector<int32> gbcdSizes = std::vector<int32>(5, 0);
+  std::vector<float32> gbcdDeltas(5, 0);
+  std::vector<float32> gbcdLimits(10, 0);
+  std::vector<int32> gbcdSizes(5, 0);
 
   // Original Ranges from Dave R.
   // gbcdLimits[0] = 0.0f;
@@ -148,11 +147,11 @@ Result<> VisualizeGBCDPoleFigure::operator()()
   gbcdSizes[3] = cDims[3];
   gbcdSizes[4] = cDims[4];
 
-  gbcdDeltas[0] = (gbcdLimits[5] - gbcdLimits[0]) / float(gbcdSizes[0]);
-  gbcdDeltas[1] = (gbcdLimits[6] - gbcdLimits[1]) / float(gbcdSizes[1]);
-  gbcdDeltas[2] = (gbcdLimits[7] - gbcdLimits[2]) / float(gbcdSizes[2]);
-  gbcdDeltas[3] = (gbcdLimits[8] - gbcdLimits[3]) / float(gbcdSizes[3]);
-  gbcdDeltas[4] = (gbcdLimits[9] - gbcdLimits[4]) / float(gbcdSizes[4]);
+  gbcdDeltas[0] = (gbcdLimits[5] - gbcdLimits[0]) / static_cast<float>(gbcdSizes[0]);
+  gbcdDeltas[1] = (gbcdLimits[6] - gbcdLimits[1]) / static_cast<float>(gbcdSizes[1]);
+  gbcdDeltas[2] = (gbcdLimits[7] - gbcdLimits[2]) / static_cast<float>(gbcdSizes[2]);
+  gbcdDeltas[3] = (gbcdLimits[8] - gbcdLimits[3]) / static_cast<float>(gbcdSizes[3]);
+  gbcdDeltas[4] = (gbcdLimits[9] - gbcdLimits[4]) / static_cast<float>(gbcdSizes[4]);
 
   float vec[3] = {0.0f, 0.0f, 0.0f};
   float vec2[3] = {0.0f, 0.0f, 0.0f};
@@ -188,8 +187,8 @@ Result<> VisualizeGBCDPoleFigure::operator()()
   int32 zpoints = 1;
   int32 xpointshalf = xpoints / 2;
   int32 ypointshalf = ypoints / 2;
-  float xres = 2.0f / float(xpoints);
-  float yres = 2.0f / float(ypoints);
+  float xres = 2.0f / static_cast<float>(xpoints);
+  float yres = 2.0f / static_cast<float>(ypoints);
   float zres = (xres + yres) / 2.0;
   float x = 0.0f, y = 0.0f;
   float sum = 0;
@@ -211,8 +210,8 @@ Result<> VisualizeGBCDPoleFigure::operator()()
     for(int32 l = 0; l < xpoints; l++)
     {
       // get (x,y) for stereographic projection pixel
-      x = float(l - xpointshalf) * xres + (xres / 2.0);
-      y = float(k - ypointshalf) * yres + (yres / 2.0);
+      x = static_cast<float>(l - xpointshalf) * xres + (xres / 2.0);
+      y = static_cast<float>(k - ypointshalf) * yres + (yres / 2.0);
       if((x * x + y * y) <= 1.0)
       {
         sum = 0.0f;
@@ -303,7 +302,7 @@ Result<> VisualizeGBCDPoleFigure::operator()()
         }
         if(count > 0)
         {
-          poleFigure[(k * xpoints) + l] = sum / float(count);
+          poleFigure[(k * xpoints) + l] = sum / static_cast<float>(count);
         }
       }
     }
@@ -324,17 +323,17 @@ Result<> VisualizeGBCDPoleFigure::operator()()
   fprintf(f, "DIMENSIONS %d %d %d\n", xpoints + 1, ypoints + 1, zpoints + 1);
 
   // Write the Coords
-  if(WriteCoords(f, "X_COORDINATES", "float", xpoints + 1, (-float(xpoints) * xres / 2.0f), xres) < 0)
+  if(WriteCoords(f, "X_COORDINATES", "float", xpoints + 1, (-static_cast<float>(xpoints) * xres / 2.0f), xres) < 0)
   {
     fclose(f);
     return MakeErrorResult(-23513, fmt::format("Error writing binary VTK data to file {}", m_InputValues->OutputFile.string()));
   }
-  if(WriteCoords(f, "Y_COORDINATES", "float", ypoints + 1, (-float(ypoints) * yres / 2.0f), yres))
+  if(WriteCoords(f, "Y_COORDINATES", "float", ypoints + 1, (-static_cast<float>(ypoints) * yres / 2.0f), yres) < 0)
   {
     fclose(f);
     return MakeErrorResult(-23513, fmt::format("Error writing binary VTK data to file {}", m_InputValues->OutputFile.string()));
   }
-  if(WriteCoords(f, "Z_COORDINATES", "float", zpoints + 1, (-float(zpoints) * zres / 2.0f), zres))
+  if(WriteCoords(f, "Z_COORDINATES", "float", zpoints + 1, (-static_cast<float>(zpoints) * zres / 2.0f), zres) < 0)
   {
     fclose(f);
     return MakeErrorResult(-23513, fmt::format("Error writing binary VTK data to file {}", m_InputValues->OutputFile.string()));
@@ -346,21 +345,20 @@ Result<> VisualizeGBCDPoleFigure::operator()()
   fprintf(f, "SCALARS %s %s 1\n", "Intensity", "float");
   fprintf(f, "LOOKUP_TABLE default\n");
   {
-    float* gn = new float[total];
+    std::vector<float> gn(total);
     float t;
     count = 0;
     for(int32 j = 0; j < ypoints; j++)
     {
       for(int32 i = 0; i < xpoints; i++)
       {
-        t = float(poleFigure[(j * xpoints) + i]);
+        t = static_cast<float>(poleFigure[(j * xpoints) + i]);
         t = FromSystemToBigEndian(t);
         gn[count] = t;
         count++;
       }
     }
-    size_t totalWritten = fwrite(gn, sizeof(float), (total), f);
-    delete[] gn;
+    usize totalWritten = fwrite(gn.data(), sizeof(float), (total), f);
     if(totalWritten != (total))
     {
       fclose(f);
