@@ -232,5 +232,5 @@ This section is just for basic genralized tips to help make our code better:
     <li>If you need to use a string of some sort repeatedly it should be stored in anonymous namespace as a constant at the top of the file</li>
     <li>Be sure to seperate input parameters according to input, required objects, and created objects</li>
     <li>Ensure naming scheme matches the rules laid out in the pull request template</li>
-    <li>When you wished to use a C-Array consider using a std::span</li>
+    <li>Do **NOT** use C-Style arrays, use std::array<T,N> instead. </li>
 </ul>
