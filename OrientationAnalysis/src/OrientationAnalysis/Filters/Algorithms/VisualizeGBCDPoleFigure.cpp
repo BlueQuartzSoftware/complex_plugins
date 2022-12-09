@@ -51,7 +51,7 @@ int32 WriteCoords(FILE* f, const char* axis, const char* type, int64 npoints, fl
   for(int64 idx = 0; idx < npoints; ++idx)
   {
     d = idx * step + min;
-    FromSystemToBigEndian(d);
+    d = FromSystemToBigEndian(d);
     data[idx] = d;
   }
   usize totalWritten = fwrite(static_cast<void*>(data), sizeof(float), static_cast<size_t>(npoints), f);
@@ -354,7 +354,7 @@ Result<> VisualizeGBCDPoleFigure::operator()()
       for(int32 i = 0; i < xpoints; i++)
       {
         t = float(poleFigure[(j * xpoints) + i]);
-        FromSystemToBigEndian(t);
+        t = FromSystemToBigEndian(t);
         gn[count] = t;
         count++;
       }
