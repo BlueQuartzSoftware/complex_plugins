@@ -16,15 +16,18 @@ using LaueOpsShPtrType = std::shared_ptr<LaueOps>;
 using LaueOpsContainer = std::vector<LaueOpsShPtrType>;
 
 using namespace complex;
-
+namespace
+{
+const size_t k_NumMisoReps = 576 * 4;
+}
 /**
  * @brief The CalculateGBCDImpl class implements a threaded algorithm that calculates the
  * grain boundary character distribution (GBCD) for a surface mesh
  */
 class CalculateGBCDImpl
 {
-  usize m_StartOffset;
-  usize m_NumEntriesPerTri;
+  usize m_TriangleChunkStartIndex;
+  usize m_NumBinPerTriangle;
   Int32Array& m_LabelsArray;
   Float64Array& m_NormalsArray;
   Int32Array& m_PhasesArray;
@@ -39,8 +42,8 @@ public:
   CalculateGBCDImpl(const CalculateGBCDImpl&) = default;
 
   CalculateGBCDImpl(usize i, usize numMisoReps, Int32Array& labels, Float64Array& normals, Float32Array& eulers, Int32Array& phases, UInt32Array& crystalStructures, SizeGBCD& sizeGBCD)
-  : m_StartOffset(i)
-  , m_NumEntriesPerTri(numMisoReps)
+  : m_TriangleChunkStartIndex(i)
+  , m_NumBinPerTriangle(numMisoReps)
   , m_LabelsArray(labels)
   , m_NormalsArray(normals)
   , m_PhasesArray(phases)
@@ -58,61 +61,74 @@ public:
 
   void generate(size_t start, size_t end) const
   {
-    int32_t j = 0; //, j4;
-    int32_t k = 0; //, k4;
-    int32_t m = 0;
-    int32_t temp = 0;
+
+    // We want to work with the raw pointers for speed so get those pointers.
+
+    std::vector<int32>& gbcdBins = m_SizeGBCD.m_GbcdBins;
+    std::vector<bool>& hemiCheck = m_SizeGBCD.m_GbcdHemiCheck; // Definitely do NOT want a raw pointer to vector<bool> because that done in bits, not bytes.
+
+    Int32Array& labels = m_LabelsArray;
+    Float64Array& normals = m_NormalsArray;
+    Int32Array& phases = m_PhasesArray;
+    Float32Array& eulers = m_EulersArray;
+    UInt32Array& crystalStructures = m_CrystalStructuresArray;
+
+    //    int32_t j = 0; //, j4;
+    //    int32_t k = 0; //, k4;
+    //    int32_t m = 0;
+    //    int32_t temp = 0;
     // bool gbcd_indices_good;
     int32_t feature1 = 0, feature2 = 0;
     int32_t inversion = 1;
     float g1ea[3] = {0.0f, 0.0f, 0.0f}, g2ea[3] = {0.0f, 0.0f, 0.0f};
-    float g1[3][3] = {{0.0f, 0.0f, 0.0f}, {0.0f, 0.0f, 0.0f}}, g2[3][3] = {{0.0f, 0.0f, 0.0f}, {0.0f, 0.0f, 0.0f}};
-    float g1s[3][3] = {{0.0f, 0.0f, 0.0f}, {0.0f, 0.0f, 0.0f}}, g2s[3][3] = {{0.0f, 0.0f, 0.0f}, {0.0f, 0.0f, 0.0f}};
-    float sym1[3][3] = {{0.0f, 0.0f, 0.0f}, {0.0f, 0.0f, 0.0f}}, sym2[3][3] = {{0.0f, 0.0f, 0.0f}, {0.0f, 0.0f, 0.0f}};
-    float g2t[3][3] = {{0.0f, 0.0f, 0.0f}, {0.0f, 0.0f, 0.0f}}, dg[3][3] = {{0.0f, 0.0f, 0.0f}, {0.0f, 0.0f, 0.0f}};
+    float g1[3][3] = {{0.0f, 0.0f, 0.0f}, {0.0f, 0.0f, 0.0f}, {0.0f, 0.0f, 0.0f}}, g2[3][3] = {{0.0f, 0.0f, 0.0f}, {0.0f, 0.0f, 0.0f}, {0.0f, 0.0f, 0.0f}};
+    float g1s[3][3] = {{0.0f, 0.0f, 0.0f}, {0.0f, 0.0f, 0.0f}, {0.0f, 0.0f, 0.0f}}, g2s[3][3] = {{0.0f, 0.0f, 0.0f}, {0.0f, 0.0f, 0.0f}, {0.0f, 0.0f, 0.0f}};
+    float sym1[3][3] = {{0.0f, 0.0f, 0.0f}, {0.0f, 0.0f, 0.0f}, {0.0f, 0.0f, 0.0f}}, sym2[3][3] = {{0.0f, 0.0f, 0.0f}, {0.0f, 0.0f, 0.0f}, {0.0f, 0.0f, 0.0f}};
+    float g2t[3][3] = {{0.0f, 0.0f, 0.0f}, {0.0f, 0.0f, 0.0f}, {0.0f, 0.0f, 0.0f}}, dg[3][3] = {{0.0f, 0.0f, 0.0f}, {0.0f, 0.0f, 0.0f}, {0.0f, 0.0f, 0.0f}};
     float euler_mis[3] = {0.0f, 0.0f, 0.0f};
     float normal[3] = {0.0f, 0.0f, 0.0f};
     float xstl1_norm1[3] = {0.0f, 0.0f, 0.0f};
-    int32_t gbcd_index = 0;
+    //  int32_t gbcd_index = 0;
     float sqCoord[2] = {0.0f, 0.0f}, sqCoordInv[2] = {0.0f, 0.0f};
-    bool nhCheck = false, nhCheckInv = true;
-    int32_t SYMcounter = 0;
-    auto TRIcounter = static_cast<int64_t>(start - m_StartOffset);
-    int64_t TRIcounterShift = 0;
+    //    bool nhCheck = false, nhCheckInv = true;
 
-    for(size_t i = start; i < end; i++)
+    for(size_t triangleIndex = start; triangleIndex < end; triangleIndex++)
     {
-      SYMcounter = 0;
-      feature1 = m_LabelsArray[2 * i];
-      feature2 = m_LabelsArray[2 * i + 1];
-      normal[0] = m_NormalsArray[3 * i];
-      normal[1] = m_NormalsArray[3 * i + 1];
-      normal[2] = m_NormalsArray[3 * i + 2];
+      size_t minGbcdBinIndex = (triangleIndex - m_TriangleChunkStartIndex) * m_NumBinPerTriangle;
+      // size_t maxGbcdBinIndex = minGbcdBinIndex + m_NumBinPerTriangle;
+
+      int32_t SYMcounter = 0;
+      feature1 = labels[2 * triangleIndex];
+      feature2 = labels[2 * triangleIndex + 1];
 
       if(feature1 < 0 || feature2 < 0)
       {
         continue;
       }
 
-      if(m_PhasesArray[feature1] == m_PhasesArray[feature2] && m_PhasesArray[feature1] > 0)
+      // Get the normal for the triangle
+      normal[0] = normals[3 * triangleIndex];
+      normal[1] = normals[3 * triangleIndex + 1];
+      normal[2] = normals[3 * triangleIndex + 2];
+
+      if(phases[feature1] == phases[feature2] && phases[feature1] > 0)
       {
-        TRIcounterShift = (TRIcounter * m_NumEntriesPerTri);
-        uint32_t cryst = m_CrystalStructuresArray[m_PhasesArray[feature1]];
+        uint32_t cryst = crystalStructures[phases[feature1]];
         for(int32_t q = 0; q < 2; q++)
         {
           if(q == 1)
           {
-            temp = feature1;
+            int32_t temp = feature1;
             feature1 = feature2;
             feature2 = temp;
             normal[0] = -normal[0];
             normal[1] = -normal[1];
             normal[2] = -normal[2];
           }
-          for(m = 0; m < 3; m++)
+          for(int32_t m = 0; m < 3; m++)
           {
-            g1ea[m] = m_EulersArray[3 * feature1 + m];
-            g2ea[m] = m_EulersArray[3 * feature2 + m];
+            g1ea[m] = eulers[3 * feature1 + m];
+            g2ea[m] = eulers[3 * feature2 + m];
           }
 
           OrientationTransformation::eu2om<OrientationF, OrientationF>(OrientationF(g1ea, 3)).toGMatrix(g1);
@@ -120,7 +136,7 @@ public:
           OrientationTransformation::eu2om<OrientationF, OrientationF>(OrientationF(g2ea, 3)).toGMatrix(g2);
 
           int32_t nsym = m_OrientationOps[cryst]->getNumSymOps();
-          for(j = 0; j < nsym; j++)
+          for(int32_t j = 0; j < nsym; j++)
           {
             // rotate g1 by symOp
             m_OrientationOps[cryst]->getMatSymOp(j, sym1);
@@ -128,7 +144,8 @@ public:
             // get the crystal directions along the triangle normals
             MatrixMath::Multiply3x3with3x1(g1s, normal, xstl1_norm1);
             // get coordinates in square projection of crystal normal parallel to boundary normal
-            nhCheck = getSquareCoord(xstl1_norm1, sqCoord);
+            bool nhCheck = getSquareCoord(xstl1_norm1, sqCoord);
+            bool nhCheckInv = !nhCheck;
             if(inversion == 1)
             {
               sqCoordInv[0] = -sqCoord[0];
@@ -136,7 +153,7 @@ public:
               nhCheckInv = !nhCheck;
             }
 
-            for(k = 0; k < nsym; k++)
+            for(int32_t k = 0; k < nsym; k++)
             {
               // calculate the symmetric misorienation
               m_OrientationOps[cryst]->getMatSymOp(k, sym2);
@@ -150,18 +167,19 @@ public:
               OrientationF om(dg);
 
               OrientationF eu(euler_mis, 3);
-              eu = OrientationTransformation::om2eu<OrientationF, OrientationF>(om);
+              eu = OrientationTransformation::om2eu<OrientationF, OrientationF>(om); // This will actually copy the result of om2eu into the euler_mis location. Not obvious at all.
 
               if(euler_mis[0] < Constants::k_PiOver2D && euler_mis[1] < Constants::k_PiOver2D && euler_mis[2] < Constants::k_PiOver2D)
               {
                 // PHI euler angle is stored in GBCD as cos(PHI)
                 euler_mis[1] = cosf(euler_mis[1]);
                 // get the indexes that this point would be in the GBCD histogram
-                gbcd_index = GBCDIndex(m_SizeGBCD.m_GbcdDeltas, m_SizeGBCD.m_GbcdSizes, m_SizeGBCD.m_GbcdLimits, euler_mis, sqCoord);
+                int32 gbcd_index = GBCDIndex(m_SizeGBCD.m_GbcdDeltas, m_SizeGBCD.m_GbcdSizes, m_SizeGBCD.m_GbcdLimits, euler_mis, sqCoord);
                 if(gbcd_index != -1)
                 {
-                  m_SizeGBCD.m_GbcdHemiCheck[TRIcounterShift + SYMcounter] = nhCheck;
-                  m_SizeGBCD.m_GbcdBins[TRIcounterShift + SYMcounter] = gbcd_index;
+                  const size_t gbcdBinIndex = minGbcdBinIndex + SYMcounter;
+                  hemiCheck[gbcdBinIndex] = nhCheck;
+                  gbcdBins[gbcdBinIndex] = gbcd_index;
                 }
                 SYMcounter++;
                 if(inversion == 1)
@@ -169,8 +187,9 @@ public:
                   gbcd_index = GBCDIndex(m_SizeGBCD.m_GbcdDeltas, m_SizeGBCD.m_GbcdSizes, m_SizeGBCD.m_GbcdLimits, euler_mis, sqCoordInv);
                   if(gbcd_index != -1)
                   {
-                    m_SizeGBCD.m_GbcdHemiCheck[TRIcounterShift + SYMcounter] = nhCheckInv;
-                    m_SizeGBCD.m_GbcdBins[TRIcounterShift + SYMcounter] = gbcd_index;
+                    const size_t gbcdBinIndex = minGbcdBinIndex + SYMcounter;
+                    hemiCheck[gbcdBinIndex] = nhCheckInv;
+                    gbcdBins[gbcdBinIndex] = gbcd_index;
                   }
                   SYMcounter++;
                 }
@@ -183,7 +202,6 @@ public:
           }
         }
       }
-      TRIcounter++;
     }
   }
 
@@ -194,29 +212,22 @@ public:
 
   int32_t GBCDIndex(const std::vector<float32>& gbcddelta, const std::vector<int32>& gbcdsz, const std::vector<float32>& gbcdlimits, const float* eulerN, const float* sqCoord) const
   {
+    constexpr usize k_GBCDParamCount = 5;
     int32_t gbcd_index;
-    int32_t i = 0, index[5] = {0, 0, 0, 0, 0};
-    int32_t n1 = 0, n1n2 = 0, n1n2n3 = 0, n1n2n3n4 = 0;
+    int32_t index[k_GBCDParamCount] = {0, 0, 0, 0, 0};
     int32_t flag_good = 1;
-    float mis_eulerNorm[5] = {0, 0, 0, 0, 0};
 
-    // concatonate the normalized euler angles and normalized spherical corrdinate normal
-    for(i = 0; i < 3; i++)
-    {
-      mis_eulerNorm[i] = eulerN[i];
-    }
-    for(i = 0; i < 2; i++)
-    {
-      mis_eulerNorm[i + 3] = sqCoord[i];
-    }
+    // concatenate the normalized euler angles and normalized spherical coordinate normal
+    std::array<float, k_GBCDParamCount> misEulerNorm = {eulerN[0], eulerN[1], eulerN[2], sqCoord[0], sqCoord[1]};
+
     // Check for a valid point in the GBCD space
-    for(i = 0; i < 5; i++)
+    for(int32_t i = 0; i < k_GBCDParamCount; i++)
     {
-      if(mis_eulerNorm[i] < gbcdlimits[i])
+      if(misEulerNorm[i] < gbcdlimits[i])
       {
         flag_good = 0;
       }
-      if(mis_eulerNorm[i] > gbcdlimits[i + 5])
+      if(misEulerNorm[i] > gbcdlimits[i + k_GBCDParamCount])
       {
         flag_good = 0;
       }
@@ -227,15 +238,15 @@ public:
       return -1;
     } // does not fit in the gbcd space
 
-    n1 = gbcdsz[0];
-    n1n2 = n1 * (gbcdsz[1]);
-    n1n2n3 = n1n2 * (gbcdsz[2]);
-    n1n2n3n4 = n1n2n3 * (gbcdsz[3]);
+    const int32 n1 = gbcdsz[0];
+    const int32 n1n2 = n1 * (gbcdsz[1]);
+    const int32 n1n2n3 = n1n2 * (gbcdsz[2]);
+    const int32 n1n2n3n4 = n1n2n3 * (gbcdsz[3]);
 
     // determine the bin that the point should go into.
-    for(i = 0; i < 5; i++)
+    for(size_t i = 0; i < k_GBCDParamCount; i++)
     {
-      index[i] = (int32_t)((mis_eulerNorm[i] - gbcdlimits[i]) / gbcddelta[i]);
+      index[i] = static_cast<int32>((misEulerNorm[i] - gbcdlimits[i]) / gbcddelta[i]);
       if(index[i] > (gbcdsz[i] - 1))
       {
         index[i] = (gbcdsz[i] - 1);
@@ -371,54 +382,39 @@ Result<> FindGBCD::operator()()
 
   usize totalPhases = crystalStructures.getNumberOfTuples();
   usize totalFaces = faceLabels.getNumberOfTuples();
-  usize faceChunkSize = 50000;
-  usize numMisoReps = 576 * 4;
-  if(totalFaces < faceChunkSize)
+  usize triangleChunkSize = 50000;
+
+  if(totalFaces < triangleChunkSize)
   {
-    faceChunkSize = totalFaces;
+    triangleChunkSize = totalFaces;
   }
   // call the sizeGBCD function with proper chunkSize and numMisoReps to get Bins array set up properly
-  SizeGBCD sizeGbcd(faceChunkSize, numMisoReps, m_InputValues->GBCDRes);
+  SizeGBCD sizeGbcd(triangleChunkSize, k_NumMisoReps, m_InputValues->GBCDRes);
   int32 totalGBCDBins = sizeGbcd.m_GbcdSizes[0] * sizeGbcd.m_GbcdSizes[1] * sizeGbcd.m_GbcdSizes[2] * sizeGbcd.m_GbcdSizes[3] * sizeGbcd.m_GbcdSizes[4] * 2;
-
-  auto millis = std::chrono::steady_clock::now();
-  auto currentMillis = millis;
-  auto startMillis = millis;
-  uint64 estimatedTime = 0;
-  float timeDiff = 0.0f;
-  startMillis = std::chrono::steady_clock::now();
-  int32 hemisphere = 0;
 
   // create an array to hold the total face area for each phase and initialize the array to 0.0
   std::vector<double> totalFaceArea(totalPhases, 0.0);
-  std::string ss = fmt::format("Calculating GBCD || 0/{} Completed", totalFaces);
+  std::string ss = fmt::format("1/2 Starting GBCD Calculation and Summation Phase");
   m_MessageHandler({IFilter::Message::Type::Info, ss});
-  for(usize i = 0; i < totalFaces; i = i + faceChunkSize)
+  auto startMillis = std::chrono::steady_clock::now();
+
+  for(usize i = 0; i < totalFaces; i = i + triangleChunkSize)
   {
     if(getCancel())
     {
       return {};
     }
-    if(i + faceChunkSize >= totalFaces)
+
+    if(i + triangleChunkSize >= totalFaces)
     {
-      faceChunkSize = totalFaces - i;
+      triangleChunkSize = totalFaces - i;
     }
     sizeGbcd.initializeBinsWithValue(-1);
+    sizeGbcd.m_GbcdHemiCheck.assign(sizeGbcd.m_GbcdHemiCheck.size(), false);
 
     ParallelDataAlgorithm parallelTask;
-    parallelTask.setRange(i, i + faceChunkSize);
-    parallelTask.execute(CalculateGBCDImpl(i, numMisoReps, faceLabels, faceNormals, eulerAngles, phases, crystalStructures, sizeGbcd));
-
-    currentMillis = std::chrono::steady_clock::now();
-    if(std::chrono::duration_cast<std::chrono::milliseconds>(currentMillis - millis).count() > 1000)
-    {
-      ss = fmt::format("Calculating GBCD || Triangles {}/{} Completed", i, totalFaces);
-      timeDiff = static_cast<float>(i) / static_cast<float>(std::chrono::duration_cast<std::chrono::milliseconds>(currentMillis - startMillis).count());
-      estimatedTime = (float)(totalFaces - i) / timeDiff;
-      ss = ss + fmt::format(" || Est. Time Remain: {}", ConvertMillisToHrsMinSecs(estimatedTime));
-      millis = std::chrono::steady_clock::now();
-      m_MessageHandler({IFilter::Message::Type::Info, ss});
-    }
+    parallelTask.setRange(i, i + triangleChunkSize);
+    parallelTask.execute(CalculateGBCDImpl(i, k_NumMisoReps, faceLabels, faceNormals, eulerAngles, phases, crystalStructures, sizeGbcd));
 
     if(getCancel())
     {
@@ -428,7 +424,7 @@ Result<> FindGBCD::operator()()
     int32_t phase = 0;
     int32_t feature = 0;
     double area = 0.0;
-    for(size_t j = 0; j < faceChunkSize; j++)
+    for(size_t j = 0; j < triangleChunkSize; j++)
     {
       area = faceAreas[i + j];
       feature = faceLabels[2 * (i + j)];
@@ -437,30 +433,42 @@ Result<> FindGBCD::operator()()
         continue;
       }
       phase = phases[feature];
-      for(size_t k = 0; k < numMisoReps; k++)
+      for(size_t k = 0; k < k_NumMisoReps; k++)
       {
-        if(sizeGbcd.m_GbcdBins[(j * numMisoReps) + (k)] >= 0)
+        size_t gbcdBinIdx = (j * k_NumMisoReps) + k;
+
+        if(sizeGbcd.m_GbcdBins[gbcdBinIdx] >= 0)
         {
-          hemisphere = 0;
-          if(!sizeGbcd.m_GbcdHemiCheck[(j * numMisoReps) + k])
+          int32 hemisphere = 0;
+          if(!sizeGbcd.m_GbcdHemiCheck[gbcdBinIdx])
           {
             hemisphere = 1;
           }
-          size_t gbcdBinIdx = (j * numMisoReps) + k;
           size_t gbcdIdx = (phase * totalGBCDBins) + (2 * sizeGbcd.m_GbcdBins[gbcdBinIdx] + hemisphere);
           gbcd[gbcdIdx] += area;
           totalFaceArea[phase] += area;
         }
       }
     }
+
+    auto currentMillis = std::chrono::steady_clock::now();
+    if(std::chrono::duration_cast<std::chrono::milliseconds>(currentMillis - startMillis).count() > 1000)
+    {
+      const size_t lastTriangleIndex = i + triangleChunkSize;
+      float currentRate = static_cast<float>(triangleChunkSize) / static_cast<float>(std::chrono::duration_cast<std::chrono::milliseconds>(currentMillis - startMillis).count());
+      uint64 estimatedTime = static_cast<uint64>(totalFaces - lastTriangleIndex) / currentRate;
+      ss = fmt::format("Calculating GBCD || Triangles {}/{} Completed || Est. Time Remain: {}", lastTriangleIndex, totalFaces, ConvertMillisToHrsMinSecs(estimatedTime));
+      startMillis = std::chrono::steady_clock::now();
+      m_MessageHandler({IFilter::Message::Type::Info, ss});
+    }
   }
 
-  m_MessageHandler({IFilter::Message::Type::Info, "Starting GBCD Normalization"});
+  m_MessageHandler({IFilter::Message::Type::Info, "2/2 Starting GBCD Normalization Phase"});
 
   for(int32_t i = 0; i < totalPhases; i++)
   {
-    size_t phaseShift = i * totalGBCDBins;
-    double MRDfactor = double(totalGBCDBins) / totalFaceArea[i];
+    const size_t phaseShift = i * totalGBCDBins;
+    const double MRDfactor = static_cast<double>(totalGBCDBins) / totalFaceArea[i];
     for(int32_t j = 0; j < totalGBCDBins; j++)
     {
       gbcd[phaseShift + j] *= MRDfactor;

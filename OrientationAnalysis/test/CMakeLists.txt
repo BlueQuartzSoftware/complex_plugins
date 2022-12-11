@@ -95,3 +95,25 @@ target_include_directories(${PLUGIN_NAME}UnitTest
   ${CMAKE_CURRENT_LIST_DIR}/../../src
 )
 
+
+# -----------------------------------------------------------------------------
+# Here we are going to setup to download and decompress the test files. In order
+# to add your own test files you will need to tar.gz the test file, compute the
+# SHA 512 Hash of the file and then upload the file to 
+# https://github.com/BlueQuartzSoftware/complex/releases/tag/Data_Archive.
+#
+# Go to the web site above, "edit" the release, add the filename and SHA 512 to
+# the table and then upload your compressed file.
+# Save the release so that the repo is updated
+# -----------------------------------------------------------------------------
+
+option(COMPLEX_DOWNLOAD_TEST_FILES "Download the test files" ON)
+
+if(EXISTS "${DREAM3D_DATA_DIR}" AND COMPLEX_DOWNLOAD_TEST_FILES) 
+  if(NOT EXISTS ${DREAM3D_DATA_DIR}/TestFiles/)
+    file(MAKE_DIRECTORY "${DREAM3D_DATA_DIR}/TestFiles/")
+  endif()
+
+  download_test_data(DREAM3D_DATA_DIR ${DREAM3D_DATA_DIR} ARCHIVE_NAME 6_6_Small_IN100_GBCD.tar.gz SHA512 3c33677dd48b5cef70e10145d8c9149fc114fa8ff3da1d439e5497a2694afe5c5ef783f1522946e36d6e856cd8375a38d248fa7a1edb8697e96d5dd15b2476e4)
+
+endif()

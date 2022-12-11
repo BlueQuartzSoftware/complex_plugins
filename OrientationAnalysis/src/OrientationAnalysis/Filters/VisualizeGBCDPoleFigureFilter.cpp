@@ -53,8 +53,8 @@ Parameters VisualizeGBCDPoleFigureFilter::parameters() const
   // Create the parameter descriptors that are needed for this filter
   params.insertSeparator(Parameters::Separator{"Input Parameters"});
   params.insert(std::make_unique<Int32Parameter>(k_PhaseOfInterest_Key, "Phase of Interest", "Index of the Ensemble for which to plot the pole figure", 1));
-  params.insert(std::make_unique<VectorFloat32Parameter>(k_MisorientationRotation_Key, "Misorientation Axis-Angle", "Axis-Angle pair values for drawing GBCD", std::vector<float32>(4, 0),
-                                                         std::vector<std::string>{"Angle", "Axis", "", ""}));
+  params.insert(std::make_unique<VectorFloat32Parameter>(k_MisorientationRotation_Key, "Misorientation Angle-Axis", "Angle-Axis values for drawing GBCD", std::vector<float32>{60.0F, 1.0F, 1.0F, 1.0F},
+                                                         std::vector<std::string>{"Angle (Deg)", "h", "k", "l"}));
   params.insert(std::make_unique<FileSystemPathParameter>(k_OutputFile_Key, "Output Regular Grid VTK File", "The output .vtk file path", FileSystemPathParameter::ValueType{},
                                                           FileSystemPathParameter::ExtensionsType{".vtk"}, FileSystemPathParameter::PathType::OutputFile, false));
   params.insertSeparator(Parameters::Separator{"Required Face Ensemble Data"});
