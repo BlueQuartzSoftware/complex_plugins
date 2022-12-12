@@ -28,6 +28,7 @@ set(${PLUGIN_NAME}UnitTest_SRCS
   ReadCtfDataTest.cpp
   ReadH5EbsdTest.cpp
   RotateEulerRefFrameTest.cpp
+  VisualizeGBCDPoleFigureTest.cpp
 )
 set(DISABLED_TESTS
 

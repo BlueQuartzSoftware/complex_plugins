@@ -12,7 +12,6 @@
 #include "complex/UnitTest/UnitTestCommon.hpp"
 
 #include "OrientationAnalysis/Filters/FindGBCDFilter.hpp"
-#include "OrientationAnalysis/Filters/VisualizeGBCDPoleFigureFilter.hpp"
 #include "OrientationAnalysis/OrientationAnalysis_test_dirs.hpp"
 
 #include "complex_plugins/Utilities/TestUtilities.hpp"
@@ -99,101 +98,5 @@ TEST_CASE("OrientationAnalysis::FindGBCD", "[OrientationAnalysis][FindGBCD]")
     UnitTest::CompareFloatArraysWithNans<float64>(dataStructure, k_ExemplarArrayPath, k_GeneratedDataPath);
   }
 
-  // Create the Pole Figures for Sigma 3  60@[111]
-  {
-    VisualizeGBCDPoleFigureFilter filter;
-    Arguments args;
-
-    auto outputFile = fs::path(fmt::format("{}/small_in100_sigma_3.vtk", unit_test::k_BinaryTestOutputDir));
-
-    const DataPath k_GbcdArrayPath = faceEnsemblePath.createChildPath(k_GBCD_Name);
-
-    args.insertOrAssign(VisualizeGBCDPoleFigureFilter::k_PhaseOfInterest_Key, std::make_any<Int32Parameter::ValueType>(1));
-    args.insertOrAssign(VisualizeGBCDPoleFigureFilter::k_MisorientationRotation_Key, std::make_any<VectorFloat32Parameter::ValueType>({60.0F, 1.0F, 1.0F, 1.0F}));
-    args.insertOrAssign(VisualizeGBCDPoleFigureFilter::k_OutputFile_Key, std::make_any<FileSystemPathParameter::ValueType>(outputFile));
-    args.insertOrAssign(VisualizeGBCDPoleFigureFilter::k_GBCDArrayPath_Key, std::make_any<ArraySelectionParameter::ValueType>(k_GbcdArrayPath));
-    args.insertOrAssign(VisualizeGBCDPoleFigureFilter::k_CrystalStructuresArrayPath_Key, std::make_any<ArraySelectionParameter::ValueType>(crystalStructurePath));
-
-    // Preflight the filter and check result
-    auto preflightResult = filter.preflight(dataStructure, args);
-    COMPLEX_RESULT_REQUIRE_VALID(preflightResult.outputActions);
-
-    // Execute the filter and check the result
-    auto executeResult = filter.execute(dataStructure, args);
-    COMPLEX_RESULT_REQUIRE_VALID(executeResult.result);
-  }
-
-  // Compare the Output Pole Figure
-  {
-      //    const DataPath k_GeneratedDataPath = faceEnsemblePath.createChildPath(k_GBCD_Name);
-      //    const DataPath k_ExemplarArrayPath = triangleDataContainerPath.createChildPath("FaceEnsembleData").createChildPath(k_GBCD_Name);
-      //
-      //    UnitTest::CompareFloatArraysWithNans<float64>(dataStructure, k_ExemplarArrayPath, k_GeneratedDataPath);
-  }
-
-  // Create the Pole Figures for Sigma 9  39@[110]
-  {
-    VisualizeGBCDPoleFigureFilter filter;
-    Arguments args;
-
-    auto outputFile = fs::path(fmt::format("{}/small_in100_sigma_9.vtk", unit_test::k_BinaryTestOutputDir));
-
-    const DataPath k_GbcdArrayPath = faceEnsemblePath.createChildPath(k_GBCD_Name);
-
-    args.insertOrAssign(VisualizeGBCDPoleFigureFilter::k_PhaseOfInterest_Key, std::make_any<Int32Parameter::ValueType>(1));
-    args.insertOrAssign(VisualizeGBCDPoleFigureFilter::k_MisorientationRotation_Key, std::make_any<VectorFloat32Parameter::ValueType>({39.0F, 1.0F, 1.0F, 0.0F}));
-    args.insertOrAssign(VisualizeGBCDPoleFigureFilter::k_OutputFile_Key, std::make_any<FileSystemPathParameter::ValueType>(outputFile));
-    args.insertOrAssign(VisualizeGBCDPoleFigureFilter::k_GBCDArrayPath_Key, std::make_any<ArraySelectionParameter::ValueType>(k_GbcdArrayPath));
-    args.insertOrAssign(VisualizeGBCDPoleFigureFilter::k_CrystalStructuresArrayPath_Key, std::make_any<ArraySelectionParameter::ValueType>(crystalStructurePath));
-
-    // Preflight the filter and check result
-    auto preflightResult = filter.preflight(dataStructure, args);
-    COMPLEX_RESULT_REQUIRE_VALID(preflightResult.outputActions);
-
-    // Execute the filter and check the result
-    auto executeResult = filter.execute(dataStructure, args);
-    COMPLEX_RESULT_REQUIRE_VALID(executeResult.result);
-  }
-
-  // Compare the Output Pole Figure
-  {
-      //    const DataPath k_GeneratedDataPath = faceEnsemblePath.createChildPath(k_GBCD_Name);
-      //    const DataPath k_ExemplarArrayPath = triangleDataContainerPath.createChildPath("FaceEnsembleData").createChildPath(k_GBCD_Name);
-      //
-      //    UnitTest::CompareFloatArraysWithNans<float64>(dataStructure, k_ExemplarArrayPath, k_GeneratedDataPath);
-  }
-
-  // Create the Pole Figures for Sigma 11  50.5@[110]
-  {
-    VisualizeGBCDPoleFigureFilter filter;
-    Arguments args;
-
-    auto outputFile = fs::path(fmt::format("{}/small_in100_sigma_11.vtk", unit_test::k_BinaryTestOutputDir));
-
-    const DataPath k_GbcdArrayPath = faceEnsemblePath.createChildPath(k_GBCD_Name);
-
-    args.insertOrAssign(VisualizeGBCDPoleFigureFilter::k_PhaseOfInterest_Key, std::make_any<Int32Parameter::ValueType>(1));
-    args.insertOrAssign(VisualizeGBCDPoleFigureFilter::k_MisorientationRotation_Key, std::make_any<VectorFloat32Parameter::ValueType>({50.5F, 1.0F, 1.0F, 0.0F}));
-    args.insertOrAssign(VisualizeGBCDPoleFigureFilter::k_OutputFile_Key, std::make_any<FileSystemPathParameter::ValueType>(outputFile));
-    args.insertOrAssign(VisualizeGBCDPoleFigureFilter::k_GBCDArrayPath_Key, std::make_any<ArraySelectionParameter::ValueType>(k_GbcdArrayPath));
-    args.insertOrAssign(VisualizeGBCDPoleFigureFilter::k_CrystalStructuresArrayPath_Key, std::make_any<ArraySelectionParameter::ValueType>(crystalStructurePath));
-
-    // Preflight the filter and check result
-    auto preflightResult = filter.preflight(dataStructure, args);
-    COMPLEX_RESULT_REQUIRE_VALID(preflightResult.outputActions);
-
-    // Execute the filter and check the result
-    auto executeResult = filter.execute(dataStructure, args);
-    COMPLEX_RESULT_REQUIRE_VALID(executeResult.result);
-  }
-
-  // Compare the Output Pole Figure
-  {
-    //    const DataPath k_GeneratedDataPath = faceEnsemblePath.createChildPath(k_GBCD_Name);
-    //    const DataPath k_ExemplarArrayPath = triangleDataContainerPath.createChildPath("FaceEnsembleData").createChildPath(k_GBCD_Name);
-    //
-    //    UnitTest::CompareFloatArraysWithNans<float64>(dataStructure, k_ExemplarArrayPath, k_GeneratedDataPath);
-  }
-
-  WriteTestDataStructure(dataStructure, fs::path(fmt::format("{}/find_gbcd_pole_figure.dream3d", unit_test::k_BinaryTestOutputDir)));
+  WriteTestDataStructure(dataStructure, fs::path(fmt::format("{}/find_gbcd.dream3d", unit_test::k_BinaryTestOutputDir)));
 }
