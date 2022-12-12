@@ -18,6 +18,10 @@ struct ORIENTATIONANALYSIS_EXPORT VisualizeGBCDPoleFigureInputValues
   FileSystemPathParameter::ValueType OutputFile;
   DataPath GBCDArrayPath;
   DataPath CrystalStructuresArrayPath;
+  int32 OutputImageDimension;
+  DataPath ImageGeometryPath;
+  std::string CellAttributeMatrixName;
+  std::string CellIntensityArrayName;
 };
 
 /**
