@@ -10,10 +10,11 @@ set(${PLUGIN_NAME}UnitTest_SRCS
   BadDataNeighborOrientationCheckTest.cpp
   ConvertOrientationsTest.cpp
   CreateEnsembleInfoTest.cpp
-  EBSDSegmentFeaturesFilterTest.cpp   
+  EBSDSegmentFeaturesFilterTest.cpp
   EbsdToH5EbsdTest.cpp
   FindAvgOrientationsTest.cpp
   FindFeatureReferenceMisorientationsTest.cpp
+  FindGBCDTest.cpp
   FindKernelAvgMisorientationsTest.cpp
   FindMisorientationsTest.cpp
   FindSchmidsTest.cpp
@@ -45,7 +46,6 @@ set(DISABLED_TESTS
   FindDistsToCharactGBsTest.cpp
   FindFeatureNeighborCAxisMisalignmentsTest.cpp
   FindFeatureReferenceCAxisMisorientationsTest.cpp
-  FindGBCDTest.cpp
   FindGBCDMetricBasedTest.cpp
   FindGBPDMetricBasedTest.cpp
   FindSlipTransmissionMetricsTest.cpp
