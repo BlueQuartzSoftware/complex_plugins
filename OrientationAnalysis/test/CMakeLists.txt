@@ -30,6 +30,7 @@ set(${PLUGIN_NAME}UnitTest_SRCS
   RotateEulerRefFrameTest.cpp
   VisualizeGBCDPoleFigureTest.cpp
   VisualizeGBCDGMTTest.cpp
+  GBCDTriangleDumperTest.cpp
 )
 set(DISABLED_TESTS
 
