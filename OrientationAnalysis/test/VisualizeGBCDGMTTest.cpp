@@ -51,7 +51,7 @@ TEST_CASE("OrientationAnalysis::VisualizeGBCDGMTFilter", "[OrientationAnalysis][
   auto* filterList = Application::Instance()->getFilterList();
 
   // Read the Small IN100 Data set
-  auto baseDataFilePath = fs::path(fmt::format("{}/TestFiles/6_6_Small_IN100_GBCD.dream3d", unit_test::k_DREAM3DDataDir));
+  auto baseDataFilePath = fs::path(fmt::format("{}/TestFiles/GBCD/6_6_Small_IN100_GBCD.dream3d", unit_test::k_DREAM3DDataDir));
   DataStructure dataStructure = UnitTest::LoadDataStructure(baseDataFilePath);
   DataPath smallIn100Group({complex::Constants::k_SmallIN100});
   DataPath featureDataPath = smallIn100Group.createChildPath(Constants::k_Grain_Data);
@@ -103,7 +103,7 @@ TEST_CASE("OrientationAnalysis::VisualizeGBCDGMTFilter", "[OrientationAnalysis][
     {
       Arguments args;
       CSVWizardData data;
-      data.inputFilePath = fmt::format("{}/TestFiles/6_6_Small_IN100_GBCD_Sigma3_1.dat", unit_test::k_DREAM3DDataDir);
+      data.inputFilePath = fmt::format("{}/TestFiles/GBCD/6_6_Small_IN100_GBCD_Sigma3_1.dat", unit_test::k_DREAM3DDataDir);
       data.dataHeaders = {k_ExemplarGMT1, k_ExemplarGMT2, k_ExemplarGMT3};
       data.dataTypes = {DataType::float32, DataType::float32, DataType::float32};
       data.beginIndex = 2;
@@ -191,7 +191,7 @@ TEST_CASE("OrientationAnalysis::VisualizeGBCDGMTFilter", "[OrientationAnalysis][
     {
       Arguments args;
       CSVWizardData data;
-      data.inputFilePath = fmt::format("{}/TestFiles/6_6_Small_IN100_GBCD_Sigma9_1.dat", unit_test::k_DREAM3DDataDir);
+      data.inputFilePath = fmt::format("{}/TestFiles/GBCD/6_6_Small_IN100_GBCD_Sigma9_1.dat", unit_test::k_DREAM3DDataDir);
       data.dataHeaders = {k_ExemplarGMT1, k_ExemplarGMT2, k_ExemplarGMT3};
       data.dataTypes = {DataType::float32, DataType::float32, DataType::float32};
       data.beginIndex = 2;
@@ -279,7 +279,7 @@ TEST_CASE("OrientationAnalysis::VisualizeGBCDGMTFilter", "[OrientationAnalysis][
     {
       Arguments args;
       CSVWizardData data;
-      data.inputFilePath = fmt::format("{}/TestFiles/6_6_Small_IN100_GBCD_Sigma11_1.dat", unit_test::k_DREAM3DDataDir);
+      data.inputFilePath = fmt::format("{}/TestFiles/GBCD/6_6_Small_IN100_GBCD_Sigma11_1.dat", unit_test::k_DREAM3DDataDir);
       data.dataHeaders = {k_ExemplarGMT1, k_ExemplarGMT2, k_ExemplarGMT3};
       data.dataTypes = {DataType::float32, DataType::float32, DataType::float32};
       data.beginIndex = 2;
