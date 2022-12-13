@@ -19,13 +19,18 @@ This **Filter** computes the 5D grain boundary character distribution (GBCD) for
 
 Image + Triangle
 
-## Required Objects ##
+## Required Objects (From Triangle Geometry) ##
 
 | Kind | Default Name | Type | Component Dimensions | Description |
 |------|--------------|------|----------------------|-------------|
 | **Face Attribute Array** | FaceLabels | int32_t | (2) | Specifies which **Features** are on either side of each **Face** |
 | **Face Attribute Array**  | FaceNormals | double | (3) | Specifies the normal of each **Face** |
 | **Face Attribute Array**  | FaceAreas | double | (1) | Specifies the area of each **Face** |
+
+## Required Objects (From Image Geometry) ##
+
+| Kind | Default Name | Type | Component Dimensions | Description |
+|------|--------------|------|----------------------|-------------|
 | **Feature Attribute Array** | AvgEulerAngles | float | (3) | Three angles defining the orientation of the **Feature** in Bunge convention (Z-X-Z) |
 | **Feature Attribute Array** | Phases | int32_t | (1) | Specifies to which phase each **Feature** belongs |
 | **Ensemble Attribute Array** | CrystalStructures | uint32_t | (1) | Enumeration representing the crystal structure for each **Ensemble** |
