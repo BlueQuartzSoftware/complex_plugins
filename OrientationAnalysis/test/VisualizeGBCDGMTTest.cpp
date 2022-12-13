@@ -27,20 +27,7 @@ using namespace complex::UnitTest;
 
 namespace
 {
-inline constexpr StringLiteral k_Grain_Data("Grain Data");
-inline constexpr StringLiteral k_Phase_Data("Phase Data");
-inline constexpr StringLiteral k_TriangleDataContainerName("TriangleDataContainer");
-inline constexpr StringLiteral k_FaceData("FaceData");
 inline constexpr StringLiteral k_FaceEnsembleDataPath("FaceEnsembleData [NX]");
-inline constexpr StringLiteral k_GBCD_Name("GBCD");
-
-inline constexpr StringLiteral k_FaceLabels("FaceLabels");
-inline constexpr StringLiteral k_FaceNormals("FaceNormals");
-inline constexpr StringLiteral k_FaceAreas("FaceAreas");
-
-inline constexpr StringLiteral k_AvgEulerAngles("AvgEulerAngles");
-
-inline constexpr StringLiteral k_CrystalStructures("CrystalStructures");
 
 inline constexpr StringLiteral k_WizardData_Key = "wizard_data";
 inline constexpr StringLiteral k_TupleDims_Key = "tuple_dimensions";
@@ -67,22 +54,22 @@ TEST_CASE("OrientationAnalysis::VisualizeGBCDGMTFilter", "[OrientationAnalysis][
   auto baseDataFilePath = fs::path(fmt::format("{}/TestFiles/6_6_Small_IN100_GBCD.dream3d", unit_test::k_DREAM3DDataDir));
   DataStructure dataStructure = UnitTest::LoadDataStructure(baseDataFilePath);
   DataPath smallIn100Group({complex::Constants::k_SmallIN100});
-  DataPath featureDataPath = smallIn100Group.createChildPath(::k_Grain_Data);
-  DataPath avgEulerAnglesPath = featureDataPath.createChildPath(::k_AvgEulerAngles);
+  DataPath featureDataPath = smallIn100Group.createChildPath(Constants::k_Grain_Data);
+  DataPath avgEulerAnglesPath = featureDataPath.createChildPath(Constants::k_AvgEulerAngles);
   DataPath featurePhasesPath = featureDataPath.createChildPath(k_Phases);
 
-  DataPath ensembleDataPath = smallIn100Group.createChildPath(::k_Phase_Data);
-  DataPath crystalStructurePath = ensembleDataPath.createChildPath(::k_CrystalStructures);
+  DataPath ensembleDataPath = smallIn100Group.createChildPath(Constants::k_Phase_Data);
+  DataPath crystalStructurePath = ensembleDataPath.createChildPath(Constants::k_CrystalStructures);
 
-  DataPath triangleDataContainerPath({::k_TriangleDataContainerName});
-  DataPath faceDataGroup = triangleDataContainerPath.createChildPath(k_FaceData);
+  DataPath triangleDataContainerPath({Constants::k_TriangleDataContainerName});
+  DataPath faceDataGroup = triangleDataContainerPath.createChildPath(Constants::k_FaceData);
   DataPath faceEnsemblePath = triangleDataContainerPath.createChildPath(k_FaceEnsembleDataPath);
 
-  DataPath faceLabels = faceDataGroup.createChildPath(k_FaceLabels);
-  DataPath faceNormals = faceDataGroup.createChildPath(k_FaceNormals);
-  DataPath faceAreas = faceDataGroup.createChildPath(k_FaceAreas);
+  DataPath faceLabels = faceDataGroup.createChildPath(Constants::k_FaceLabels);
+  DataPath faceNormals = faceDataGroup.createChildPath(Constants::k_FaceNormals);
+  DataPath faceAreas = faceDataGroup.createChildPath(Constants::k_FaceAreas);
 
-  DataPath gbcdArrayPath = triangleDataContainerPath.createChildPath("FaceEnsembleData").createChildPath(k_GBCD_Name);
+  DataPath gbcdArrayPath = triangleDataContainerPath.createChildPath("FaceEnsembleData").createChildPath(Constants::k_GBCD_Name);
 
   DataPath gmtGroupPath = triangleDataContainerPath.createChildPath("GMTResults");
 
