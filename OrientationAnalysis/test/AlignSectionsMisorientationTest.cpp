@@ -17,7 +17,8 @@
 #include <filesystem>
 namespace fs = std::filesystem;
 
-#include "complex_plugins/Utilities/SmallIN100Utilties.hpp"
+#include "complex_plugins/Utilities/TestUtilities.hpp"
+#include "complex/UnitTest/SmallIN100Utilties.hpp"
 
 using namespace complex;
 using namespace complex::UnitTest;
@@ -39,7 +40,7 @@ using namespace complex::UnitTest;
 
 TEST_CASE("OrientationAnalysis::AlignSectionsMisorientation Small IN100 Pipeline", "[OrientationAnalysis][AlignSectionsMisorientation]")
 {
-  std::shared_ptr<make_shared_enabler> app = std::make_shared<make_shared_enabler>();
+  std::shared_ptr<UnitTest::make_shared_enabler> app = std::make_shared<UnitTest::make_shared_enabler>();
   app->loadPlugins(unit_test::k_BuildDir.view(), true);
   auto* filterList = Application::Instance()->getFilterList();
 

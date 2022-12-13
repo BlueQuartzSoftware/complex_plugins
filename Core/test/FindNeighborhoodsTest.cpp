@@ -9,7 +9,7 @@
 #include "Core/Core_test_dirs.hpp"
 #include "Core/Filters/FindNeighborhoodsFilter.hpp"
 
-#include "complex_plugins/Utilities/SmallIN100Utilties.hpp"
+#include "complex/UnitTest/SmallIN100Utilties.hpp"
 #include "complex_plugins/Utilities/TestUtilities.hpp"
 
 using namespace complex;
@@ -26,10 +26,6 @@ const std::string k_NumElements("NumElements");
 
 TEST_CASE("Core::FindNeighborhoods", "[Core][FindNeighborhoods]")
 {
-  //  std::shared_ptr<make_shared_enabler> app = std::make_shared<make_shared_enabler>();
-  //  app->loadPlugins(unit_test::k_BuildDir.view(), true);
-  //  auto* filterList = Application::Instance()->getFilterList();
-
   // Read the Small IN100 Data set
   auto baseDataFilePath = fs::path(fmt::format("{}/TestFiles/6_6_stats_test.dream3d", unit_test::k_DREAM3DDataDir));
   DataStructure dataStructure = LoadDataStructure(baseDataFilePath);

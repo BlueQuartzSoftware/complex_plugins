@@ -17,7 +17,7 @@
 #include "OrientationAnalysis/OrientationAnalysis_test_dirs.hpp"
 
 #include "complex_plugins/EbsdLibConstants.hpp"
-#include "complex_plugins/Utilities/SmallIN100Utilties.hpp"
+#include "complex/UnitTest/SmallIN100Utilties.hpp"
 #include "complex_plugins/Utilities/TestUtilities.hpp"
 
 #include <filesystem>
@@ -28,7 +28,7 @@ using namespace complex::UnitTest;
 
 TEST_CASE("OrientationAnalysis::EBSDSegmentFeatures: Instantiation and Parameter Check", "[OrientationAnalysis][EBSDSegmentFeatures]")
 {
-  std::shared_ptr<make_shared_enabler> app = std::make_shared<make_shared_enabler>();
+  std::shared_ptr<UnitTest::make_shared_enabler> app = std::make_shared<UnitTest::make_shared_enabler>();
   app->loadPlugins(unit_test::k_BuildDir.view(), true);
   auto* filterList = Application::Instance()->getFilterList();
 

@@ -33,7 +33,7 @@ struct make_shared_enabler : public complex::Application
 namespace ITKImageProcessingUnitTest
 {
 
-const std::shared_ptr<make_shared_enabler> app = std::make_shared<make_shared_enabler>();
+const std::shared_ptr<UnitTest::make_shared_enabler> app = std::make_shared<UnitTest::make_shared_enabler>();
 bool s_PluginsLoaded = false;
 const FilterList* s_FilterList = nullptr;
 

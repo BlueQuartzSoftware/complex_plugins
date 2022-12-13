@@ -17,7 +17,7 @@
 namespace fs = std::filesystem;
 
 #include "complex_plugins/EbsdLibConstants.hpp"
-#include "complex_plugins/Utilities/SmallIN100Utilties.hpp"
+#include "complex/UnitTest/SmallIN100Utilties.hpp"
 #include "complex_plugins/Utilities/TestUtilities.hpp"
 
 #include "OrientationAnalysis/Filters/BadDataNeighborOrientationCheckFilter.hpp"
@@ -44,7 +44,7 @@ using namespace complex::UnitTest;
 
 TEST_CASE("OrientationAnalysis::BadDataNeighborOrientationCheckFilter: Small IN100 Pipeline", "[OrientationAnalysis][BadDataNeighborOrientationCheckFilter]")
 {
-  std::shared_ptr<make_shared_enabler> app = std::make_shared<make_shared_enabler>();
+  std::shared_ptr<UnitTest::make_shared_enabler> app = std::make_shared<UnitTest::make_shared_enabler>();
   app->loadPlugins(unit_test::k_BuildDir.view(), true);
   auto* filterList = Application::Instance()->getFilterList();
 

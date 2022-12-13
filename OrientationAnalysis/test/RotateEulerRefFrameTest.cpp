@@ -46,7 +46,7 @@ using namespace complex;
 TEST_CASE("OrientationAnalysis::RotateEulerRefFrame", "[OrientationAnalysis]")
 {
   // Instantiate an "Application" instance to load plugins
-  std::shared_ptr<make_shared_enabler> app = std::make_shared<make_shared_enabler>();
+  std::shared_ptr<UnitTest::make_shared_enabler> app = std::make_shared<UnitTest::make_shared_enabler>();
   app->loadPlugins(unit_test::k_BuildDir.view(), true);
 
   const uint64 k_NumComponents = 3;

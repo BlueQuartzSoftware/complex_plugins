@@ -16,7 +16,7 @@
 #include <filesystem>
 namespace fs = std::filesystem;
 
-#include "complex_plugins/Utilities/SmallIN100Utilties.hpp"
+#include "complex/UnitTest/SmallIN100Utilties.hpp"
 #include "complex_plugins/Utilities/TestUtilities.hpp"
 
 #include "Core/Core_test_dirs.hpp"
@@ -43,7 +43,7 @@ using namespace complex::UnitTest;
 
 TEST_CASE("Core::AlignSectionsFeatureCentroidFilter: Small IN100 Pipeline", "[Reconstruction][AlignSectionsFeatureCentroidFilter]")
 {
-  std::shared_ptr<make_shared_enabler> app = std::make_shared<make_shared_enabler>();
+  std::shared_ptr<UnitTest::make_shared_enabler> app = std::make_shared<UnitTest::make_shared_enabler>();
   app->loadPlugins(unit_test::k_BuildDir.view(), true);
   auto* filterList = Application::Instance()->getFilterList();
 
@@ -124,9 +124,9 @@ TEST_CASE("Core::AlignSectionsFeatureCentroidFilter: Small IN100 Pipeline", "[Re
     args.insertOrAssign(k_UseReferenceSlice_Key, std::make_any<bool>(true));
     args.insertOrAssign(k_ReferenceSlice_Key, std::make_any<int32>(0));
 
-    args.insertOrAssign(k_GoodVoxelsArrayPath_Key, std::make_any<DataPath>(k_MaskArrayPath));
-    args.insertOrAssign(k_SelectedImageGeometry_Key, std::make_any<DataPath>(k_DataContainerPath));
-    args.insertOrAssign(k_SelectedCellDataGroup_Key, std::make_any<DataPath>(k_CellAttributeMatrix));
+    args.insertOrAssign(k_GoodVoxelsArrayPath_Key, std::make_any<DataPath>(Constants::k_MaskArrayPath));
+    args.insertOrAssign(k_SelectedImageGeometry_Key, std::make_any<DataPath>(Constants::k_DataContainerPath));
+    args.insertOrAssign(k_SelectedCellDataGroup_Key, std::make_any<DataPath>(Constants::k_CellAttributeMatrix));
 
     // Preflight the filter and check result
     auto preflightResult = filter->preflight(dataStructure, args);
@@ -184,13 +184,13 @@ TEST_CASE("Core::AlignSectionsFeatureCentroidFilter: Small IN100 Pipeline", "[Re
 
   // Loop and compare each array from the 'Exemplar Data / CellData' to the 'Data Container / CellData' group
   {
-    auto& cellDataGroup = dataStructure.getDataRefAs<AttributeMatrix>(k_CellAttributeMatrix);
+    auto& cellDataGroup = dataStructure.getDataRefAs<AttributeMatrix>(Constants::k_CellAttributeMatrix);
     std::vector<DataPath> selectedCellArrays;
 
     // Create the vector of selected cell DataPaths
     for(auto& child : cellDataGroup)
     {
-      selectedCellArrays.push_back(k_CellAttributeMatrix.createChildPath(child.second->getName()));
+      selectedCellArrays.push_back(Constants::k_CellAttributeMatrix.createChildPath(child.second->getName()));
     }
 
     for(const auto& cellArrayPath : selectedCellArrays)
@@ -200,7 +200,7 @@ TEST_CASE("Core::AlignSectionsFeatureCentroidFilter: Small IN100 Pipeline", "[Re
 
       // Now generate the path to the exemplar data set in the exemplar data structure.
       std::vector<std::string> generatedPathVector = cellArrayPath.getPathVector();
-      generatedPathVector[0] = k_ExemplarDataContainer;
+      generatedPathVector[0] = Constants::k_ExemplarDataContainer;
       DataPath exemplarDataArrayPath(generatedPathVector);
 
       // Check to see if there is something to compare against in the exemplar file.
