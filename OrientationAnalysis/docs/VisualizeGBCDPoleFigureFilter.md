@@ -21,10 +21,10 @@ This **Filter** creates a .vtk file that can be used in [ParaView](http://www.pa
 
 | Name | Type | Description |
 |------|------|-------------|
-| Phase of Interest | int32_t | Index of the **Ensemble** for which to plot the pole figure |
-| Crystal Structure | Enumeration | Crystal structure for GBCD. Currently supports from Hexagonal-High 6/mmm or Cubic-High m-3m symmetries |
+| Phase of Interest | int32 | Index of the **Ensemble** for which to plot the pole figure |
 | Misorientation Axis-Angle | float (4x) | Axis-Angle pair values for drawing GBCD |
 | Output Regular Grid VTK File | File Path | The output .vtk file path |
+| Output Image Dimension | int32 | The value to use for the x and y dimensions of the created Image Geometry |
 
 ## Required Geometry ##
 
@@ -35,10 +35,15 @@ Triangle
 | Kind | Default Name | Type | Component Dimensions | Description |
 |------|--------------|------|----------------------|-------------|
 | **Ensemble Attribute Array** | GBDC | double | (n,m,l,o,q,r) | 5 parameter GBCD data. The 6<sup>th</sup> component is used internally to track the northern vs. southern hemisphere of the Lambert sphere |
+| Crystal Structure | CrystalStructures | Enumeration | 1 | Crystal structure for GBCD. Currently supports from Hexagonal-High 6/mmm or Cubic-High m-3m symmetries |
 
 ## Created Objects ##
 
-None
+| Kind | Default Name | Description |
+|------|--------------|------|----------------------|-------------|
+| Image Geometry | [ImageGeometry] | The Image Geometry to be created |
+| Cell Attribute Matrix | Cell Data | The name of the cell attribute matrix created for the Image Geometry |
+| Cell Intensity Array | Intensity | The data array to be created from the pole figures and stored in the Image Geometry cell attribute matrix |
 
 ## Example Pipelines ##
 
