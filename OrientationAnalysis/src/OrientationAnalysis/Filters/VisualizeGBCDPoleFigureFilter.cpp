@@ -62,7 +62,7 @@ Parameters VisualizeGBCDPoleFigureFilter::parameters() const
                                                          std::vector<std::string>{"Angle (Deg)", "h", "k", "l"}));
   params.insert(std::make_unique<FileSystemPathParameter>(k_OutputFile_Key, "Output Regular Grid VTK File", "The output .vtk file path", FileSystemPathParameter::ValueType{},
                                                           FileSystemPathParameter::ExtensionsType{".vtk"}, FileSystemPathParameter::PathType::OutputFile, false));
-  params.insert(std::make_unique<Int32Parameter>(k_OutputImageDimension_Key, "Output Image Dimension", "The value to use for the dimensions for the image geometry", 1));
+  params.insert(std::make_unique<Int32Parameter>(k_OutputImageDimension_Key, "Output Image Dimension", "The value to use for the dimensions for the image geometry", 100));
   params.insertSeparator(Parameters::Separator{"Required Face Ensemble Data"});
   params.insert(std::make_unique<ArraySelectionParameter>(k_GBCDArrayPath_Key, "Input GBCD",
                                                           "5 parameter GBCD data. The 6th component is used internally to track the northern vs. southern hemisphere of the Lambert sphere",
