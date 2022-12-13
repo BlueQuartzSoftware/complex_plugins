@@ -51,6 +51,7 @@ set(FilterList
   RotateEulerRefFrameFilter
   VisualizeGBCDGMTFilter
   VisualizeGBCDPoleFigureFilter
+  GBCDTriangleDumperFilter
 )
   
 set(STUB_FILTERS
@@ -178,6 +179,7 @@ set(filter_algorithms
   RotateEulerRefFrame
   VisualizeGBCDGMT
   VisualizeGBCDPoleFigure
+  GBCDTriangleDumper
 )
 
 
