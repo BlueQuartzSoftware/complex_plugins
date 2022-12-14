@@ -26,10 +26,6 @@ namespace fs = std::filesystem;
 
 using namespace complex;
 
-struct make_shared_enabler : public complex::Application
-{
-};
-
 namespace ITKImageProcessingUnitTest
 {
 
