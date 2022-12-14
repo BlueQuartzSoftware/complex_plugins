@@ -16,7 +16,7 @@
 #include <filesystem>
 namespace fs = std::filesystem;
 
-#include "complex/UnitTest/SmallIN100Utilities.hpp"
+#include "complex_plugins/Utilities/SmallIN100Utilities.hpp"
 #include "complex_plugins/Utilities/TestUtilities.hpp"
 
 #include "Core/Core_test_dirs.hpp"

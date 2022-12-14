@@ -16,7 +16,7 @@
 #include "OrientationAnalysis/Filters/EBSDSegmentFeaturesFilter.hpp"
 #include "OrientationAnalysis/OrientationAnalysis_test_dirs.hpp"
 
-#include "complex/UnitTest/SmallIN100Utilities.hpp"
+#include "complex_plugins/Utilities/SmallIN100Utilities.hpp"
 #include "complex_plugins/EbsdLibConstants.hpp"
 #include "complex_plugins/Utilities/TestUtilities.hpp"
 
