@@ -7,6 +7,7 @@
 #include "complex/Parameters/GeometrySelectionParameter.hpp"
 
 #include "complex/Parameters/FileSystemPathParameter.hpp"
+#include "complex/UnitTest/UnitTestCommon.hpp"
 #include "complex_plugins/Utilities/TestUtilities.hpp"
 
 #include <fmt/format.h>
@@ -75,8 +76,8 @@ inline void ExecuteConvertOrientations(DataStructure& dataStructure, const Filte
   Arguments args;
   args.insertOrAssign(k_InputType_Key, std::make_any<ChoicesParameter::ValueType>(0));
   args.insertOrAssign(k_OutputType_Key, std::make_any<ChoicesParameter::ValueType>(2));
-  args.insertOrAssign(k_InputOrientationArrayPath_Key, std::make_any<DataPath>(Constants::k_EulersArrayPath));
-  args.insertOrAssign(k_OutputOrientationArrayName_Key, std::make_any<std::string>(Constants::k_Quats));
+  args.insertOrAssign(k_InputOrientationArrayPath_Key, std::make_any<DataPath>(k_EulersArrayPath));
+  args.insertOrAssign(k_OutputOrientationArrayName_Key, std::make_any<std::string>(k_Quats));
 
   // Preflight the filter and check result
   auto preflightResult = filter->preflight(dataStructure, args);
