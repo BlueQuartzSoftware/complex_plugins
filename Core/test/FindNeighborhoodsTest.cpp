@@ -9,7 +9,7 @@
 #include "Core/Core_test_dirs.hpp"
 #include "Core/Filters/FindNeighborhoodsFilter.hpp"
 
-#include "complex/UnitTest/SmallIN100Utilties.hpp"
+#include "complex/UnitTest/SmallIN100Utilities.hpp"
 #include "complex_plugins/Utilities/TestUtilities.hpp"
 
 using namespace complex;

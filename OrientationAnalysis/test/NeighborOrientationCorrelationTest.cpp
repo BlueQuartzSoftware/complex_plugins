@@ -16,7 +16,7 @@
 #include <filesystem>
 namespace fs = std::filesystem;
 
-#include "complex/UnitTest/SmallIN100Utilties.hpp"
+#include "complex/UnitTest/SmallIN100Utilities.hpp"
 #include "complex_plugins/EbsdLibConstants.hpp"
 #include "complex_plugins/Utilities/TestUtilities.hpp"
 
