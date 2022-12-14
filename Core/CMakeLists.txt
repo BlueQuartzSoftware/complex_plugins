@@ -25,6 +25,7 @@ set(FilterList
     CalculateArrayHistogramFilter
     RemoveFlaggedFeaturesFilter
     SplitAttributeArrayFilter
+    ErodeDilateBadDataFilter
     )
 # ------------------------------------------------------------------------------
 # Algorithms
@@ -41,6 +42,7 @@ set(AlgorithmList
   CalculateArrayHistogram
   RemoveFlaggedFeatures
   SplitAttributeArray
+  ErodeDilateBadData
 )
 
 create_complex_plugin(NAME ${PLUGIN_NAME}
