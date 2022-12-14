@@ -16,6 +16,7 @@
 #include "Core/Filters/RotateSampleRefFrameFilter.hpp"
 #include "Core/Filters/SplitAttributeArrayFilter.hpp"
 #include "Core/Filters/WriteASCIIDataFilter.hpp"
+#include "Core/Filters/ErodeDilateBadDataFilter.hpp"
 // @@__HEADER__TOKEN__DO__NOT__DELETE__@@
 
 namespace complex
@@ -35,6 +36,7 @@ namespace complex
     {complex::Uuid::FromString("e25d9b4c-2b37-578c-b1de-cf7032b5ef19").value(), complex::FilterTraits<RotateSampleRefFrameFilter>::uuid}, // RotateSampleRefFrame
     {complex::Uuid::FromString("5ecf77f4-a38a-52ab-b4f6-0fb8a9c5cb9c").value(), complex::FilterTraits<SplitAttributeArrayFilter>::uuid}, // SplitAttributeArray
     {complex::Uuid::FromString("5fbf9204-2c6c-597b-856a-f4612adbac38").value(), complex::FilterTraits<WriteASCIIDataFilter>::uuid}, // WriteASCIIData
+    {complex::Uuid::FromString("3adfe077-c3c9-5cd0-ad74-cf5f8ff3d254").value(), complex::FilterTraits<ErodeDilateBadDataFilter>::uuid}, // ErodeDilateBadData
     // @@__MAP__UPDATE__TOKEN__DO__NOT__DELETE__@@
   };
 

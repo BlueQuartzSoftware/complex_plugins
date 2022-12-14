@@ -12,7 +12,8 @@
 #include <filesystem>
 namespace fs = std::filesystem;
 
-#include "complex_plugins/Utilities/SmallIN100Utilties.hpp"
+#include "complex_plugins/Utilities/SmallIN100Utilities.hpp"
+#include "complex_plugins/Utilities/TestUtilities.hpp"
 
 #include "Core/Core_test_dirs.hpp"
 #include "Core/Filters/ErodeDilateBadDataFilter.hpp"
@@ -156,5 +157,5 @@ TEST_CASE("Core::ErodeDilateBadDataFilter: Small IN100 Pipeline", "[Core][ErodeD
     COMPLEX_RESULT_REQUIRE_VALID(executeResult.result)
   }
 
-  CompareExemplarToGeneratedData(dataStructure, exemplarDataStructure, k_CellAttributeMatrix, k_ExemplarDataContainer);
+  UnitTest::CompareExemplarToGeneratedData(dataStructure, exemplarDataStructure, k_CellAttributeMatrix, k_ExemplarDataContainer);
 }

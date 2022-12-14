@@ -177,7 +177,7 @@ inline void ExecuteEbsdSegmentFeatures(DataStructure& dataStructure, const Filte
   args.insertOrAssign(k_GoodVoxelsPath_Key, std::make_any<DataPath>(Constants::k_MaskArrayPath));
   args.insertOrAssign(k_CrystalStructuresArrayPath_Key, std::make_any<DataPath>(Constants::k_CrystalStructuresArrayPath));
   args.insertOrAssign(k_FeatureIdsArrayName_Key, std::make_any<std::string>(Constants::k_FeatureIds));
-  args.insertOrAssign(k_CellFeatureAttributeMatrixName_Key, std::make_any<std::string>(Constants::k_GrainData));
+  args.insertOrAssign(k_CellFeatureAttributeMatrixName_Key, std::make_any<std::string>(Constants::k_Grain_Data));
   args.insertOrAssign(k_ActiveArrayName_Key, std::make_any<std::string>(Constants::k_ActiveName));
   args.insertOrAssign(k_RandomizeFeatures_Key, std::make_any<bool>(false));
 
