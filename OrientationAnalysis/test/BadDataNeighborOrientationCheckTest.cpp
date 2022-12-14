@@ -16,8 +16,8 @@
 #include <filesystem>
 namespace fs = std::filesystem;
 
-#include "complex_plugins/Utilities/SmallIN100Utilities.hpp"
 #include "complex_plugins/EbsdLibConstants.hpp"
+#include "complex_plugins/Utilities/SmallIN100Utilities.hpp"
 #include "complex_plugins/Utilities/TestUtilities.hpp"
 
 #include "OrientationAnalysis/Filters/BadDataNeighborOrientationCheckFilter.hpp"
