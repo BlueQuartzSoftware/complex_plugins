@@ -108,11 +108,11 @@ IFilter::PreflightResult GenerateFaceIPFColoringFilter::preflightImpl(const Data
   if(!dataStructure.validateNumberOfTuples(imageArrayPaths))
   {
     return MakePreflightErrorResult(
-        -2432, "The input image geometry cell feature data arrays have inconsistent numbers of tuples.  Make sure the euler angles and phasess arrays all have the same number of tuples.");
+        -2432, "The input image geometry cell feature data arrays have inconsistent numbers of tuples.  Make sure the euler angles and phases arrays all have the same number of tuples.");
   }
 
-  DataPath faceIpfColorsArraypath = pSurfaceMeshFaceLabelsArrayPathValue.getParent().createChildPath(pSurfaceMeshFaceIPFColorsArrayNameValue);
-  auto action = std::make_unique<CreateArrayAction>(DataType::uint8, faceLabels->getTupleShape(), std::vector<usize>{6}, faceIpfColorsArraypath);
+  DataPath faceIpfColorsArrayPath = pSurfaceMeshFaceLabelsArrayPathValue.getParent().createChildPath(pSurfaceMeshFaceIPFColorsArrayNameValue);
+  auto action = std::make_unique<CreateArrayAction>(DataType::uint8, faceLabels->getTupleShape(), std::vector<usize>{6}, faceIpfColorsArrayPath);
   resultOutputActions.value().actions.push_back(std::move(action));
 
   return {std::move(resultOutputActions), std::move(preflightUpdatedValues)};
