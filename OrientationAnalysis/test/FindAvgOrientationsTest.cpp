@@ -37,12 +37,13 @@ of doing that.
 #include "OrientationAnalysis/Filters/FindAvgOrientationsFilter.hpp"
 #include "OrientationAnalysis/OrientationAnalysis_test_dirs.hpp"
 
+#include "complex_plugins/Utilities/TestUtilities.hpp"
+
 #include <filesystem>
 namespace fs = std::filesystem;
 
-#include "complex_plugins/Utilities/TestUtilities.hpp"
-
 using namespace complex;
+using namespace complex::Constants;
 
 namespace FindAvgOrientationsTest
 {
@@ -94,10 +95,11 @@ TEST_CASE("OrientationAnalysis::FindAvgOrientations", "[OrientationAnalysis][Fin
   const uint64 k_FeatureNumTuples = 409;
 
   // Setup constants here that are going to be needed in multiple contexts
-  const DataPath k_AvgQuatsDataPath({k_GrainData, k_AvgQuats});
+  const std::string k_GrainDataStr = "Grain Data";
+  const DataPath k_AvgQuatsDataPath({k_GrainDataStr, k_AvgQuats});
 
   const std::string k_AvgEulers("AvgEulerAngles");
-  const DataPath k_AvgEulersDataPath({k_GrainData, k_AvgEulers});
+  const DataPath k_AvgEulersDataPath({k_GrainDataStr, k_AvgEulers});
 
   const std::string k_ExemplarAvgQuats("ExemplarAvgQuats");
   const DataPath k_ExemplarAvgQuatsDataPath({k_ExemplarAvgQuats});
@@ -138,7 +140,7 @@ TEST_CASE("OrientationAnalysis::FindAvgOrientations", "[OrientationAnalysis][Fin
       largestFeature = featureId;
     }
   }
-  AttributeMatrix* cellFeatureData = AttributeMatrix::Create(dataStructure, k_GrainData);
+  AttributeMatrix* cellFeatureData = AttributeMatrix::Create(dataStructure, k_Grain_Data);
   cellFeatureData->setShape({largestFeature + 1});
 
   // Run the FindAvgOrientationsFilter
@@ -152,7 +154,7 @@ TEST_CASE("OrientationAnalysis::FindAvgOrientations", "[OrientationAnalysis][Fin
     args.insertOrAssign(FindAvgOrientationsFilter::k_CellPhasesArrayPath_Key, std::make_any<DataPath>(k_PhasesDataPath));
     args.insertOrAssign(FindAvgOrientationsFilter::k_CellQuatsArrayPath_Key, std::make_any<DataPath>(k_QuatsDataPath));
     args.insertOrAssign(FindAvgOrientationsFilter::k_CrystalStructuresArrayPath_Key, std::make_any<DataPath>(k_CrystalStructureDataPath));
-    args.insertOrAssign(FindAvgOrientationsFilter::k_CellFeatureAttributeMatrix_Key, std::make_any<DataPath>({k_GrainData}));
+    args.insertOrAssign(FindAvgOrientationsFilter::k_CellFeatureAttributeMatrix_Key, std::make_any<DataPath>({k_GrainDataStr}));
 
     // These are the output AvgQuats and output AvgEuler paths NOT the Exemplar AvgQuats & AvgEulers
     args.insertOrAssign(FindAvgOrientationsFilter::k_AvgQuatsArrayPath_Key, std::make_any<std::string>(k_AvgQuats));

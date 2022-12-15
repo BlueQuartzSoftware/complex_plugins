@@ -31,6 +31,7 @@ namespace fs = std::filesystem;
  */
 
 using namespace complex;
+using namespace complex::Constants;
 using namespace complex::UnitTest;
 
 TEST_CASE("Core::ErodeDilateBadDataFilter: Small IN100 Pipeline", "[Core][ErodeDilateBadDataFilter]")
@@ -73,10 +74,10 @@ TEST_CASE("Core::ErodeDilateBadDataFilter: Small IN100 Pipeline", "[Core][ErodeD
 
   // Crop Geometry (Image)
   {
-    const DataPath k_OrigCellAttributeMatrix = k_OrigDataContainerPath.createChildPath("CellData");
+    const DataPath k_OrigCellAttributeMatrix = k_OrigDataContainerPath.createChildPath(k_CellData);
 
-    const DataPath k_OrigConfidenceIndexArrayPath = k_OrigCellAttributeMatrix.createChildPath(k_ConfidenceIndex);
-    const DataPath k_OrigEulersArrayPath = k_OrigCellAttributeMatrix.createChildPath("EulerAngles");
+    const DataPath k_OrigConfidenceIndexArrayPath = k_OrigCellAttributeMatrix.createChildPath(k_Confidence_Index);
+    const DataPath k_OrigEulersArrayPath = k_OrigCellAttributeMatrix.createChildPath(k_EulerAngles);
     const DataPath k_OrigImageQualityArrayPath = k_OrigCellAttributeMatrix.createChildPath(k_ImageQuality);
     const DataPath k_OrigPhasesArrayPath = k_OrigCellAttributeMatrix.createChildPath(k_Phases);
 
