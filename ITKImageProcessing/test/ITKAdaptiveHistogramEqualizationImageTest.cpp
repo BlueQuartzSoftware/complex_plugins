@@ -28,10 +28,9 @@ using namespace complex;
 
 namespace ITKImageProcessingUnitTest
 {
-
-const std::shared_ptr<UnitTest::make_shared_enabler> app = std::make_shared<UnitTest::make_shared_enabler>();
+std::shared_ptr<UnitTest::make_shared_enabler> app = std::make_shared<UnitTest::make_shared_enabler>();
 bool s_PluginsLoaded = false;
-const FilterList* s_FilterList = nullptr;
+FilterList* s_FilterList = nullptr;
 
 void InitApplicationAndPlugins()
 {
@@ -107,7 +106,6 @@ TEST_CASE("ITKAdaptiveHistogramEqualizationImageFilter(defaults)", "[ITKImagePro
 
   // Run the ITK Filter that is being tested.
   {
-
     ITKAdaptiveHistogramEqualizationImage filter;
 
     Arguments args;
