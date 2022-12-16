@@ -54,7 +54,7 @@ Parameters VisualizeGBCDGMTFilter::parameters() const
   params.insertSeparator(Parameters::Separator{"Input Parameters"});
   params.insert(std::make_unique<Int32Parameter>(k_PhaseOfInterest_Key, "Phase of Interest", "Index of the Ensemble for which to plot the pole figure", 1));
   params.insert(std::make_unique<VectorFloat32Parameter>(k_MisorientationRotation_Key, "Misorientation Axis-Angle", "Axis-Angle pair values for drawing GBCD", std::vector<float32>(4, 0),
-                                                         std::vector<std::string>{"Angle", "Axis", "", ""}));
+                                                         std::vector<std::string>{"Angle", "h", "k", "l"}));
   params.insert(std::make_unique<FileSystemPathParameter>(k_OutputFile_Key, "Output GMT File", "The output .dat file path", FileSystemPathParameter::ValueType{},
                                                           FileSystemPathParameter::ExtensionsType{".dat"}, FileSystemPathParameter::PathType::OutputFile, false));
   params.insertSeparator(Parameters::Separator{"Required Face Ensemble Data"});
@@ -101,7 +101,7 @@ IFilter::PreflightResult VisualizeGBCDGMTFilter::preflightImpl(const DataStructu
     return {MakeErrorResult<OutputActions>(-96710, fmt::format("Could not find crystal structures array at path '{}'", pCrystalStructuresArrayPathValue.toString()))};
   }
 
-  const auto gbcd = dataStructure.getDataAs<Float64Array>(pGBCDArrayPathValue);
+  const auto* gbcd = dataStructure.getDataAs<Float64Array>(pGBCDArrayPathValue);
   if(gbcd == nullptr)
   {
     return {MakeErrorResult<OutputActions>(-96711, fmt::format("Could not find GBCD array at path '{}'", pGBCDArrayPathValue.toString()))};

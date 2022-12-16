@@ -50,7 +50,7 @@ TEST_CASE("complex_plugins::GBCDTriangleDumperFilter: Valid filter execution")
   auto* filterList = Application::Instance()->getFilterList();
 
   // Read the Small IN100 Data set
-  auto baseDataFilePath = fs::path(fmt::format("{}/TestFiles/GBCD/6_6_Small_IN100_GBCD.dream3d", unit_test::k_DREAM3DDataDir));
+  auto baseDataFilePath = fs::path(fmt::format("{}/TestFiles/6_6_Small_IN100_GBCD/6_6_Small_IN100_GBCD.dream3d", unit_test::k_DREAM3DDataDir));
   DataStructure dataStructure = UnitTest::LoadDataStructure(baseDataFilePath);
 
   DataPath smallIn100Group({Constants::k_SmallIN100});
@@ -91,7 +91,7 @@ TEST_CASE("complex_plugins::GBCDTriangleDumperFilter: Valid filter execution")
   {
     Arguments args;
     CSVWizardData data;
-    data.inputFilePath = fmt::format("{}/TestFiles/GBCD/6_6_Small_IN100_GBCD_Triangles.ph", unit_test::k_DREAM3DDataDir);
+    data.inputFilePath = fmt::format("{}/TestFiles/6_6_Small_IN100_GBCD/6_6_Small_IN100_GBCD_Triangles.ph", unit_test::k_DREAM3DDataDir);
     data.dataHeaders = {k_Phi1Right, k_PhiRight, k_Phi2Right, k_Phi1Left, k_PhiLeft, k_Phi2Left, k_TriangleNormal0, k_TriangleNormal1, k_TriangleNormal2, k_SurfaceArea};
     data.dataTypes = {DataType::float32, DataType::float32, DataType::float32, DataType::float32, DataType::float32,
                       DataType::float32, DataType::float64, DataType::float64, DataType::float64, DataType::float64};
@@ -199,7 +199,7 @@ TEST_CASE("complex_plugins::GBCDTriangleDumperFilter: InValid filter execution")
   Arguments args;
 
   // Read the Small IN100 Data set
-  auto baseDataFilePath = fs::path(fmt::format("{}/TestFiles/GBCD/6_6_Small_IN100_GBCD.dream3d", unit_test::k_DREAM3DDataDir));
+  auto baseDataFilePath = fs::path(fmt::format("{}/TestFiles/6_6_Small_IN100_GBCD/6_6_Small_IN100_GBCD.dream3d", unit_test::k_DREAM3DDataDir));
   DataStructure dataStructure = UnitTest::LoadDataStructure(baseDataFilePath);
 
   DataPath smallIn100Group({Constants::k_SmallIN100});

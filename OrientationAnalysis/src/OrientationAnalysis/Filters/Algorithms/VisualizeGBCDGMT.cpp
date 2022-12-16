@@ -219,7 +219,7 @@ Result<> VisualizeGBCDGMT::operator()()
             MatrixMath::Multiply3x3with3x1(sym1, vec, rotNormal);
             // get coordinates in square projection of crystal normal parallel to boundary normal
             nhCheck = GetSquareCoord(rotNormal, sqCoord);
-            // Note the switch to have theta in the 4 slot and cos(Phi) int he 3 slot
+            // Note the switch to have theta in the 4 slot and cos(Phi) in the 3 slot
             int32 location4 = int32((sqCoord[0] - gbcdLimits[3]) / gbcdDeltas[3]);
             int32 location5 = int32((sqCoord[1] - gbcdLimits[4]) / gbcdDeltas[4]);
             if(location1 >= 0 && location2 >= 0 && location3 >= 0 && location4 >= 0 && location5 >= 0 && location1 < gbcdSizes[0] && location2 < gbcdSizes[1] && location3 < gbcdSizes[2] &&
