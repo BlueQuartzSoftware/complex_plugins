@@ -84,7 +84,7 @@ IFilter::UniquePointer GenerateGBCDPoleFigureFilter::clone() const
 
 //------------------------------------------------------------------------------
 IFilter::PreflightResult GenerateGBCDPoleFigureFilter::preflightImpl(const DataStructure& dataStructure, const Arguments& filterArgs, const MessageHandler& messageHandler,
-                                                                      const std::atomic_bool& shouldCancel) const
+                                                                     const std::atomic_bool& shouldCancel) const
 {
   auto pPhaseOfInterestValue = filterArgs.value<int32>(k_PhaseOfInterest_Key);
   auto pMisorientationRotationValue = filterArgs.value<VectorFloat32Parameter::ValueType>(k_MisorientationRotation_Key);
@@ -134,7 +134,7 @@ IFilter::PreflightResult GenerateGBCDPoleFigureFilter::preflightImpl(const DataS
 
 //------------------------------------------------------------------------------
 Result<> GenerateGBCDPoleFigureFilter::executeImpl(DataStructure& dataStructure, const Arguments& filterArgs, const PipelineFilter* pipelineNode, const MessageHandler& messageHandler,
-                                                    const std::atomic_bool& shouldCancel) const
+                                                   const std::atomic_bool& shouldCancel) const
 {
   GenerateGBCDPoleFigureInputValues inputValues;
   inputValues.PhaseOfInterest = filterArgs.value<int32>(k_PhaseOfInterest_Key);

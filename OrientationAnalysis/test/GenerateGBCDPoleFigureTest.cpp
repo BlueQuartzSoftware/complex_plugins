@@ -12,7 +12,6 @@
 #include "OrientationAnalysis/Filters/GenerateGBCDPoleFigureFilter.hpp"
 #include "OrientationAnalysis/OrientationAnalysis_test_dirs.hpp"
 
-
 #include <filesystem>
 namespace fs = std::filesystem;
 

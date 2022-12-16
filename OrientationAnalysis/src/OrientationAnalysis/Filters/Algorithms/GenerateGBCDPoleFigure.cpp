@@ -33,8 +33,8 @@ private:
 
 public:
   GenerateGBCDPoleFigureImpl(Float64Array& poleFigureArray, const std::array<int32, 2>& dimensions, const LaueOps::Pointer& orientOps, const std::vector<float32>& gbcdDeltasArray,
-                              const std::vector<float32>& gbcdLimitsArray, const std::vector<int32>& gbcdSizesArray, const Float64Array& gbcd, int32 phaseOfInterest,
-                              const std::vector<float32>& misorientationRotation)
+                             const std::vector<float32>& gbcdLimitsArray, const std::vector<int32>& gbcdSizesArray, const Float64Array& gbcd, int32 phaseOfInterest,
+                             const std::vector<float32>& misorientationRotation)
   : m_PoleFigure(poleFigureArray)
   , m_Dimensions(dimensions)
   , m_OrientOps(orientOps)
@@ -238,7 +238,7 @@ private:
 
 // -----------------------------------------------------------------------------
 GenerateGBCDPoleFigure::GenerateGBCDPoleFigure(DataStructure& dataStructure, const IFilter::MessageHandler& mesgHandler, const std::atomic_bool& shouldCancel,
-                                                 GenerateGBCDPoleFigureInputValues* inputValues)
+                                               GenerateGBCDPoleFigureInputValues* inputValues)
 : m_DataStructure(dataStructure)
 , m_InputValues(inputValues)
 , m_ShouldCancel(shouldCancel)
