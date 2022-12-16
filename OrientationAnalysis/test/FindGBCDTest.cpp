@@ -36,7 +36,7 @@ TEST_CASE("OrientationAnalysis::FindGBCD", "[OrientationAnalysis][FindGBCD]")
   DataPath smallIn100Group({complex::Constants::k_SmallIN100});
   DataPath featureDataPath = smallIn100Group.createChildPath(Constants::k_Grain_Data);
   DataPath avgEulerAnglesPath = featureDataPath.createChildPath(Constants::k_AvgEulerAngles);
-  DataPath featurePhasesPath = featureDataPath.createChildPath(k_Phases);
+  DataPath featurePhasesPath = featureDataPath.createChildPath(Constants::k_Phases);
 
   DataPath ensembleDataPath = smallIn100Group.createChildPath(Constants::k_Phase_Data);
   DataPath crystalStructurePath = ensembleDataPath.createChildPath(Constants::k_CrystalStructures);

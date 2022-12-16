@@ -1,20 +1,17 @@
 
 #include <catch2/catch.hpp>
 
-#include "complex/Parameters/ArrayCreationParameter.hpp"
 #include "complex/Parameters/ArraySelectionParameter.hpp"
 #include "complex/Parameters/DataGroupCreationParameter.hpp"
 #include "complex/Parameters/DataObjectNameParameter.hpp"
 #include "complex/Parameters/FileSystemPathParameter.hpp"
-#include "complex/Parameters/GeometrySelectionParameter.hpp"
 #include "complex/Parameters/NumberParameter.hpp"
 #include "complex/Parameters/VectorParameter.hpp"
 #include "complex/UnitTest/UnitTestCommon.hpp"
 
-#include "OrientationAnalysis/Filters/VisualizeGBCDPoleFigureFilter.hpp"
+#include "OrientationAnalysis/Filters/GenerateGBCDPoleFigureFilter.hpp"
 #include "OrientationAnalysis/OrientationAnalysis_test_dirs.hpp"
 
-#include "complex_plugins/Utilities/TestUtilities.hpp"
 
 #include <filesystem>
 namespace fs = std::filesystem;
@@ -39,7 +36,7 @@ inline constexpr int32 k_Dimension = 300;
 
 } // namespace
 
-TEST_CASE("OrientationAnalysis::VisualizeGBCDPoleFigureFilter", "[OrientationAnalysis][VisualizeGBCDPoleFigureFilter]")
+TEST_CASE("OrientationAnalysis::GenerateGBCDPoleFigureFilter", "[OrientationAnalysis][GenerateGBCDPoleFigureFilter]")
 {
   // Read the Small IN100 Data set
   auto baseDataFilePath = fs::path(fmt::format("{}/TestFiles/GBCD/6_6_Small_IN100_GBCD.dream3d", unit_test::k_DREAM3DDataDir));
@@ -47,7 +44,7 @@ TEST_CASE("OrientationAnalysis::VisualizeGBCDPoleFigureFilter", "[OrientationAna
   DataPath smallIn100Group({complex::Constants::k_SmallIN100});
   DataPath featureDataPath = smallIn100Group.createChildPath(Constants::k_Grain_Data);
   DataPath avgEulerAnglesPath = featureDataPath.createChildPath(Constants::k_AvgEulerAngles);
-  DataPath featurePhasesPath = featureDataPath.createChildPath(k_Phases);
+  DataPath featurePhasesPath = featureDataPath.createChildPath(Constants::k_Phases);
 
   DataPath ensembleDataPath = smallIn100Group.createChildPath(Constants::k_Phase_Data);
   DataPath crystalStructurePath = ensembleDataPath.createChildPath(Constants::k_CrystalStructures);
@@ -68,20 +65,17 @@ TEST_CASE("OrientationAnalysis::VisualizeGBCDPoleFigureFilter", "[OrientationAna
 
   // Create the Pole Figures for Sigma 3  60@[111]
   {
-    VisualizeGBCDPoleFigureFilter filter;
+    GenerateGBCDPoleFigureFilter filter;
     Arguments args;
 
-    auto outputFile = fs::path(fmt::format("{}/small_in100_sigma_3.vtk", unit_test::k_BinaryTestOutputDir));
-
-    args.insertOrAssign(VisualizeGBCDPoleFigureFilter::k_PhaseOfInterest_Key, std::make_any<Int32Parameter::ValueType>(1));
-    args.insertOrAssign(VisualizeGBCDPoleFigureFilter::k_MisorientationRotation_Key, std::make_any<VectorFloat32Parameter::ValueType>({60.0F, 1.0F, 1.0F, 1.0F}));
-    args.insertOrAssign(VisualizeGBCDPoleFigureFilter::k_OutputFile_Key, std::make_any<FileSystemPathParameter::ValueType>(outputFile));
-    args.insertOrAssign(VisualizeGBCDPoleFigureFilter::k_OutputImageDimension_Key, std::make_any<int32>(k_Dimension));
-    args.insertOrAssign(VisualizeGBCDPoleFigureFilter::k_GBCDArrayPath_Key, std::make_any<ArraySelectionParameter::ValueType>(gbcdArrayPath));
-    args.insertOrAssign(VisualizeGBCDPoleFigureFilter::k_CrystalStructuresArrayPath_Key, std::make_any<ArraySelectionParameter::ValueType>(crystalStructurePath));
-    args.insertOrAssign(VisualizeGBCDPoleFigureFilter::k_ImageGeometryName_Key, std::make_any<DataGroupCreationParameter::ValueType>(nxPoleFigureSigma3));
-    args.insertOrAssign(VisualizeGBCDPoleFigureFilter::k_CellAttributeMatrixName_Key, std::make_any<DataObjectNameParameter::ValueType>(Constants::k_CellData));
-    args.insertOrAssign(VisualizeGBCDPoleFigureFilter::k_CellIntensityArrayName_Key, std::make_any<DataObjectNameParameter::ValueType>(k_Sigma3));
+    args.insertOrAssign(GenerateGBCDPoleFigureFilter::k_PhaseOfInterest_Key, std::make_any<Int32Parameter::ValueType>(1));
+    args.insertOrAssign(GenerateGBCDPoleFigureFilter::k_MisorientationRotation_Key, std::make_any<VectorFloat32Parameter::ValueType>({60.0F, 1.0F, 1.0F, 1.0F}));
+    args.insertOrAssign(GenerateGBCDPoleFigureFilter::k_OutputImageDimension_Key, std::make_any<int32>(k_Dimension));
+    args.insertOrAssign(GenerateGBCDPoleFigureFilter::k_GBCDArrayPath_Key, std::make_any<ArraySelectionParameter::ValueType>(gbcdArrayPath));
+    args.insertOrAssign(GenerateGBCDPoleFigureFilter::k_CrystalStructuresArrayPath_Key, std::make_any<ArraySelectionParameter::ValueType>(crystalStructurePath));
+    args.insertOrAssign(GenerateGBCDPoleFigureFilter::k_ImageGeometryName_Key, std::make_any<DataGroupCreationParameter::ValueType>(nxPoleFigureSigma3));
+    args.insertOrAssign(GenerateGBCDPoleFigureFilter::k_CellAttributeMatrixName_Key, std::make_any<DataObjectNameParameter::ValueType>(Constants::k_CellData));
+    args.insertOrAssign(GenerateGBCDPoleFigureFilter::k_CellIntensityArrayName_Key, std::make_any<DataObjectNameParameter::ValueType>(k_Sigma3));
 
     // Preflight the filter and check result
     auto preflightResult = filter.preflight(dataStructure, args);
@@ -102,20 +96,17 @@ TEST_CASE("OrientationAnalysis::VisualizeGBCDPoleFigureFilter", "[OrientationAna
 
   // Create the Pole Figures for Sigma 9  39@[110]
   {
-    VisualizeGBCDPoleFigureFilter filter;
+    GenerateGBCDPoleFigureFilter filter;
     Arguments args;
 
-    auto outputFile = fs::path(fmt::format("{}/small_in100_sigma_9.vtk", unit_test::k_BinaryTestOutputDir));
-
-    args.insertOrAssign(VisualizeGBCDPoleFigureFilter::k_PhaseOfInterest_Key, std::make_any<Int32Parameter::ValueType>(1));
-    args.insertOrAssign(VisualizeGBCDPoleFigureFilter::k_MisorientationRotation_Key, std::make_any<VectorFloat32Parameter::ValueType>({39.0F, 1.0F, 1.0F, 0.0F}));
-    args.insertOrAssign(VisualizeGBCDPoleFigureFilter::k_OutputFile_Key, std::make_any<FileSystemPathParameter::ValueType>(outputFile));
-    args.insertOrAssign(VisualizeGBCDPoleFigureFilter::k_OutputImageDimension_Key, std::make_any<int32>(k_Dimension));
-    args.insertOrAssign(VisualizeGBCDPoleFigureFilter::k_GBCDArrayPath_Key, std::make_any<ArraySelectionParameter::ValueType>(gbcdArrayPath));
-    args.insertOrAssign(VisualizeGBCDPoleFigureFilter::k_CrystalStructuresArrayPath_Key, std::make_any<ArraySelectionParameter::ValueType>(crystalStructurePath));
-    args.insertOrAssign(VisualizeGBCDPoleFigureFilter::k_ImageGeometryName_Key, std::make_any<DataGroupCreationParameter::ValueType>(nxPoleFigureSigma9));
-    args.insertOrAssign(VisualizeGBCDPoleFigureFilter::k_CellAttributeMatrixName_Key, std::make_any<DataObjectNameParameter::ValueType>(Constants::k_CellData));
-    args.insertOrAssign(VisualizeGBCDPoleFigureFilter::k_CellIntensityArrayName_Key, std::make_any<DataObjectNameParameter::ValueType>(k_Sigma9));
+    args.insertOrAssign(GenerateGBCDPoleFigureFilter::k_PhaseOfInterest_Key, std::make_any<Int32Parameter::ValueType>(1));
+    args.insertOrAssign(GenerateGBCDPoleFigureFilter::k_MisorientationRotation_Key, std::make_any<VectorFloat32Parameter::ValueType>({39.0F, 1.0F, 1.0F, 0.0F}));
+    args.insertOrAssign(GenerateGBCDPoleFigureFilter::k_OutputImageDimension_Key, std::make_any<int32>(k_Dimension));
+    args.insertOrAssign(GenerateGBCDPoleFigureFilter::k_GBCDArrayPath_Key, std::make_any<ArraySelectionParameter::ValueType>(gbcdArrayPath));
+    args.insertOrAssign(GenerateGBCDPoleFigureFilter::k_CrystalStructuresArrayPath_Key, std::make_any<ArraySelectionParameter::ValueType>(crystalStructurePath));
+    args.insertOrAssign(GenerateGBCDPoleFigureFilter::k_ImageGeometryName_Key, std::make_any<DataGroupCreationParameter::ValueType>(nxPoleFigureSigma9));
+    args.insertOrAssign(GenerateGBCDPoleFigureFilter::k_CellAttributeMatrixName_Key, std::make_any<DataObjectNameParameter::ValueType>(Constants::k_CellData));
+    args.insertOrAssign(GenerateGBCDPoleFigureFilter::k_CellIntensityArrayName_Key, std::make_any<DataObjectNameParameter::ValueType>(k_Sigma9));
 
     // Preflight the filter and check result
     auto preflightResult = filter.preflight(dataStructure, args);
@@ -136,20 +127,17 @@ TEST_CASE("OrientationAnalysis::VisualizeGBCDPoleFigureFilter", "[OrientationAna
 
   // Create the Pole Figures for Sigma 11  50.5@[110]
   {
-    VisualizeGBCDPoleFigureFilter filter;
+    GenerateGBCDPoleFigureFilter filter;
     Arguments args;
 
-    auto outputFile = fs::path(fmt::format("{}/small_in100_sigma_11.vtk", unit_test::k_BinaryTestOutputDir));
-
-    args.insertOrAssign(VisualizeGBCDPoleFigureFilter::k_PhaseOfInterest_Key, std::make_any<Int32Parameter::ValueType>(1));
-    args.insertOrAssign(VisualizeGBCDPoleFigureFilter::k_MisorientationRotation_Key, std::make_any<VectorFloat32Parameter::ValueType>({50.5F, 1.0F, 1.0F, 0.0F}));
-    args.insertOrAssign(VisualizeGBCDPoleFigureFilter::k_OutputFile_Key, std::make_any<FileSystemPathParameter::ValueType>(outputFile));
-    args.insertOrAssign(VisualizeGBCDPoleFigureFilter::k_OutputImageDimension_Key, std::make_any<int32>(k_Dimension));
-    args.insertOrAssign(VisualizeGBCDPoleFigureFilter::k_GBCDArrayPath_Key, std::make_any<ArraySelectionParameter::ValueType>(gbcdArrayPath));
-    args.insertOrAssign(VisualizeGBCDPoleFigureFilter::k_CrystalStructuresArrayPath_Key, std::make_any<ArraySelectionParameter::ValueType>(crystalStructurePath));
-    args.insertOrAssign(VisualizeGBCDPoleFigureFilter::k_ImageGeometryName_Key, std::make_any<DataGroupCreationParameter::ValueType>(nxPoleFigureSigma11));
-    args.insertOrAssign(VisualizeGBCDPoleFigureFilter::k_CellAttributeMatrixName_Key, std::make_any<DataObjectNameParameter::ValueType>(Constants::k_CellData));
-    args.insertOrAssign(VisualizeGBCDPoleFigureFilter::k_CellIntensityArrayName_Key, std::make_any<DataObjectNameParameter::ValueType>(k_Sigma11));
+    args.insertOrAssign(GenerateGBCDPoleFigureFilter::k_PhaseOfInterest_Key, std::make_any<Int32Parameter::ValueType>(1));
+    args.insertOrAssign(GenerateGBCDPoleFigureFilter::k_MisorientationRotation_Key, std::make_any<VectorFloat32Parameter::ValueType>({50.5F, 1.0F, 1.0F, 0.0F}));
+    args.insertOrAssign(GenerateGBCDPoleFigureFilter::k_OutputImageDimension_Key, std::make_any<int32>(k_Dimension));
+    args.insertOrAssign(GenerateGBCDPoleFigureFilter::k_GBCDArrayPath_Key, std::make_any<ArraySelectionParameter::ValueType>(gbcdArrayPath));
+    args.insertOrAssign(GenerateGBCDPoleFigureFilter::k_CrystalStructuresArrayPath_Key, std::make_any<ArraySelectionParameter::ValueType>(crystalStructurePath));
+    args.insertOrAssign(GenerateGBCDPoleFigureFilter::k_ImageGeometryName_Key, std::make_any<DataGroupCreationParameter::ValueType>(nxPoleFigureSigma11));
+    args.insertOrAssign(GenerateGBCDPoleFigureFilter::k_CellAttributeMatrixName_Key, std::make_any<DataObjectNameParameter::ValueType>(Constants::k_CellData));
+    args.insertOrAssign(GenerateGBCDPoleFigureFilter::k_CellIntensityArrayName_Key, std::make_any<DataObjectNameParameter::ValueType>(k_Sigma11));
 
     // Preflight the filter and check result
     auto preflightResult = filter.preflight(dataStructure, args);

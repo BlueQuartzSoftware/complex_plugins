@@ -46,39 +46,39 @@ inline constexpr StringLiteral k_GMT3("GMT3");
 
 TEST_CASE("OrientationAnalysis::VisualizeGBCDGMTFilter", "[OrientationAnalysis][VisualizeGBCDGMT]")
 {
-  std::shared_ptr<make_shared_enabler> app = std::make_shared<make_shared_enabler>();
+  const std::shared_ptr<make_shared_enabler> app = std::make_shared<make_shared_enabler>();
   app->loadPlugins(unit_test::k_BuildDir.view(), true);
   auto* filterList = Application::Instance()->getFilterList();
 
   // Read the Small IN100 Data set
   auto baseDataFilePath = fs::path(fmt::format("{}/TestFiles/GBCD/6_6_Small_IN100_GBCD.dream3d", unit_test::k_DREAM3DDataDir));
   DataStructure dataStructure = UnitTest::LoadDataStructure(baseDataFilePath);
-  DataPath smallIn100Group({complex::Constants::k_SmallIN100});
-  DataPath featureDataPath = smallIn100Group.createChildPath(Constants::k_Grain_Data);
-  DataPath avgEulerAnglesPath = featureDataPath.createChildPath(Constants::k_AvgEulerAngles);
-  DataPath featurePhasesPath = featureDataPath.createChildPath(k_Phases);
+  const DataPath smallIn100Group({complex::Constants::k_SmallIN100});
+  const DataPath featureDataPath = smallIn100Group.createChildPath(Constants::k_Grain_Data);
+  const DataPath avgEulerAnglesPath = featureDataPath.createChildPath(Constants::k_AvgEulerAngles);
+  const DataPath featurePhasesPath = featureDataPath.createChildPath(Constants::k_Phases);
 
-  DataPath ensembleDataPath = smallIn100Group.createChildPath(Constants::k_Phase_Data);
-  DataPath crystalStructurePath = ensembleDataPath.createChildPath(Constants::k_CrystalStructures);
+  const DataPath ensembleDataPath = smallIn100Group.createChildPath(Constants::k_Phase_Data);
+  const DataPath crystalStructurePath = ensembleDataPath.createChildPath(Constants::k_CrystalStructures);
 
-  DataPath triangleDataContainerPath({Constants::k_TriangleDataContainerName});
-  DataPath faceDataGroup = triangleDataContainerPath.createChildPath(Constants::k_FaceData);
-  DataPath faceEnsemblePath = triangleDataContainerPath.createChildPath(k_FaceEnsembleDataPath);
+  const DataPath triangleDataContainerPath({Constants::k_TriangleDataContainerName});
+  const DataPath faceDataGroup = triangleDataContainerPath.createChildPath(Constants::k_FaceData);
+  const DataPath faceEnsemblePath = triangleDataContainerPath.createChildPath(k_FaceEnsembleDataPath);
 
-  DataPath faceLabels = faceDataGroup.createChildPath(Constants::k_FaceLabels);
-  DataPath faceNormals = faceDataGroup.createChildPath(Constants::k_FaceNormals);
-  DataPath faceAreas = faceDataGroup.createChildPath(Constants::k_FaceAreas);
+  const DataPath faceLabels = faceDataGroup.createChildPath(Constants::k_FaceLabels);
+  const DataPath faceNormals = faceDataGroup.createChildPath(Constants::k_FaceNormals);
+  const DataPath faceAreas = faceDataGroup.createChildPath(Constants::k_FaceAreas);
 
-  DataPath gbcdArrayPath = triangleDataContainerPath.createChildPath("FaceEnsembleData").createChildPath(Constants::k_GBCD_Name);
+  const DataPath gbcdArrayPath = triangleDataContainerPath.createChildPath("FaceEnsembleData").createChildPath(Constants::k_GBCD_Name);
 
-  DataPath gmtGroupPath = triangleDataContainerPath.createChildPath("GMTResults");
+  const DataPath gmtGroupPath = triangleDataContainerPath.createChildPath("GMTResults");
 
   SECTION("Pole Figures for Sigma 3  60@[111]")
   {
     // Create Pole Figure
     auto outputFile = fs::path(fmt::format("{}/small_in100_sigma3_1.dat", unit_test::k_BinaryTestOutputDir));
     {
-      VisualizeGBCDGMTFilter gmtFilter;
+      const VisualizeGBCDGMTFilter gmtFilter;
       Arguments args;
 
       args.insertOrAssign(VisualizeGBCDGMTFilter::k_PhaseOfInterest_Key, std::make_any<Int32Parameter::ValueType>(1));
@@ -142,12 +142,12 @@ TEST_CASE("OrientationAnalysis::VisualizeGBCDGMTFilter", "[OrientationAnalysis][
       COMPLEX_RESULT_REQUIRE_VALID(executeResult.result);
     }
 
-    DataPath gmt1ArrayPath = gmtGroupPath.createChildPath(k_GMT1);
-    DataPath gmt2ArrayPath = gmtGroupPath.createChildPath(k_GMT2);
-    DataPath gmt3ArrayPath = gmtGroupPath.createChildPath(k_GMT3);
-    DataPath exemplarGmt1ArrayPath = gmtGroupPath.createChildPath(k_ExemplarGMT1);
-    DataPath exemplarGmt2ArrayPath = gmtGroupPath.createChildPath(k_ExemplarGMT2);
-    DataPath exemplarGmt3ArrayPath = gmtGroupPath.createChildPath(k_ExemplarGMT3);
+    const DataPath gmt1ArrayPath = gmtGroupPath.createChildPath(k_GMT1);
+    const DataPath gmt2ArrayPath = gmtGroupPath.createChildPath(k_GMT2);
+    const DataPath gmt3ArrayPath = gmtGroupPath.createChildPath(k_GMT3);
+    const DataPath exemplarGmt1ArrayPath = gmtGroupPath.createChildPath(k_ExemplarGMT1);
+    const DataPath exemplarGmt2ArrayPath = gmtGroupPath.createChildPath(k_ExemplarGMT2);
+    const DataPath exemplarGmt3ArrayPath = gmtGroupPath.createChildPath(k_ExemplarGMT3);
     REQUIRE(dataStructure.getDataAs<Float32Array>(gmt1ArrayPath) != nullptr);
     REQUIRE(dataStructure.getDataAs<Float32Array>(gmt2ArrayPath) != nullptr);
     REQUIRE(dataStructure.getDataAs<Float32Array>(gmt3ArrayPath) != nullptr);
@@ -166,7 +166,7 @@ TEST_CASE("OrientationAnalysis::VisualizeGBCDGMTFilter", "[OrientationAnalysis][
     auto outputFile = fs::path(fmt::format("{}/small_in100_sigma_9_1.dat", unit_test::k_BinaryTestOutputDir));
 
     {
-      VisualizeGBCDGMTFilter filter;
+      const VisualizeGBCDGMTFilter filter;
       Arguments args;
 
       args.insertOrAssign(VisualizeGBCDGMTFilter::k_PhaseOfInterest_Key, std::make_any<Int32Parameter::ValueType>(1));
@@ -230,12 +230,12 @@ TEST_CASE("OrientationAnalysis::VisualizeGBCDGMTFilter", "[OrientationAnalysis][
       COMPLEX_RESULT_REQUIRE_VALID(executeResult.result);
     }
 
-    DataPath gmt1ArrayPath = gmtGroupPath.createChildPath(k_GMT1);
-    DataPath gmt2ArrayPath = gmtGroupPath.createChildPath(k_GMT2);
-    DataPath gmt3ArrayPath = gmtGroupPath.createChildPath(k_GMT3);
-    DataPath exemplarGmt1ArrayPath = gmtGroupPath.createChildPath(k_ExemplarGMT1);
-    DataPath exemplarGmt2ArrayPath = gmtGroupPath.createChildPath(k_ExemplarGMT2);
-    DataPath exemplarGmt3ArrayPath = gmtGroupPath.createChildPath(k_ExemplarGMT3);
+    const DataPath gmt1ArrayPath = gmtGroupPath.createChildPath(k_GMT1);
+    const DataPath gmt2ArrayPath = gmtGroupPath.createChildPath(k_GMT2);
+    const DataPath gmt3ArrayPath = gmtGroupPath.createChildPath(k_GMT3);
+    const DataPath exemplarGmt1ArrayPath = gmtGroupPath.createChildPath(k_ExemplarGMT1);
+    const DataPath exemplarGmt2ArrayPath = gmtGroupPath.createChildPath(k_ExemplarGMT2);
+    const DataPath exemplarGmt3ArrayPath = gmtGroupPath.createChildPath(k_ExemplarGMT3);
     REQUIRE(dataStructure.getDataAs<Float32Array>(gmt1ArrayPath) != nullptr);
     REQUIRE(dataStructure.getDataAs<Float32Array>(gmt2ArrayPath) != nullptr);
     REQUIRE(dataStructure.getDataAs<Float32Array>(gmt3ArrayPath) != nullptr);
@@ -254,7 +254,7 @@ TEST_CASE("OrientationAnalysis::VisualizeGBCDGMTFilter", "[OrientationAnalysis][
     auto outputFile = fs::path(fmt::format("{}/small_in100_sigma_11_1.dat", unit_test::k_BinaryTestOutputDir));
 
     {
-      VisualizeGBCDGMTFilter filter;
+      const VisualizeGBCDGMTFilter filter;
       Arguments args;
 
       args.insertOrAssign(VisualizeGBCDGMTFilter::k_PhaseOfInterest_Key, std::make_any<Int32Parameter::ValueType>(1));
@@ -318,12 +318,12 @@ TEST_CASE("OrientationAnalysis::VisualizeGBCDGMTFilter", "[OrientationAnalysis][
       COMPLEX_RESULT_REQUIRE_VALID(executeResult.result);
     }
 
-    DataPath gmt1ArrayPath = gmtGroupPath.createChildPath(k_GMT1);
-    DataPath gmt2ArrayPath = gmtGroupPath.createChildPath(k_GMT2);
-    DataPath gmt3ArrayPath = gmtGroupPath.createChildPath(k_GMT3);
-    DataPath exemplarGmt1ArrayPath = gmtGroupPath.createChildPath(k_ExemplarGMT1);
-    DataPath exemplarGmt2ArrayPath = gmtGroupPath.createChildPath(k_ExemplarGMT2);
-    DataPath exemplarGmt3ArrayPath = gmtGroupPath.createChildPath(k_ExemplarGMT3);
+    const DataPath gmt1ArrayPath = gmtGroupPath.createChildPath(k_GMT1);
+    const DataPath gmt2ArrayPath = gmtGroupPath.createChildPath(k_GMT2);
+    const DataPath gmt3ArrayPath = gmtGroupPath.createChildPath(k_GMT3);
+    const DataPath exemplarGmt1ArrayPath = gmtGroupPath.createChildPath(k_ExemplarGMT1);
+    const DataPath exemplarGmt2ArrayPath = gmtGroupPath.createChildPath(k_ExemplarGMT2);
+    const DataPath exemplarGmt3ArrayPath = gmtGroupPath.createChildPath(k_ExemplarGMT3);
     REQUIRE(dataStructure.getDataAs<Float32Array>(gmt1ArrayPath) != nullptr);
     REQUIRE(dataStructure.getDataAs<Float32Array>(gmt2ArrayPath) != nullptr);
     REQUIRE(dataStructure.getDataAs<Float32Array>(gmt3ArrayPath) != nullptr);

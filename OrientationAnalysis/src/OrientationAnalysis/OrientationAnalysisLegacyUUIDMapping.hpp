@@ -24,7 +24,7 @@
 #include "OrientationAnalysis/Filters/ReadH5EbsdFilter.hpp"
 #include "OrientationAnalysis/Filters/RotateEulerRefFrameFilter.hpp"
 #include "OrientationAnalysis/Filters/FindShapesFilter.hpp"
-#include "OrientationAnalysis/Filters/VisualizeGBCDPoleFigureFilter.hpp"
+#include "OrientationAnalysis/Filters/GenerateGBCDPoleFigureFilter.hpp"
 #include "OrientationAnalysis/Filters/VisualizeGBCDGMTFilter.hpp"
 #include "OrientationAnalysis/Filters/GBCDTriangleDumperFilter.hpp"
 // #include "OrientationAnalysis/Filters/ConvertHexGridToSquareGrid.hpp"
@@ -85,7 +85,7 @@ namespace complex
     {complex::Uuid::FromString("4ef7f56b-616e-5a80-9e68-1da8f35ad235").value(), complex::FilterTraits<ReadH5EbsdFilter>::uuid}, // ReadH5Ebsd
     {complex::Uuid::FromString("ef9420b2-8c46-55f3-8ae4-f53790639de4").value(), complex::FilterTraits<RotateEulerRefFrameFilter>::uuid}, // RotateEulerRefFrame
     {complex::Uuid::FromString("3b0ababf-9c8d-538d-96af-e40775c4f0ab").value(), complex::FilterTraits<FindShapesFilter>::uuid}, // FindShapes
-    {complex::Uuid::FromString("85900eba-3da9-5985-ac71-1d9d290a5d31").value(), complex::FilterTraits<VisualizeGBCDPoleFigureFilter>::uuid}, // VisualizeGBCDPoleFigureFilter
+    {complex::Uuid::FromString("85900eba-3da9-5985-ac71-1d9d290a5d31").value(), complex::FilterTraits<GenerateGBCDPoleFigureFilter>::uuid}, // VisualizeGBCDPoleFigureFilter
     {complex::Uuid::FromString("f62065b4-54e9-53b1-bed7-2178a57d3c7a").value(), complex::FilterTraits<VisualizeGBCDGMTFilter>::uuid}, // VisualizeGBCDGMTFilter
     {complex::Uuid::FromString("433976f0-710a-5dcc-938e-fcde49cd842f").value(), complex::FilterTraits<GBCDTriangleDumperFilter>::uuid}, // GBCDTriangleDumperFilter
     // {complex::Uuid::FromString("e1343abe-e5ad-5eb1-a89d-c209e620e4de").value(), complex::FilterTraits<ConvertHexGridToSquareGrid>::uuid}, // ConvertHexGridToSquareGrid

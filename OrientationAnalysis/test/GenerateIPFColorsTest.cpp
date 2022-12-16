@@ -21,11 +21,9 @@ Compare the data sets. The values should be exactly the same.
 
 #include <catch2/catch.hpp>
 
-#include "complex/Parameters/BoolParameter.hpp"
 #include "complex/Parameters/VectorParameter.hpp"
 #include "complex/UnitTest/UnitTestCommon.hpp"
 #include "complex/Utilities/Parsing/DREAM3D/Dream3dIO.hpp"
-#include "complex/Utilities/Parsing/HDF5/H5FileReader.hpp"
 #include "complex/Utilities/Parsing/HDF5/H5FileWriter.hpp"
 
 #include "OrientationAnalysis/Filters/GenerateIPFColorsFilter.hpp"
@@ -42,7 +40,6 @@ namespace fs = std::filesystem;
 namespace complex::Constants
 {
 inline constexpr StringLiteral k_ImageDataContainer("ImageDataContainer");
-inline constexpr StringLiteral k_Mask("Mask");
 inline constexpr StringLiteral k_OutputIPFColors("IPF Colors_Test_Output");
 } // namespace complex::Constants
 

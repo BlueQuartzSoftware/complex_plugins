@@ -1,9 +1,8 @@
-#include "VisualizeGBCDPoleFigure.hpp"
+#include "GenerateGBCDPoleFigure.hpp"
 
 #include "complex/Common/Bit.hpp"
 #include "complex/Common/Constants.hpp"
 #include "complex/DataStructure/DataArray.hpp"
-#include "complex/DataStructure/DataGroup.hpp"
 #include "complex/Utilities/Math/MatrixMath.hpp"
 #include "complex/Utilities/ParallelData2DAlgorithm.hpp"
 
@@ -19,7 +18,7 @@ using namespace complex;
 
 namespace
 {
-class VisualizeGBCDPoleFigureImpl
+class GenerateGBCDPoleFigureImpl
 {
 private:
   Float64Array& m_PoleFigure;
@@ -33,7 +32,7 @@ private:
   const std::vector<float32>& m_MisorientationRotation;
 
 public:
-  VisualizeGBCDPoleFigureImpl(Float64Array& poleFigureArray, const std::array<int32, 2>& dimensions, const LaueOps::Pointer& orientOps, const std::vector<float32>& gbcdDeltasArray,
+  GenerateGBCDPoleFigureImpl(Float64Array& poleFigureArray, const std::array<int32, 2>& dimensions, const LaueOps::Pointer& orientOps, const std::vector<float32>& gbcdDeltasArray,
                               const std::vector<float32>& gbcdLimitsArray, const std::vector<int32>& gbcdSizesArray, const Float64Array& gbcd, int32 phaseOfInterest,
                               const std::vector<float32>& misorientationRotation)
   : m_PoleFigure(poleFigureArray)
@@ -47,7 +46,7 @@ public:
   , m_MisorientationRotation(misorientationRotation)
   {
   }
-  ~VisualizeGBCDPoleFigureImpl() = default;
+  ~GenerateGBCDPoleFigureImpl() = default;
 
   void generate(usize xStart, usize xEnd, usize yStart, usize yEnd) const
   {
@@ -235,33 +234,11 @@ private:
   }
 };
 
-// -----------------------------------------------------------------------------
-int32 WriteCoords(FILE* f, const char* axis, const char* type, int64 nPoints, float32 min, float32 step)
-{
-  int32 err = 0;
-  fprintf(f, "%s %lld %s\n", axis, static_cast<long long int>(nPoints), type);
-  std::vector<float32> data(nPoints, 0.0F);
-  float32 d;
-  for(int64 idx = 0; idx < nPoints; ++idx)
-  {
-    d = static_cast<float32>(idx) * step + min;
-#if(COMPLEX_BYTE_ORDER == little)
-    d = byteswap(d);
-#endif
-    data[idx] = d;
-  }
-  usize totalWritten = fwrite(static_cast<void*>(data.data()), sizeof(float32), static_cast<usize>(nPoints), f);
-  if(totalWritten != static_cast<usize>(nPoints))
-  {
-    err = -1;
-  }
-  return err;
-}
 } // namespace
 
 // -----------------------------------------------------------------------------
-VisualizeGBCDPoleFigure::VisualizeGBCDPoleFigure(DataStructure& dataStructure, const IFilter::MessageHandler& mesgHandler, const std::atomic_bool& shouldCancel,
-                                                 VisualizeGBCDPoleFigureInputValues* inputValues)
+GenerateGBCDPoleFigure::GenerateGBCDPoleFigure(DataStructure& dataStructure, const IFilter::MessageHandler& mesgHandler, const std::atomic_bool& shouldCancel,
+                                                 GenerateGBCDPoleFigureInputValues* inputValues)
 : m_DataStructure(dataStructure)
 , m_InputValues(inputValues)
 , m_ShouldCancel(shouldCancel)
@@ -270,37 +247,21 @@ VisualizeGBCDPoleFigure::VisualizeGBCDPoleFigure(DataStructure& dataStructure, c
 }
 
 // -----------------------------------------------------------------------------
-VisualizeGBCDPoleFigure::~VisualizeGBCDPoleFigure() noexcept = default;
+GenerateGBCDPoleFigure::~GenerateGBCDPoleFigure() noexcept = default;
 
 // -----------------------------------------------------------------------------
-const std::atomic_bool& VisualizeGBCDPoleFigure::getCancel()
+const std::atomic_bool& GenerateGBCDPoleFigure::getCancel()
 {
   return m_ShouldCancel;
 }
 
 // -----------------------------------------------------------------------------
-Result<> VisualizeGBCDPoleFigure::operator()()
+Result<> GenerateGBCDPoleFigure::operator()()
 {
   auto& gbcd = m_DataStructure.getDataRefAs<Float64Array>(m_InputValues->GBCDArrayPath);
   auto crystalStructures = m_DataStructure.getDataRefAs<UInt32Array>(m_InputValues->CrystalStructuresArrayPath);
   DataPath cellIntensityArrayPath = m_InputValues->ImageGeometryPath.createChildPath(m_InputValues->CellAttributeMatrixName).createChildPath(m_InputValues->CellIntensityArrayName);
   auto poleFigure = m_DataStructure.getDataRefAs<Float64Array>(cellIntensityArrayPath);
-
-  // Make sure any directory path is also available as the user may have just typed
-  // in a path without actually creating the full path
-  fs::path parentPath = m_InputValues->OutputFile.parent_path();
-  if(!fs::exists(parentPath))
-  {
-    if(!fs::create_directories(parentPath))
-    {
-      return MakeErrorResult(-23510, fmt::format("Unable to create output directory {}", parentPath.string()));
-    }
-  }
-  std::ofstream outStrm(m_InputValues->OutputFile, std::ios_base::out);
-  if(!outStrm.is_open())
-  {
-    return MakeErrorResult(-23511, fmt::format("Error creating output file {}", m_InputValues->OutputFile.string()));
-  }
 
   std::vector<float32> gbcdDeltas(5, 0);
   std::vector<float32> gbcdLimits(10, 0);
@@ -367,72 +328,7 @@ Result<> VisualizeGBCDPoleFigure::operator()()
   dataAlg.setRange(0, xPoints, 0, yPoints);
   dataAlg.setParallelizationEnabled(true);
   dataAlg.execute(
-      VisualizeGBCDPoleFigureImpl(poleFigure, {xPoints, yPoints}, orientOps, gbcdDeltas, gbcdLimits, gbcdSizes, gbcd, m_InputValues->PhaseOfInterest, m_InputValues->MisorientationRotation));
-
-  FILE* f = fopen(m_InputValues->OutputFile.string().c_str(), "wb");
-  if(nullptr == f)
-  {
-    return MakeErrorResult(-23512, fmt::format("Error opening output file {}", m_InputValues->OutputFile.string()));
-  }
-
-  m_MessageHandler({IFilter::Message::Type::Info, fmt::format("Writing output file {}", m_InputValues->OutputFile.string())});
-
-  // Write the correct header
-  fprintf(f, "# vtk DataFile Version 2.0\n");
-  fprintf(f, "data set from DREAM3D\n");
-  fprintf(f, "BINARY");
-  fprintf(f, "\n");
-  fprintf(f, "DATASET RECTILINEAR_GRID\n");
-  fprintf(f, "DIMENSIONS %d %d %d\n", xPoints + 1, yPoints + 1, zPoints + 1);
-
-  // Write the Coords
-  if(WriteCoords(f, "X_COORDINATES", "float32", xPoints + 1, (-static_cast<float32>(xPoints) * xRes / 2.0f), xRes) < 0)
-  {
-    fclose(f);
-    return MakeErrorResult(-23513, fmt::format("Error writing binary VTK data to file {}", m_InputValues->OutputFile.string()));
-  }
-  if(WriteCoords(f, "Y_COORDINATES", "float32", yPoints + 1, (-static_cast<float32>(yPoints) * yRes / 2.0f), yRes) < 0)
-  {
-    fclose(f);
-    return MakeErrorResult(-23513, fmt::format("Error writing binary VTK data to file {}", m_InputValues->OutputFile.string()));
-  }
-  if(WriteCoords(f, "Z_COORDINATES", "float32", zPoints + 1, (-static_cast<float32>(zPoints) * zRes / 2.0f), zRes) < 0)
-  {
-    fclose(f);
-    return MakeErrorResult(-23513, fmt::format("Error writing binary VTK data to file {}", m_InputValues->OutputFile.string()));
-  }
-
-  int32 total = xPoints * yPoints * zPoints;
-  fprintf(f, "CELL_DATA %d\n", total);
-
-  fprintf(f, "SCALARS %s %s 1\n", "Intensity", "float32");
-  fprintf(f, "LOOKUP_TABLE default\n");
-  {
-    double max = 0.0;
-
-    std::vector<float32> gn(total);
-    float32 t;
-    int32 count = 0;
-    for(int32 j = 0; j < yPoints; j++)
-    {
-      for(int32 i = 0; i < xPoints; i++)
-      {
-        t = static_cast<float32>(poleFigure[(j * xPoints) + i]);
-#if(COMPLEX_BYTE_ORDER == little)
-        t = byteswap(t);
-#endif
-        gn[count] = t;
-        count++;
-      }
-    }
-    usize totalWritten = fwrite(gn.data(), sizeof(float32), (total), f);
-    if(totalWritten != (total))
-    {
-      fclose(f);
-      return MakeErrorResult(-23513, fmt::format("Error writing binary VTK data to file {}", m_InputValues->OutputFile.string()));
-    }
-  }
-  fclose(f);
+      GenerateGBCDPoleFigureImpl(poleFigure, {xPoints, yPoints}, orientOps, gbcdDeltas, gbcdLimits, gbcdSizes, gbcd, m_InputValues->PhaseOfInterest, m_InputValues->MisorientationRotation));
 
   return {};
 }

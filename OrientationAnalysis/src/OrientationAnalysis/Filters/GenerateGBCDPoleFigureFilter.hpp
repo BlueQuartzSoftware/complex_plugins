@@ -8,25 +8,24 @@
 namespace complex
 {
 /**
- * @class VisualizeGBCDPoleFigureFilter
+ * @class GenerateGBCDPoleFigureFilter
  * @brief This filter will ....
  */
-class ORIENTATIONANALYSIS_EXPORT VisualizeGBCDPoleFigureFilter : public IFilter
+class ORIENTATIONANALYSIS_EXPORT GenerateGBCDPoleFigureFilter : public IFilter
 {
 public:
-  VisualizeGBCDPoleFigureFilter() = default;
-  ~VisualizeGBCDPoleFigureFilter() noexcept override = default;
+  GenerateGBCDPoleFigureFilter() = default;
+  ~GenerateGBCDPoleFigureFilter() noexcept override = default;
 
-  VisualizeGBCDPoleFigureFilter(const VisualizeGBCDPoleFigureFilter&) = delete;
-  VisualizeGBCDPoleFigureFilter(VisualizeGBCDPoleFigureFilter&&) noexcept = delete;
+  GenerateGBCDPoleFigureFilter(const GenerateGBCDPoleFigureFilter&) = delete;
+  GenerateGBCDPoleFigureFilter(GenerateGBCDPoleFigureFilter&&) noexcept = delete;
 
-  VisualizeGBCDPoleFigureFilter& operator=(const VisualizeGBCDPoleFigureFilter&) = delete;
-  VisualizeGBCDPoleFigureFilter& operator=(VisualizeGBCDPoleFigureFilter&&) noexcept = delete;
+  GenerateGBCDPoleFigureFilter& operator=(const GenerateGBCDPoleFigureFilter&) = delete;
+  GenerateGBCDPoleFigureFilter& operator=(GenerateGBCDPoleFigureFilter&&) noexcept = delete;
 
   // Parameter Keys
   static inline constexpr StringLiteral k_PhaseOfInterest_Key = "phase_of_interest";
   static inline constexpr StringLiteral k_MisorientationRotation_Key = "misorientation_rotation";
-  static inline constexpr StringLiteral k_OutputFile_Key = "output_file";
   static inline constexpr StringLiteral k_OutputImageDimension_Key = "output_image_dimension";
   static inline constexpr StringLiteral k_GBCDArrayPath_Key = "gbcd_array_path";
   static inline constexpr StringLiteral k_CrystalStructuresArrayPath_Key = "crystal_structures_array_path";
@@ -100,4 +99,4 @@ protected:
 };
 } // namespace complex
 
-COMPLEX_DEF_FILTER_TRAITS(complex, VisualizeGBCDPoleFigureFilter, "eed5183e-5a9c-485b-9e64-579a81f0d301");
+COMPLEX_DEF_FILTER_TRAITS(complex, GenerateGBCDPoleFigureFilter, "eed5183e-5a9c-485b-9e64-579a81f0d301");

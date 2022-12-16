@@ -1,4 +1,4 @@
-# Export GBCD Pole Figure (VTK) 
+# Generate GBCD Pole Figure 
 
 
 ## Group (Subgroup) ##
@@ -7,7 +7,7 @@ IO (Output)
 
 ## Description ##
 
-This **Filter** creates a .vtk file that can be used in [ParaView](http://www.paraview.org/) to visualize a Grain Boundary Character Distribution (GBCD) pole figure. The user must select the relevant phase for which to write the pole figure by entering the _phase index_. 
+This **Filter** creates a pole figure from the Grain Boundary Character Distribution (GBCD) data. The user must select the relevant phase for which to generate the pole figure by entering the _phase index_.
 
 -----
 
@@ -22,8 +22,7 @@ This **Filter** creates a .vtk file that can be used in [ParaView](http://www.pa
 | Name | Type | Description |
 |------|------|-------------|
 | Phase of Interest | int32 | Index of the **Ensemble** for which to plot the pole figure |
-| Misorientation Axis-Angle | float (4x) | Axis-Angle pair values for drawing GBCD |
-| Output Regular Grid VTK File | File Path | The output .vtk file path |
+| Misorientation Axis-Angle | float (4x) | Axis-Angle pair values for drawing GBCD  in the order of Axis (Degrees) then Axis (Normalized)|
 | Output Image Dimension | int32 | The value to use for the x and y dimensions of the created Image Geometry |
 
 ## Required Geometry ##

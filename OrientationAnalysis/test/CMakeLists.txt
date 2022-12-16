@@ -28,7 +28,7 @@ set(${PLUGIN_NAME}UnitTest_SRCS
   ReadCtfDataTest.cpp
   ReadH5EbsdTest.cpp
   RotateEulerRefFrameTest.cpp
-  VisualizeGBCDPoleFigureTest.cpp
+  GenerateGBCDPoleFigureTest.cpp
   VisualizeGBCDGMTTest.cpp
   GBCDTriangleDumperTest.cpp
 )
