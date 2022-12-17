@@ -194,10 +194,8 @@ Result<> VisualizeGBCDGMT::operator()()
           // get symmetry operator2
           orientOps->getMatSymOp(j, tempSymOperator);
           const Matrix3X3Type sym2(tempSymOperator);
-          const Matrix3X3Type sym2t = sym2.transpose();
-          // calculate symmetric misorientation
-          Matrix3X3Type dg1 = dg * sym2t;
-          Matrix3X3Type dg2 = sym1 * dg1;
+          //  calculate symmetric misorientation
+          Matrix3X3Type dg2 = sym1 * (dg * sym2.transpose());
           // convert to euler angle
           auto misEuler1 = OrientationTransformation::om2eu<OrientationD, OrientationD>(OrientationD(dg2.data(), 9));
           if(misEuler1[0] < Constants::k_PiOver2D && misEuler1[1] < Constants::k_PiOver2D && misEuler1[2] < Constants::k_PiOver2D)
@@ -247,8 +245,7 @@ Result<> VisualizeGBCDGMT::operator()()
 
           // again in second crystal reference frame
           // calculate symmetric misorientation
-          dg1 = dgt * sym2;
-          dg2 = sym1 * dg1;
+          dg2 = sym1 * (dgt * sym2);
           // convert to euler angle
           misEuler1 = OrientationTransformation::om2eu<OrientationD, OrientationD>(OrientationD(dg2.data(), 9));
           if(misEuler1[0] < Constants::k_PiOver2D && misEuler1[1] < Constants::k_PiOver2D && misEuler1[2] < Constants::k_PiOver2D)
