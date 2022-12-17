@@ -14,21 +14,12 @@ set(${PLUGIN_NAME}_SOURCE_DIR ${CMAKE_CURRENT_LIST_DIR})
 # Core/src/Core/Filters/ directory.
 set(FilterList
     AlignSectionsFeatureCentroidFilter
-    CalculateArrayHistogramFilter
-    ConvertColorToGrayScaleFilter
-    ConvertDataFilter
-    CreateGeometryFilter
     ErodeDilateBadDataFilter
     FillBadDataFilter
-    FindEuclideanDistMapFilter
     FindNeighborhoodsFilter
-    FindShapesFilter
-    FindSurfaceAreaToVolumeFilter
     RemoveFlaggedFeaturesFilter
     ResampleImageGeomFilter
     RotateSampleRefFrameFilter
-    SplitAttributeArrayFilter
-    WriteASCIIDataFilter
 )
 # ------------------------------------------------------------------------------
 # Algorithms
@@ -36,16 +27,11 @@ set(FilterList
 # ------------------------------------------------------------------------------
 set(AlgorithmList
   AlignSectionsFeatureCentroid
-  CalculateArrayHistogram
   ErodeDilateBadData
   FillBadData
-  FindEuclideanDistMap
   FindNeighborhoods
-  FindShapes
-  FindSurfaceAreaToVolume
   RemoveFlaggedFeatures
   ResampleImageGeom
-  SplitAttributeArray
 )
 
 create_complex_plugin(NAME ${PLUGIN_NAME}
