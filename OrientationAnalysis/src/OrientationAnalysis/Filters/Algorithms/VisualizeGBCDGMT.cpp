@@ -1,5 +1,8 @@
 #include "VisualizeGBCDGMT.hpp"
 
+#include "OrientationAnalysis/Math/Matrix3X1.hpp"
+#include "OrientationAnalysis/Math/Matrix3X3.hpp"
+
 #include "complex/Common/Constants.hpp"
 #include "complex/DataStructure/DataArray.hpp"
 #include "complex/DataStructure/DataGroup.hpp"
@@ -126,23 +129,20 @@ Result<> VisualizeGBCDGMT::operator()()
   gbcdDeltas[3] = (gbcdLimits[8] - gbcdLimits[3]) / static_cast<double>(gbcdSizes[3]);
   gbcdDeltas[4] = (gbcdLimits[9] - gbcdLimits[4]) / static_cast<double>(gbcdSizes[4]);
 
-  float64 dg[3][3] = {{0.0f, 0.0f, 0.0f}, {0.0f, 0.0f, 0.0f}, {0.0f, 0.0f, 0.0f}};
-  float64 dgt[3][3] = {{0.0f, 0.0f, 0.0f}, {0.0f, 0.0f, 0.0f}, {0.0f, 0.0f, 0.0f}};
-  float64 dg1[3][3] = {{0.0f, 0.0f, 0.0f}, {0.0f, 0.0f, 0.0f}, {0.0f, 0.0f, 0.0f}};
-  float64 dg2[3][3] = {{0.0f, 0.0f, 0.0f}, {0.0f, 0.0f, 0.0f}, {0.0f, 0.0f, 0.0f}};
-  float64 sym1[3][3] = {{0.0f, 0.0f, 0.0f}, {0.0f, 0.0f, 0.0f}, {0.0f, 0.0f, 0.0f}};
-  float64 sym2[3][3] = {{0.0f, 0.0f, 0.0f}, {0.0f, 0.0f, 0.0f}, {0.0f, 0.0f, 0.0f}};
-  float64 sym2t[3][3] = {{0.0f, 0.0f, 0.0f}, {0.0f, 0.0f, 0.0f}, {0.0f, 0.0f, 0.0f}};
+  using Matrix3X3Type = Matrix3X3<float64>;
+  using Matrix3X1Type = Matrix3X1<float64>;
+  Matrix3X3Type dg;
 
   {
     const float32 misAngle = m_InputValues->MisorientationRotation[0] * Constants::k_PiOver180F;
     std::array<float32, 3> normAxis = {m_InputValues->MisorientationRotation[1], m_InputValues->MisorientationRotation[2], m_InputValues->MisorientationRotation[3]};
     MatrixMath::Normalize3x1(normAxis.data());
     // convert axis angle to matrix representation of misorientation
-    OrientationTransformation::ax2om<OrientationD, OrientationD>(OrientationF(normAxis[0], normAxis[1], normAxis[2], misAngle)).toGMatrix(dg);
+    auto out = OrientationTransformation::ax2om<OrientationD, OrientationD>(OrientationF(normAxis[0], normAxis[1], normAxis[2], misAngle));
+    dg = Matrix3X3Type(out.data());
   }
   // take inverse of misorientation variable to use for switching symmetry
-  MatrixMath::Transpose3x3(dg, dgt);
+  Matrix3X3Type dgt = dg.transpose();
 
   // Get our LaueOps pointer for the selected crystal structure
   const LaueOps::Pointer orientOps = LaueOps::GetAllOrientationOps()[crystalStructures[m_InputValues->PhaseOfInterest]];
@@ -178,27 +178,28 @@ Result<> VisualizeGBCDGMT::operator()()
       float64 sum = 0.0;
       int32 count = 0;
 
-      std::array<double, 3> vec = {std::sin(phiRad) * std::cos(thetaRad), std::sin(phiRad) * std::sin(thetaRad), std::cos(phiRad)};
-      std::array<double, 3> vec2 = {0.0, 0.0, 0.0};
-      MatrixMath::Multiply3x3with3x1(dgt, vec.data(), vec2.data());
+      const Matrix3X1Type vec(std::sin(phiRad) * std::cos(thetaRad), std::sin(phiRad) * std::sin(thetaRad), std::cos(phiRad));
+      const Matrix3X1Type vec2 = dgt * vec;
 
       // Loop over all the symmetry operators in the given crystal symmetry
       for(int32 i = 0; i < nSym; i++)
       {
         // get symmetry operator1
-        orientOps->getMatSymOp(i, sym1);
+        double tempSymOperator[3][3];
+        orientOps->getMatSymOp(i, tempSymOperator);
+        const Matrix3X3Type sym1(tempSymOperator);
+
         for(int32 j = 0; j < nSym; j++)
         {
           // get symmetry operator2
-          orientOps->getMatSymOp(j, sym2);
-          MatrixMath::Transpose3x3(sym2, sym2t);
+          orientOps->getMatSymOp(j, tempSymOperator);
+          const Matrix3X3Type sym2(tempSymOperator);
+          const Matrix3X3Type sym2t = sym2.transpose();
           // calculate symmetric misorientation
-          MatrixMath::Multiply3x3with3x3(dg, sym2t, dg1);
-          MatrixMath::Multiply3x3with3x3(sym1, dg1, dg2);
+          Matrix3X3Type dg1 = dg * sym2t;
+          Matrix3X3Type dg2 = sym1 * dg1;
           // convert to euler angle
-          // OrientationD mEuler(misEuler1, 3);
-          auto misEuler1 = OrientationTransformation::om2eu<OrientationD, OrientationD>(OrientationD(dg2));
-
+          auto misEuler1 = OrientationTransformation::om2eu<OrientationD, OrientationD>(OrientationD(dg2.data(), 9));
           if(misEuler1[0] < Constants::k_PiOver2D && misEuler1[1] < Constants::k_PiOver2D && misEuler1[2] < Constants::k_PiOver2D)
           {
             misEuler1[1] = std::cos(misEuler1[1]);
@@ -207,11 +208,10 @@ Result<> VisualizeGBCDGMT::operator()()
             const auto location2 = static_cast<int32>((misEuler1[1] - gbcdLimits[1]) / gbcdDeltas[1]);
             const auto location3 = static_cast<int32>((misEuler1[2] - gbcdLimits[2]) / gbcdDeltas[2]);
             // find symmetric poles using the first symmetry operator
-            std::array<double, 3> rotNormal = {0.0, 0.0, 0.0};
-            MatrixMath::Multiply3x3with3x1(sym1, vec.data(), rotNormal.data());
+            Matrix3X1Type rotNormal = sym1 * vec;
             // get coordinates in square projection of crystal normal parallel to boundary normal
             // This section of code is in here so that we can essentially remove the tiny error out in the
-            // 16th decimal place of the double values. This will essentially guarantee
+            // last few decimal places of the double values. This will essentially guarantee
             // the both x86_64 and ARM64 will end up returning the same square coordinates.
             const std::array<float32, 3> rotNormalF = {static_cast<float32>(rotNormal[0]), static_cast<float32>(rotNormal[1]), static_cast<float32>(rotNormal[2])};
             std::array<float32, 2> sqCoordF = {0.0F, 0.0F};
@@ -223,7 +223,7 @@ Result<> VisualizeGBCDGMT::operator()()
 
             // Note the switch to have theta in the 4 slot and cos(Phi) in the 3 slot
             auto location4 = static_cast<int32>((sqCoord[0] - gbcdLimits[3]) / gbcdDeltas[3]);
-            if(std::isnan(sqCoord[0]))
+            if(std::isnan(sqCoord[0])) // Arm64 and x86 handle casting NaN to integer differently. Make them the same outcome.
             {
               location4 = std::numeric_limits<int32>::min();
             }
@@ -247,10 +247,10 @@ Result<> VisualizeGBCDGMT::operator()()
 
           // again in second crystal reference frame
           // calculate symmetric misorientation
-          MatrixMath::Multiply3x3with3x3(dgt, sym2, dg1);
-          MatrixMath::Multiply3x3with3x3(sym1, dg1, dg2);
+          dg1 = dgt * sym2;
+          dg2 = sym1 * dg1;
           // convert to euler angle
-          misEuler1 = OrientationTransformation::om2eu<OrientationD, OrientationD>(OrientationD(dg2));
+          misEuler1 = OrientationTransformation::om2eu<OrientationD, OrientationD>(OrientationD(dg2.data(), 9));
           if(misEuler1[0] < Constants::k_PiOver2D && misEuler1[1] < Constants::k_PiOver2D && misEuler1[2] < Constants::k_PiOver2D)
           {
             misEuler1[1] = std::cos(misEuler1[1]);
@@ -259,9 +259,7 @@ Result<> VisualizeGBCDGMT::operator()()
             const auto location2 = static_cast<int32>((misEuler1[1] - gbcdLimits[1]) / gbcdDeltas[1]);
             const auto location3 = static_cast<int32>((misEuler1[2] - gbcdLimits[2]) / gbcdDeltas[2]);
             // find symmetric poles using the first symmetry operator
-            std::array<double, 3> rotNormal2 = {0.0, 0.0, 0.0};
-
-            MatrixMath::Multiply3x3with3x1(sym1, vec2.data(), rotNormal2.data());
+            Matrix3X1Type rotNormal2 = sym1 * vec2;
             // get coordinates in square projection of crystal normal parallel to boundary normal
             const std::array<float32, 3> rotNormalF = {static_cast<float32>(rotNormal2[0]), static_cast<float32>(rotNormal2[1]), static_cast<float32>(rotNormal2[2])};
             std::array<float32, 2> sqCoordF = {0.0F, 0.0F};
