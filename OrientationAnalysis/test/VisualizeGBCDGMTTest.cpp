@@ -76,7 +76,7 @@ TEST_CASE("OrientationAnalysis::VisualizeGBCDGMTFilter", "[OrientationAnalysis][
   SECTION("Pole Figures for Sigma 3  60@[111]")
   {
     // Create Pole Figure
-    auto outputFile = fs::path(fmt::format("{}/small_in100_sigma3_1.dat", unit_test::k_BinaryTestOutputDir));
+    auto outputFile = fs::path(fmt::format("{}/small_in100_sigma_3_1.dat", unit_test::k_BinaryTestOutputDir));
     {
       const VisualizeGBCDGMTFilter gmtFilter;
       Arguments args;
