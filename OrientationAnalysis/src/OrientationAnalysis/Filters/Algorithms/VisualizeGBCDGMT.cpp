@@ -9,6 +9,7 @@
 #include "EbsdLib/Core/OrientationTransformation.hpp"
 #include "EbsdLib/LaueOps/LaueOps.h"
 
+#include <cmath>
 #include <filesystem>
 
 namespace fs = std::filesystem;
@@ -19,7 +20,7 @@ namespace
 {
 // -----------------------------------------------------------------------------
 template <typename T>
-bool GetSquareCoord(T* crystalNormal, T* sqCoord)
+bool GetSquareCoord(std::array<T, 3> crystalNormal, std::array<T, 2>& sqCoord)
 {
   bool nhCheck = false;
   T adjust = 1.0;
@@ -68,7 +69,7 @@ Result<> VisualizeGBCDGMT::operator()()
 
   // Make sure any directory path is also available as the user may have just typed
   // in a path without actually creating the full path
-  fs::path parentPath = m_InputValues->OutputFile.parent_path();
+  const fs::path parentPath = m_InputValues->OutputFile.parent_path();
   if(!fs::exists(parentPath))
   {
     if(!fs::create_directories(parentPath))
@@ -76,7 +77,7 @@ Result<> VisualizeGBCDGMT::operator()()
       return MakeErrorResult(-58320, fmt::format("Unable to create output directory {}", parentPath.string()));
     }
   }
-  std::ofstream outStrm(m_InputValues->OutputFile, std::ios_base::out);
+  const std::ofstream outStrm(m_InputValues->OutputFile, std::ios_base::out);
   if(!outStrm.is_open())
   {
     return MakeErrorResult(-11021, fmt::format("Error creating output file {}", m_InputValues->OutputFile.string()));
@@ -113,11 +114,11 @@ Result<> VisualizeGBCDGMT::operator()()
   // get num components of GBCD
   std::vector<usize> cDims = gbcd.getComponentShape();
 
-  gbcdSizes[0] = cDims[0];
-  gbcdSizes[1] = cDims[1];
-  gbcdSizes[2] = cDims[2];
-  gbcdSizes[3] = cDims[3];
-  gbcdSizes[4] = cDims[4];
+  gbcdSizes[0] = static_cast<int>(cDims[0]);
+  gbcdSizes[1] = static_cast<int>(cDims[1]);
+  gbcdSizes[2] = static_cast<int>(cDims[2]);
+  gbcdSizes[3] = static_cast<int>(cDims[3]);
+  gbcdSizes[4] = static_cast<int>(cDims[4]);
 
   gbcdDeltas[0] = (gbcdLimits[5] - gbcdLimits[0]) / static_cast<double>(gbcdSizes[0]);
   gbcdDeltas[1] = (gbcdLimits[6] - gbcdLimits[1]) / static_cast<double>(gbcdSizes[1]);
@@ -125,72 +126,61 @@ Result<> VisualizeGBCDGMT::operator()()
   gbcdDeltas[3] = (gbcdLimits[8] - gbcdLimits[3]) / static_cast<double>(gbcdSizes[3]);
   gbcdDeltas[4] = (gbcdLimits[9] - gbcdLimits[4]) / static_cast<double>(gbcdSizes[4]);
 
-  double vec[3] = {0.0f, 0.0f, 0.0f};
-  double vec2[3] = {0.0f, 0.0f, 0.0f};
-  double rotNormal[3] = {0.0f, 0.0f, 0.0f};
-  double rotNormal2[3] = {0.0f, 0.0f, 0.0f};
-  double sqCoord[2] = {0.0f, 0.0f};
-  double dg[3][3] = {{0.0f, 0.0f, 0.0f}, {0.0f, 0.0f, 0.0f}};
-  double dgt[3][3] = {{0.0f, 0.0f, 0.0f}, {0.0f, 0.0f, 0.0f}};
-  double dg1[3][3] = {{0.0f, 0.0f, 0.0f}, {0.0f, 0.0f, 0.0f}};
-  double dg2[3][3] = {{0.0f, 0.0f, 0.0f}, {0.0f, 0.0f, 0.0f}};
-  double sym1[3][3] = {{0.0f, 0.0f, 0.0f}, {0.0f, 0.0f, 0.0f}};
-  double sym2[3][3] = {{0.0f, 0.0f, 0.0f}, {0.0f, 0.0f, 0.0f}};
-  double sym2t[3][3] = {{0.0f, 0.0f, 0.0f}, {0.0f, 0.0f, 0.0f}};
-  double misEuler1[3] = {0.0f, 0.0f, 0.0f};
+  float64 dg[3][3] = {{0.0f, 0.0f, 0.0f}, {0.0f, 0.0f, 0.0f}, {0.0f, 0.0f, 0.0f}};
+  float64 dgt[3][3] = {{0.0f, 0.0f, 0.0f}, {0.0f, 0.0f, 0.0f}, {0.0f, 0.0f, 0.0f}};
+  float64 dg1[3][3] = {{0.0f, 0.0f, 0.0f}, {0.0f, 0.0f, 0.0f}, {0.0f, 0.0f, 0.0f}};
+  float64 dg2[3][3] = {{0.0f, 0.0f, 0.0f}, {0.0f, 0.0f, 0.0f}, {0.0f, 0.0f, 0.0f}};
+  float64 sym1[3][3] = {{0.0f, 0.0f, 0.0f}, {0.0f, 0.0f, 0.0f}, {0.0f, 0.0f, 0.0f}};
+  float64 sym2[3][3] = {{0.0f, 0.0f, 0.0f}, {0.0f, 0.0f, 0.0f}, {0.0f, 0.0f, 0.0f}};
+  float64 sym2t[3][3] = {{0.0f, 0.0f, 0.0f}, {0.0f, 0.0f, 0.0f}, {0.0f, 0.0f, 0.0f}};
 
-  double misAngle = m_InputValues->MisorientationRotation[0] * Constants::k_PiOver180D;
-  double normAxis[3] = {m_InputValues->MisorientationRotation[1], m_InputValues->MisorientationRotation[2], m_InputValues->MisorientationRotation[3]};
-  MatrixMath::Normalize3x1(normAxis);
-  // convert axis angle to matrix representation of misorientation
-  OrientationTransformation::ax2om<OrientationD, OrientationD>(OrientationF(normAxis[0], normAxis[1], normAxis[2], misAngle)).toGMatrix(dg);
-
+  {
+    const float32 misAngle = m_InputValues->MisorientationRotation[0] * Constants::k_PiOver180F;
+    std::array<float32, 3> normAxis = {m_InputValues->MisorientationRotation[1], m_InputValues->MisorientationRotation[2], m_InputValues->MisorientationRotation[3]};
+    MatrixMath::Normalize3x1(normAxis.data());
+    // convert axis angle to matrix representation of misorientation
+    OrientationTransformation::ax2om<OrientationD, OrientationD>(OrientationF(normAxis[0], normAxis[1], normAxis[2], misAngle)).toGMatrix(dg);
+  }
   // take inverse of misorientation variable to use for switching symmetry
   MatrixMath::Transpose3x3(dg, dgt);
 
   // Get our LaueOps pointer for the selected crystal structure
-  LaueOps::Pointer orientOps = LaueOps::GetAllOrientationOps()[crystalStructures[m_InputValues->PhaseOfInterest]];
+  const LaueOps::Pointer orientOps = LaueOps::GetAllOrientationOps()[crystalStructures[m_InputValues->PhaseOfInterest]];
 
   // get number of symmetry operators
-  int32 nSym = orientOps->getNumSymOps();
+  const int32 nSym = orientOps->getNumSymOps();
 
-  int32 thetaPoints = 120;
-  int32 phiPoints = 30;
-  double thetaRes = 360.0 / static_cast<double>(thetaPoints);
-  double phiRes = 90.0f / static_cast<double>(phiPoints);
-  double theta = 0.0, phi = 0.0;
-  double thetaRad = 0.0, phiRad = 0.0;
-  double degToRad = Constants::k_PiOver180D;
-  double sum = 0.0;
-  int32 count = 0;
-  bool nhCheck = false;
-  int32 hemisphere = 0;
+  const usize thetaPoints = 120;
+  const usize phiPoints = 30;
+  const float64 thetaRes = 360.0 / static_cast<float64>(thetaPoints);
+  const float64 phiRes = 90.0f / static_cast<float64>(phiPoints);
+  const float64 degToRad = Constants::k_PiOver180D;
 
-  int32 shift1 = gbcdSizes[0];
-  int32 shift2 = gbcdSizes[0] * gbcdSizes[1];
-  int32 shift3 = gbcdSizes[0] * gbcdSizes[1] * gbcdSizes[2];
-  int32 shift4 = gbcdSizes[0] * gbcdSizes[1] * gbcdSizes[2] * gbcdSizes[3];
+  const int32 shift1 = gbcdSizes[0];
+  const int32 shift2 = gbcdSizes[0] * gbcdSizes[1];
+  const int32 shift3 = gbcdSizes[0] * gbcdSizes[1] * gbcdSizes[2];
+  const int32 shift4 = gbcdSizes[0] * gbcdSizes[1] * gbcdSizes[2] * gbcdSizes[3];
 
-  int64 totalGBCDBins = gbcdSizes[0] * gbcdSizes[1] * gbcdSizes[2] * gbcdSizes[3] * gbcdSizes[4] * 2;
+  const auto totalGBCDBins = (gbcdSizes[0] * gbcdSizes[1] * gbcdSizes[2] * gbcdSizes[3] * gbcdSizes[4] * 2);
 
   std::vector<double> gmtValues;
   gmtValues.reserve((phiPoints + 1) * (thetaPoints + 1)); // Allocate what should be needed.
 
-  for(int32 k = 0; k < phiPoints + 1; k++)
+  for(int32 phiPtIndex = 0; phiPtIndex < phiPoints + 1; phiPtIndex++)
   {
-    for(int32 l = 0; l < thetaPoints + 1; l++)
+    for(int32 thetaPtIndex = 0; thetaPtIndex < thetaPoints + 1; thetaPtIndex++)
     {
       // get (x,y) for stereographic projection pixel
-      theta = static_cast<double>(l) * thetaRes;
-      phi = static_cast<double>(k) * phiRes;
-      thetaRad = theta * degToRad;
-      phiRad = phi * degToRad;
-      sum = 0.0;
-      count = 0;
-      vec[0] = sinf(phiRad) * cosf(thetaRad);
-      vec[1] = sinf(phiRad) * sinf(thetaRad);
-      vec[2] = cosf(phiRad);
-      MatrixMath::Multiply3x3with3x1(dgt, vec, vec2);
+      const float64 theta = static_cast<float64>(thetaPtIndex) * thetaRes;
+      const float64 phi = static_cast<float64>(phiPtIndex) * phiRes;
+      const float64 thetaRad = theta * degToRad;
+      const float64 phiRad = phi * degToRad;
+      float64 sum = 0.0;
+      int32 count = 0;
+
+      std::array<double, 3> vec = {std::sin(phiRad) * std::cos(thetaRad), std::sin(phiRad) * std::sin(thetaRad), std::cos(phiRad)};
+      std::array<double, 3> vec2 = {0.0, 0.0, 0.0};
+      MatrixMath::Multiply3x3with3x1(dgt, vec.data(), vec2.data());
 
       // Loop over all the symmetry operators in the given crystal symmetry
       for(int32 i = 0; i < nSym; i++)
@@ -206,27 +196,46 @@ Result<> VisualizeGBCDGMT::operator()()
           MatrixMath::Multiply3x3with3x3(dg, sym2t, dg1);
           MatrixMath::Multiply3x3with3x3(sym1, dg1, dg2);
           // convert to euler angle
-          OrientationD mEuler(misEuler1, 3);
-          mEuler = OrientationTransformation::om2eu<OrientationD, OrientationD>(OrientationD(dg2));
+          // OrientationD mEuler(misEuler1, 3);
+          auto misEuler1 = OrientationTransformation::om2eu<OrientationD, OrientationD>(OrientationD(dg2));
 
           if(misEuler1[0] < Constants::k_PiOver2D && misEuler1[1] < Constants::k_PiOver2D && misEuler1[2] < Constants::k_PiOver2D)
           {
-            misEuler1[1] = cosf(misEuler1[1]);
+            misEuler1[1] = std::cos(misEuler1[1]);
             // find bins in GBCD
-            int32 location1 = static_cast<int32>((misEuler1[0] - gbcdLimits[0]) / gbcdDeltas[0]);
-            int32 location2 = static_cast<int32>((misEuler1[1] - gbcdLimits[1]) / gbcdDeltas[1]);
-            int32 location3 = static_cast<int32>((misEuler1[2] - gbcdLimits[2]) / gbcdDeltas[2]);
+            const auto location1 = static_cast<int32>((misEuler1[0] - gbcdLimits[0]) / gbcdDeltas[0]);
+            const auto location2 = static_cast<int32>((misEuler1[1] - gbcdLimits[1]) / gbcdDeltas[1]);
+            const auto location3 = static_cast<int32>((misEuler1[2] - gbcdLimits[2]) / gbcdDeltas[2]);
             // find symmetric poles using the first symmetry operator
-            MatrixMath::Multiply3x3with3x1(sym1, vec, rotNormal);
+            std::array<double, 3> rotNormal = {0.0, 0.0, 0.0};
+            MatrixMath::Multiply3x3with3x1(sym1, vec.data(), rotNormal.data());
             // get coordinates in square projection of crystal normal parallel to boundary normal
-            nhCheck = GetSquareCoord(rotNormal, sqCoord);
+            // This section of code is in here so that we can essentially remove the tiny error out in the
+            // 16th decimal place of the double values. This will essentially guarantee
+            // the both x86_64 and ARM64 will end up returning the same square coordinates.
+            const std::array<float32, 3> rotNormalF = {static_cast<float32>(rotNormal[0]), static_cast<float32>(rotNormal[1]), static_cast<float32>(rotNormal[2])};
+            std::array<float32, 2> sqCoordF = {0.0F, 0.0F};
+
+            const bool nhCheck = GetSquareCoord(rotNormalF, sqCoordF); // Result goes into the sqCoordF variable
+            // Now copy the square coordinate back to the double version of the values
+            // so that we can keep doing double precision calculations
+            std::array<double, 3> sqCoord = {static_cast<float64>(sqCoordF[0]), static_cast<float64>(sqCoordF[1])};
+
             // Note the switch to have theta in the 4 slot and cos(Phi) in the 3 slot
-            int32 location4 = static_cast<int32>((sqCoord[0] - gbcdLimits[3]) / gbcdDeltas[3]);
-            int32 location5 = static_cast<int32>((sqCoord[1] - gbcdLimits[4]) / gbcdDeltas[4]);
+            auto location4 = static_cast<int32>((sqCoord[0] - gbcdLimits[3]) / gbcdDeltas[3]);
+            if(std::isnan(sqCoord[0]))
+            {
+              location4 = std::numeric_limits<int32>::min();
+            }
+            auto location5 = static_cast<int32>((sqCoord[1] - gbcdLimits[4]) / gbcdDeltas[4]);
+            if(std::isnan(sqCoord[1]))
+            {
+              location5 = std::numeric_limits<int32>::min();
+            }
             if(location1 >= 0 && location2 >= 0 && location3 >= 0 && location4 >= 0 && location5 >= 0 && location1 < gbcdSizes[0] && location2 < gbcdSizes[1] && location3 < gbcdSizes[2] &&
                location4 < gbcdSizes[3] && location5 < gbcdSizes[4])
             {
-              hemisphere = 0;
+              int32 hemisphere = 0;
               if(!nhCheck)
               {
                 hemisphere = 1;
@@ -241,25 +250,41 @@ Result<> VisualizeGBCDGMT::operator()()
           MatrixMath::Multiply3x3with3x3(dgt, sym2, dg1);
           MatrixMath::Multiply3x3with3x3(sym1, dg1, dg2);
           // convert to euler angle
-          mEuler = OrientationTransformation::om2eu<OrientationD, OrientationD>(OrientationD(dg2));
+          misEuler1 = OrientationTransformation::om2eu<OrientationD, OrientationD>(OrientationD(dg2));
           if(misEuler1[0] < Constants::k_PiOver2D && misEuler1[1] < Constants::k_PiOver2D && misEuler1[2] < Constants::k_PiOver2D)
           {
-            misEuler1[1] = cosf(misEuler1[1]);
+            misEuler1[1] = std::cos(misEuler1[1]);
             // find bins in GBCD
-            int32 location1 = static_cast<int32>((misEuler1[0] - gbcdLimits[0]) / gbcdDeltas[0]);
-            int32 location2 = static_cast<int32>((misEuler1[1] - gbcdLimits[1]) / gbcdDeltas[1]);
-            int32 location3 = static_cast<int32>((misEuler1[2] - gbcdLimits[2]) / gbcdDeltas[2]);
+            const auto location1 = static_cast<int32>((misEuler1[0] - gbcdLimits[0]) / gbcdDeltas[0]);
+            const auto location2 = static_cast<int32>((misEuler1[1] - gbcdLimits[1]) / gbcdDeltas[1]);
+            const auto location3 = static_cast<int32>((misEuler1[2] - gbcdLimits[2]) / gbcdDeltas[2]);
             // find symmetric poles using the first symmetry operator
-            MatrixMath::Multiply3x3with3x1(sym1, vec2, rotNormal2);
+            std::array<double, 3> rotNormal2 = {0.0, 0.0, 0.0};
+
+            MatrixMath::Multiply3x3with3x1(sym1, vec2.data(), rotNormal2.data());
             // get coordinates in square projection of crystal normal parallel to boundary normal
-            nhCheck = GetSquareCoord(rotNormal2, sqCoord);
-            // Note the switch to have theta in the 4 slot and cos(Phi) int he 3 slot
-            int32 location4 = static_cast<int32>((sqCoord[0] - gbcdLimits[3]) / gbcdDeltas[3]);
-            int32 location5 = static_cast<int32>((sqCoord[1] - gbcdLimits[4]) / gbcdDeltas[4]);
+            const std::array<float32, 3> rotNormalF = {static_cast<float32>(rotNormal2[0]), static_cast<float32>(rotNormal2[1]), static_cast<float32>(rotNormal2[2])};
+            std::array<float32, 2> sqCoordF = {0.0F, 0.0F};
+
+            const bool nhCheck = GetSquareCoord(rotNormalF, sqCoordF);
+            std::array<double, 3> sqCoord = {static_cast<float64>(sqCoordF[0]), static_cast<float64>(sqCoordF[1])};
+
+            // Note the switch to have theta in the 4 slot and cos(Phi) in the 3 slot
+            auto location4 = static_cast<int32>((sqCoord[0] - gbcdLimits[3]) / gbcdDeltas[3]);
+            if(std::isnan(sqCoord[0]))
+            {
+              location4 = std::numeric_limits<int32>::min();
+            }
+            auto location5 = static_cast<int32>((sqCoord[1] - gbcdLimits[4]) / gbcdDeltas[4]);
+            if(std::isnan(sqCoord[1]))
+            {
+              location5 = std::numeric_limits<int32>::min();
+            }
+
             if(location1 >= 0 && location2 >= 0 && location3 >= 0 && location4 >= 0 && location5 >= 0 && location1 < gbcdSizes[0] && location2 < gbcdSizes[1] && location3 < gbcdSizes[2] &&
                location4 < gbcdSizes[3] && location5 < gbcdSizes[4])
             {
-              hemisphere = 0;
+              int32 hemisphere = 0;
               if(!nhCheck)
               {
                 hemisphere = 1;
@@ -276,22 +301,22 @@ Result<> VisualizeGBCDGMT::operator()()
     }
   }
 
-  FILE* f = fopen(m_InputValues->OutputFile.string().c_str(), "wb");
-  if(nullptr == f)
+  FILE* gmtFilePtr = fopen(m_InputValues->OutputFile.string().c_str(), "wb");
+  if(nullptr == gmtFilePtr)
   {
     return MakeErrorResult(-11022, fmt::format("Error opening output file {}", m_InputValues->OutputFile.string()));
   }
 
   // Remember to use the original Angle in Degrees!!!!
-  fprintf(f, "%.1f %.1f %.1f %.1f\n", m_InputValues->MisorientationRotation[1], m_InputValues->MisorientationRotation[2], m_InputValues->MisorientationRotation[3],
+  fprintf(gmtFilePtr, "%.1f %.1f %.1f %.1f\n", m_InputValues->MisorientationRotation[1], m_InputValues->MisorientationRotation[2], m_InputValues->MisorientationRotation[3],
           m_InputValues->MisorientationRotation[0]);
-  size_t size = gmtValues.size() / 3;
+  const size_t size = gmtValues.size() / 3;
 
   for(size_t i = 0; i < size; i++)
   {
-    fprintf(f, "%f %f %f\n", gmtValues[3 * i], gmtValues[3 * i + 1], gmtValues[3 * i + 2]);
+    fprintf(gmtFilePtr, "%f %f %f\n", gmtValues[3 * i], gmtValues[3 * i + 1], gmtValues[3 * i + 2]);
   }
-  fclose(f);
+  fclose(gmtFilePtr);
 
   return {};
 }

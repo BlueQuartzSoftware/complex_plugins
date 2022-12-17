@@ -12,8 +12,10 @@
 #include "EbsdLib/Core/Quaternion.hpp"
 #include "EbsdLib/LaueOps/LaueOps.h"
 
+#include <cmath>
+
 using LaueOpsShPtrType = std::shared_ptr<LaueOps>;
-using LaueOpsContainer = std::vector<LaueOpsShPtrType>;
+using LaueOpsContainerType = std::vector<LaueOpsShPtrType>;
 
 using namespace complex;
 namespace
@@ -35,7 +37,7 @@ class CalculateGBCDImpl
   UInt32Array& m_CrystalStructuresArray;
 
   SizeGBCD& m_SizeGBCD;
-  LaueOpsContainer m_OrientationOps;
+  LaueOpsContainerType m_OrientationOps;
 
 public:
   CalculateGBCDImpl() = delete;
@@ -257,25 +259,25 @@ public:
    * @param sqCoord Computed square coordinate
    * @return Boolean value for whether coordinate lies in the norther hemisphere
    */
-  bool getSquareCoord(float32* crystalNormal, float32* sqCoord) const
+  template <typename T>
+  bool getSquareCoord(T* crystalNormal, T* sqCoord) const
   {
     bool nhCheck = false;
-    float32 adjust = 1.0;
+    T adjust = 1.0;
     if(crystalNormal[2] >= 0.0)
     {
       adjust = -1.0;
       nhCheck = true;
     }
-    if(fabsf(crystalNormal[0]) >= fabsf(crystalNormal[1]))
+    if(fabs(crystalNormal[0]) >= fabs(crystalNormal[1]))
     {
-      sqCoord[0] = (crystalNormal[0] / fabsf(crystalNormal[0])) * sqrtf(2.0f * 1.0f * (1.0f + (crystalNormal[2] * adjust))) * (Constants::k_SqrtPiD / 2.0f);
-      sqCoord[1] =
-          (crystalNormal[0] / fabsf(crystalNormal[0])) * sqrtf(2.0f * 1.0f * (1.0f + (crystalNormal[2] * adjust))) * ((2.0f / Constants::k_SqrtPiD) * atanf(crystalNormal[1] / crystalNormal[0]));
+      sqCoord[0] = (crystalNormal[0] / fabs(crystalNormal[0])) * sqrt(2.0 * 1.0 * (1.0 + (crystalNormal[2] * adjust))) * (Constants::k_SqrtPiD / 2.0);
+      sqCoord[1] = (crystalNormal[0] / fabs(crystalNormal[0])) * sqrt(2.0 * 1.0 * (1.0 + (crystalNormal[2] * adjust))) * ((2.0 / Constants::k_SqrtPiD) * atanf(crystalNormal[1] / crystalNormal[0]));
     }
     else
     {
-      sqCoord[0] = (crystalNormal[1] / fabsf(crystalNormal[1])) * sqrtf(2.0 * 1.0 * (1.0 + (crystalNormal[2] * adjust))) * ((2.0f / Constants::k_SqrtPiD) * atanf(crystalNormal[0] / crystalNormal[1]));
-      sqCoord[1] = (crystalNormal[1] / fabsf(crystalNormal[1])) * sqrtf(2.0 * 1.0 * (1.0 + (crystalNormal[2] * adjust))) * (Constants::k_SqrtPiD / 2.0f);
+      sqCoord[0] = (crystalNormal[1] / fabs(crystalNormal[1])) * sqrtf(2.0 * 1.0 * (1.0 + (crystalNormal[2] * adjust))) * ((2.0f / Constants::k_SqrtPiD) * atanf(crystalNormal[0] / crystalNormal[1]));
+      sqCoord[1] = (crystalNormal[1] / fabs(crystalNormal[1])) * sqrtf(2.0 * 1.0 * (1.0 + (crystalNormal[2] * adjust))) * (Constants::k_SqrtPiD / 2.0);
     }
     return nhCheck;
   }
