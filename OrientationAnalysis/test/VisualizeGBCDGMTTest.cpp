@@ -103,7 +103,7 @@ TEST_CASE("OrientationAnalysis::VisualizeGBCDGMTFilter", "[OrientationAnalysis][
     {
       Arguments args;
       CSVWizardData data;
-      data.inputFilePath = fmt::format("{}/TestFiles/6_6_Small_IN100_GBCD/6_6_Small_IN100_GBCD_Sigma3_1.dat", unit_test::k_DREAM3DDataDir);
+      data.inputFilePath = fmt::format("{}/TestFiles/6_6_Small_IN100_GBCD/small_in100_sigma_3_1.dat", unit_test::k_DREAM3DDataDir);
       data.dataHeaders = {k_ExemplarGMT1, k_ExemplarGMT2, k_ExemplarGMT3};
       data.dataTypes = {DataType::float32, DataType::float32, DataType::float32};
       data.beginIndex = 2;
@@ -191,7 +191,7 @@ TEST_CASE("OrientationAnalysis::VisualizeGBCDGMTFilter", "[OrientationAnalysis][
     {
       Arguments args;
       CSVWizardData data;
-      data.inputFilePath = fmt::format("{}/TestFiles/6_6_Small_IN100_GBCD/6_6_Small_IN100_GBCD_Sigma9_1.dat", unit_test::k_DREAM3DDataDir);
+      data.inputFilePath = fmt::format("{}/TestFiles/6_6_Small_IN100_GBCD/small_in100_sigma_9_1.dat", unit_test::k_DREAM3DDataDir);
       data.dataHeaders = {k_ExemplarGMT1, k_ExemplarGMT2, k_ExemplarGMT3};
       data.dataTypes = {DataType::float32, DataType::float32, DataType::float32};
       data.beginIndex = 2;
@@ -279,7 +279,7 @@ TEST_CASE("OrientationAnalysis::VisualizeGBCDGMTFilter", "[OrientationAnalysis][
     {
       Arguments args;
       CSVWizardData data;
-      data.inputFilePath = fmt::format("{}/TestFiles/6_6_Small_IN100_GBCD/6_6_Small_IN100_GBCD_Sigma11_1.dat", unit_test::k_DREAM3DDataDir);
+      data.inputFilePath = fmt::format("{}/TestFiles/6_6_Small_IN100_GBCD/small_in100_sigma_11_1.dat", unit_test::k_DREAM3DDataDir);
       data.dataHeaders = {k_ExemplarGMT1, k_ExemplarGMT2, k_ExemplarGMT3};
       data.dataTypes = {DataType::float32, DataType::float32, DataType::float32};
       data.beginIndex = 2;
