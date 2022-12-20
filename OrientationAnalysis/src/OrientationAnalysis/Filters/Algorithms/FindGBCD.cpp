@@ -410,9 +410,9 @@ Result<> FindGBCD::operator()()
     sizeGbcd.initializeBinsWithValue(-1);
     sizeGbcd.m_GbcdHemiCheck.assign(sizeGbcd.m_GbcdHemiCheck.size(), false);
 
-    ParallelDataAlgorithm parallelAlg;
-    parallelAlg.setRange(i, i + triangleChunkSize);
-    parallelAlg.execute(CalculateGBCDImpl(i, k_NumMisoReps, faceLabels, faceNormals, eulerAngles, phases, crystalStructures, sizeGbcd));
+    ParallelDataAlgorithm parallelTask;
+    parallelTask.setRange(i, i + triangleChunkSize);
+    parallelTask.execute(CalculateGBCDImpl(i, k_NumMisoReps, faceLabels, faceNormals, eulerAngles, phases, crystalStructures, sizeGbcd));
 
     if(getCancel())
     {
