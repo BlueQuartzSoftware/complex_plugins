@@ -38,11 +38,13 @@ create_complex_plugin(NAME ${PLUGIN_NAME}
                       FILTER_LIST ${FilterList}
                       ACTION_LIST ${ActionList}
                       ALGORITHM_LIST ${AlgorithmList}                      
-                      DESCRIPTION "Plugin for ${PLUGIN_NAME}"
+                      DESCRIPTION "${PLUGIN_NAME} Plugin"
                       VERSION "0.1.0"
+                      DOC_CHECK
+                      ADD_TO_GLOBAL_LIST
                       )
 
-# ------------------------------------------------------------------------------
+                      # ------------------------------------------------------------------------------
 # If there are additional library packages that need to be found, this is where
 # to do that using the usual find_package(....) call
 # find_package(....)

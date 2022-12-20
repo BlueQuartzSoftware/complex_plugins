@@ -104,7 +104,7 @@ set(STUB_FILTERS
 
 create_complex_plugin(NAME ${PLUGIN_NAME}
   FILTER_LIST ${FilterList}
-  DESCRIPTION "Plugin for ${PLUGIN_NAME}"
+  DESCRIPTION "${PLUGIN_NAME} Plugin"
   VERSION "0.2.0"
   DOC_CHECK
   ADD_TO_GLOBAL_LIST
