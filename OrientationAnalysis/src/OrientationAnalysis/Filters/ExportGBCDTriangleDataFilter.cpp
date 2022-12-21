@@ -1,6 +1,6 @@
-#include "GBCDTriangleDumperFilter.hpp"
+#include "ExportGBCDTriangleDataFilter.hpp"
 
-#include "OrientationAnalysis/Filters/Algorithms/GBCDTriangleDumper.hpp"
+#include "OrientationAnalysis/Filters/Algorithms/ExportGBCDTriangleData.hpp"
 
 #include "complex/DataStructure/DataPath.hpp"
 #include "complex/Filter/Actions/EmptyAction.hpp"
@@ -15,37 +15,37 @@ using namespace complex;
 namespace complex
 {
 //------------------------------------------------------------------------------
-std::string GBCDTriangleDumperFilter::name() const
+std::string ExportGBCDTriangleDataFilter::name() const
 {
-  return FilterTraits<GBCDTriangleDumperFilter>::name.str();
+  return FilterTraits<ExportGBCDTriangleDataFilter>::name.str();
 }
 
 //------------------------------------------------------------------------------
-std::string GBCDTriangleDumperFilter::className() const
+std::string ExportGBCDTriangleDataFilter::className() const
 {
-  return FilterTraits<GBCDTriangleDumperFilter>::className;
+  return FilterTraits<ExportGBCDTriangleDataFilter>::className;
 }
 
 //------------------------------------------------------------------------------
-Uuid GBCDTriangleDumperFilter::uuid() const
+Uuid ExportGBCDTriangleDataFilter::uuid() const
 {
-  return FilterTraits<GBCDTriangleDumperFilter>::uuid;
+  return FilterTraits<ExportGBCDTriangleDataFilter>::uuid;
 }
 
 //------------------------------------------------------------------------------
-std::string GBCDTriangleDumperFilter::humanName() const
+std::string ExportGBCDTriangleDataFilter::humanName() const
 {
   return "Export GBCD Triangles File";
 }
 
 //------------------------------------------------------------------------------
-std::vector<std::string> GBCDTriangleDumperFilter::defaultTags() const
+std::vector<std::string> ExportGBCDTriangleDataFilter::defaultTags() const
 {
   return {"#IO", "#Output", "#Write", "#Export"};
 }
 
 //------------------------------------------------------------------------------
-Parameters GBCDTriangleDumperFilter::parameters() const
+Parameters ExportGBCDTriangleDataFilter::parameters() const
 {
   Parameters params;
 
@@ -72,13 +72,13 @@ Parameters GBCDTriangleDumperFilter::parameters() const
 }
 
 //------------------------------------------------------------------------------
-IFilter::UniquePointer GBCDTriangleDumperFilter::clone() const
+IFilter::UniquePointer ExportGBCDTriangleDataFilter::clone() const
 {
-  return std::make_unique<GBCDTriangleDumperFilter>();
+  return std::make_unique<ExportGBCDTriangleDataFilter>();
 }
 
 //------------------------------------------------------------------------------
-IFilter::PreflightResult GBCDTriangleDumperFilter::preflightImpl(const DataStructure& dataStructure, const Arguments& filterArgs, const MessageHandler& messageHandler,
+IFilter::PreflightResult ExportGBCDTriangleDataFilter::preflightImpl(const DataStructure& dataStructure, const Arguments& filterArgs, const MessageHandler& messageHandler,
                                                                  const std::atomic_bool& shouldCancel) const
 {
   auto pOutputFileValue = filterArgs.value<FileSystemPathParameter::ValueType>(k_OutputFile_Key);
@@ -104,10 +104,10 @@ IFilter::PreflightResult GBCDTriangleDumperFilter::preflightImpl(const DataStruc
 }
 
 //------------------------------------------------------------------------------
-Result<> GBCDTriangleDumperFilter::executeImpl(DataStructure& dataStructure, const Arguments& filterArgs, const PipelineFilter* pipelineNode, const MessageHandler& messageHandler,
+Result<> ExportGBCDTriangleDataFilter::executeImpl(DataStructure& dataStructure, const Arguments& filterArgs, const PipelineFilter* pipelineNode, const MessageHandler& messageHandler,
                                                const std::atomic_bool& shouldCancel) const
 {
-  GBCDTriangleDumperInputValues inputValues;
+  ExportGBCDTriangleDataInputValues inputValues;
 
   inputValues.OutputFile = filterArgs.value<FileSystemPathParameter::ValueType>(k_OutputFile_Key);
   inputValues.SurfaceMeshFaceLabelsArrayPath = filterArgs.value<DataPath>(k_SurfaceMeshFaceLabelsArrayPath_Key);
@@ -115,6 +115,6 @@ Result<> GBCDTriangleDumperFilter::executeImpl(DataStructure& dataStructure, con
   inputValues.SurfaceMeshFaceAreasArrayPath = filterArgs.value<DataPath>(k_SurfaceMeshFaceAreasArrayPath_Key);
   inputValues.FeatureEulerAnglesArrayPath = filterArgs.value<DataPath>(k_FeatureEulerAnglesArrayPath_Key);
 
-  return GBCDTriangleDumper(dataStructure, messageHandler, shouldCancel, &inputValues)();
+  return ExportGBCDTriangleData(dataStructure, messageHandler, shouldCancel, &inputValues)();
 }
 } // namespace complex

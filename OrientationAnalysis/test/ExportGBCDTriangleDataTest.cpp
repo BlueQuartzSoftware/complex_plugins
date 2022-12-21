@@ -6,7 +6,7 @@
 #include "complex/Parameters/util/CSVWizardData.hpp"
 #include "complex/UnitTest/UnitTestCommon.hpp"
 
-#include "OrientationAnalysis/Filters/GBCDTriangleDumperFilter.hpp"
+#include "OrientationAnalysis/Filters/ExportGBCDTriangleDataFilter.hpp"
 #include "OrientationAnalysis/OrientationAnalysis_test_dirs.hpp"
 
 #include "complex_plugins/Utilities/TestUtilities.hpp"
@@ -43,7 +43,7 @@ inline constexpr float32 k_EPSILON = 0.001;
 
 } // namespace
 
-TEST_CASE("complex_plugins::GBCDTriangleDumperFilter: Valid filter execution")
+TEST_CASE("complex_plugins::ExportGBCDTriangleDataFilter: Valid filter execution")
 {
   std::shared_ptr<make_shared_enabler> app = std::make_shared<make_shared_enabler>();
   app->loadPlugins(unit_test::k_BuildDir.view(), true);
@@ -65,16 +65,16 @@ TEST_CASE("complex_plugins::GBCDTriangleDumperFilter: Valid filter execution")
   DataPath exemplarResultsGroupPath({k_ExemplarTriangleDumperResults});
   DataPath generatedResultsGroupPath({k_NXTriangleDumperResults});
 
-  // Run GBCDTriangleDumper
+  // Run ExportGBCDTriangleData
   auto outputFile = fs::path(fmt::format("{}/small_in100_gbcd_triangles.ph", unit_test::k_BinaryTestOutputDir));
   {
-    GBCDTriangleDumperFilter filter;
+    ExportGBCDTriangleDataFilter filter;
     Arguments args;
-    args.insertOrAssign(GBCDTriangleDumperFilter::k_OutputFile_Key, std::make_any<FileSystemPathParameter::ValueType>(outputFile));
-    args.insertOrAssign(GBCDTriangleDumperFilter::k_SurfaceMeshFaceLabelsArrayPath_Key, std::make_any<DataPath>(faceLabels));
-    args.insertOrAssign(GBCDTriangleDumperFilter::k_SurfaceMeshFaceNormalsArrayPath_Key, std::make_any<DataPath>(faceNormals));
-    args.insertOrAssign(GBCDTriangleDumperFilter::k_SurfaceMeshFaceAreasArrayPath_Key, std::make_any<DataPath>(faceAreas));
-    args.insertOrAssign(GBCDTriangleDumperFilter::k_FeatureEulerAnglesArrayPath_Key, std::make_any<DataPath>(avgEulerAnglesPath));
+    args.insertOrAssign(ExportGBCDTriangleDataFilter::k_OutputFile_Key, std::make_any<FileSystemPathParameter::ValueType>(outputFile));
+    args.insertOrAssign(ExportGBCDTriangleDataFilter::k_SurfaceMeshFaceLabelsArrayPath_Key, std::make_any<DataPath>(faceLabels));
+    args.insertOrAssign(ExportGBCDTriangleDataFilter::k_SurfaceMeshFaceNormalsArrayPath_Key, std::make_any<DataPath>(faceNormals));
+    args.insertOrAssign(ExportGBCDTriangleDataFilter::k_SurfaceMeshFaceAreasArrayPath_Key, std::make_any<DataPath>(faceAreas));
+    args.insertOrAssign(ExportGBCDTriangleDataFilter::k_FeatureEulerAnglesArrayPath_Key, std::make_any<DataPath>(avgEulerAnglesPath));
 
     auto preflightResult = filter.preflight(dataStructure, args);
     COMPLEX_RESULT_REQUIRE_VALID(preflightResult.outputActions);
@@ -192,10 +192,10 @@ TEST_CASE("complex_plugins::GBCDTriangleDumperFilter: Valid filter execution")
   }
 }
 
-TEST_CASE("complex_plugins::GBCDTriangleDumperFilter: InValid filter execution")
+TEST_CASE("complex_plugins::ExportGBCDTriangleDataFilter: InValid filter execution")
 {
   // Instantiate the filter and an Arguments Object
-  GBCDTriangleDumperFilter filter;
+  ExportGBCDTriangleDataFilter filter;
   Arguments args;
 
   // Read the Small IN100 Data set
@@ -216,22 +216,22 @@ TEST_CASE("complex_plugins::GBCDTriangleDumperFilter: InValid filter execution")
   SECTION("Invalid output file")
   {
     // Create default Parameters for the filter.
-    args.insertOrAssign(GBCDTriangleDumperFilter::k_OutputFile_Key, std::make_any<FileSystemPathParameter::ValueType>(fs::path("/Path/To/Output/File/To/Write.dat")));
-    args.insertOrAssign(GBCDTriangleDumperFilter::k_SurfaceMeshFaceLabelsArrayPath_Key, std::make_any<DataPath>(faceLabels));
-    args.insertOrAssign(GBCDTriangleDumperFilter::k_SurfaceMeshFaceNormalsArrayPath_Key, std::make_any<DataPath>(faceNormals));
-    args.insertOrAssign(GBCDTriangleDumperFilter::k_SurfaceMeshFaceAreasArrayPath_Key, std::make_any<DataPath>(faceAreas));
-    args.insertOrAssign(GBCDTriangleDumperFilter::k_FeatureEulerAnglesArrayPath_Key, std::make_any<DataPath>(avgEulerAnglesPath));
+    args.insertOrAssign(ExportGBCDTriangleDataFilter::k_OutputFile_Key, std::make_any<FileSystemPathParameter::ValueType>(fs::path("/Path/To/Output/File/To/Write.dat")));
+    args.insertOrAssign(ExportGBCDTriangleDataFilter::k_SurfaceMeshFaceLabelsArrayPath_Key, std::make_any<DataPath>(faceLabels));
+    args.insertOrAssign(ExportGBCDTriangleDataFilter::k_SurfaceMeshFaceNormalsArrayPath_Key, std::make_any<DataPath>(faceNormals));
+    args.insertOrAssign(ExportGBCDTriangleDataFilter::k_SurfaceMeshFaceAreasArrayPath_Key, std::make_any<DataPath>(faceAreas));
+    args.insertOrAssign(ExportGBCDTriangleDataFilter::k_FeatureEulerAnglesArrayPath_Key, std::make_any<DataPath>(avgEulerAnglesPath));
   }
 
   SECTION("Inconsistent Tuple Dimensions")
   {
     auto outputFile = fs::path(fmt::format("{}/TriangleDumperTest.ph", unit_test::k_BinaryTestOutputDir));
     // Create default Parameters for the filter.
-    args.insertOrAssign(GBCDTriangleDumperFilter::k_OutputFile_Key, std::make_any<FileSystemPathParameter::ValueType>(outputFile));
-    args.insertOrAssign(GBCDTriangleDumperFilter::k_SurfaceMeshFaceLabelsArrayPath_Key, std::make_any<DataPath>(gbcd));
-    args.insertOrAssign(GBCDTriangleDumperFilter::k_SurfaceMeshFaceNormalsArrayPath_Key, std::make_any<DataPath>(faceNormals));
-    args.insertOrAssign(GBCDTriangleDumperFilter::k_SurfaceMeshFaceAreasArrayPath_Key, std::make_any<DataPath>(faceAreas));
-    args.insertOrAssign(GBCDTriangleDumperFilter::k_FeatureEulerAnglesArrayPath_Key, std::make_any<DataPath>(avgEulerAnglesPath));
+    args.insertOrAssign(ExportGBCDTriangleDataFilter::k_OutputFile_Key, std::make_any<FileSystemPathParameter::ValueType>(outputFile));
+    args.insertOrAssign(ExportGBCDTriangleDataFilter::k_SurfaceMeshFaceLabelsArrayPath_Key, std::make_any<DataPath>(gbcd));
+    args.insertOrAssign(ExportGBCDTriangleDataFilter::k_SurfaceMeshFaceNormalsArrayPath_Key, std::make_any<DataPath>(faceNormals));
+    args.insertOrAssign(ExportGBCDTriangleDataFilter::k_SurfaceMeshFaceAreasArrayPath_Key, std::make_any<DataPath>(faceAreas));
+    args.insertOrAssign(ExportGBCDTriangleDataFilter::k_FeatureEulerAnglesArrayPath_Key, std::make_any<DataPath>(avgEulerAnglesPath));
   }
 
   // Preflight the filter and check result

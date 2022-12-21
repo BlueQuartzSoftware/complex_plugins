@@ -8,20 +8,20 @@
 namespace complex
 {
 /**
- * @class GBCDTriangleDumperFilter
+ * @class ExportGBCDTriangleDataFilter
  * @brief This filter will ....
  */
-class ORIENTATIONANALYSIS_EXPORT GBCDTriangleDumperFilter : public IFilter
+class ORIENTATIONANALYSIS_EXPORT ExportGBCDTriangleDataFilter : public IFilter
 {
 public:
-  GBCDTriangleDumperFilter() = default;
-  ~GBCDTriangleDumperFilter() noexcept override = default;
+  ExportGBCDTriangleDataFilter() = default;
+  ~ExportGBCDTriangleDataFilter() noexcept override = default;
 
-  GBCDTriangleDumperFilter(const GBCDTriangleDumperFilter&) = delete;
-  GBCDTriangleDumperFilter(GBCDTriangleDumperFilter&&) noexcept = delete;
+  ExportGBCDTriangleDataFilter(const ExportGBCDTriangleDataFilter&) = delete;
+  ExportGBCDTriangleDataFilter(ExportGBCDTriangleDataFilter&&) noexcept = delete;
 
-  GBCDTriangleDumperFilter& operator=(const GBCDTriangleDumperFilter&) = delete;
-  GBCDTriangleDumperFilter& operator=(GBCDTriangleDumperFilter&&) noexcept = delete;
+  ExportGBCDTriangleDataFilter& operator=(const ExportGBCDTriangleDataFilter&) = delete;
+  ExportGBCDTriangleDataFilter& operator=(ExportGBCDTriangleDataFilter&&) noexcept = delete;
 
   // Parameter Keys
   static inline constexpr StringLiteral k_OutputFile_Key = "output_file";
@@ -96,5 +96,5 @@ protected:
 };
 } // namespace complex
 
-COMPLEX_DEF_FILTER_TRAITS(complex, GBCDTriangleDumperFilter, "6e0da3a1-dc42-4b01-80aa-3af9e8209ee3");
+COMPLEX_DEF_FILTER_TRAITS(complex, ExportGBCDTriangleDataFilter, "6e0da3a1-dc42-4b01-80aa-3af9e8209ee3");
 /* LEGACY UUID FOR THIS FILTER 433976f0-710a-5dcc-938e-fcde49cd842f */

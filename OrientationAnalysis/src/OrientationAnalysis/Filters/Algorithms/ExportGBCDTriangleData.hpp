@@ -11,7 +11,7 @@
 namespace complex
 {
 
-struct ORIENTATIONANALYSIS_EXPORT GBCDTriangleDumperInputValues
+struct ORIENTATIONANALYSIS_EXPORT ExportGBCDTriangleDataInputValues
 {
   FileSystemPathParameter::ValueType OutputFile;
   DataPath SurfaceMeshFaceLabelsArrayPath;
@@ -26,16 +26,16 @@ struct ORIENTATIONANALYSIS_EXPORT GBCDTriangleDumperInputValues
  * where a bool mask array specifies.
  */
 
-class ORIENTATIONANALYSIS_EXPORT GBCDTriangleDumper
+class ORIENTATIONANALYSIS_EXPORT ExportGBCDTriangleData
 {
 public:
-  GBCDTriangleDumper(DataStructure& dataStructure, const IFilter::MessageHandler& mesgHandler, const std::atomic_bool& shouldCancel, GBCDTriangleDumperInputValues* inputValues);
-  ~GBCDTriangleDumper() noexcept;
+  ExportGBCDTriangleData(DataStructure& dataStructure, const IFilter::MessageHandler& mesgHandler, const std::atomic_bool& shouldCancel, ExportGBCDTriangleDataInputValues* inputValues);
+  ~ExportGBCDTriangleData() noexcept;
 
-  GBCDTriangleDumper(const GBCDTriangleDumper&) = delete;
-  GBCDTriangleDumper(GBCDTriangleDumper&&) noexcept = delete;
-  GBCDTriangleDumper& operator=(const GBCDTriangleDumper&) = delete;
-  GBCDTriangleDumper& operator=(GBCDTriangleDumper&&) noexcept = delete;
+  ExportGBCDTriangleData(const ExportGBCDTriangleData&) = delete;
+  ExportGBCDTriangleData(ExportGBCDTriangleData&&) noexcept = delete;
+  ExportGBCDTriangleData& operator=(const ExportGBCDTriangleData&) = delete;
+  ExportGBCDTriangleData& operator=(ExportGBCDTriangleData&&) noexcept = delete;
 
   Result<> operator()();
 
@@ -43,7 +43,7 @@ public:
 
 private:
   DataStructure& m_DataStructure;
-  const GBCDTriangleDumperInputValues* m_InputValues = nullptr;
+  const ExportGBCDTriangleDataInputValues* m_InputValues = nullptr;
   const std::atomic_bool& m_ShouldCancel;
   const IFilter::MessageHandler& m_MessageHandler;
 };

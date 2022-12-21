@@ -1,4 +1,4 @@
-#include "GBCDTriangleDumper.hpp"
+#include "ExportGBCDTriangleData.hpp"
 
 #include "complex/DataStructure/DataArray.hpp"
 #include "complex/DataStructure/DataGroup.hpp"
@@ -6,7 +6,7 @@
 using namespace complex;
 
 // -----------------------------------------------------------------------------
-GBCDTriangleDumper::GBCDTriangleDumper(DataStructure& dataStructure, const IFilter::MessageHandler& mesgHandler, const std::atomic_bool& shouldCancel, GBCDTriangleDumperInputValues* inputValues)
+ExportGBCDTriangleData::ExportGBCDTriangleData(DataStructure& dataStructure, const IFilter::MessageHandler& mesgHandler, const std::atomic_bool& shouldCancel, ExportGBCDTriangleDataInputValues* inputValues)
 : m_DataStructure(dataStructure)
 , m_InputValues(inputValues)
 , m_ShouldCancel(shouldCancel)
@@ -15,16 +15,16 @@ GBCDTriangleDumper::GBCDTriangleDumper(DataStructure& dataStructure, const IFilt
 }
 
 // -----------------------------------------------------------------------------
-GBCDTriangleDumper::~GBCDTriangleDumper() noexcept = default;
+ExportGBCDTriangleData::~ExportGBCDTriangleData() noexcept = default;
 
 // -----------------------------------------------------------------------------
-const std::atomic_bool& GBCDTriangleDumper::getCancel()
+const std::atomic_bool& ExportGBCDTriangleData::getCancel()
 {
   return m_ShouldCancel;
 }
 
 // -----------------------------------------------------------------------------
-Result<> GBCDTriangleDumper::operator()()
+Result<> ExportGBCDTriangleData::operator()()
 {
   auto& faceLabels = m_DataStructure.getDataRefAs<Int32Array>(m_InputValues->SurfaceMeshFaceLabelsArrayPath);
   auto& faceNormals = m_DataStructure.getDataRefAs<Float64Array>(m_InputValues->SurfaceMeshFaceNormalsArrayPath);

@@ -51,7 +51,7 @@ set(FilterList
   RotateEulerRefFrameFilter
   VisualizeGBCDGMTFilter
   GenerateGBCDPoleFigureFilter
-  GBCDTriangleDumperFilter
+  ExportGBCDTriangleDataFilter
 )
   
 set(STUB_FILTERS
@@ -179,7 +179,7 @@ set(filter_algorithms
   RotateEulerRefFrame
   VisualizeGBCDGMT
   GenerateGBCDPoleFigure
-  GBCDTriangleDumper
+  ExportGBCDTriangleData
 )
 
 
