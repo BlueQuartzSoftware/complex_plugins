@@ -11,7 +11,7 @@
 #include "OrientationAnalysis/Filters/FindAvgOrientationsFilter.hpp"
 #include "OrientationAnalysis/Filters/FindFeatureReferenceMisorientationsFilter.hpp"
 #include "OrientationAnalysis/Filters/FindGBCDFilter.hpp"
-#include "OrientationAnalysis/Filters/VisualizeGBCDGMTFilter.hpp"
+#include "OrientationAnalysis/Filters/ExportGBCDGMTFileFilter.hpp"
 #include "OrientationAnalysis/Filters/FindKernelAvgMisorientationsFilter.hpp"
 #include "OrientationAnalysis/Filters/FindMisorientationsFilter.hpp"
 #include "OrientationAnalysis/Filters/FindSchmidsFilter.hpp"
@@ -25,7 +25,7 @@
 #include "OrientationAnalysis/Filters/RotateEulerRefFrameFilter.hpp"
 #include "OrientationAnalysis/Filters/FindShapesFilter.hpp"
 #include "OrientationAnalysis/Filters/GenerateGBCDPoleFigureFilter.hpp"
-#include "OrientationAnalysis/Filters/VisualizeGBCDGMTFilter.hpp"
+#include "OrientationAnalysis/Filters/ExportGBCDGMTFileFilter.hpp"
 #include "OrientationAnalysis/Filters/ExportGBCDTriangleDataFilter.hpp"
 // #include "OrientationAnalysis/Filters/ConvertHexGridToSquareGrid.hpp"
 // #include "OrientationAnalysis/Filters/ConvertQuaternion.hpp"
@@ -86,7 +86,7 @@ namespace complex
     {complex::Uuid::FromString("ef9420b2-8c46-55f3-8ae4-f53790639de4").value(), complex::FilterTraits<RotateEulerRefFrameFilter>::uuid}, // RotateEulerRefFrame
     {complex::Uuid::FromString("3b0ababf-9c8d-538d-96af-e40775c4f0ab").value(), complex::FilterTraits<FindShapesFilter>::uuid}, // FindShapes
     {complex::Uuid::FromString("85900eba-3da9-5985-ac71-1d9d290a5d31").value(), complex::FilterTraits<GenerateGBCDPoleFigureFilter>::uuid}, // VisualizeGBCDPoleFigureFilter
-    {complex::Uuid::FromString("f62065b4-54e9-53b1-bed7-2178a57d3c7a").value(), complex::FilterTraits<VisualizeGBCDGMTFilter>::uuid}, // VisualizeGBCDGMTFilter
+    {complex::Uuid::FromString("f62065b4-54e9-53b1-bed7-2178a57d3c7a").value(), complex::FilterTraits<ExportGBCDGMTFileFilter>::uuid}, // ExportGBCDGMTFileFilter
     {complex::Uuid::FromString("433976f0-710a-5dcc-938e-fcde49cd842f").value(), complex::FilterTraits<ExportGBCDTriangleDataFilter>::uuid}, // ExportGBCDTriangleDataFilter
     // {complex::Uuid::FromString("e1343abe-e5ad-5eb1-a89d-c209e620e4de").value(), complex::FilterTraits<ConvertHexGridToSquareGrid>::uuid}, // ConvertHexGridToSquareGrid
     // {complex::Uuid::FromString("439e31b7-3198-5d0d-aef6-65a9e9c1a016").value(), complex::FilterTraits<ConvertQuaternion>::uuid}, // ConvertQuaternion

@@ -8,20 +8,20 @@
 namespace complex
 {
 /**
- * @class VisualizeGBCDGMTFilter
+ * @class ExportGBCDGMTFileFilter
  * @brief This filter will ....
  */
-class ORIENTATIONANALYSIS_EXPORT VisualizeGBCDGMTFilter : public IFilter
+class ORIENTATIONANALYSIS_EXPORT ExportGBCDGMTFileFilter : public IFilter
 {
 public:
-  VisualizeGBCDGMTFilter() = default;
-  ~VisualizeGBCDGMTFilter() noexcept override = default;
+  ExportGBCDGMTFileFilter() = default;
+  ~ExportGBCDGMTFileFilter() noexcept override = default;
 
-  VisualizeGBCDGMTFilter(const VisualizeGBCDGMTFilter&) = delete;
-  VisualizeGBCDGMTFilter(VisualizeGBCDGMTFilter&&) noexcept = delete;
+  ExportGBCDGMTFileFilter(const ExportGBCDGMTFileFilter&) = delete;
+  ExportGBCDGMTFileFilter(ExportGBCDGMTFileFilter&&) noexcept = delete;
 
-  VisualizeGBCDGMTFilter& operator=(const VisualizeGBCDGMTFilter&) = delete;
-  VisualizeGBCDGMTFilter& operator=(VisualizeGBCDGMTFilter&&) noexcept = delete;
+  ExportGBCDGMTFileFilter& operator=(const ExportGBCDGMTFileFilter&) = delete;
+  ExportGBCDGMTFileFilter& operator=(ExportGBCDGMTFileFilter&&) noexcept = delete;
 
   // Parameter Keys
   static inline constexpr StringLiteral k_PhaseOfInterest_Key = "phase_of_interest";
@@ -96,4 +96,4 @@ protected:
 };
 } // namespace complex
 
-COMPLEX_DEF_FILTER_TRAITS(complex, VisualizeGBCDGMTFilter, "31710abf-b8a6-423f-a03f-4b8885bd3633");
+COMPLEX_DEF_FILTER_TRAITS(complex, ExportGBCDGMTFileFilter, "31710abf-b8a6-423f-a03f-4b8885bd3633");

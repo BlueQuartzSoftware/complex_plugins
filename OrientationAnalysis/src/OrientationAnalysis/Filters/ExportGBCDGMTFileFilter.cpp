@@ -1,4 +1,4 @@
-#include "VisualizeGBCDGMTFilter.hpp"
+#include "ExportGBCDGMTFileFilter.hpp"
 
 #include "complex/DataStructure/DataArray.hpp"
 #include "complex/DataStructure/DataPath.hpp"
@@ -7,7 +7,7 @@
 #include "complex/Parameters/NumberParameter.hpp"
 #include "complex/Parameters/VectorParameter.hpp"
 
-#include "OrientationAnalysis/Filters/Algorithms/VisualizeGBCDGMT.hpp"
+#include "OrientationAnalysis/Filters/Algorithms/ExportGBCDGMTFile.hpp"
 
 #include <filesystem>
 namespace fs = std::filesystem;
@@ -17,37 +17,37 @@ using namespace complex;
 namespace complex
 {
 //------------------------------------------------------------------------------
-std::string VisualizeGBCDGMTFilter::name() const
+std::string ExportGBCDGMTFileFilter::name() const
 {
-  return FilterTraits<VisualizeGBCDGMTFilter>::name.str();
+  return FilterTraits<ExportGBCDGMTFileFilter>::name.str();
 }
 
 //------------------------------------------------------------------------------
-std::string VisualizeGBCDGMTFilter::className() const
+std::string ExportGBCDGMTFileFilter::className() const
 {
-  return FilterTraits<VisualizeGBCDGMTFilter>::className;
+  return FilterTraits<ExportGBCDGMTFileFilter>::className;
 }
 
 //------------------------------------------------------------------------------
-Uuid VisualizeGBCDGMTFilter::uuid() const
+Uuid ExportGBCDGMTFileFilter::uuid() const
 {
-  return FilterTraits<VisualizeGBCDGMTFilter>::uuid;
+  return FilterTraits<ExportGBCDGMTFileFilter>::uuid;
 }
 
 //------------------------------------------------------------------------------
-std::string VisualizeGBCDGMTFilter::humanName() const
+std::string ExportGBCDGMTFileFilter::humanName() const
 {
   return "Export GBCD Pole Figure (GMT 5)";
 }
 
 //------------------------------------------------------------------------------
-std::vector<std::string> VisualizeGBCDGMTFilter::defaultTags() const
+std::vector<std::string> ExportGBCDGMTFileFilter::defaultTags() const
 {
   return {"#IO", "#Output", "#Write", "#Export"};
 }
 
 //------------------------------------------------------------------------------
-Parameters VisualizeGBCDGMTFilter::parameters() const
+Parameters ExportGBCDGMTFileFilter::parameters() const
 {
   Parameters params;
   // Create the parameter descriptors that are needed for this filter
@@ -69,14 +69,14 @@ Parameters VisualizeGBCDGMTFilter::parameters() const
 }
 
 //------------------------------------------------------------------------------
-IFilter::UniquePointer VisualizeGBCDGMTFilter::clone() const
+IFilter::UniquePointer ExportGBCDGMTFileFilter::clone() const
 {
-  return std::make_unique<VisualizeGBCDGMTFilter>();
+  return std::make_unique<ExportGBCDGMTFileFilter>();
 }
 
 //------------------------------------------------------------------------------
-IFilter::PreflightResult VisualizeGBCDGMTFilter::preflightImpl(const DataStructure& dataStructure, const Arguments& filterArgs, const MessageHandler& messageHandler,
-                                                               const std::atomic_bool& shouldCancel) const
+IFilter::PreflightResult ExportGBCDGMTFileFilter::preflightImpl(const DataStructure& dataStructure, const Arguments& filterArgs, const MessageHandler& messageHandler,
+                                                                const std::atomic_bool& shouldCancel) const
 {
   auto pPhaseOfInterestValue = filterArgs.value<int32>(k_PhaseOfInterest_Key);
   auto pMisorientationRotationValue = filterArgs.value<VectorFloat32Parameter::ValueType>(k_MisorientationRotation_Key);
@@ -117,16 +117,16 @@ IFilter::PreflightResult VisualizeGBCDGMTFilter::preflightImpl(const DataStructu
 }
 
 //------------------------------------------------------------------------------
-Result<> VisualizeGBCDGMTFilter::executeImpl(DataStructure& dataStructure, const Arguments& filterArgs, const PipelineFilter* pipelineNode, const MessageHandler& messageHandler,
-                                             const std::atomic_bool& shouldCancel) const
+Result<> ExportGBCDGMTFileFilter::executeImpl(DataStructure& dataStructure, const Arguments& filterArgs, const PipelineFilter* pipelineNode, const MessageHandler& messageHandler,
+                                              const std::atomic_bool& shouldCancel) const
 {
-  VisualizeGBCDGMTInputValues inputValues;
+  ExportGBCDGMTFileInputValues inputValues;
   inputValues.PhaseOfInterest = filterArgs.value<int32>(k_PhaseOfInterest_Key);
   inputValues.MisorientationRotation = filterArgs.value<VectorFloat32Parameter::ValueType>(k_MisorientationRotation_Key);
   inputValues.OutputFile = filterArgs.value<FileSystemPathParameter::ValueType>(k_OutputFile_Key);
   inputValues.GBCDArrayPath = filterArgs.value<DataPath>(k_GBCDArrayPath_Key);
   inputValues.CrystalStructuresArrayPath = filterArgs.value<DataPath>(k_CrystalStructuresArrayPath_Key);
 
-  return VisualizeGBCDGMT(dataStructure, messageHandler, shouldCancel, &inputValues)();
+  return ExportGBCDGMTFile(dataStructure, messageHandler, shouldCancel, &inputValues)();
 }
 } // namespace complex

@@ -79,7 +79,7 @@ IFilter::UniquePointer ExportGBCDTriangleDataFilter::clone() const
 
 //------------------------------------------------------------------------------
 IFilter::PreflightResult ExportGBCDTriangleDataFilter::preflightImpl(const DataStructure& dataStructure, const Arguments& filterArgs, const MessageHandler& messageHandler,
-                                                                 const std::atomic_bool& shouldCancel) const
+                                                                     const std::atomic_bool& shouldCancel) const
 {
   auto pOutputFileValue = filterArgs.value<FileSystemPathParameter::ValueType>(k_OutputFile_Key);
   auto pSurfaceMeshFaceLabelsArrayPathValue = filterArgs.value<DataPath>(k_SurfaceMeshFaceLabelsArrayPath_Key);
@@ -105,7 +105,7 @@ IFilter::PreflightResult ExportGBCDTriangleDataFilter::preflightImpl(const DataS
 
 //------------------------------------------------------------------------------
 Result<> ExportGBCDTriangleDataFilter::executeImpl(DataStructure& dataStructure, const Arguments& filterArgs, const PipelineFilter* pipelineNode, const MessageHandler& messageHandler,
-                                               const std::atomic_bool& shouldCancel) const
+                                                   const std::atomic_bool& shouldCancel) const
 {
   ExportGBCDTriangleDataInputValues inputValues;
 

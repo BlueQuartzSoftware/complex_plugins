@@ -11,7 +11,7 @@ This **Filter** creates a .dat file that can be used in conjunction with [GMT](h
 
 -----
 
-![GMT Visualization of the Small IN100 GBCD Results](Images/SmallIn100GMT_.png)
+![GMT Visualization of the Small IN100 GBCD Results](Images/ExportGBCDGMTFile.png)
 
 -----
 

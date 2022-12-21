@@ -1,4 +1,4 @@
-#include "VisualizeGBCDGMT.hpp"
+#include "ExportGBCDGMTFile.hpp"
 
 #include "OrientationAnalysis/Math/Matrix3X1.hpp"
 #include "OrientationAnalysis/Math/Matrix3X3.hpp"
@@ -47,7 +47,7 @@ bool GetSquareCoord(std::array<T, 3> crystalNormal, std::array<T, 2>& sqCoord)
 } // namespace
 
 // -----------------------------------------------------------------------------
-VisualizeGBCDGMT::VisualizeGBCDGMT(DataStructure& dataStructure, const IFilter::MessageHandler& mesgHandler, const std::atomic_bool& shouldCancel, VisualizeGBCDGMTInputValues* inputValues)
+ExportGBCDGMTFile::ExportGBCDGMTFile(DataStructure& dataStructure, const IFilter::MessageHandler& mesgHandler, const std::atomic_bool& shouldCancel, ExportGBCDGMTFileInputValues* inputValues)
 : m_DataStructure(dataStructure)
 , m_InputValues(inputValues)
 , m_ShouldCancel(shouldCancel)
@@ -56,16 +56,16 @@ VisualizeGBCDGMT::VisualizeGBCDGMT(DataStructure& dataStructure, const IFilter::
 }
 
 // -----------------------------------------------------------------------------
-VisualizeGBCDGMT::~VisualizeGBCDGMT() noexcept = default;
+ExportGBCDGMTFile::~ExportGBCDGMTFile() noexcept = default;
 
 // -----------------------------------------------------------------------------
-const std::atomic_bool& VisualizeGBCDGMT::getCancel()
+const std::atomic_bool& ExportGBCDGMTFile::getCancel()
 {
   return m_ShouldCancel;
 }
 
 // -----------------------------------------------------------------------------
-Result<> VisualizeGBCDGMT::operator()()
+Result<> ExportGBCDGMTFile::operator()()
 {
   auto gbcd = m_DataStructure.getDataRefAs<Float64Array>(m_InputValues->GBCDArrayPath);
   auto crystalStructures = m_DataStructure.getDataRefAs<UInt32Array>(m_InputValues->CrystalStructuresArrayPath);

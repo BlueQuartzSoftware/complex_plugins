@@ -49,7 +49,7 @@ set(FilterList
   ReadCtfDataFilter
   ReadH5EbsdFilter
   RotateEulerRefFrameFilter
-  VisualizeGBCDGMTFilter
+  ExportGBCDGMTFileFilter
   GenerateGBCDPoleFigureFilter
   ExportGBCDTriangleDataFilter
 )
@@ -177,7 +177,7 @@ set(filter_algorithms
   ReadCtfData
   ReadH5Ebsd
   RotateEulerRefFrame
-  VisualizeGBCDGMT
+  ExportGBCDGMTFile
   GenerateGBCDPoleFigure
   ExportGBCDTriangleData
 )

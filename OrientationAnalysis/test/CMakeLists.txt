@@ -29,7 +29,7 @@ set(${PLUGIN_NAME}UnitTest_SRCS
   ReadH5EbsdTest.cpp
   RotateEulerRefFrameTest.cpp
   GenerateGBCDPoleFigureTest.cpp
-  VisualizeGBCDGMTTest.cpp
+  ExportGBCDGMTFileTest.cpp
   ExportGBCDTriangleDataTest.cpp
 )
 set(DISABLED_TESTS

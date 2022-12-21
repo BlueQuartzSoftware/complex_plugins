@@ -11,7 +11,7 @@
 namespace complex
 {
 
-struct ORIENTATIONANALYSIS_EXPORT VisualizeGBCDGMTInputValues
+struct ORIENTATIONANALYSIS_EXPORT ExportGBCDGMTFileInputValues
 {
   int32 PhaseOfInterest;
   VectorFloat32Parameter::ValueType MisorientationRotation;
@@ -26,16 +26,16 @@ struct ORIENTATIONANALYSIS_EXPORT VisualizeGBCDGMTInputValues
  * where a bool mask array specifies.
  */
 
-class ORIENTATIONANALYSIS_EXPORT VisualizeGBCDGMT
+class ORIENTATIONANALYSIS_EXPORT ExportGBCDGMTFile
 {
 public:
-  VisualizeGBCDGMT(DataStructure& dataStructure, const IFilter::MessageHandler& mesgHandler, const std::atomic_bool& shouldCancel, VisualizeGBCDGMTInputValues* inputValues);
-  ~VisualizeGBCDGMT() noexcept;
+  ExportGBCDGMTFile(DataStructure& dataStructure, const IFilter::MessageHandler& mesgHandler, const std::atomic_bool& shouldCancel, ExportGBCDGMTFileInputValues* inputValues);
+  ~ExportGBCDGMTFile() noexcept;
 
-  VisualizeGBCDGMT(const VisualizeGBCDGMT&) = delete;
-  VisualizeGBCDGMT(VisualizeGBCDGMT&&) noexcept = delete;
-  VisualizeGBCDGMT& operator=(const VisualizeGBCDGMT&) = delete;
-  VisualizeGBCDGMT& operator=(VisualizeGBCDGMT&&) noexcept = delete;
+  ExportGBCDGMTFile(const ExportGBCDGMTFile&) = delete;
+  ExportGBCDGMTFile(ExportGBCDGMTFile&&) noexcept = delete;
+  ExportGBCDGMTFile& operator=(const ExportGBCDGMTFile&) = delete;
+  ExportGBCDGMTFile& operator=(ExportGBCDGMTFile&&) noexcept = delete;
 
   Result<> operator()();
 
@@ -43,7 +43,7 @@ public:
 
 private:
   DataStructure& m_DataStructure;
-  const VisualizeGBCDGMTInputValues* m_InputValues = nullptr;
+  const ExportGBCDGMTFileInputValues* m_InputValues = nullptr;
   const std::atomic_bool& m_ShouldCancel;
   const IFilter::MessageHandler& m_MessageHandler;
 };

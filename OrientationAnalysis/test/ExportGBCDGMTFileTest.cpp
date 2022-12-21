@@ -13,8 +13,8 @@
 #include "complex/Parameters/util/CSVWizardData.hpp"
 #include "complex/UnitTest/UnitTestCommon.hpp"
 
+#include "OrientationAnalysis/Filters/ExportGBCDGMTFileFilter.hpp"
 #include "OrientationAnalysis/Filters/FindGBCDFilter.hpp"
-#include "OrientationAnalysis/Filters/VisualizeGBCDGMTFilter.hpp"
 #include "OrientationAnalysis/OrientationAnalysis_test_dirs.hpp"
 
 #include "complex_plugins/Utilities/TestUtilities.hpp"
@@ -44,7 +44,7 @@ inline constexpr StringLiteral k_GMT3("GMT3");
 
 } // namespace
 
-TEST_CASE("OrientationAnalysis::VisualizeGBCDGMTFilter", "[OrientationAnalysis][VisualizeGBCDGMT]")
+TEST_CASE("OrientationAnalysis::ExportGBCDGMTFileFilter", "[OrientationAnalysis][ExportGBCDGMTFile]")
 {
   const std::shared_ptr<make_shared_enabler> app = std::make_shared<make_shared_enabler>();
   app->loadPlugins(unit_test::k_BuildDir.view(), true);
@@ -78,14 +78,14 @@ TEST_CASE("OrientationAnalysis::VisualizeGBCDGMTFilter", "[OrientationAnalysis][
     // Create Pole Figure
     auto outputFile = fs::path(fmt::format("{}/small_in100_sigma_3_1.dat", unit_test::k_BinaryTestOutputDir));
     {
-      const VisualizeGBCDGMTFilter gmtFilter;
+      const ExportGBCDGMTFileFilter gmtFilter;
       Arguments args;
 
-      args.insertOrAssign(VisualizeGBCDGMTFilter::k_PhaseOfInterest_Key, std::make_any<Int32Parameter::ValueType>(1));
-      args.insertOrAssign(VisualizeGBCDGMTFilter::k_MisorientationRotation_Key, std::make_any<VectorFloat32Parameter::ValueType>({60.0F, 1.0F, 1.0F, 1.0F}));
-      args.insertOrAssign(VisualizeGBCDGMTFilter::k_OutputFile_Key, std::make_any<FileSystemPathParameter::ValueType>(outputFile));
-      args.insertOrAssign(VisualizeGBCDGMTFilter::k_GBCDArrayPath_Key, std::make_any<ArraySelectionParameter::ValueType>(gbcdArrayPath));
-      args.insertOrAssign(VisualizeGBCDGMTFilter::k_CrystalStructuresArrayPath_Key, std::make_any<ArraySelectionParameter::ValueType>(crystalStructurePath));
+      args.insertOrAssign(ExportGBCDGMTFileFilter::k_PhaseOfInterest_Key, std::make_any<Int32Parameter::ValueType>(1));
+      args.insertOrAssign(ExportGBCDGMTFileFilter::k_MisorientationRotation_Key, std::make_any<VectorFloat32Parameter::ValueType>({60.0F, 1.0F, 1.0F, 1.0F}));
+      args.insertOrAssign(ExportGBCDGMTFileFilter::k_OutputFile_Key, std::make_any<FileSystemPathParameter::ValueType>(outputFile));
+      args.insertOrAssign(ExportGBCDGMTFileFilter::k_GBCDArrayPath_Key, std::make_any<ArraySelectionParameter::ValueType>(gbcdArrayPath));
+      args.insertOrAssign(ExportGBCDGMTFileFilter::k_CrystalStructuresArrayPath_Key, std::make_any<ArraySelectionParameter::ValueType>(crystalStructurePath));
 
       // Preflight the filter and check result
       auto preflightResult = gmtFilter.preflight(dataStructure, args);
@@ -166,14 +166,14 @@ TEST_CASE("OrientationAnalysis::VisualizeGBCDGMTFilter", "[OrientationAnalysis][
     auto outputFile = fs::path(fmt::format("{}/small_in100_sigma_9_1.dat", unit_test::k_BinaryTestOutputDir));
 
     {
-      const VisualizeGBCDGMTFilter filter;
+      const ExportGBCDGMTFileFilter filter;
       Arguments args;
 
-      args.insertOrAssign(VisualizeGBCDGMTFilter::k_PhaseOfInterest_Key, std::make_any<Int32Parameter::ValueType>(1));
-      args.insertOrAssign(VisualizeGBCDGMTFilter::k_MisorientationRotation_Key, std::make_any<VectorFloat32Parameter::ValueType>({39.0F, 1.0F, 1.0F, 0.0F}));
-      args.insertOrAssign(VisualizeGBCDGMTFilter::k_OutputFile_Key, std::make_any<FileSystemPathParameter::ValueType>(outputFile));
-      args.insertOrAssign(VisualizeGBCDGMTFilter::k_GBCDArrayPath_Key, std::make_any<ArraySelectionParameter::ValueType>(gbcdArrayPath));
-      args.insertOrAssign(VisualizeGBCDGMTFilter::k_CrystalStructuresArrayPath_Key, std::make_any<ArraySelectionParameter::ValueType>(crystalStructurePath));
+      args.insertOrAssign(ExportGBCDGMTFileFilter::k_PhaseOfInterest_Key, std::make_any<Int32Parameter::ValueType>(1));
+      args.insertOrAssign(ExportGBCDGMTFileFilter::k_MisorientationRotation_Key, std::make_any<VectorFloat32Parameter::ValueType>({39.0F, 1.0F, 1.0F, 0.0F}));
+      args.insertOrAssign(ExportGBCDGMTFileFilter::k_OutputFile_Key, std::make_any<FileSystemPathParameter::ValueType>(outputFile));
+      args.insertOrAssign(ExportGBCDGMTFileFilter::k_GBCDArrayPath_Key, std::make_any<ArraySelectionParameter::ValueType>(gbcdArrayPath));
+      args.insertOrAssign(ExportGBCDGMTFileFilter::k_CrystalStructuresArrayPath_Key, std::make_any<ArraySelectionParameter::ValueType>(crystalStructurePath));
 
       // Preflight the filter and check result
       auto preflightResult = filter.preflight(dataStructure, args);
@@ -254,14 +254,14 @@ TEST_CASE("OrientationAnalysis::VisualizeGBCDGMTFilter", "[OrientationAnalysis][
     auto outputFile = fs::path(fmt::format("{}/small_in100_sigma_11_1.dat", unit_test::k_BinaryTestOutputDir));
 
     {
-      const VisualizeGBCDGMTFilter filter;
+      const ExportGBCDGMTFileFilter filter;
       Arguments args;
 
-      args.insertOrAssign(VisualizeGBCDGMTFilter::k_PhaseOfInterest_Key, std::make_any<Int32Parameter::ValueType>(1));
-      args.insertOrAssign(VisualizeGBCDGMTFilter::k_MisorientationRotation_Key, std::make_any<VectorFloat32Parameter::ValueType>({50.5F, 1.0F, 1.0F, 0.0F}));
-      args.insertOrAssign(VisualizeGBCDGMTFilter::k_OutputFile_Key, std::make_any<FileSystemPathParameter::ValueType>(outputFile));
-      args.insertOrAssign(VisualizeGBCDGMTFilter::k_GBCDArrayPath_Key, std::make_any<ArraySelectionParameter::ValueType>(gbcdArrayPath));
-      args.insertOrAssign(VisualizeGBCDGMTFilter::k_CrystalStructuresArrayPath_Key, std::make_any<ArraySelectionParameter::ValueType>(crystalStructurePath));
+      args.insertOrAssign(ExportGBCDGMTFileFilter::k_PhaseOfInterest_Key, std::make_any<Int32Parameter::ValueType>(1));
+      args.insertOrAssign(ExportGBCDGMTFileFilter::k_MisorientationRotation_Key, std::make_any<VectorFloat32Parameter::ValueType>({50.5F, 1.0F, 1.0F, 0.0F}));
+      args.insertOrAssign(ExportGBCDGMTFileFilter::k_OutputFile_Key, std::make_any<FileSystemPathParameter::ValueType>(outputFile));
+      args.insertOrAssign(ExportGBCDGMTFileFilter::k_GBCDArrayPath_Key, std::make_any<ArraySelectionParameter::ValueType>(gbcdArrayPath));
+      args.insertOrAssign(ExportGBCDGMTFileFilter::k_CrystalStructuresArrayPath_Key, std::make_any<ArraySelectionParameter::ValueType>(crystalStructurePath));
 
       // Preflight the filter and check result
       auto preflightResult = filter.preflight(dataStructure, args);
