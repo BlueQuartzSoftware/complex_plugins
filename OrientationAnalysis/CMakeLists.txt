@@ -30,6 +30,7 @@ set(FilterList
   AlignSectionsMisorientationFilter
   BadDataNeighborOrientationCheckFilter
   ConvertOrientations
+  ConvertQuaternionFilter
   CreateEnsembleInfoFilter
   EBSDSegmentFeaturesFilter
   EbsdToH5EbsdFilter
@@ -48,12 +49,17 @@ set(FilterList
   GenerateFZQuaternions
   GenerateGBCDPoleFigureFilter
   GenerateIPFColorsFilter
+  GenerateQuaternionConjugateFilter
+  INLWriterFilter
   MergeTwinsFilter
   NeighborOrientationCorrelationFilter
   ReadAngDataFilter
   ReadCtfDataFilter
   ReadH5EbsdFilter
+  ReplaceElementAttributesWithNeighborValuesFilter
+  RodriguesConvertorFilter
   RotateEulerRefFrameFilter
+  Stereographic3DFilter
 )
   
 set(STUB_FILTERS
@@ -160,6 +166,7 @@ endif()
 set(filter_algorithms
   AlignSectionsMisorientation
   BadDataNeighborOrientationCheck
+  ConvertQuaternion
   CreateEnsembleInfo
   EBSDSegmentFeatures
   EbsdToH5Ebsd
@@ -177,13 +184,18 @@ set(filter_algorithms
   GenerateFaceMisorientationColoring
   GenerateGBCDPoleFigure
   GenerateIPFColors
+  GenerateQuaternionConjugate
   GroupFeatures
+  INLWriter
   MergeTwins
   NeighborOrientationCorrelation
   ReadAngData
   ReadCtfData
   ReadH5Ebsd
+  ReplaceElementAttributesWithNeighborValues
+  RodriguesConvertor
   RotateEulerRefFrame
+  Stereographic3D
 )
 
 
