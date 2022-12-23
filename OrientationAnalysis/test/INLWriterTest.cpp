@@ -20,11 +20,10 @@
  * and report errors.
  */
 
-
 #include <catch2/catch.hpp>
 
-#include "complex/Parameters/FileSystemPathParameter.hpp"
 #include "complex/Parameters/ArraySelectionParameter.hpp"
+#include "complex/Parameters/FileSystemPathParameter.hpp"
 
 #include <filesystem>
 namespace fs = std::filesystem;
@@ -34,7 +33,7 @@ namespace fs = std::filesystem;
 
 using namespace complex;
 
-TEST_CASE("OrientationAnalysis::INLWriterFilter: Instantiation and Parameter Check","[OrientationAnalysis][INLWriterFilter][.][UNIMPLEMENTED][!mayfail]")
+TEST_CASE("OrientationAnalysis::INLWriterFilter: Instantiation and Parameter Check", "[OrientationAnalysis][INLWriterFilter][.][UNIMPLEMENTED][!mayfail]")
 {
   // Instantiate the filter, a DataStructure object and an Arguments Object
   INLWriterFilter filter;
@@ -43,13 +42,12 @@ TEST_CASE("OrientationAnalysis::INLWriterFilter: Instantiation and Parameter Che
 
   // Create default Parameters for the filter.
   args.insertOrAssign(INLWriterFilter::k_OutputFile_Key, std::make_any<FileSystemPathParameter::ValueType>(fs::path("/Path/To/Output/File/To/Write.data")));
-  args.insertOrAssign(INLWriterFilter::k_FeatureIdsArrayPath_Key, std::make_any<DataPath>(DataPath{}));
+  args.insertOrAssign(INLWriterFilter::k_CellFeatureIdsArrayPath_Key, std::make_any<DataPath>(DataPath{}));
   args.insertOrAssign(INLWriterFilter::k_CellPhasesArrayPath_Key, std::make_any<DataPath>(DataPath{}));
   args.insertOrAssign(INLWriterFilter::k_CellEulerAnglesArrayPath_Key, std::make_any<DataPath>(DataPath{}));
   args.insertOrAssign(INLWriterFilter::k_CrystalStructuresArrayPath_Key, std::make_any<DataPath>(DataPath{}));
   args.insertOrAssign(INLWriterFilter::k_MaterialNameArrayPath_Key, std::make_any<DataPath>(DataPath{}));
   args.insertOrAssign(INLWriterFilter::k_NumFeaturesArrayPath_Key, std::make_any<DataPath>(DataPath{}));
-
 
   // Preflight the filter and check result
   auto preflightResult = filter.preflight(ds, args);
@@ -60,12 +58,12 @@ TEST_CASE("OrientationAnalysis::INLWriterFilter: Instantiation and Parameter Che
   REQUIRE(executeResult.result.valid());
 }
 
-//TEST_CASE("OrientationAnalysis::INLWriterFilter: Valid filter execution")
+// TEST_CASE("OrientationAnalysis::INLWriterFilter: Valid filter execution")
 //{
 //
-//}
+// }
 
-//TEST_CASE("OrientationAnalysis::INLWriterFilter: InValid filter execution")
+// TEST_CASE("OrientationAnalysis::INLWriterFilter: InValid filter execution")
 //{
 //
-//}
+// }

@@ -2,8 +2,79 @@
 
 #include "complex/DataStructure/DataArray.hpp"
 #include "complex/DataStructure/DataGroup.hpp"
+#include "complex/Parameters/ChoicesParameter.hpp"
+#include "complex/Utilities/ParallelDataAlgorithm.hpp"
 
 using namespace complex;
+
+namespace
+{
+
+constexpr ChoicesParameter::ValueType k_ToScalarVector = 0;
+constexpr ChoicesParameter::ValueType k_ToVectorScalar = 1;
+
+class ConvertQuaternionImpl
+{
+
+private:
+  const Float32Array* m_Input;
+  Float32Array* m_Output;
+  ChoicesParameter::ValueType m_ConversionType = 0;
+  const std::atomic_bool* m_ShouldCancel;
+
+public:
+  ConvertQuaternionImpl(const Float32Array* inputQuat, Float32Array* outputQuat, ChoicesParameter::ValueType conversionType, const std::atomic_bool* shouldCancel)
+  : m_Input(inputQuat)
+  , m_Output(outputQuat)
+  , m_ConversionType(conversionType)
+  , m_ShouldCancel(shouldCancel)
+  {
+  }
+  virtual ~ConvertQuaternionImpl() = default;
+
+  ConvertQuaternionImpl(const ConvertQuaternionImpl&) = default;           // Copy Constructor Default Implemented
+  ConvertQuaternionImpl(ConvertQuaternionImpl&&) = delete;                 // Move Constructor Not Implemented
+  ConvertQuaternionImpl& operator=(const ConvertQuaternionImpl&) = delete; // Copy Assignment Not Implemented
+  ConvertQuaternionImpl& operator=(ConvertQuaternionImpl&&) = delete;      // Move Assignment Not Implemented
+
+  void convert(size_t start, size_t end) const
+  {
+    // Let's assume k_ToScalarVector which means the incoming quaternions are Vector-Scalar
+    // <x,y,z> w  ---> w <x,y,z>
+    std::array<size_t, 4> mapping = {{1, 2, 3, 0}};
+
+    if(m_ConversionType == ::k_ToVectorScalar)
+    {
+      // w <x,y,z>  ---> <x,y,z> w
+      mapping = {{3, 0, 1, 2}};
+    }
+
+    std::array<float, 4> temp = {0.0f, 0.0f, 0.0f, 0.0f};
+    for(size_t i = start; i < end; i++)
+    {
+      if(*m_ShouldCancel)
+      {
+        return;
+      }
+      temp[mapping[0]] = (*m_Input)[i * 4];
+      temp[mapping[1]] = (*m_Input)[i * 4 + 1];
+      temp[mapping[2]] = (*m_Input)[i * 4 + 2];
+      temp[mapping[3]] = (*m_Input)[i * 4 + 3];
+
+      (*m_Output)[i * 4] = temp[0];
+      (*m_Output)[i * 4 + 1] = temp[1];
+      (*m_Output)[i * 4 + 2] = temp[2];
+      (*m_Output)[i * 4 + 3] = temp[3];
+    }
+  }
+
+  void operator()(const Range& range) const
+  {
+    convert(range.min(), range.max());
+  }
+};
+
+} // namespace
 
 // -----------------------------------------------------------------------------
 ConvertQuaternion::ConvertQuaternion(DataStructure& dataStructure, const IFilter::MessageHandler& mesgHandler, const std::atomic_bool& shouldCancel, ConvertQuaternionInputValues* inputValues)
@@ -26,23 +97,15 @@ const std::atomic_bool& ConvertQuaternion::getCancel()
 // -----------------------------------------------------------------------------
 Result<> ConvertQuaternion::operator()()
 {
-  /**
-  * This section of the code should contain the actual algorithmic codes that
-  * will accomplish the goal of the file.
-  *
-  * If you can parallelize the code there are a number of examples on how to do that.
-  *    GenerateIPFColors is one example
-  *
-  * If you need to determine what kind of array you have (Int32Array, Float32Array, etc)
-  * look to the ExecuteDataFunction() in complex/Utilities/FilterUtilities.hpp template 
-  * function to help with that code.
-  *   An Example algorithm class is `CombineAttributeArrays` and `RemoveFlaggedVertices`
-  * 
-  * There are other utility classes that can help alleviate the amount of code that needs
-  * to be written.
-  *
-  * REMOVE THIS COMMENT BLOCK WHEN YOU ARE FINISHED WITH THE FILTER_HUMAN_NAME
-  */
+
+  const auto& quats = m_DataStructure.getDataRefAs<Float32Array>(m_InputValues->QuaternionDataArrayPath);
+
+  auto& convertedQuats = m_DataStructure.getDataRefAs<Float32Array>(m_InputValues->OutputDataArrayPath);
+
+  // The first part can be expensive so parallelize the algorithm
+  ParallelDataAlgorithm dataAlg;
+  dataAlg.setRange(0, quats.getNumberOfTuples());
+  dataAlg.execute(ConvertQuaternionImpl(&quats, &convertedQuats, m_InputValues->ConversionType, &m_ShouldCancel));
 
   return {};
 }

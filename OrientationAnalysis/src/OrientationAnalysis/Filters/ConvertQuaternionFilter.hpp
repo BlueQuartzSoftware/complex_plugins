@@ -24,7 +24,7 @@ public:
   ConvertQuaternionFilter& operator=(ConvertQuaternionFilter&&) noexcept = delete;
 
   // Parameter Keys
-  static inline constexpr StringLiteral k_QuaternionDataArrayPath_Key = "quaternion_data_array_path";
+  static inline constexpr StringLiteral k_CellQuatsArrayPath_Key = "quaternion_data_array_path";
   static inline constexpr StringLiteral k_OutputDataArrayPath_Key = "output_data_array_path";
   static inline constexpr StringLiteral k_DeleteOriginalData_Key = "delete_original_data";
   static inline constexpr StringLiteral k_ConversionType_Key = "conversion_type";
@@ -91,8 +91,7 @@ protected:
    * @param messageHandler The MessageHandler object
    * @return Returns a Result object with error or warning values if any of those occurred during execution of this function
    */
-  Result<> executeImpl(DataStructure & data, const Arguments& filterArgs, const PipelineFilter* pipelineNode, const MessageHandler& messageHandler, const std::atomic_bool& shouldCancel)
-      const override;
+  Result<> executeImpl(DataStructure& data, const Arguments& filterArgs, const PipelineFilter* pipelineNode, const MessageHandler& messageHandler, const std::atomic_bool& shouldCancel) const override;
 };
 } // namespace complex
 
