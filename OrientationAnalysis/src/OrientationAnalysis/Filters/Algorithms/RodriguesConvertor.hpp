@@ -5,21 +5,9 @@
 #include "complex/DataStructure/DataPath.hpp"
 #include "complex/DataStructure/DataStructure.hpp"
 #include "complex/Filter/IFilter.hpp"
-#include "complex/Parameters/ArraySelectionParameter.hpp"
 #include "complex/Parameters/ArrayCreationParameter.hpp"
+#include "complex/Parameters/ArraySelectionParameter.hpp"
 #include "complex/Parameters/BoolParameter.hpp"
-
-
-/**
-* This is example code to put in the Execute Method of the filter.
-  RodriguesConvertorInputValues inputValues;
-
-  inputValues.RodriguesDataArrayPath = filterArgs.value<DataPath>(k_RodriguesDataArrayPath_Key);
-  inputValues.OutputDataArrayPath = filterArgs.value<DataPath>(k_OutputDataArrayPath_Key);
-  inputValues.DeleteOriginalData = filterArgs.value<bool>(k_DeleteOriginalData_Key);
-
-  return RodriguesConvertor(dataStructure, messageHandler, shouldCancel, &inputValues)();
-*/
 
 namespace complex
 {
@@ -29,7 +17,6 @@ struct ORIENTATIONANALYSIS_EXPORT RodriguesConvertorInputValues
   DataPath RodriguesDataArrayPath;
   DataPath OutputDataArrayPath;
   bool DeleteOriginalData;
-
 };
 
 /**
