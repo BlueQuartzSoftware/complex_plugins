@@ -97,12 +97,9 @@ const std::atomic_bool& ConvertQuaternion::getCancel()
 // -----------------------------------------------------------------------------
 Result<> ConvertQuaternion::operator()()
 {
-
   const auto& quats = m_DataStructure.getDataRefAs<Float32Array>(m_InputValues->QuaternionDataArrayPath);
-
   auto& convertedQuats = m_DataStructure.getDataRefAs<Float32Array>(m_InputValues->OutputDataArrayPath);
 
-  // The first part can be expensive so parallelize the algorithm
   ParallelDataAlgorithm dataAlg;
   dataAlg.setRange(0, quats.getNumberOfTuples());
   dataAlg.execute(ConvertQuaternionImpl(&quats, &convertedQuats, m_InputValues->ConversionType, &m_ShouldCancel));

@@ -1,65 +1,79 @@
-/**
- * This file is auto generated from the original OrientationAnalysis/GenerateQuaternionConjugateFilter
- * runtime information. These are the steps that need to be taken to utilize this
- * unit test in the proper way.
- *
- * 1: Validate each of the default parameters that gets created.
- * 2: Inspect the actual filter to determine if the filter in its default state
- * would pass or fail BOTH the preflight() and execute() methods
- * 3: UPDATE the ```REQUIRE(result.result.valid());``` code to have the proper
- *
- * 4: Add additional unit tests to actually test each code path within the filter
- *
- * There are some example Catch2 ```TEST_CASE``` sections for your inspiration.
- *
- * NOTE the format of the ```TEST_CASE``` macro. Please stick to this format to
- * allow easier parsing of the unit tests.
- *
- * When you start working on this unit test remove "[GenerateQuaternionConjugateFilter][.][UNIMPLEMENTED]"
- * from the TEST_CASE macro. This will enable this unit test to be run by default
- * and report errors.
- */
-
-
 #include <catch2/catch.hpp>
 
-#include "complex/Parameters/ArraySelectionParameter.hpp"
+#include "complex/DataStructure/DataArray.hpp"
 #include "complex/Parameters/ArrayCreationParameter.hpp"
+#include "complex/Parameters/ArraySelectionParameter.hpp"
 #include "complex/Parameters/BoolParameter.hpp"
+#include "complex/Parameters/ChoicesParameter.hpp"
+#include "complex/UnitTest/UnitTestCommon.hpp"
+#include "complex/Utilities/DataArrayUtilities.hpp"
 
 #include "OrientationAnalysis/Filters/GenerateQuaternionConjugateFilter.hpp"
 #include "OrientationAnalysis/OrientationAnalysis_test_dirs.hpp"
 
 using namespace complex;
+namespace
+{
+const std::string k_QuatName = "Quats";
+const std::string k_ConvertedName = "Converted";
+const std::string k_Exemplar0 = "Exemplar0";
+const std::string k_Exemplar1 = "Exemplar1";
 
-TEST_CASE("OrientationAnalysis::GenerateQuaternionConjugateFilter: Instantiation and Parameter Check","[OrientationAnalysis][GenerateQuaternionConjugateFilter][.][UNIMPLEMENTED][!mayfail]")
+} // namespace
+
+TEST_CASE("OrientationAnalysis::GenerateQuaternionConjugateFilter", "[OrientationAnalysis][GenerateQuaternionConjugateFilter]")
 {
   // Instantiate the filter, a DataStructure object and an Arguments Object
-  GenerateQuaternionConjugateFilter filter;
-  DataStructure ds;
-  Arguments args;
+  DataStructure dataStructure;
 
-  // Create default Parameters for the filter.
-  args.insertOrAssign(GenerateQuaternionConjugateFilter::k_QuaternionDataArrayPath_Key, std::make_any<DataPath>(DataPath{}));
-  args.insertOrAssign(GenerateQuaternionConjugateFilter::k_OutputDataArrayPath_Key, std::make_any<DataPath>(DataPath{}));
-  args.insertOrAssign(GenerateQuaternionConjugateFilter::k_DeleteOriginalData_Key, std::make_any<bool>(false));
+  // Build up a simple Float32Array and place default data into the array
+  Float32Array* quats = UnitTest::CreateTestDataArray<float32>(dataStructure, k_QuatName, {4ULL}, {4ULL}, {});
 
+  for(size_t i = 0; i < 16; i++)
+  {
+    (*quats)[i] = static_cast<float32>(i);
+  }
+  Float32Array* exemplarData = UnitTest::CreateTestDataArray<float32>(dataStructure, k_Exemplar0, {4ULL}, {4ULL}, {});
 
-  // Preflight the filter and check result
-  auto preflightResult = filter.preflight(ds, args);
-  REQUIRE(preflightResult.outputActions.valid());
+  (*exemplarData)[0] = -0.0F;
+  (*exemplarData)[1] = -1.0F;
+  (*exemplarData)[2] = -2.0F;
+  (*exemplarData)[3] = 3.0F;
 
-  // Execute the filter and check the result
-  auto executeResult = filter.execute(ds, args);
-  REQUIRE(executeResult.result.valid());
+  (*exemplarData)[4] = -4.0F;
+  (*exemplarData)[5] = -5.0F;
+  (*exemplarData)[6] = -6.0F;
+  (*exemplarData)[7] = 7.0F;
+
+  (*exemplarData)[8] = -8.0F;
+  (*exemplarData)[9] = -9.0F;
+  (*exemplarData)[10] = -10.0F;
+  (*exemplarData)[11] = 11.0F;
+
+  (*exemplarData)[12] = -12.0F;
+  (*exemplarData)[13] = -13.0F;
+  (*exemplarData)[14] = -14.0F;
+  (*exemplarData)[15] = 15.0F;
+  {
+    // Instantiate the filter, a DataStructure object and an Arguments Object
+    const GenerateQuaternionConjugateFilter filter;
+
+    Arguments args;
+
+    // Create default Parameters for the filter.
+    args.insertOrAssign(GenerateQuaternionConjugateFilter::k_CellQuatsArrayPath_Key, std::make_any<DataPath>(DataPath({k_QuatName})));
+    args.insertOrAssign(GenerateQuaternionConjugateFilter::k_OutputDataArrayPath_Key, std::make_any<DataPath>(DataPath({k_ConvertedName})));
+    args.insertOrAssign(GenerateQuaternionConjugateFilter::k_DeleteOriginalData_Key, std::make_any<bool>(false));
+
+    // Preflight the filter and check result
+    auto preflightResult = filter.preflight(dataStructure, args);
+    COMPLEX_RESULT_REQUIRE_VALID(preflightResult.outputActions)
+
+    // Execute the filter and check the result
+    auto executeResult = filter.execute(dataStructure, args);
+    COMPLEX_RESULT_REQUIRE_VALID(executeResult.result)
+
+    auto& outputArray = dataStructure.getDataRefAs<Float32Array>(DataPath({k_ConvertedName}));
+    UnitTest::CompareDataArrays<float32>(*exemplarData, outputArray);
+  }
 }
-
-//TEST_CASE("OrientationAnalysis::GenerateQuaternionConjugateFilter: Valid filter execution")
-//{
-//
-//}
-
-//TEST_CASE("OrientationAnalysis::GenerateQuaternionConjugateFilter: InValid filter execution")
-//{
-//
-//}

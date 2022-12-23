@@ -2,11 +2,58 @@
 
 #include "complex/DataStructure/DataArray.hpp"
 #include "complex/DataStructure/DataGroup.hpp"
+#include "complex/Utilities/ParallelDataAlgorithm.hpp"
 
 using namespace complex;
 
+namespace
+{
+class GenerateQuaternionConjugateImpl
+{
+private:
+  const Float32Array* m_Input;
+  Float32Array* m_Output;
+  const std::atomic_bool* m_ShouldCancel;
+
+public:
+  GenerateQuaternionConjugateImpl(const Float32Array* inputQuat, Float32Array* outputQuat, const std::atomic_bool* shouldCancel)
+  : m_Input(inputQuat)
+  , m_Output(outputQuat)
+  , m_ShouldCancel(shouldCancel)
+  {
+  }
+  GenerateQuaternionConjugateImpl(const GenerateQuaternionConjugateImpl&) = default;           // Copy Constructor
+  GenerateQuaternionConjugateImpl(GenerateQuaternionConjugateImpl&&) = delete;                 // Move Constructor Not Implemented
+  GenerateQuaternionConjugateImpl& operator=(const GenerateQuaternionConjugateImpl&) = delete; // Copy Assignment Not Implemented
+  GenerateQuaternionConjugateImpl& operator=(GenerateQuaternionConjugateImpl&&) = delete;      // Move Assignment Not Implemented
+
+  virtual ~GenerateQuaternionConjugateImpl() = default;
+
+  void convert(size_t start, size_t end) const
+  {
+    for(size_t i = start; i < end; i++)
+    {
+      if(*m_ShouldCancel)
+      {
+        return;
+      }
+      (*m_Output)[i * 4] = -1.0f * (*m_Input)[i * 4];
+      (*m_Output)[i * 4 + 1] = -1.0f * (*m_Input)[i * 4 + 1];
+      (*m_Output)[i * 4 + 2] = -1.0f * (*m_Input)[i * 4 + 2];
+      (*m_Output)[i * 4 + 3] = (*m_Input)[i * 4 + 3];
+    }
+  }
+
+  void operator()(const Range& range) const
+  {
+    convert(range.min(), range.max());
+  }
+};
+} // namespace
+
 // -----------------------------------------------------------------------------
-GenerateQuaternionConjugate::GenerateQuaternionConjugate(DataStructure& dataStructure, const IFilter::MessageHandler& mesgHandler, const std::atomic_bool& shouldCancel, GenerateQuaternionConjugateInputValues* inputValues)
+GenerateQuaternionConjugate::GenerateQuaternionConjugate(DataStructure& dataStructure, const IFilter::MessageHandler& mesgHandler, const std::atomic_bool& shouldCancel,
+                                                         GenerateQuaternionConjugateInputValues* inputValues)
 : m_DataStructure(dataStructure)
 , m_InputValues(inputValues)
 , m_ShouldCancel(shouldCancel)
@@ -26,23 +73,12 @@ const std::atomic_bool& GenerateQuaternionConjugate::getCancel()
 // -----------------------------------------------------------------------------
 Result<> GenerateQuaternionConjugate::operator()()
 {
-  /**
-  * This section of the code should contain the actual algorithmic codes that
-  * will accomplish the goal of the file.
-  *
-  * If you can parallelize the code there are a number of examples on how to do that.
-  *    GenerateIPFColors is one example
-  *
-  * If you need to determine what kind of array you have (Int32Array, Float32Array, etc)
-  * look to the ExecuteDataFunction() in complex/Utilities/FilterUtilities.hpp template 
-  * function to help with that code.
-  *   An Example algorithm class is `CombineAttributeArrays` and `RemoveFlaggedVertices`
-  * 
-  * There are other utility classes that can help alleviate the amount of code that needs
-  * to be written.
-  *
-  * REMOVE THIS COMMENT BLOCK WHEN YOU ARE FINISHED WITH THE FILTER_HUMAN_NAME
-  */
+  const auto& input = m_DataStructure.getDataRefAs<Float32Array>(m_InputValues->QuaternionDataArrayPath);
+  auto& output = m_DataStructure.getDataRefAs<Float32Array>(m_InputValues->OutputDataArrayPath);
+
+  ParallelDataAlgorithm dataAlg;
+  dataAlg.setRange(0, input.getNumberOfTuples());
+  dataAlg.execute(GenerateQuaternionConjugateImpl(&input, &output, &m_ShouldCancel));
 
   return {};
 }
