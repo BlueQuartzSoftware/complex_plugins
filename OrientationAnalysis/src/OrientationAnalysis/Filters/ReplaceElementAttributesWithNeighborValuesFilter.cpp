@@ -4,10 +4,10 @@
 
 #include "complex/DataStructure/DataPath.hpp"
 #include "complex/Filter/Actions/EmptyAction.hpp"
-#include "complex/Parameters/ChoicesParameter.hpp"
-#include "complex/Parameters/NumberParameter.hpp"
 #include "complex/Parameters/ArraySelectionParameter.hpp"
 #include "complex/Parameters/BoolParameter.hpp"
+#include "complex/Parameters/ChoicesParameter.hpp"
+#include "complex/Parameters/NumberParameter.hpp"
 
 using namespace complex;
 
@@ -63,10 +63,12 @@ Parameters ReplaceElementAttributesWithNeighborValuesFilter::parameters() const
 
   // Create the parameter descriptors that are needed for this filter
   params.insert(std::make_unique<Float32Parameter>(k_MinConfidence_Key, "Threshold Value", "", 1.23345f));
-  params.insert(std::make_unique<ChoicesParameter>(k_SelectedComparison_Key, "Comparison Operator", "", 0, ChoicesParameter::Choices{"Option 1", "Option 2", "Option 3"}/* Change this to the proper choices */));
+  params.insert(std::make_unique<ChoicesParameter>(k_SelectedComparison_Key, "Comparison Operator", "", 0,
+                                                   ChoicesParameter::Choices{"Option 1", "Option 2", "Option 3"} /* Change this to the proper choices */));
   params.insert(std::make_unique<BoolParameter>(k_Loop_Key, "Loop Until Gone", "", false));
   params.insertSeparator(Parameters::Separator{"Cell Data"});
-  params.insert(std::make_unique<ArraySelectionParameter>(k_ConfidenceIndexArrayPath_Key, "Comparison Array", "", DataPath{}, complex::GetAllDataTypes() /* This will allow ANY data type. Adjust as necessary for your filter*/));
+  params.insert(std::make_unique<ArraySelectionParameter>(k_ConfidenceIndexArrayPath_Key, "Comparison Array", "", DataPath{},
+                                                          complex::GetAllDataTypes() /* This will allow ANY data type. Adjust as necessary for your filter*/));
 
   return params;
 }
@@ -78,7 +80,8 @@ IFilter::UniquePointer ReplaceElementAttributesWithNeighborValuesFilter::clone()
 }
 
 //------------------------------------------------------------------------------
-IFilter::PreflightResult ReplaceElementAttributesWithNeighborValuesFilter::preflightImpl(const DataStructure& dataStructure, const Arguments& filterArgs, const MessageHandler& messageHandler, const std::atomic_bool& shouldCancel) const
+IFilter::PreflightResult ReplaceElementAttributesWithNeighborValuesFilter::preflightImpl(const DataStructure& dataStructure, const Arguments& filterArgs, const MessageHandler& messageHandler,
+                                                                                         const std::atomic_bool& shouldCancel) const
 {
   /****************************************************************************
    * Write any preflight sanity checking codes in this function
@@ -93,8 +96,6 @@ IFilter::PreflightResult ReplaceElementAttributesWithNeighborValuesFilter::prefl
   auto pSelectedComparisonValue = filterArgs.value<ChoicesParameter::ValueType>(k_SelectedComparison_Key);
   auto pLoopValue = filterArgs.value<bool>(k_Loop_Key);
   auto pConfidenceIndexArrayPathValue = filterArgs.value<DataPath>(k_ConfidenceIndexArrayPath_Key);
-
-
 
   // Declare the preflightResult variable that will be populated with the results
   // of the preflight. The PreflightResult type contains the output Actions and
@@ -139,16 +140,16 @@ IFilter::PreflightResult ReplaceElementAttributesWithNeighborValuesFilter::prefl
 }
 
 //------------------------------------------------------------------------------
-Result<> ReplaceElementAttributesWithNeighborValuesFilter::executeImpl(DataStructure& dataStructure, const Arguments& filterArgs, const PipelineFilter* pipelineNode, const MessageHandler& messageHandler, const std::atomic_bool& shouldCancel) const
+Result<> ReplaceElementAttributesWithNeighborValuesFilter::executeImpl(DataStructure& dataStructure, const Arguments& filterArgs, const PipelineFilter* pipelineNode,
+                                                                       const MessageHandler& messageHandler, const std::atomic_bool& shouldCancel) const
 {
 
   ReplaceElementAttributesWithNeighborValuesInputValues inputValues;
 
-    inputValues.MinConfidence = filterArgs.value<float32>(k_MinConfidence_Key);
+  inputValues.MinConfidence = filterArgs.value<float32>(k_MinConfidence_Key);
   inputValues.SelectedComparison = filterArgs.value<ChoicesParameter::ValueType>(k_SelectedComparison_Key);
   inputValues.Loop = filterArgs.value<bool>(k_Loop_Key);
   inputValues.ConfidenceIndexArrayPath = filterArgs.value<DataPath>(k_ConfidenceIndexArrayPath_Key);
-
 
   return ReplaceElementAttributesWithNeighborValues(dataStructure, messageHandler, shouldCancel, &inputValues)();
 }

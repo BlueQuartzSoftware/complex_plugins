@@ -20,20 +20,20 @@
  * and report errors.
  */
 
-
 #include <catch2/catch.hpp>
 
-#include "complex/Parameters/ChoicesParameter.hpp"
-#include "complex/Parameters/NumberParameter.hpp"
 #include "complex/Parameters/ArraySelectionParameter.hpp"
 #include "complex/Parameters/BoolParameter.hpp"
+#include "complex/Parameters/ChoicesParameter.hpp"
+#include "complex/Parameters/NumberParameter.hpp"
 
 #include "OrientationAnalysis/Filters/ReplaceElementAttributesWithNeighborValuesFilter.hpp"
 #include "OrientationAnalysis/OrientationAnalysis_test_dirs.hpp"
 
 using namespace complex;
 
-TEST_CASE("OrientationAnalysis::ReplaceElementAttributesWithNeighborValuesFilter: Instantiation and Parameter Check","[OrientationAnalysis][ReplaceElementAttributesWithNeighborValuesFilter][.][UNIMPLEMENTED][!mayfail]")
+TEST_CASE("OrientationAnalysis::ReplaceElementAttributesWithNeighborValuesFilter: Instantiation and Parameter Check",
+          "[OrientationAnalysis][ReplaceElementAttributesWithNeighborValuesFilter][.][UNIMPLEMENTED][!mayfail]")
 {
   // Instantiate the filter, a DataStructure object and an Arguments Object
   ReplaceElementAttributesWithNeighborValuesFilter filter;
@@ -46,7 +46,6 @@ TEST_CASE("OrientationAnalysis::ReplaceElementAttributesWithNeighborValuesFilter
   args.insertOrAssign(ReplaceElementAttributesWithNeighborValuesFilter::k_Loop_Key, std::make_any<bool>(false));
   args.insertOrAssign(ReplaceElementAttributesWithNeighborValuesFilter::k_ConfidenceIndexArrayPath_Key, std::make_any<DataPath>(DataPath{}));
 
-
   // Preflight the filter and check result
   auto preflightResult = filter.preflight(ds, args);
   REQUIRE(preflightResult.outputActions.valid());
@@ -56,12 +55,12 @@ TEST_CASE("OrientationAnalysis::ReplaceElementAttributesWithNeighborValuesFilter
   REQUIRE(executeResult.result.valid());
 }
 
-//TEST_CASE("OrientationAnalysis::ReplaceElementAttributesWithNeighborValuesFilter: Valid filter execution")
+// TEST_CASE("OrientationAnalysis::ReplaceElementAttributesWithNeighborValuesFilter: Valid filter execution")
 //{
 //
 //}
 
-//TEST_CASE("OrientationAnalysis::ReplaceElementAttributesWithNeighborValuesFilter: InValid filter execution")
+// TEST_CASE("OrientationAnalysis::ReplaceElementAttributesWithNeighborValuesFilter: InValid filter execution")
 //{
 //
 //}

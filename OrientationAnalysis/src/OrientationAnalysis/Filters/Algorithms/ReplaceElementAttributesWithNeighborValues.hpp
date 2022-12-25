@@ -5,11 +5,10 @@
 #include "complex/DataStructure/DataPath.hpp"
 #include "complex/DataStructure/DataStructure.hpp"
 #include "complex/Filter/IFilter.hpp"
-#include "complex/Parameters/NumberParameter.hpp"
-#include "complex/Parameters/ChoicesParameter.hpp"
-#include "complex/Parameters/BoolParameter.hpp"
 #include "complex/Parameters/ArraySelectionParameter.hpp"
-
+#include "complex/Parameters/BoolParameter.hpp"
+#include "complex/Parameters/ChoicesParameter.hpp"
+#include "complex/Parameters/NumberParameter.hpp"
 
 /**
 * This is example code to put in the Execute Method of the filter.
@@ -32,7 +31,6 @@ struct ORIENTATIONANALYSIS_EXPORT ReplaceElementAttributesWithNeighborValuesInpu
   ChoicesParameter::ValueType SelectedComparison;
   bool Loop;
   DataPath ConfidenceIndexArrayPath;
-
 };
 
 /**
@@ -44,7 +42,8 @@ struct ORIENTATIONANALYSIS_EXPORT ReplaceElementAttributesWithNeighborValuesInpu
 class ORIENTATIONANALYSIS_EXPORT ReplaceElementAttributesWithNeighborValues
 {
 public:
-  ReplaceElementAttributesWithNeighborValues(DataStructure& dataStructure, const IFilter::MessageHandler& mesgHandler, const std::atomic_bool& shouldCancel, ReplaceElementAttributesWithNeighborValuesInputValues* inputValues);
+  ReplaceElementAttributesWithNeighborValues(DataStructure& dataStructure, const IFilter::MessageHandler& mesgHandler, const std::atomic_bool& shouldCancel,
+                                             ReplaceElementAttributesWithNeighborValuesInputValues* inputValues);
   ~ReplaceElementAttributesWithNeighborValues() noexcept;
 
   ReplaceElementAttributesWithNeighborValues(const ReplaceElementAttributesWithNeighborValues&) = delete;

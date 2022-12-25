@@ -61,7 +61,6 @@
 #include "OrientationAnalysis/Filters/INLWriterFilter.hpp"
 #include "OrientationAnalysis/Filters/ReplaceElementAttributesWithNeighborValuesFilter.hpp"
 #include "OrientationAnalysis/Filters/RodriguesConvertorFilter.hpp"
-#include "OrientationAnalysis/Filters/Stereographic3DFilter.hpp"
 // @@__HEADER__TOKEN__DO__NOT__DELETE__@@
 
 #include <map>
@@ -131,7 +130,6 @@ namespace complex
     {complex::Uuid::FromString("27c724cc-8b69-5ebe-b90e-29d33858a032").value(), complex::FilterTraits<INLWriterFilter>::uuid}, // INLWriter
     {complex::Uuid::FromString("17410178-4e5f-58b9-900e-8194c69200ab").value(), complex::FilterTraits<ReplaceElementAttributesWithNeighborValuesFilter>::uuid}, // ReplaceElementAttributesWithNeighborValues
     {complex::Uuid::FromString("a2b62395-1a7d-5058-a840-752d8f8e2430").value(), complex::FilterTraits<RodriguesConvertorFilter>::uuid}, // RodriguesConvertor
-    {complex::Uuid::FromString("3630623e-724b-5154-a060-a5fca4ecfff5").value(), complex::FilterTraits<Stereographic3DFilter>::uuid}, // Stereographic3D
     // @@__MAP__UPDATE__TOKEN__DO__NOT__DELETE__@@
   };
 

@@ -39,7 +39,6 @@ set(${PLUGIN_NAME}UnitTest_SRCS
   INLWriterTest.cpp
   ReplaceElementAttributesWithNeighborValuesTest.cpp
   RodriguesConvertorTest.cpp
-  Stereographic3DTest.cpp
 )
 set(DISABLED_TESTS
 

@@ -63,7 +63,6 @@ set(FilterList
 )
   
 set(STUB_FILTERS
-  ConvertQuaternion
 
   # ConvertHexGridToSquareGrid # MISSING 1 or more Parameter Implementations
   # CreateEnsembleInfo # MISSING 1 or more Parameter Implementations
@@ -90,8 +89,6 @@ set(STUB_FILTERS
   GenerateFaceIPFColoring
   GenerateFaceMisorientationColoring
   GenerateOrientationMatrixTranspose
-  GenerateQuaternionConjugate
-  INLWriter
 
   # ImportEbsdMontage # MISSING 1 or more Parameter Implementations
   # ImportH5EspritData # MISSING 1 or more Parameter Implementations
@@ -103,9 +100,7 @@ set(STUB_FILTERS
   #ImportH5OimData # MISSING 1 or more Parameter Implementations
   
   #OrientationUtility # MISSING 1 or more Parameter Implementations
-  ReplaceElementAttributesWithNeighborValues
-  RodriguesConvertor
-  Stereographic3D
+
   WritePoleFigure
   WriteStatsGenOdfAngleFile
 )
