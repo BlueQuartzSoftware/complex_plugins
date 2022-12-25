@@ -246,4 +246,3 @@ if(EXISTS "${${PLUGIN_NAME}_SOURCE_DIR}/pipelines")
     COMPONENT Applications
   )
 endif()
-
