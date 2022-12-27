@@ -39,6 +39,7 @@ public:
   static inline constexpr StringLiteral k_SelectedCellArrays_Key = "selected_cell_arrays";
   static inline constexpr StringLiteral k_CreatedImageGeometry_Key = "created_image_geometry";
   static inline constexpr StringLiteral k_RotateSliceBySlice_Key = "rotate_slice_by_slice";
+  static inline constexpr StringLiteral k_InPlaceRotation_Key = "in_place_rotation";
 
   /**
    * @brief
