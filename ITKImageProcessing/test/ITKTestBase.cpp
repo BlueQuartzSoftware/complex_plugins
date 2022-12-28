@@ -197,7 +197,8 @@ Result<> WriteImage(DataStructure& dataStructure, const fs::path& filePath, cons
 }
 
 //------------------------------------------------------------------------------
-Result<> CompareImages(DataStructure& dataStructure, const DataPath& baselineGeometryPath, const DataPath& baselineDataPath, const DataPath& inputGeometryPath, const DataPath& outputDataPath, float64 tolerance)
+Result<> CompareImages(DataStructure& dataStructure, const DataPath& baselineGeometryPath, const DataPath& baselineDataPath, const DataPath& inputGeometryPath, const DataPath& outputDataPath,
+                       float64 tolerance)
 {
   const auto* baselineImageGeom = dataStructure.getDataAs<ImageGeom>(baselineGeometryPath);
   if(baselineImageGeom == nullptr)

@@ -34,7 +34,8 @@ Result<> ReadImage(DataStructure& dataStructure, const fs::path& filePath, const
 
 Result<> WriteImage(DataStructure& dataStructure, const fs::path& filePath, const DataPath& geometryPath, const DataPath& imagePath);
 
-Result<> CompareImages(DataStructure& dataStructure, const DataPath& baselineGeometryPath, const DataPath& baselineDataPath, const DataPath& inputGeometryPath, const DataPath& outputDataPath, float64 tolerance);
+Result<> CompareImages(DataStructure& dataStructure, const DataPath& baselineGeometryPath, const DataPath& baselineDataPath, const DataPath& inputGeometryPath, const DataPath& outputDataPath,
+                       float64 tolerance);
 
 std::string ComputeMd5Hash(DataStructure& dataStructure, const DataPath& outputDataPath);
 
