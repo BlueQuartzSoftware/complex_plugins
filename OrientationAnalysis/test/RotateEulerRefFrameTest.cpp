@@ -1,28 +1,3 @@
-/**
-
-# Test Plan
-
-Read the following data from DREAM3D_Data:
-
-Input Data:
-DREAM3D_Data/TestFiles/ASCII_Data/EulerAngles.csv
-Float32, 3 component. 480000 tuples
-
-use 30 Degrees about the <1, 1, 1> axis
-
-Run the filter which does the rotation *in place*.
-
-Read the reference data set:
-
-DREAM3D_Data/TestFiles/ASCII_Data/EulersRotated.csv
-Float32, 3 component. 480000 tuples
-
-Compare the 2 data sets. Due to going back and forth between ASCII and Binary you will
-probably have to compare using a tolerance of about .0001. Look at the 'ConvertOrientationsTest' at the bottom for an example
-of doing that.
-
-*/
-
 #include <catch2/catch.hpp>
 
 #include "complex/Core/Application.hpp"
