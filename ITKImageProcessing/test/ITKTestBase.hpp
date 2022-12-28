@@ -30,13 +30,13 @@ inline constexpr StringLiteral k_MaskDataPath = "Mask";
 
 inline constexpr StringLiteral k_BaselineDataPath = "Baseline";
 
-Result<> ReadImage(DataStructure& ds, const fs::path& filePath, const DataPath& geometryPath, const DataPath& cellDataPath, const DataPath& imagePath);
+Result<> ReadImage(DataStructure& dataGraph, const fs::path& filePath, const DataPath& geometryPath, const DataPath& cellDataPath, const DataPath& imagePath);
 
-Result<> WriteImage(DataStructure& ds, const fs::path& filePath, const DataPath& geometryPath, const DataPath& imagePath);
+Result<> WriteImage(DataStructure& dataGraph, const fs::path& filePath, const DataPath& geometryPath, const DataPath& imagePath);
 
-Result<> CompareImages(DataStructure& ds, const DataPath& baselineGeometryPath, const DataPath& baselineDataPath, const DataPath& inputGeometryPath, const DataPath& outputDataPath, float64 tolerance);
+Result<> CompareImages(DataStructure& dataGraph, const DataPath& baselineGeometryPath, const DataPath& baselineDataPath, const DataPath& inputGeometryPath, const DataPath& outputDataPath, float64 tolerance);
 
-std::string ComputeMd5Hash(DataStructure& ds, const DataPath& outputDataPath);
+std::string ComputeMd5Hash(DataStructure& dataGraph, const DataPath& outputDataPath);
 
 void RemoveFiles(const fs::path& dirPath, const std::string& filePattern);
 

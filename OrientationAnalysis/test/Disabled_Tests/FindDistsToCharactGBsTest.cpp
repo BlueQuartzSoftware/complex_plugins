@@ -34,7 +34,7 @@ TEST_CASE("OrientationAnalysis::FindDistsToCharactGBs: Instantiation and Paramet
 {
   // Instantiate the filter, a DataStructure object and an Arguments Object
   FindDistsToCharactGBs filter;
-  DataStructure ds;
+  DataStructure dataGraph;
   Arguments args;
 
   // Create default Parameters for the filter.
@@ -49,11 +49,11 @@ TEST_CASE("OrientationAnalysis::FindDistsToCharactGBs: Instantiation and Paramet
   args.insertOrAssign(FindDistsToCharactGBs::k_DistTo180TiltArrayPath_Key, std::make_any<DataPath>(DataPath{}));
 
   // Preflight the filter and check result
-  auto preflightResult = filter.preflight(ds, args);
+  auto preflightResult = filter.preflight(dataGraph, args);
   REQUIRE(preflightResult.outputActions.valid());
 
   // Execute the filter and check the result
-  auto executeResult = filter.execute(ds, args);
+  auto executeResult = filter.execute(dataGraph, args);
   REQUIRE(executeResult.result.valid());
 }
 

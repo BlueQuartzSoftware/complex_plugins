@@ -21,7 +21,7 @@ using namespace complex;
 
 TEST_CASE("ITKGrayscaleMorphologicalClosingImageFilter(GrayscaleMorphologicalClosing)", "[ITKImageProcessing][ITKGrayscaleMorphologicalClosingImage][GrayscaleMorphologicalClosing]")
 {
-  DataStructure ds;
+  DataStructure dataGraph;
   ITKGrayscaleMorphologicalClosingImage filter;
 
   DataPath inputGeometryPath({ITKTestBase::k_ImageGeometryPath});
@@ -31,7 +31,7 @@ TEST_CASE("ITKGrayscaleMorphologicalClosingImageFilter(GrayscaleMorphologicalClo
 
   { // Start Image Comparison Scope
     fs::path inputFilePath = fs::path(unit_test::k_SourceDir.view()) / unit_test::k_DataDir.view() / "JSONFilters" / "Input/STAPLE1.png";
-    Result<> imageReadResult = ITKTestBase::ReadImage(ds, inputFilePath, inputGeometryPath, cellDataPath, inputDataPath);
+    Result<> imageReadResult = ITKTestBase::ReadImage(dataGraph, inputFilePath, inputGeometryPath, cellDataPath, inputDataPath);
     COMPLEX_RESULT_REQUIRE_VALID(imageReadResult);
   } // End Image Comparison Scope
 
@@ -42,12 +42,12 @@ TEST_CASE("ITKGrayscaleMorphologicalClosingImageFilter(GrayscaleMorphologicalClo
   args.insertOrAssign(ITKGrayscaleMorphologicalClosingImage::k_KernelRadius_Key, std::make_any<VectorParameter<uint32>::ValueType>(std::vector<uint32>{1, 1, 1}));
   args.insertOrAssign(ITKGrayscaleMorphologicalClosingImage::k_KernelType_Key, std::make_any<ChoicesParameter::ValueType>(itk::simple::sitkBall));
 
-  auto preflightResult = filter.preflight(ds, args);
+  auto preflightResult = filter.preflight(dataGraph, args);
   COMPLEX_RESULT_REQUIRE_VALID(preflightResult.outputActions);
 
-  auto executeResult = filter.execute(ds, args);
+  auto executeResult = filter.execute(dataGraph, args);
   COMPLEX_RESULT_REQUIRE_VALID(executeResult.result);
 
-  std::string md5Hash = ITKTestBase::ComputeMd5Hash(ds, outputDataPath);
+  std::string md5Hash = ITKTestBase::ComputeMd5Hash(dataGraph, outputDataPath);
   REQUIRE(md5Hash == "103130cc4caf40d9fb252fbabc531e15");
 }
