@@ -34,7 +34,7 @@ TEST_CASE("OrientationAnalysis::FindAvgCAxes: Instantiation and Parameter Check"
 {
   // Instantiate the filter, a DataStructure object and an Arguments Object
   FindAvgCAxes filter;
-  DataStructure dataGraph;
+  DataStructure dataStructure;
   Arguments args;
 
   // Create default Parameters for the filter.
@@ -43,11 +43,11 @@ TEST_CASE("OrientationAnalysis::FindAvgCAxes: Instantiation and Parameter Check"
   args.insertOrAssign(FindAvgCAxes::k_AvgCAxesArrayPath_Key, std::make_any<DataPath>(DataPath{}));
 
   // Preflight the filter and check result
-  auto preflightResult = filter.preflight(dataGraph, args);
+  auto preflightResult = filter.preflight(dataStructure, args);
   REQUIRE(preflightResult.outputActions.valid());
 
   // Execute the filter and check the result
-  auto executeResult = filter.execute(dataGraph, args);
+  auto executeResult = filter.execute(dataStructure, args);
   REQUIRE(executeResult.result.valid());
 }
 

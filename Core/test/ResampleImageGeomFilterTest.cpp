@@ -61,7 +61,7 @@ TEST_CASE("Core::ResampleImageGeom: Instantiation, Parameter Check and valid fil
     args.insertOrAssign(ResampleImageGeomFilter::k_CellFeatureAttributeMatrixPath_Key, std::make_any<DataPath>(DataPath{}));
     args.insertOrAssign(ResampleImageGeomFilter::k_NewDataContainerPath_Key, std::make_any<DataPath>(DataPath{}));
 
-    DataStructure dataGraph = LoadDataStructure(fs::path(fmt::format("{}/TestFiles/ResampleImageGeom_Exemplar.dream3d", unit_test::k_DREAM3DDataDir)));
+    DataStructure dataStructure = LoadDataStructure(fs::path(fmt::format("{}/TestFiles/ResampleImageGeom_Exemplar.dream3d", unit_test::k_DREAM3DDataDir)));
     DataPath srcGeomPath({Constants::k_SmallIN100});
     DataPath cellDataPath = srcGeomPath.createChildPath(Constants::k_EbsdScanData);
     DataPath cellFeatureDataPath = srcGeomPath.createChildPath(Constants::k_FeatureGroupName);
@@ -85,23 +85,23 @@ TEST_CASE("Core::ResampleImageGeom: Instantiation, Parameter Check and valid fil
     args.insertOrAssign(ResampleImageGeomFilter::k_NewDataContainerPath_Key, std::make_any<DataPath>(destGeomPath));
 
     // Preflight the filter and check result
-    auto preflightResult = filter.preflight(dataGraph, args);
+    auto preflightResult = filter.preflight(dataStructure, args);
     COMPLEX_RESULT_REQUIRE_VALID(preflightResult.outputActions)
 
     // Execute the filter and check the result
-    auto executeResult = filter.execute(dataGraph, args);
+    auto executeResult = filter.execute(dataStructure, args);
     COMPLEX_RESULT_REQUIRE_VALID(executeResult.result)
 
     // check that the geometry(s) and the attribute matrixes are all there
-    const auto srcGeo = dataGraph.getDataAs<ImageGeom>(srcGeomPath);
-    const auto destGeo = dataGraph.getDataAs<ImageGeom>(destGeomPath);
-    const auto destCellData = dataGraph.getDataAs<AttributeMatrix>(destCellDataPath);
-    const auto destFeatureData = dataGraph.getDataAs<AttributeMatrix>(destCellFeatureDataPath);
-    const auto destNewGrainData = dataGraph.getDataAs<AttributeMatrix>(destNewGrainDataPath);
-    const auto destPhaseData = dataGraph.getDataAs<AttributeMatrix>(destPhaseDataPath);
-    const auto exemplarGeo = dataGraph.getDataAs<ImageGeom>(exemplarGeoPath);
-    const auto exemplarCellData = dataGraph.getDataAs<AttributeMatrix>(exemplarCellDataPath);
-    const auto exemplarFeatureData = dataGraph.getDataAs<AttributeMatrix>(exemplarCellFeatureDataPath);
+    const auto srcGeo = dataStructure.getDataAs<ImageGeom>(srcGeomPath);
+    const auto destGeo = dataStructure.getDataAs<ImageGeom>(destGeomPath);
+    const auto destCellData = dataStructure.getDataAs<AttributeMatrix>(destCellDataPath);
+    const auto destFeatureData = dataStructure.getDataAs<AttributeMatrix>(destCellFeatureDataPath);
+    const auto destNewGrainData = dataStructure.getDataAs<AttributeMatrix>(destNewGrainDataPath);
+    const auto destPhaseData = dataStructure.getDataAs<AttributeMatrix>(destPhaseDataPath);
+    const auto exemplarGeo = dataStructure.getDataAs<ImageGeom>(exemplarGeoPath);
+    const auto exemplarCellData = dataStructure.getDataAs<AttributeMatrix>(exemplarCellDataPath);
+    const auto exemplarFeatureData = dataStructure.getDataAs<AttributeMatrix>(exemplarCellFeatureDataPath);
     REQUIRE(srcGeo != nullptr);
     REQUIRE(destGeo != nullptr);
     REQUIRE(destCellData != nullptr);
@@ -140,39 +140,39 @@ TEST_CASE("Core::ResampleImageGeom: Instantiation, Parameter Check and valid fil
     REQUIRE(destPhaseData->getSize() == 2);
 
     // check the data arrays
-    const auto exemplarCellDataArrays = GetAllChildArrayDataPaths(dataGraph, exemplarCellDataPath).value();
-    const auto calculatedCellDataArrays = GetAllChildArrayDataPaths(dataGraph, destCellDataPath).value();
+    const auto exemplarCellDataArrays = GetAllChildArrayDataPaths(dataStructure, exemplarCellDataPath).value();
+    const auto calculatedCellDataArrays = GetAllChildArrayDataPaths(dataStructure, destCellDataPath).value();
     for(usize i = 0; i < exemplarCellDataArrays.size(); ++i)
     {
-      const IDataArray& exemplarArray = dataGraph.getDataRefAs<IDataArray>(exemplarCellDataArrays[i]);
-      const IDataArray& calculatedArray = dataGraph.getDataRefAs<IDataArray>(calculatedCellDataArrays[i]);
+      const IDataArray& exemplarArray = dataStructure.getDataRefAs<IDataArray>(exemplarCellDataArrays[i]);
+      const IDataArray& calculatedArray = dataStructure.getDataRefAs<IDataArray>(calculatedCellDataArrays[i]);
       ExecuteDataFunction(CompareDataArrayFunctor{}, exemplarArray.getDataType(), exemplarArray, calculatedArray);
     }
 
-    const auto exemplarFeatureDataArrays = GetAllChildArrayDataPaths(dataGraph, exemplarCellFeatureDataPath).value();
-    const auto calculatedFeatureDataArrays = GetAllChildArrayDataPaths(dataGraph, destCellFeatureDataPath).value();
+    const auto exemplarFeatureDataArrays = GetAllChildArrayDataPaths(dataStructure, exemplarCellFeatureDataPath).value();
+    const auto calculatedFeatureDataArrays = GetAllChildArrayDataPaths(dataStructure, destCellFeatureDataPath).value();
     for(usize i = 0; i < exemplarFeatureDataArrays.size(); ++i)
     {
-      const IDataArray& exemplarArray = dataGraph.getDataRefAs<IDataArray>(exemplarFeatureDataArrays[i]);
-      const IDataArray& calculatedArray = dataGraph.getDataRefAs<IDataArray>(calculatedFeatureDataArrays[i]);
+      const IDataArray& exemplarArray = dataStructure.getDataRefAs<IDataArray>(exemplarFeatureDataArrays[i]);
+      const IDataArray& calculatedArray = dataStructure.getDataRefAs<IDataArray>(calculatedFeatureDataArrays[i]);
       ExecuteDataFunction(CompareDataArrayFunctor{}, exemplarArray.getDataType(), exemplarArray, calculatedArray);
     }
 
-    const auto srcNewGrainDataArrays = GetAllChildArrayDataPaths(dataGraph, srcGeomPath.createChildPath(destNewGrainDataPath.getTargetName())).value();
-    const auto calculatedNewGrainDataArrays = GetAllChildArrayDataPaths(dataGraph, destNewGrainDataPath).value();
+    const auto srcNewGrainDataArrays = GetAllChildArrayDataPaths(dataStructure, srcGeomPath.createChildPath(destNewGrainDataPath.getTargetName())).value();
+    const auto calculatedNewGrainDataArrays = GetAllChildArrayDataPaths(dataStructure, destNewGrainDataPath).value();
     for(usize i = 0; i < srcNewGrainDataArrays.size(); ++i)
     {
-      const IDataArray& exemplarArray = dataGraph.getDataRefAs<IDataArray>(srcNewGrainDataArrays[i]);
-      const IDataArray& calculatedArray = dataGraph.getDataRefAs<IDataArray>(calculatedNewGrainDataArrays[i]);
+      const IDataArray& exemplarArray = dataStructure.getDataRefAs<IDataArray>(srcNewGrainDataArrays[i]);
+      const IDataArray& calculatedArray = dataStructure.getDataRefAs<IDataArray>(calculatedNewGrainDataArrays[i]);
       ExecuteDataFunction(CompareDataArrayFunctor{}, exemplarArray.getDataType(), exemplarArray, calculatedArray);
     }
 
-    const auto srcPhaseDataArrays = GetAllChildArrayDataPaths(dataGraph, srcGeomPath.createChildPath(destPhaseDataPath.getTargetName())).value();
-    const auto calculatedPhaseDataArrays = GetAllChildArrayDataPaths(dataGraph, destPhaseDataPath).value();
+    const auto srcPhaseDataArrays = GetAllChildArrayDataPaths(dataStructure, srcGeomPath.createChildPath(destPhaseDataPath.getTargetName())).value();
+    const auto calculatedPhaseDataArrays = GetAllChildArrayDataPaths(dataStructure, destPhaseDataPath).value();
     for(usize i = 0; i < srcPhaseDataArrays.size(); ++i)
     {
-      const IDataArray& exemplarArray = dataGraph.getDataRefAs<IDataArray>(srcPhaseDataArrays[i]);
-      const IDataArray& calculatedArray = dataGraph.getDataRefAs<IDataArray>(calculatedPhaseDataArrays[i]);
+      const IDataArray& exemplarArray = dataStructure.getDataRefAs<IDataArray>(srcPhaseDataArrays[i]);
+      const IDataArray& calculatedArray = dataStructure.getDataRefAs<IDataArray>(calculatedPhaseDataArrays[i]);
       ExecuteDataFunction(CompareDataArrayFunctor{}, exemplarArray.getDataType(), exemplarArray, calculatedArray);
     }
   }
@@ -182,7 +182,7 @@ TEST_CASE("Core::ResampleImageGeom: Instantiation, Parameter Check and valid fil
     ResampleImageGeomFilter filter;
     Arguments args;
 
-    DataStructure dataGraph = LoadDataStructure(fs::path(fmt::format("{}/TestFiles/ResampleImageGeom_Exemplar.dream3d", unit_test::k_DREAM3DDataDir)));
+    DataStructure dataStructure = LoadDataStructure(fs::path(fmt::format("{}/TestFiles/ResampleImageGeom_Exemplar.dream3d", unit_test::k_DREAM3DDataDir)));
     DataPath srcGeomPath({"Image2dDataContainer"});
     DataPath cellDataPath = srcGeomPath.createChildPath("Cell Data");
     DataPath destGeomPath({srcGeomPath.getTargetName() + "_RESAMPLED"});
@@ -200,19 +200,19 @@ TEST_CASE("Core::ResampleImageGeom: Instantiation, Parameter Check and valid fil
     args.insertOrAssign(ResampleImageGeomFilter::k_NewDataContainerPath_Key, std::make_any<DataPath>(destGeomPath));
 
     // Preflight the filter and check result
-    auto preflightResult = filter.preflight(dataGraph, args);
+    auto preflightResult = filter.preflight(dataStructure, args);
     COMPLEX_RESULT_REQUIRE_VALID(preflightResult.outputActions)
 
     // Execute the filter and check the result
-    auto executeResult = filter.execute(dataGraph, args);
+    auto executeResult = filter.execute(dataStructure, args);
     COMPLEX_RESULT_REQUIRE_VALID(executeResult.result)
 
     // check that the geometry(s) and the attribute matrixes are all there
-    const auto srcGeo = dataGraph.getDataAs<ImageGeom>(srcGeomPath);
-    const auto destGeo = dataGraph.getDataAs<ImageGeom>(destGeomPath);
-    const auto destCellData = dataGraph.getDataAs<AttributeMatrix>(destCellDataPath);
-    const auto exemplarGeo = dataGraph.getDataAs<ImageGeom>(exemplarGeoPath);
-    const auto exemplarCellData = dataGraph.getDataAs<AttributeMatrix>(exemplarCellDataPath);
+    const auto srcGeo = dataStructure.getDataAs<ImageGeom>(srcGeomPath);
+    const auto destGeo = dataStructure.getDataAs<ImageGeom>(destGeomPath);
+    const auto destCellData = dataStructure.getDataAs<AttributeMatrix>(destCellDataPath);
+    const auto exemplarGeo = dataStructure.getDataAs<ImageGeom>(exemplarGeoPath);
+    const auto exemplarCellData = dataStructure.getDataAs<AttributeMatrix>(exemplarCellDataPath);
     REQUIRE(srcGeo != nullptr);
     REQUIRE(destGeo != nullptr);
     REQUIRE(destCellData != nullptr);
@@ -238,12 +238,12 @@ TEST_CASE("Core::ResampleImageGeom: Instantiation, Parameter Check and valid fil
     REQUIRE(destCellData->getSize() == exemplarCellData->getSize());
 
     // check the data arrays
-    const auto exemplarCellDataArrays = GetAllChildArrayDataPaths(dataGraph, exemplarCellDataPath).value();
-    const auto calculatedCellDataArrays = GetAllChildArrayDataPaths(dataGraph, destCellDataPath).value();
+    const auto exemplarCellDataArrays = GetAllChildArrayDataPaths(dataStructure, exemplarCellDataPath).value();
+    const auto calculatedCellDataArrays = GetAllChildArrayDataPaths(dataStructure, destCellDataPath).value();
     for(usize i = 0; i < exemplarCellDataArrays.size(); ++i)
     {
-      const IDataArray& exemplarArray = dataGraph.getDataRefAs<IDataArray>(exemplarCellDataArrays[i]);
-      const IDataArray& calculatedArray = dataGraph.getDataRefAs<IDataArray>(calculatedCellDataArrays[i]);
+      const IDataArray& exemplarArray = dataStructure.getDataRefAs<IDataArray>(exemplarCellDataArrays[i]);
+      const IDataArray& calculatedArray = dataStructure.getDataRefAs<IDataArray>(calculatedCellDataArrays[i]);
       ExecuteDataFunction(CompareDataArrayFunctor{}, exemplarArray.getDataType(), exemplarArray, calculatedArray);
     }
   }
