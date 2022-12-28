@@ -105,7 +105,7 @@ TEST_CASE("Core::CreateEnsembleInfoFilter: Valid filter execution", "[Core][Crea
   COMPLEX_RESULT_REQUIRE_VALID(executeResult.result);
 
   // Read Exemplar DREAM3D File Filter
-  auto exemplarFilePath = fs::path(fmt::format("{}/TestFiles/so3_cubic_high_ipf_001.dream3d", unit_test::k_DREAM3DDataDir));
+  auto exemplarFilePath = fs::path(fmt::format("{}/so3_cubic_high_ipf_001.dream3d", unit_test::k_TestFilesDir));
   DataStructure exemplarDataStructure = LoadDataStructure(exemplarFilePath);
   const DataPath exemplarAttributeMatrixPath({"ImageDataContainer", "CellEnsembleData"});
 

@@ -61,7 +61,7 @@ TEST_CASE("Core::ResampleImageGeom: Instantiation, Parameter Check and valid fil
     args.insertOrAssign(ResampleImageGeomFilter::k_CellFeatureAttributeMatrixPath_Key, std::make_any<DataPath>(DataPath{}));
     args.insertOrAssign(ResampleImageGeomFilter::k_NewDataContainerPath_Key, std::make_any<DataPath>(DataPath{}));
 
-    DataStructure dataStructure = LoadDataStructure(fs::path(fmt::format("{}/TestFiles/ResampleImageGeom_Exemplar.dream3d", unit_test::k_DREAM3DDataDir)));
+    DataStructure dataStructure = LoadDataStructure(fs::path(fmt::format("{}/ResampleImageGeom_Exemplar.dream3d", unit_test::k_TestFilesDir)));
     DataPath srcGeomPath({Constants::k_SmallIN100});
     DataPath cellDataPath = srcGeomPath.createChildPath(Constants::k_EbsdScanData);
     DataPath cellFeatureDataPath = srcGeomPath.createChildPath(Constants::k_FeatureGroupName);
@@ -182,7 +182,7 @@ TEST_CASE("Core::ResampleImageGeom: Instantiation, Parameter Check and valid fil
     ResampleImageGeomFilter filter;
     Arguments args;
 
-    DataStructure dataStructure = LoadDataStructure(fs::path(fmt::format("{}/TestFiles/ResampleImageGeom_Exemplar.dream3d", unit_test::k_DREAM3DDataDir)));
+    DataStructure dataStructure = LoadDataStructure(fs::path(fmt::format("{}/ResampleImageGeom_Exemplar.dream3d", unit_test::k_TestFilesDir)));
     DataPath srcGeomPath({"Image2dDataContainer"});
     DataPath cellDataPath = srcGeomPath.createChildPath("Cell Data");
     DataPath destGeomPath({srcGeomPath.getTargetName() + "_RESAMPLED"});
