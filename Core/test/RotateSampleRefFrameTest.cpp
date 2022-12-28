@@ -126,32 +126,31 @@ TEST_CASE("Core::RotateSampleRefFrameFilter", "[Core][RotateSampleRefFrameFilter
 
   std::vector<DataObject*> dataContainers = dataStructure.getTopLevelData();
 
-  RotateSampleRefFrameFilter filter;
-
   for(auto* dc : dataContainers)
   {
+    RotateSampleRefFrameFilter filter;
     Arguments args;
     args.insertOrAssign(RotateSampleRefFrameFilter::k_RotationRepresentation_Key,
                         std::make_any<ChoicesParameter::ValueType>(to_underlying(RotateSampleRefFrameFilter::RotationRepresentation::AxisAngle)));
     args.insertOrAssign(RotateSampleRefFrameFilter::k_SelectedImageGeometry_Key, std::make_any<DataPath>(k_OriginalGeomPath));
+    args.insertOrAssign(RotateSampleRefFrameFilter::k_RemoveOriginalGeometry_Key, std::make_any<bool>(false)); // We need to keep the geometries around.
 
     REQUIRE(dc != nullptr);
 
     std::string name = dc->getName();
-    if(name.find("Rotate_") != 0)
+    if(name.find("Rotate_") != 0) // Skip the "Original" Image Geometry
     {
       continue;
     }
 
     auto* expectedImageGeom = dynamic_cast<ImageGeom*>(dc);
     REQUIRE(expectedImageGeom != nullptr);
-
-    DataPath testAxisAngleGeomPath({fmt::format("{}_Test_AxisAngle", name)});
     DataPath expectedRotatedCellArrayPath({name, "CellData", "Data"});
 
     const auto* expectedRotatedArray = dataStructure.getDataAs<IDataArray>(expectedRotatedCellArrayPath);
     REQUIRE(expectedRotatedArray != nullptr);
 
+    DataPath testAxisAngleGeomPath({fmt::format("{}_Test_AxisAngle", name)});
     args.insertOrAssign(RotateSampleRefFrameFilter::k_CreatedImageGeometry_Key, std::make_any<DataPath>(testAxisAngleGeomPath));
 
     std::vector<std::string> parts = StringUtilities::split(name, '_');
@@ -162,8 +161,7 @@ TEST_CASE("Core::RotateSampleRefFrameFilter", "[Core][RotateSampleRefFrameFilter
     float32 z = std::stof(parts[3]);
     float32 angle = std::stof(parts[4]);
 
-    args.insertOrAssign(RotateSampleRefFrameFilter::k_RotationAngle_Key, std::make_any<Float32Parameter::ValueType>(angle));
-    args.insertOrAssign(RotateSampleRefFrameFilter::k_RotationAxis_Key, std::make_any<VectorFloat32Parameter::ValueType>({x, y, z}));
+    args.insertOrAssign(RotateSampleRefFrameFilter::k_RotationAxisAngle_Key, std::make_any<VectorFloat32Parameter::ValueType>({x, y, z, angle}));
 
     auto preflightAxisAngleResult = filter.preflight(dataStructure, args);
     COMPLEX_RESULT_REQUIRE_VALID(preflightAxisAngleResult.outputActions);

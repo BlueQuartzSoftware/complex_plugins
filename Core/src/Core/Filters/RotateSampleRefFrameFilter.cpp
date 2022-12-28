@@ -16,6 +16,8 @@
 #include "complex/Filter/Actions/CreateImageGeometryAction.hpp"
 #include "complex/Filter/Actions/CreateNeighborListAction.hpp"
 #include "complex/Filter/Actions/DeleteDataAction.hpp"
+#include "complex/Filter/Actions/MoveDataAction.hpp"
+#include "complex/Filter/Actions/RenameDataAction.hpp"
 #include "complex/Parameters/BoolParameter.hpp"
 #include "complex/Parameters/ChoicesParameter.hpp"
 #include "complex/Parameters/DataGroupCreationParameter.hpp"
@@ -28,6 +30,8 @@
 #include "complex/Utilities/FilterUtilities.hpp"
 #include "complex/Utilities/Math/MatrixMath.hpp"
 #include "complex/Utilities/ParallelData3DAlgorithm.hpp"
+#include "complex/Utilities/ParallelDataAlgorithm.hpp"
+#include "complex/Utilities/ParallelTaskAlgorithm.hpp"
 #include "complex/Utilities/StringUtilities.hpp"
 
 #include <Eigen/Dense>
@@ -52,6 +56,8 @@ using namespace complex;
 
 namespace
 {
+const std::string k_TempGeometryName = ".rotated_image_geometry";
+
 using RotationRepresentationType = RotateSampleRefFrameFilter::RotationRepresentation;
 using Matrix3FRType = Eigen::Matrix<float32, 3, 3, Eigen::RowMajor>;
 
@@ -60,6 +66,26 @@ constexpr float32 k_Threshold = 0.01f;
 const Eigen::Vector3f k_XAxis = Eigen::Vector3f::UnitX();
 const Eigen::Vector3f k_YAxis = Eigen::Vector3f::UnitY();
 const Eigen::Vector3f k_ZAxis = Eigen::Vector3f::UnitZ();
+
+/**
+ * @brief
+ * @param dims
+ * @param spacing
+ * @param origin
+ * @return
+ */
+std::string GenerateGeometryInfo(const complex::SizeVec3& dims, const complex::FloatVec3& spacing, const complex::FloatVec3& origin)
+{
+  std::stringstream description;
+
+  description << "X Range: " << origin[0] << " to " << (origin[0] + (static_cast<float>(dims[0]) * spacing[0])) << " (Delta: " << (dims[0] * spacing[0]) << ") " << 0 << "-" << dims[0] - 1
+              << " Voxels\n";
+  description << "Y Range: " << origin[1] << " to " << (origin[1] + (static_cast<float>(dims[1]) * spacing[1])) << " (Delta: " << (dims[1] * spacing[1]) << ") " << 0 << "-" << dims[1] - 1
+              << " Voxels\n";
+  description << "Z Range: " << origin[2] << " to " << (origin[2] + (static_cast<float>(dims[2]) * spacing[2])) << " (Delta: " << (dims[2] * spacing[2]) << ") " << 0 << "-" << dims[2] - 1
+              << " Voxels\n";
+  return description.str();
+}
 
 /**
  * @brief Internal struct to pass around the arguments
@@ -366,8 +392,8 @@ Result<Matrix3FRType> ComputeRotationMatrix(const Arguments& args)
   switch(rotationRepresentation)
   {
   case RotationRepresentationType::AxisAngle: {
-    auto rotationAxisVec = args.value<std::vector<float32>>(RotateSampleRefFrameFilter::k_RotationAxis_Key);
-    auto rotationAngle = args.value<float32>(RotateSampleRefFrameFilter::k_RotationAngle_Key);
+    auto rotationAxisVec = args.value<std::vector<float32>>(RotateSampleRefFrameFilter::k_RotationAxisAngle_Key);
+    auto rotationAngle = rotationAxisVec[3];
 
     return ConvertAxisAngleToRotationMatrix(rotationAxisVec, rotationAngle);
   }
@@ -386,26 +412,37 @@ Result<Matrix3FRType> ComputeRotationMatrix(const Arguments& args)
 
 namespace complex
 {
+//------------------------------------------------------------------------------
 std::string RotateSampleRefFrameFilter::name() const
 {
   return FilterTraits<RotateSampleRefFrameFilter>::name;
 }
 
+//------------------------------------------------------------------------------
 std::string RotateSampleRefFrameFilter::className() const
 {
   return FilterTraits<RotateSampleRefFrameFilter>::className;
 }
 
+//------------------------------------------------------------------------------
 Uuid RotateSampleRefFrameFilter::uuid() const
 {
   return FilterTraits<RotateSampleRefFrameFilter>::uuid;
 }
 
+//------------------------------------------------------------------------------
 std::string RotateSampleRefFrameFilter::humanName() const
 {
   return "Rotate Sample Reference Frame";
 }
 
+//------------------------------------------------------------------------------
+std::vector<std::string> RotateSampleRefFrameFilter::defaultTags() const
+{
+  return {"#Processing", "#Conversion", "#ReferenceFrame"};
+}
+
+//------------------------------------------------------------------------------
 Parameters RotateSampleRefFrameFilter::parameters() const
 {
   Parameters params;
@@ -415,17 +452,15 @@ Parameters RotateSampleRefFrameFilter::parameters() const
 
   params.insertLinkableParameter(std::make_unique<ChoicesParameter>(k_RotationRepresentation_Key, "Rotation Representation", "Which form used to represent rotation (axis angle or rotation matrix)",
                                                                     to_underlying(RotationRepresentation::AxisAngle), ChoicesParameter::Choices{"Axis Angle", "Rotation Matrix"}));
-  params.insert(std::make_unique<Float32Parameter>(k_RotationAngle_Key, "Rotation Angle (Degrees)", "Magnitude of rotation (in degrees) about the rotation axis", 0.0f));
-  params.insert(
-      std::make_unique<VectorFloat32Parameter>(k_RotationAxis_Key, "Rotation Axis (ijk)", "Axis in sample reference frame to rotate about", VectorFloat32Parameter::ValueType{0.0f, 0.0f, 0.0f}));
-  params.insertLinkableParameter(std::make_unique<BoolParameter>(k_InPlaceRotation_Key, "Perform In-Place Rotation", "Performs the rotation in-place for the given Image Geometry", true));
+  params.insert(std::make_unique<VectorFloat32Parameter>(k_RotationAxisAngle_Key, "Rotation Axis-Angle [<ijk>w]", "Axis-Angle in sample reference frame to rotate about.",
+                                                         VectorFloat32Parameter::ValueType{0.0f, 0.0f, 0.0f, 90.0F}, std::vector<std::string>{"i", "j", "k", "w (Deg)"}));
+  params.insertLinkableParameter(std::make_unique<BoolParameter>(k_RemoveOriginalGeometry_Key, "Perform In-Place Rotation", "Performs the rotation in-place for the given Image Geometry", true));
 
   DynamicTableInfo tableInfo;
   tableInfo.setColsInfo(DynamicTableInfo::StaticVectorInfo(3));
   tableInfo.setRowsInfo(DynamicTableInfo::StaticVectorInfo(3));
   params.insert(std::make_unique<DynamicTableParameter>(k_RotationMatrix_Key, "Rotation Matrix", "Axis in sample reference frame to rotate about", tableInfo));
-  params.linkParameters(k_RotationRepresentation_Key, k_RotationAngle_Key, std::make_any<uint64>(to_underlying(RotationRepresentation::AxisAngle)));
-  params.linkParameters(k_RotationRepresentation_Key, k_RotationAxis_Key, std::make_any<uint64>(to_underlying(RotationRepresentation::AxisAngle)));
+  params.linkParameters(k_RotationRepresentation_Key, k_RotationAxisAngle_Key, std::make_any<uint64>(to_underlying(RotationRepresentation::AxisAngle)));
   params.linkParameters(k_RotationRepresentation_Key, k_RotationMatrix_Key, std::make_any<uint64>(to_underlying(RotationRepresentation::RotationMatrix)));
 
   params.insertSeparator({"Input Geometry and Data"});
@@ -435,16 +470,29 @@ Parameters RotateSampleRefFrameFilter::parameters() const
   params.insertSeparator({"Output Geometry and Data"});
   params.insert(std::make_unique<DataGroupCreationParameter>(k_CreatedImageGeometry_Key, "Created Image Geometry", "The location of the rotated geometry", DataPath{}));
 
+  params.linkParameters(k_RemoveOriginalGeometry_Key, k_CreatedImageGeometry_Key, false);
+
   return params;
 }
 
+//------------------------------------------------------------------------------
 IFilter::UniquePointer RotateSampleRefFrameFilter::clone() const
 {
   return std::make_unique<RotateSampleRefFrameFilter>();
 }
 
+//------------------------------------------------------------------------------
 IFilter::PreflightResult RotateSampleRefFrameFilter::preflightImpl(const DataStructure& dataStructure, const Arguments& filterArgs, const MessageHandler&, const std::atomic_bool&) const
 {
+
+  auto srcImagePath = filterArgs.value<DataPath>(k_SelectedImageGeometry_Key);
+  auto destImagePath = filterArgs.value<DataPath>(k_CreatedImageGeometry_Key);
+  auto pRemoveOriginalGeometry = filterArgs.value<bool>(k_RemoveOriginalGeometry_Key);
+
+  complex::Result<OutputActions> resultOutputActions;
+
+  std::vector<PreflightValue> preflightUpdatedValues;
+
   Result<Matrix3FRType> matrixResult = ComputeRotationMatrix(filterArgs);
 
   if(matrixResult.invalid())
@@ -455,7 +503,6 @@ IFilter::PreflightResult RotateSampleRefFrameFilter::preflightImpl(const DataStr
   }
 
   Matrix3FRType rotationMatrix = matrixResult.value();
-  auto srcImagePath = filterArgs.value<DataPath>(k_SelectedImageGeometry_Key);
 
   const auto& selectedImageGeom = dataStructure.getDataRefAs<ImageGeom>(srcImagePath);
 
@@ -467,61 +514,59 @@ IFilter::PreflightResult RotateSampleRefFrameFilter::preflightImpl(const DataStr
   origin[1] += rotateArgs.yMinNew;
   origin[2] += rotateArgs.zMinNew;
 
-  OutputActions actions;
-  complex::Result<OutputActions> resultOutputActions;
-
-  std::vector<PreflightValue> preflightUpdatedValues;
+  std::vector<usize> dataArrayShape = {dims[2], dims[1], dims[0]}; // The DataArray shape goes slowest to fastest (ZYX)
 
   std::vector<DataPath> ignorePaths; // already copied over so skip these when collecting child paths to finish copying over later
 
-  auto createdImageGeomPath = filterArgs.value<DataPath>(k_CreatedImageGeometry_Key);
-
-  const auto* selectedCellData = selectedImageGeom.getCellData();
-  if(selectedCellData == nullptr)
+  if(pRemoveOriginalGeometry)
   {
-    return {MakeErrorResult<OutputActions>(-5551, fmt::format("'{}' must have cell data attribute matrix", srcImagePath.toString()))};
+    // Generate a new name for the current Image Geometry
+    auto tempPathVector = srcImagePath.getPathVector();
+    std::string tempName = "." + tempPathVector.back();
+    tempPathVector.back() = tempName;
+    DataPath tempPath(tempPathVector);
+    // Rename the current image geometry
+    resultOutputActions.value().deferredActions.push_back(std::make_unique<RenameDataAction>(srcImagePath, tempName));
+    // After the execute function has been done, delete the moved image geometry
+    resultOutputActions.value().deferredActions.push_back(std::make_unique<DeleteDataAction>(tempPath));
+
+    tempPathVector = srcImagePath.getPathVector();
+    tempName = k_TempGeometryName;
+    tempPathVector.back() = tempName;
+    destImagePath = DataPath({tempPathVector});
   }
-  std::string cellDataName = selectedCellData->getName();
-  ignorePaths.push_back(srcImagePath.createChildPath(cellDataName));
 
-  resultOutputActions.value().actions.push_back(std::make_unique<CreateImageGeometryAction>(createdImageGeomPath, dims, origin, spacing, selectedCellData->getName()));
-  auto selectedCellDataChildren = GetAllChildArrayDataPaths(dataStructure, selectedCellData->getDataPaths()[0]);
-  if(selectedCellDataChildren.has_value())
   {
-    std::vector<usize> cellArrayDims(dims.crbegin(), dims.crend());
-    const usize totalDims = std::accumulate(cellArrayDims.begin(), cellArrayDims.end(), static_cast<usize>(1), std::multiplies<>{});
-    auto selectedCellArrays = selectedCellDataChildren.value();
-    for(const auto& cellArrayPath : selectedCellArrays)
+    const AttributeMatrix* selectedCellData = selectedImageGeom.getCellData();
+    if(selectedCellData == nullptr)
     {
-      std::string aPath = cellArrayPath.toString();
-      aPath = complex::StringUtilities::replace(aPath, srcImagePath.toString(), createdImageGeomPath.toString());
-      const DataPath createdArrayPath = DataPath::FromString(aPath).value();
-
-      if(const auto* cellArray = dataStructure.getDataAs<IDataArray>(cellArrayPath); cellArray != nullptr)
-      {
-        resultOutputActions.value().actions.push_back(
-            std::make_unique<CreateArrayAction>(cellArray->getDataType(), cellArrayDims, cellArray->getIDataStoreRef().getComponentShape(), createdArrayPath));
-      }
-      else if(const auto* neighborArray = dataStructure.getDataAs<INeighborList>(cellArrayPath); cellArray != nullptr)
-      {
-        // TODO : actionResults.value().actions.push_back(std::make_unique<CreateNeighborListAction>(neighborArray->getDataType(), totalDims, createdArrayPath));
-        resultOutputActions.warnings().push_back(Warning{-88970, fmt::format("Skipping NeighborList array at path '{}'. Support for NeighborList arrays in the cell data Attribute Matrix during "
-                                                                             "RotateSampleRefFrame has not yet been implemented. Please contact the developer.",
-                                                                             cellArrayPath.toString())});
-      }
-      else
-      {
-        // TODO : StringArray --> we don't have an action for this yet
-        resultOutputActions.warnings().push_back(Warning{-88970, fmt::format("Skipping StringArray at path '{}'. Support for StringArrays in the cell data Attribute Matrix during "
-                                                                             "RotateSampleRefFrame has not yet been implemented. Please contact the developer.",
-                                                                             cellArrayPath.toString())});
-      }
+      return {MakeErrorResult<OutputActions>(-5551, fmt::format("'{}' must have cell data attribute matrix", srcImagePath.toString()))};
     }
-  }
+    std::string cellDataName = selectedCellData->getName();
+    ignorePaths.push_back(srcImagePath.createChildPath(cellDataName));
 
-#if 0
-  auto pRemoveOriginalGeometry = filterArgs.value<bool>(k_InPlaceRotation_Key);
-  auto destImagePath = filterArgs.value<DataPath>(k_CreatedImageGeometry_Key);
+    resultOutputActions.value().actions.push_back(std::make_unique<CreateImageGeometryAction>(destImagePath, dims, origin, spacing, cellDataName));
+
+    // Create the Cell AttributeMatrix in the Destination Geometry
+    DataPath newCellAttributeMatrixPath = destImagePath.createChildPath(cellDataName);
+
+    for(const auto& [id, object] : *selectedCellData)
+    {
+      const auto& srcArray = dynamic_cast<const IDataArray&>(*object);
+      DataType dataType = srcArray.getDataType();
+      IDataStore::ShapeType componentShape = srcArray.getIDataStoreRef().getComponentShape();
+      DataPath dataArrayPath = newCellAttributeMatrixPath.createChildPath(srcArray.getName());
+      resultOutputActions.value().actions.push_back(std::make_unique<CreateArrayAction>(dataType, dataArrayShape, std::move(componentShape), dataArrayPath));
+    }
+
+    // Store the preflight updated value(s) into the preflightUpdatedValues vector using
+    // the appropriate methods.
+    // These values should have been updated during the preflightImpl(...) method
+    const auto* srcImageGeom = dataStructure.getDataAs<ImageGeom>(srcImagePath);
+
+    preflightUpdatedValues.push_back({"Input Geometry Info", ::GenerateGeometryInfo(srcImageGeom->getDimensions(), srcImageGeom->getSpacing(), srcImageGeom->getOrigin())});
+    preflightUpdatedValues.push_back({"Rotated Image Geometry Info", ::GenerateGeometryInfo(dims, CreateImageGeometryAction::SpacingType{spacing[0], spacing[1], spacing[2]}, origin)});
+  }
 
   // copy over the rest of the data
   auto childPaths = GetAllChildDataPaths(dataStructure, srcImagePath, DataObject::Type::DataObject, ignorePaths);
@@ -554,10 +599,8 @@ IFilter::PreflightResult RotateSampleRefFrameFilter::preflightImpl(const DataStr
 
   if(pRemoveOriginalGeometry)
   {
-    resultOutputActions.value().deferredActions.push_back(std::make_unique<DeleteDataAction>(srcImagePath));
+    resultOutputActions.value().deferredActions.push_back(std::make_unique<RenameDataAction>(destImagePath, srcImagePath.getTargetName()));
   }
-#endif
-
   // Return both the resultOutputActions and the preflightUpdatedValues via std::move()
   return {std::move(resultOutputActions), std::move(preflightUpdatedValues)};
 }
@@ -565,15 +608,28 @@ IFilter::PreflightResult RotateSampleRefFrameFilter::preflightImpl(const DataStr
 Result<> RotateSampleRefFrameFilter::executeImpl(DataStructure& dataStructure, const Arguments& filterArgs, const PipelineFilter* pipelineNode, const MessageHandler& messageHandler,
                                                  const std::atomic_bool& shouldCancel) const
 {
-  auto selectedImageGeomPath = filterArgs.value<DataPath>(k_SelectedImageGeometry_Key);
-  const auto& selectedImageGeom = dataStructure.getDataRefAs<ImageGeom>(selectedImageGeomPath);
+  auto srcImagePath = filterArgs.value<DataPath>(k_SelectedImageGeometry_Key);
+  auto destImagePath = filterArgs.value<DataPath>(k_CreatedImageGeometry_Key);
   auto sliceBySlice = filterArgs.value<bool>(k_RotateSliceBySlice_Key);
+  auto removeOriginalGeometry = filterArgs.value<bool>(k_RemoveOriginalGeometry_Key);
+
+  auto& srcImageGeom = dataStructure.getDataRefAs<ImageGeom>(srcImagePath);
+
+  if(removeOriginalGeometry)
+  {
+    auto tempPathVector = srcImagePath.getPathVector();
+    std::string tempName = k_TempGeometryName;
+    tempPathVector.back() = tempName;
+    destImagePath = DataPath({tempPathVector});
+  }
+
+  auto& destImageGeom = dataStructure.getDataRefAs<ImageGeom>(destImagePath);
 
   Result<Matrix3FRType> matrixResult = ComputeRotationMatrix(filterArgs);
 
   Matrix3FRType rotationMatrix = matrixResult.value();
 
-  RotateArgs rotateArgs = CreateRotateArgs(selectedImageGeom, rotationMatrix);
+  RotateArgs rotateArgs = CreateRotateArgs(srcImageGeom, rotationMatrix);
 
   int64 newNumCellTuples = rotateArgs.xpNew * rotateArgs.ypNew * rotateArgs.zpNew;
 
@@ -585,107 +641,83 @@ Result<> RotateSampleRefFrameFilter::executeImpl(DataStructure& dataStructure, c
   parallelAlgorithm.setParallelizationEnabled(true);
   parallelAlgorithm.execute(SampleRefFrameRotator(newIndices, rotateArgs, rotationMatrix, sliceBySlice));
 
-  auto selectedCellDataChildren = GetAllChildArrayDataPaths(dataStructure, selectedImageGeom.getCellDataPath());
+  auto selectedCellDataChildren = GetAllChildArrayDataPaths(dataStructure, srcImageGeom.getCellDataPath());
   auto selectedCellArrays = selectedCellDataChildren.has_value() ? selectedCellDataChildren.value() : std::vector<DataPath>{};
 
-  auto createdImageGeomPath = filterArgs.value<DataPath>(k_CreatedImageGeometry_Key);
+  // The actual rotating of the dataStructure arrays is done in parallel where parallel here
+  // refers to the cropping of each DataArray being done on a separate thread.
+  ParallelTaskAlgorithm taskRunner;
+  const auto& srcCellDataAM = srcImageGeom.getCellDataRef();
+  auto& destCellDataAM = destImageGeom.getCellDataRef();
 
-#ifdef COMPLEX_ENABLE_MULTICORE
-  std::shared_ptr<tbb::task_group> g(new tbb::task_group);
-  // C++11 RIGHT HERE....
-  int32_t nthreads = static_cast<int32_t>(std::thread::hardware_concurrency()); // Returns ZERO if not defined on this platform
-  int32_t threadCount = 0;
-#endif
-
-  for(const auto& cellArrayPath : selectedCellArrays)
+  for(const auto& [dataId, oldDataObject] : srcCellDataAM)
   {
     if(shouldCancel)
     {
       return {};
     }
 
-    messageHandler(fmt::format("Rotating {}", cellArrayPath.toString()));
-    std::string aPath = cellArrayPath.toString();
-    aPath = complex::StringUtilities::replace(aPath, selectedImageGeomPath.toString(), createdImageGeomPath.toString());
-    DataPath createdArrayPath = DataPath::FromString(aPath).value();
-    if(dataStructure.getDataAs<IDataArray>(cellArrayPath) != nullptr)
-    {
-      const auto& oldCellArray = dataStructure.getDataRefAs<IDataArray>(cellArrayPath);
-      auto& newCellArray = dataStructure.getDataRefAs<IDataArray>(createdArrayPath);
-      DataType type = oldCellArray.getDataType();
+    const auto& oldDataArray = dynamic_cast<const IDataArray&>(*oldDataObject);
+    const std::string srcName = oldDataArray.getName();
 
-      switch(type)
-      {
-      case DataType::boolean: {
-        RUN_TASK(CopyTupleUsingIndexList<bool>(oldCellArray, newCellArray, newIndices));
-        break;
-      }
-      case DataType::int8: {
-        RUN_TASK(CopyTupleUsingIndexList<int8>(oldCellArray, newCellArray, newIndices));
-        break;
-      }
-      case DataType::int16: {
-        RUN_TASK(CopyTupleUsingIndexList<int16>(oldCellArray, newCellArray, newIndices));
-        break;
-      }
-      case DataType::int32: {
-        RUN_TASK(CopyTupleUsingIndexList<int32>(oldCellArray, newCellArray, newIndices));
-        break;
-      }
-      case DataType::int64: {
-        RUN_TASK(CopyTupleUsingIndexList<int64>(oldCellArray, newCellArray, newIndices));
-        break;
-      }
-      case DataType::uint8: {
-        RUN_TASK(CopyTupleUsingIndexList<uint8>(oldCellArray, newCellArray, newIndices));
-        break;
-      }
-      case DataType::uint16: {
-        RUN_TASK(CopyTupleUsingIndexList<uint16>(oldCellArray, newCellArray, newIndices));
-        break;
-      }
-      case DataType::uint32: {
-        RUN_TASK(CopyTupleUsingIndexList<uint32>(oldCellArray, newCellArray, newIndices));
-        break;
-      }
-      case DataType::uint64: {
-        RUN_TASK(CopyTupleUsingIndexList<uint64>(oldCellArray, newCellArray, newIndices));
-        break;
-      }
-      case DataType::float32: {
-        RUN_TASK(CopyTupleUsingIndexList<float32>(oldCellArray, newCellArray, newIndices));
-        break;
-      }
-      case DataType::float64: {
-        RUN_TASK(CopyTupleUsingIndexList<float64>(oldCellArray, newCellArray, newIndices));
-        break;
-      }
-      default: {
-        throw std::runtime_error("Invalid DataType");
-      }
-      }
-    }
-    else
-    {
-      // TODO: NeighborList arrays or StringArrays
-      continue;
-    }
-#ifdef COMPLEX_ENABLE_MULTICORE
-    threadCount++;
-    if(threadCount == nthreads)
-    {
-      g->wait();
-      threadCount = 0;
-    }
-#else
+    auto& newDataArray = dynamic_cast<IDataArray&>(destCellDataAM.at(srcName));
+    messageHandler(fmt::format("Rotating Volume || Copying Data Array {}", srcName));
 
-#endif
+    DataType type = oldDataArray.getDataType();
+
+    switch(type)
+    {
+    case DataType::boolean: {
+      taskRunner.execute(CopyTupleUsingIndexList<bool>(oldDataArray, newDataArray, newIndices));
+      break;
+    }
+    case DataType::int8: {
+      taskRunner.execute(CopyTupleUsingIndexList<int8>(oldDataArray, newDataArray, newIndices));
+      break;
+    }
+    case DataType::int16: {
+      taskRunner.execute(CopyTupleUsingIndexList<int16>(oldDataArray, newDataArray, newIndices));
+      break;
+    }
+    case DataType::int32: {
+      taskRunner.execute(CopyTupleUsingIndexList<int32>(oldDataArray, newDataArray, newIndices));
+      break;
+    }
+    case DataType::int64: {
+      taskRunner.execute(CopyTupleUsingIndexList<int64>(oldDataArray, newDataArray, newIndices));
+      break;
+    }
+    case DataType::uint8: {
+      taskRunner.execute(CopyTupleUsingIndexList<uint8>(oldDataArray, newDataArray, newIndices));
+      break;
+    }
+    case DataType::uint16: {
+      taskRunner.execute(CopyTupleUsingIndexList<uint16>(oldDataArray, newDataArray, newIndices));
+      break;
+    }
+    case DataType::uint32: {
+      taskRunner.execute(CopyTupleUsingIndexList<uint32>(oldDataArray, newDataArray, newIndices));
+      break;
+    }
+    case DataType::uint64: {
+      taskRunner.execute(CopyTupleUsingIndexList<uint64>(oldDataArray, newDataArray, newIndices));
+      break;
+    }
+    case DataType::float32: {
+      taskRunner.execute(CopyTupleUsingIndexList<float32>(oldDataArray, newDataArray, newIndices));
+      break;
+    }
+    case DataType::float64: {
+      taskRunner.execute(CopyTupleUsingIndexList<float64>(oldDataArray, newDataArray, newIndices));
+      break;
+    }
+    default: {
+      throw std::runtime_error("Invalid DataType");
+    }
+    }
   }
 
-#ifdef COMPLEX_ENABLE_MULTICORE
-  // This will spill over if the number of DataArrays to process does not divide evenly by the number of threads.
-  g->wait();
-#endif
+  taskRunner.wait(); // This will spill over if the number of DataArrays to process does not divide evenly by the number of threads.
 
   return {};
 }

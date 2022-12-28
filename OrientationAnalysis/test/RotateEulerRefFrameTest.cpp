@@ -129,8 +129,7 @@ TEST_CASE("OrientationAnalysis::RotateEulerRefFrame", "[OrientationAnalysis]")
     Arguments args;
 
     // Create default Parameters for the filter.
-    args.insertOrAssign(RotateEulerRefFrameFilter::k_RotationAngle_Key, std::make_any<float32>(30.0F));
-    args.insertOrAssign(RotateEulerRefFrameFilter::k_RotationAxis_Key, std::make_any<VectorFloat32Parameter::ValueType>(std::vector<float32>{1.0F, 1.0F, 1.0F}));
+    args.insertOrAssign(RotateEulerRefFrameFilter::k_RotationAxisAngle_Key, std::make_any<VectorFloat32Parameter::ValueType>(std::vector<float32>{1.0F, 1.0F, 1.0F, 30.0F}));
     args.insertOrAssign(RotateEulerRefFrameFilter::k_CellEulerAnglesArrayPath_Key, std::make_any<DataPath>(k_EulerAnglesDataPath));
 
     // Preflight the filter and check result
@@ -148,11 +147,10 @@ TEST_CASE("OrientationAnalysis::RotateEulerRefFrame", "[OrientationAnalysis]")
     const auto& eulersRotated = dataStructure.getDataRefAs<Float32Array>(k_EulersRotatedDataPath);
 
     size_t numElements = eulerAngles.getSize();
-    bool sameValue = true;
     for(size_t i = 0; i < numElements; i++)
     {
       float absDif = std::fabs(eulerAngles[i] - eulersRotated[i]);
-      sameValue = (absDif < 0.0001);
+      bool sameValue = (absDif < 0.0001);
       if(!sameValue)
       {
         REQUIRE(absDif < 0.0001);

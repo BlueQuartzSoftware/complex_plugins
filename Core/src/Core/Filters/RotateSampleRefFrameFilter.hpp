@@ -32,14 +32,12 @@ public:
 
   // Parameter Keys
   static inline constexpr StringLiteral k_RotationRepresentation_Key = "rotation_representation";
-  static inline constexpr StringLiteral k_RotationAngle_Key = "rotation_angle";
-  static inline constexpr StringLiteral k_RotationAxis_Key = "rotation_axis";
+  static inline constexpr StringLiteral k_RotationAxisAngle_Key = "rotation_axis";
   static inline constexpr StringLiteral k_RotationMatrix_Key = "rotation_matrix";
   static inline constexpr StringLiteral k_SelectedImageGeometry_Key = "selected_image_geometry";
-  static inline constexpr StringLiteral k_SelectedCellArrays_Key = "selected_cell_arrays";
   static inline constexpr StringLiteral k_CreatedImageGeometry_Key = "created_image_geometry";
   static inline constexpr StringLiteral k_RotateSliceBySlice_Key = "rotate_slice_by_slice";
-  static inline constexpr StringLiteral k_InPlaceRotation_Key = "in_place_rotation";
+  static inline constexpr StringLiteral k_RemoveOriginalGeometry_Key = "remove_original_geometry";
 
   /**
    * @brief
@@ -64,6 +62,12 @@ public:
    * @return std::string
    */
   std::string humanName() const override;
+
+  /**
+   * @brief Returns the default tags for this filter.
+   * @return
+   */
+  std::vector<std::string> defaultTags() const override;
 
   /**
    * @brief
