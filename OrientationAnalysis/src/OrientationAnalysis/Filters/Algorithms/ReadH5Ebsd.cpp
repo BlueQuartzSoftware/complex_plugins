@@ -379,7 +379,7 @@ Result<> ReadH5Ebsd::operator()()
 
     if(sampleTransAngle > 0)
     {
-      const Uuid k_CorePluginId = *Uuid::FromString("65a0a3fc-8c93-5405-8ac6-182e7f313a69");
+      // const Uuid k_CorePluginId = *Uuid::FromString("65a0a3fc-8c93-5405-8ac6-182e7f313a69");
       const Uuid k_ComplexCorePluginId = *Uuid::FromString("05cc618b-781f-4ac0-b9ac-43f26ce1854f");
       auto* filterList = Application::Instance()->getFilterList();
 
@@ -387,7 +387,7 @@ Result<> ReadH5Ebsd::operator()()
        * Rotate Sample Ref Frame
        ************************************************************************/
       const Uuid k_RotateSampleRefFrameFilterId = *Uuid::FromString("d2451dc1-a5a1-4ac2-a64d-7991669dcffc");
-      const FilterHandle k_RotateSampleRefFrameFilterHandle(k_RotateSampleRefFrameFilterId, k_CorePluginId);
+      const FilterHandle k_RotateSampleRefFrameFilterHandle(k_RotateSampleRefFrameFilterId, k_ComplexCorePluginId);
 
       auto filter = filterList->createFilter(k_RotateSampleRefFrameFilterHandle);
       if(nullptr == filter)
