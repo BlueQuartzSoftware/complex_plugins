@@ -28,8 +28,8 @@ public:
   static inline constexpr StringLiteral k_RenumberFeatures_Key = "renumber_features";
   static inline constexpr StringLiteral k_RemoveOriginalGeometry_Key = "remove_original_geometry";
   static inline constexpr StringLiteral k_CellFeatureIdsArrayPath_Key = "feature_ids_path";
-  static inline constexpr StringLiteral k_CellFeatureAttributeMatrixPath_Key = "cell_feature_attribute_matrix_path";
-  static inline constexpr StringLiteral k_NewDataContainerPath_Key = "new_data_container_path";
+  static inline constexpr StringLiteral k_FeatureAttributeMatrix_Key = "cell_feature_attribute_matrix_path";
+  static inline constexpr StringLiteral k_CreatedImageGeometry_Key = "new_data_container_path";
   static inline constexpr StringLiteral k_SelectedImageGeometry_Key = "selected_image_geometry";
 
   /**

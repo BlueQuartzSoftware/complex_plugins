@@ -28,6 +28,7 @@
 #include "complex/Parameters/VectorParameter.hpp"
 #include "complex/Utilities/DataGroupUtilities.hpp"
 #include "complex/Utilities/FilterUtilities.hpp"
+#include "complex/Utilities/GeometryHelpers.hpp"
 #include "complex/Utilities/Math/MatrixMath.hpp"
 #include "complex/Utilities/ParallelData3DAlgorithm.hpp"
 #include "complex/Utilities/ParallelDataAlgorithm.hpp"
@@ -46,12 +47,6 @@
 #include <limits>
 #include <stdexcept>
 
-#ifdef COMPLEX_ENABLE_MULTICORE
-#define RUN_TASK g->run
-#else
-#define RUN_TASK
-#endif
-
 using namespace complex;
 
 namespace
@@ -66,26 +61,6 @@ constexpr float32 k_Threshold = 0.01f;
 const Eigen::Vector3f k_XAxis = Eigen::Vector3f::UnitX();
 const Eigen::Vector3f k_YAxis = Eigen::Vector3f::UnitY();
 const Eigen::Vector3f k_ZAxis = Eigen::Vector3f::UnitZ();
-
-/**
- * @brief
- * @param dims
- * @param spacing
- * @param origin
- * @return
- */
-std::string GenerateGeometryInfo(const complex::SizeVec3& dims, const complex::FloatVec3& spacing, const complex::FloatVec3& origin)
-{
-  std::stringstream description;
-
-  description << "X Range: " << origin[0] << " to " << (origin[0] + (static_cast<float>(dims[0]) * spacing[0])) << " (Delta: " << (dims[0] * spacing[0]) << ") " << 0 << "-" << dims[0] - 1
-              << " Voxels\n";
-  description << "Y Range: " << origin[1] << " to " << (origin[1] + (static_cast<float>(dims[1]) * spacing[1])) << " (Delta: " << (dims[1] * spacing[1]) << ") " << 0 << "-" << dims[1] - 1
-              << " Voxels\n";
-  description << "Z Range: " << origin[2] << " to " << (origin[2] + (static_cast<float>(dims[2]) * spacing[2])) << " (Delta: " << (dims[2] * spacing[2]) << ") " << 0 << "-" << dims[2] - 1
-              << " Voxels\n";
-  return description.str();
-}
 
 /**
  * @brief Internal struct to pass around the arguments
@@ -564,8 +539,10 @@ IFilter::PreflightResult RotateSampleRefFrameFilter::preflightImpl(const DataStr
     // These values should have been updated during the preflightImpl(...) method
     const auto* srcImageGeom = dataStructure.getDataAs<ImageGeom>(srcImagePath);
 
-    preflightUpdatedValues.push_back({"Input Geometry Info", ::GenerateGeometryInfo(srcImageGeom->getDimensions(), srcImageGeom->getSpacing(), srcImageGeom->getOrigin())});
-    preflightUpdatedValues.push_back({"Rotated Image Geometry Info", ::GenerateGeometryInfo(dims, CreateImageGeometryAction::SpacingType{spacing[0], spacing[1], spacing[2]}, origin)});
+    preflightUpdatedValues.push_back(
+        {"Input Geometry Info", complex::GeometryHelpers::Description::GenerateGeometryInfo(srcImageGeom->getDimensions(), srcImageGeom->getSpacing(), srcImageGeom->getOrigin())});
+    preflightUpdatedValues.push_back(
+        {"Rotated Image Geometry Info", complex::GeometryHelpers::Description::GenerateGeometryInfo(dims, CreateImageGeometryAction::SpacingType{spacing[0], spacing[1], spacing[2]}, origin)});
   }
 
   // copy over the rest of the data
