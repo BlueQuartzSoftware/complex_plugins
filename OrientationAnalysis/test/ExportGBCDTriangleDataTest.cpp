@@ -43,7 +43,7 @@ inline constexpr float32 k_EPSILON = 0.001;
 
 } // namespace
 
-TEST_CASE("complex_plugins::ExportGBCDTriangleDataFilter: Valid filter execution")
+TEST_CASE("OrientationAnalysis::ExportGBCDTriangleDataFilter: Valid filter execution")
 {
   std::shared_ptr<make_shared_enabler> app = std::make_shared<make_shared_enabler>();
   app->loadPlugins(unit_test::k_BuildDir.view(), true);
@@ -192,7 +192,7 @@ TEST_CASE("complex_plugins::ExportGBCDTriangleDataFilter: Valid filter execution
   }
 }
 
-TEST_CASE("complex_plugins::ExportGBCDTriangleDataFilter: InValid filter execution")
+TEST_CASE("OrientationAnalysis::ExportGBCDTriangleDataFilter: InValid filter execution")
 {
   // Instantiate the filter and an Arguments Object
   ExportGBCDTriangleDataFilter filter;

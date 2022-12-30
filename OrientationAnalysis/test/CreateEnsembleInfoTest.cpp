@@ -9,7 +9,7 @@
 using namespace complex;
 using namespace complex::UnitTest;
 
-TEST_CASE("Core::CreateEnsembleInfoFilter: Invalid filter execution", "[Core][CreateEnsembleInfoFilter]")
+TEST_CASE("OrientationAnalysis::CreateEnsembleInfoFilter: Invalid filter execution", "[OrientationAnalysis][CreateEnsembleInfoFilter]")
 {
   // Instantiate the filter, a DataStructure object and an Arguments Object
   CreateEnsembleInfoFilter filter;
@@ -77,7 +77,7 @@ TEST_CASE("Core::CreateEnsembleInfoFilter: Invalid filter execution", "[Core][Cr
   COMPLEX_RESULT_REQUIRE_INVALID(executeResult.result);
 }
 
-TEST_CASE("Core::CreateEnsembleInfoFilter: Valid filter execution", "[Core][CreateEnsembleInfoFilter]")
+TEST_CASE("OrientationAnalysis::CreateEnsembleInfoFilter: Valid filter execution", "[OrientationAnalysis][CreateEnsembleInfoFilter]")
 {
   // Instantiate the filter, a DataStructure object and an Arguments Object
   CreateEnsembleInfoFilter filter;
