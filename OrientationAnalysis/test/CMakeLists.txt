@@ -33,11 +33,8 @@ set(${PLUGIN_NAME}UnitTest_SRCS
   GenerateGBCDPoleFigureTest.cpp
   ExportGBCDGMTFileTest.cpp
   ExportGBCDTriangleDataTest.cpp
-
   ConvertQuaternionTest.cpp
   GenerateQuaternionConjugateTest.cpp
-  INLWriterTest.cpp
-  ReplaceElementAttributesWithNeighborValuesTest.cpp
   RodriguesConvertorTest.cpp
 )
 set(DISABLED_TESTS

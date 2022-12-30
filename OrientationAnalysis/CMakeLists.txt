@@ -50,16 +50,13 @@ set(FilterList
   GenerateGBCDPoleFigureFilter
   GenerateIPFColorsFilter
   GenerateQuaternionConjugateFilter
-  INLWriterFilter
   MergeTwinsFilter
   NeighborOrientationCorrelationFilter
   ReadAngDataFilter
   ReadCtfDataFilter
   ReadH5EbsdFilter
-  ReplaceElementAttributesWithNeighborValuesFilter
   RodriguesConvertorFilter
   RotateEulerRefFrameFilter
-  Stereographic3DFilter
 )
   
 set(STUB_FILTERS
@@ -181,16 +178,13 @@ set(filter_algorithms
   GenerateIPFColors
   GenerateQuaternionConjugate
   GroupFeatures
-  INLWriter
   MergeTwins
   NeighborOrientationCorrelation
   ReadAngData
   ReadCtfData
   ReadH5Ebsd
-  ReplaceElementAttributesWithNeighborValues
   RodriguesConvertor
   RotateEulerRefFrame
-  Stereographic3D
 )
 
 

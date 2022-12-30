@@ -58,8 +58,6 @@
 // #include "OrientationAnalysis/Filters/WriteStatsGenOdfAngleFile.hpp"
 #include "OrientationAnalysis/Filters/ConvertQuaternionFilter.hpp"
 #include "OrientationAnalysis/Filters/GenerateQuaternionConjugateFilter.hpp"
-#include "OrientationAnalysis/Filters/INLWriterFilter.hpp"
-#include "OrientationAnalysis/Filters/ReplaceElementAttributesWithNeighborValuesFilter.hpp"
 #include "OrientationAnalysis/Filters/RodriguesConvertorFilter.hpp"
 // @@__HEADER__TOKEN__DO__NOT__DELETE__@@
 
@@ -127,8 +125,6 @@ namespace complex
     // {complex::Uuid::FromString("a4952f40-22dd-54ec-8c38-69c3fcd0e6f7").value(), complex::FilterTraits<WriteStatsGenOdfAngleFile>::uuid}, // WriteStatsGenOdfAngleFile
     {complex::Uuid::FromString("439e31b7-3198-5d0d-aef6-65a9e9c1a016").value(), complex::FilterTraits<ConvertQuaternionFilter>::uuid}, // ConvertQuaternion
     {complex::Uuid::FromString("630d7486-75ea-5e04-874c-894460cd7c4d").value(), complex::FilterTraits<GenerateQuaternionConjugateFilter>::uuid}, // GenerateQuaternionConjugate
-    {complex::Uuid::FromString("27c724cc-8b69-5ebe-b90e-29d33858a032").value(), complex::FilterTraits<INLWriterFilter>::uuid}, // INLWriter
-    {complex::Uuid::FromString("17410178-4e5f-58b9-900e-8194c69200ab").value(), complex::FilterTraits<ReplaceElementAttributesWithNeighborValuesFilter>::uuid}, // ReplaceElementAttributesWithNeighborValues
     {complex::Uuid::FromString("a2b62395-1a7d-5058-a840-752d8f8e2430").value(), complex::FilterTraits<RodriguesConvertorFilter>::uuid}, // RodriguesConvertor
     // @@__MAP__UPDATE__TOKEN__DO__NOT__DELETE__@@
   };
