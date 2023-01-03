@@ -35,7 +35,7 @@ DataPath faceAreas = faceDataGroup.createChildPath(complex::Constants::k_FaceAre
 TEST_CASE("OrientationAnalysis::GenerateFaceMisorientationColoringFilter: Valid filter execution", "[OrientationAnalysis][GenerateFaceMisorientationColoringFilter]")
 {
   // Read the Small IN100 Data set
-  auto baseDataFilePath = fs::path(fmt::format("{}/TestFiles/GBCD/6_6_Small_IN100_GBCD.dream3d", unit_test::k_DREAM3DDataDir));
+  auto baseDataFilePath = fs::path(fmt::format("{}/TestFiles/6_6_Small_IN100_GBCD/6_6_Small_IN100_GBCD.dream3d", unit_test::k_DREAM3DDataDir));
   DataStructure dataStructure = UnitTest::LoadDataStructure(baseDataFilePath);
 
   // Instantiate the filter, a DataStructure object and an Arguments Object
@@ -66,7 +66,7 @@ TEST_CASE("OrientationAnalysis::GenerateFaceMisorientationColoringFilter: Valid 
 TEST_CASE("OrientationAnalysis::GenerateFaceMisorientationColoringFilter: Invalid filter execution", "[OrientationAnalysis][GenerateFaceMisorientationColoringFilter]")
 {
   // Read the Small IN100 Data set
-  auto baseDataFilePath = fs::path(fmt::format("{}/TestFiles/GBCD/6_6_Small_IN100_GBCD.dream3d", unit_test::k_DREAM3DDataDir));
+  auto baseDataFilePath = fs::path(fmt::format("{}/TestFiles/6_6_Small_IN100_GBCD/6_6_Small_IN100_GBCD.dream3d", unit_test::k_DREAM3DDataDir));
   DataStructure dataStructure = UnitTest::LoadDataStructure(baseDataFilePath);
 
   // Instantiate the filter, a DataStructure object and an Arguments Object
