@@ -4,6 +4,7 @@
 #include "complex/Parameters/ArraySelectionParameter.hpp"
 #include "complex/UnitTest/UnitTestCommon.hpp"
 
+#include "OrientationAnalysis/Filters/ConvertOrientations.hpp"
 #include "OrientationAnalysis/Filters/GenerateFaceMisorientationColoringFilter.hpp"
 #include "OrientationAnalysis/OrientationAnalysis_test_dirs.hpp"
 
@@ -16,13 +17,14 @@ namespace
 {
 inline constexpr StringLiteral k_FaceMisorientationColors("SurfaceMeshFaceMisorientationColors");
 inline constexpr StringLiteral k_NXFaceMisorientationColors("NXFaceMisorientationColors");
+inline constexpr StringLiteral k_AvgQuats("AvgQuats");
 
 DataPath smallIn100Group({complex::Constants::k_SmallIN100});
 DataPath featureDataPath = smallIn100Group.createChildPath(complex::Constants::k_Grain_Data);
 DataPath avgEulerAnglesPath = featureDataPath.createChildPath(complex::Constants::k_AvgEulerAngles);
 DataPath featurePhasesPath = featureDataPath.createChildPath(complex::Constants::k_Phases);
 DataPath crystalStructurePath = smallIn100Group.createChildPath(complex::Constants::k_Phase_Data).createChildPath(complex::Constants::k_CrystalStructures);
-DataPath avgQuatsPath = featureDataPath.createChildPath("AvgQuats");
+DataPath avgQuatsPath = featureDataPath.createChildPath(k_AvgQuats);
 
 DataPath triangleDataContainerPath({complex::Constants::k_TriangleDataContainerName});
 DataPath faceDataGroup = triangleDataContainerPath.createChildPath(complex::Constants::k_FaceData);
@@ -38,24 +40,44 @@ TEST_CASE("OrientationAnalysis::GenerateFaceMisorientationColoringFilter: Valid 
   auto baseDataFilePath = fs::path(fmt::format("{}/TestFiles/6_6_Small_IN100_GBCD/6_6_Small_IN100_GBCD.dream3d", unit_test::k_DREAM3DDataDir));
   DataStructure dataStructure = UnitTest::LoadDataStructure(baseDataFilePath);
 
-  // Instantiate the filter, a DataStructure object and an Arguments Object
-  GenerateFaceMisorientationColoringFilter filter;
-  Arguments args;
+  // Convert the AvgEulerAngles array to AvgQuats for use in GenerateFaceMisorientationColoringFilter input
+  {
+    // Instantiate the filter, and an Arguments Object
+    ConvertOrientations filter;
+    Arguments args;
 
-  // Create default Parameters for the filter.
-  args.insertOrAssign(GenerateFaceMisorientationColoringFilter::k_SurfaceMeshFaceLabelsArrayPath_Key, std::make_any<DataPath>(faceLabels));
-  args.insertOrAssign(GenerateFaceMisorientationColoringFilter::k_AvgQuatsArrayPath_Key, std::make_any<DataPath>(avgQuatsPath));
-  args.insertOrAssign(GenerateFaceMisorientationColoringFilter::k_FeaturePhasesArrayPath_Key, std::make_any<DataPath>(featurePhasesPath));
-  args.insertOrAssign(GenerateFaceMisorientationColoringFilter::k_CrystalStructuresArrayPath_Key, std::make_any<DataPath>(crystalStructurePath));
-  args.insertOrAssign(GenerateFaceMisorientationColoringFilter::k_SurfaceMeshFaceMisorientationColorsArrayName_Key, std::make_any<std::string>(::k_NXFaceMisorientationColors));
+    // Create default Parameters for the filter.
+    args.insertOrAssign(ConvertOrientations::k_InputType_Key, std::make_any<uint64>(0));
+    args.insertOrAssign(ConvertOrientations::k_OutputType_Key, std::make_any<uint64>(2));
+    args.insertOrAssign(ConvertOrientations::k_InputOrientationArrayPath_Key, std::make_any<DataPath>(avgEulerAnglesPath));
+    args.insertOrAssign(ConvertOrientations::k_OutputOrientationArrayName_Key, std::make_any<std::string>(k_AvgQuats));
 
-  // Preflight the filter and check result
-  auto preflightResult = filter.preflight(dataStructure, args);
-  COMPLEX_RESULT_REQUIRE_VALID(preflightResult.outputActions);
+    // Execute the filter and check the result
+    auto executeResult = filter.execute(dataStructure, args);
+    COMPLEX_RESULT_REQUIRE_VALID(executeResult.result);
+  }
 
-  // Execute the filter and check the result
-  auto executeResult = filter.execute(dataStructure, args);
-  COMPLEX_RESULT_REQUIRE_VALID(executeResult.result);
+  // GenerateFaceMisorientationColoringFilter
+  {
+    // Instantiate the filter, and an Arguments Object
+    GenerateFaceMisorientationColoringFilter filter;
+    Arguments args;
+
+    // Create default Parameters for the filter.
+    args.insertOrAssign(GenerateFaceMisorientationColoringFilter::k_SurfaceMeshFaceLabelsArrayPath_Key, std::make_any<DataPath>(faceLabels));
+    args.insertOrAssign(GenerateFaceMisorientationColoringFilter::k_AvgQuatsArrayPath_Key, std::make_any<DataPath>(avgQuatsPath));
+    args.insertOrAssign(GenerateFaceMisorientationColoringFilter::k_FeaturePhasesArrayPath_Key, std::make_any<DataPath>(featurePhasesPath));
+    args.insertOrAssign(GenerateFaceMisorientationColoringFilter::k_CrystalStructuresArrayPath_Key, std::make_any<DataPath>(crystalStructurePath));
+    args.insertOrAssign(GenerateFaceMisorientationColoringFilter::k_SurfaceMeshFaceMisorientationColorsArrayName_Key, std::make_any<std::string>(::k_NXFaceMisorientationColors));
+
+    // Preflight the filter and check result
+    auto preflightResult = filter.preflight(dataStructure, args);
+    COMPLEX_RESULT_REQUIRE_VALID(preflightResult.outputActions);
+
+    // Execute the filter and check the result
+    auto executeResult = filter.execute(dataStructure, args);
+    COMPLEX_RESULT_REQUIRE_VALID(executeResult.result);
+  }
 
   // compare the resulting face IPF Colors array
   DataPath exemplarPath = faceDataGroup.createChildPath(::k_FaceMisorientationColors);
