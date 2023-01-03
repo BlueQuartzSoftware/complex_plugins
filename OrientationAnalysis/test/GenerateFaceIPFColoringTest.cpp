@@ -14,32 +14,22 @@ using namespace complex::UnitTest;
 
 namespace
 {
-inline constexpr StringLiteral k_Grain_Data("Grain Data");
-inline constexpr StringLiteral k_Phase_Data("Phase Data");
-inline constexpr StringLiteral k_TriangleDataContainerName("TriangleDataContainer");
-inline constexpr StringLiteral k_FaceData("FaceData");
-inline constexpr StringLiteral k_CrystalStructures("CrystalStructures");
-inline constexpr StringLiteral k_FaceNormals("FaceNormals");
-inline constexpr StringLiteral k_FaceAreas("FaceAreas");
-inline constexpr StringLiteral k_FaceLabels("FaceLabels");
-inline constexpr StringLiteral k_AvgEulerAngles("AvgEulerAngles");
-
 inline constexpr StringLiteral k_FaceIPFColors("SurfaceMeshFaceIPFColors");
 inline constexpr StringLiteral k_NXFaceIPFColors("NXFaceIPFColors");
 
 DataPath smallIn100Group({complex::Constants::k_SmallIN100});
-DataPath featureDataPath = smallIn100Group.createChildPath(::k_Grain_Data);
-DataPath avgEulerAnglesPath = featureDataPath.createChildPath(::k_AvgEulerAngles);
-DataPath featurePhasesPath = featureDataPath.createChildPath(k_Phases);
-DataPath crystalStructurePath = smallIn100Group.createChildPath(::k_Phase_Data).createChildPath(::k_CrystalStructures);
+DataPath featureDataPath = smallIn100Group.createChildPath(complex::Constants::k_Grain_Data);
+DataPath avgEulerAnglesPath = featureDataPath.createChildPath(complex::Constants::k_AvgEulerAngles);
+DataPath featurePhasesPath = featureDataPath.createChildPath(complex::Constants::k_Phases);
+DataPath crystalStructurePath = smallIn100Group.createChildPath(complex::Constants::k_Phase_Data).createChildPath(complex::Constants::k_CrystalStructures);
 DataPath avgQuatsPath = featureDataPath.createChildPath("AvgQuats");
 
-DataPath triangleDataContainerPath({::k_TriangleDataContainerName});
-DataPath faceDataGroup = triangleDataContainerPath.createChildPath(::k_FaceData);
+DataPath triangleDataContainerPath({complex::Constants::k_TriangleDataContainerName});
+DataPath faceDataGroup = triangleDataContainerPath.createChildPath(complex::Constants::k_FaceData);
 
-DataPath faceLabels = faceDataGroup.createChildPath(::k_FaceLabels);
-DataPath faceNormals = faceDataGroup.createChildPath(::k_FaceNormals);
-DataPath faceAreas = faceDataGroup.createChildPath(::k_FaceAreas);
+DataPath faceLabels = faceDataGroup.createChildPath(complex::Constants::k_FaceLabels);
+DataPath faceNormals = faceDataGroup.createChildPath(complex::Constants::k_FaceNormals);
+DataPath faceAreas = faceDataGroup.createChildPath(complex::Constants::k_FaceAreas);
 } // namespace
 
 TEST_CASE("OrientationAnalysis::GenerateFaceIPFColoringFilter: Valid filter execution", "[OrientationAnalysis][GenerateFaceIPFColoringFilter]")
