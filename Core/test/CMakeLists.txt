@@ -7,7 +7,6 @@
 # Define the list of unit test source files
 set(${PLUGIN_NAME}UnitTest_SRCS
   AlignSectionsFeatureCentroidTest.cpp
-  FillBadDataTest.cpp # NEEDS TEST IMPLEMENTED
   FindNeighborhoodsTest.cpp
   RemoveFlaggedFeaturesTest.cpp
   ErodeDilateBadDataTest.cpp
@@ -40,7 +39,6 @@ if(EXISTS "${DREAM3D_DATA_DIR}" AND COMPLEX_DOWNLOAD_TEST_FILES)
   if(NOT EXISTS ${DREAM3D_DATA_DIR}/TestFiles/)
     file(MAKE_DIRECTORY "${DREAM3D_DATA_DIR}/TestFiles/")
   endif()
-  download_test_data(DREAM3D_DATA_DIR ${DREAM3D_DATA_DIR} ARCHIVE_NAME 6_6_fill_bad_data.tar.gz SHA512 6898d38754e80def4b8459227a4a9f99b67baaf6a72210c50ef8e98e1cc131b10da2f8793e807d9883c6949de6aa72f71fe65df89ddc0b39cca1d550191b6c45)
 
 endif()
 
