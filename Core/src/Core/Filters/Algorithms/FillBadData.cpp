@@ -4,37 +4,55 @@
 #include "complex/DataStructure/DataGroup.hpp"
 #include "complex/DataStructure/Geometry/ImageGeom.hpp"
 #include "complex/Utilities/DataGroupUtilities.hpp"
-#include "complex/Utilities/ParallelDataAlgorithm.hpp"
-
-#ifdef COMPLEX_ENABLE_MULTICORE
-#define RUN_TASK g->run
-#else
-#define RUN_TASK
-#endif
+#include "complex/Utilities/FilterUtilities.hpp"
+#include "complex/Utilities/ParallelTaskAlgorithm.hpp"
 
 using namespace complex;
 
 namespace
 {
+
+// struct FillBadDataFunctor
+//{
+//   template <typename ScalarType>
+//   void operator()(const Int32Array& featureIds, IDataArray& output, const std::vector<int32>& neighbors)
+//   {
+//     DataArray<ScalarType>& outputArray = dynamic_cast<DataArray<ScalarType>>(output);
+//     for(size_t tupleIndex = 0; tupleIndex < featureIds.getNumberOfTuples(); tupleIndex++)
+//     {
+//       const int32 featureName = featureIds[tupleIndex];
+//       const int32 neighbor = neighbors[tupleIndex];
+//       if(featureName < 0 && neighbor != -1 && featureIds[static_cast<size_t>(neighbor)] > 0)
+//       {
+//         outputArray.copyTuple(neighbor, tupleIndex);
+//       }
+//     }
+//   }
+// };
+
 template <typename T>
 class FillBadDataUpdateTuples
 {
 public:
-  FillBadDataUpdateTuples(FillBadData* filter, const Int32Array& featureIds, DataArray<T>& outputArray, const std::vector<int32>& neighbors)
-  : m_Filter(filter)
-  , m_FeatureIds(featureIds)
+  FillBadDataUpdateTuples(const Int32Array& featureIds, DataArray<T>& outputArray, const std::vector<int32>& neighbors)
+  : m_FeatureIds(featureIds)
   , m_OuputArray(outputArray)
   , m_Neighbors(neighbors)
   {
   }
   ~FillBadDataUpdateTuples() = default;
 
+  FillBadDataUpdateTuples(const FillBadDataUpdateTuples&) = default;           // Copy Constructor Not Implemented
+  FillBadDataUpdateTuples(FillBadDataUpdateTuples&&) = delete;                 // Move Constructor Not Implemented
+  FillBadDataUpdateTuples& operator=(const FillBadDataUpdateTuples&) = delete; // Copy Assignment Not Implemented
+  FillBadDataUpdateTuples& operator=(FillBadDataUpdateTuples&&) = delete;      // Move Assignment Not Implemented
+
   void convert(size_t start, size_t stop) const
   {
     for(size_t tupleIndex = start; tupleIndex < stop; tupleIndex++)
     {
-      int32 featureName = m_FeatureIds[tupleIndex];
-      int32 neighbor = m_Neighbors[tupleIndex];
+      const int32 featureName = m_FeatureIds[tupleIndex];
+      const int32 neighbor = m_Neighbors[tupleIndex];
       if(featureName < 0 && neighbor != -1 && m_FeatureIds[static_cast<size_t>(neighbor)] > 0)
       {
         m_OuputArray.copyTuple(neighbor, tupleIndex);
@@ -48,7 +66,6 @@ public:
   }
 
 private:
-  FillBadData* m_Filter = nullptr;
   const Int32Array& m_FeatureIds;
   DataArray<T>& m_OuputArray;
   const std::vector<int32>& m_Neighbors;
@@ -76,10 +93,8 @@ const std::atomic_bool& FillBadData::getCancel()
 // -----------------------------------------------------------------------------
 Result<> FillBadData::operator()()
 {
-  Int32Array& m_FeatureIds = m_DataStructure.getDataRefAs<Int32Array>(m_InputValues->featureIdsArrayPath);
-  size_t totalPoints = m_FeatureIds.getNumberOfTuples();
-
-  Int32Array* m_CellPhases = m_DataStructure.getDataAs<Int32Array>(m_InputValues->cellPhasesArrayPath);
+  auto& m_FeatureIds = m_DataStructure.getDataRefAs<Int32Array>(m_InputValues->featureIdsArrayPath);
+  const size_t totalPoints = m_FeatureIds.getNumberOfTuples();
 
   std::vector<int32> m_Neighbors(totalPoints, -1);
 
@@ -87,7 +102,9 @@ Result<> FillBadData::operator()()
 
   const auto& selectedImageGeom = m_DataStructure.getDataRefAs<ImageGeom>(m_InputValues->inputImageGeometry);
 
-  SizeVec3 udims = selectedImageGeom.getDimensions();
+  const SizeVec3 udims = selectedImageGeom.getDimensions();
+
+  auto* m_CellPhases = m_DataStructure.getDataAs<Int32Array>(m_InputValues->featureIdsArrayPath);
 
   std::array<int64_t, 3> dims = {
       static_cast<int64_t>(udims[0]),
@@ -97,21 +114,15 @@ Result<> FillBadData::operator()()
 
   size_t count = 1;
   int32_t good = 1;
-  int64_t neighbor = 0;
+  int64_t neighbor;
   int64_t index = 0;
-  float x = 0.0f;
-  float y = 0.0f;
-  float z = 0.0f;
-  int64_t column = 0;
-  int64_t row = 0;
-  int64_t plane = 0;
+  float x = 0.0f, y = 0.0f, z = 0.0f;
+  int64_t column = 0, row = 0, plane = 0;
   int64_t neighpoint = 0;
-  int32_t featurename = 0;
-  int32_t feature = 0;
+  int32_t featurename = 0, feature = 0;
   size_t numfeatures = 0;
   size_t maxPhase = 0;
 
-  // Find the max value of featureIds;
   for(size_t i = 0; i < totalPoints; i++)
   {
     featurename = m_FeatureIds[i];
@@ -152,10 +163,6 @@ Result<> FillBadData::operator()()
 
   for(size_t i = 0; i < totalPoints; i++)
   {
-    if(m_ShouldCancel)
-    {
-      return {};
-    }
     if(!m_AlreadyChecked[i] && m_FeatureIds[i] == 0)
     {
       currentvlist.push_back(static_cast<int64_t>(i));
@@ -204,20 +211,20 @@ Result<> FillBadData::operator()()
       }
       if((int32_t)currentvlist.size() >= m_InputValues->minAllowedDefectSizeValue)
       {
-        for(const int64& currentVListValue : currentvlist)
+        for(size_t k = 0; k < currentvlist.size(); k++)
         {
-          m_FeatureIds[currentVListValue] = 0;
+          m_FeatureIds[currentvlist[k]] = 0;
           if(m_InputValues->storeAsNewPhase)
           {
-            (*m_CellPhases)[currentVListValue] = static_cast<int32>(maxPhase + 1);
+            (*m_CellPhases)[currentvlist[k]] = maxPhase + 1;
           }
         }
       }
-      if(static_cast<int32>(currentvlist.size()) < m_InputValues->minAllowedDefectSizeValue)
+      if((int32_t)currentvlist.size() < m_InputValues->minAllowedDefectSizeValue)
       {
-        for(const int64& currentVListValue : currentvlist)
+        for(std::vector<int64_t>::size_type k = 0; k < currentvlist.size(); k++)
         {
-          m_FeatureIds[currentVListValue] = -1;
+          m_FeatureIds[currentvlist[k]] = -1;
         }
       }
       currentvlist.clear();
@@ -226,29 +233,10 @@ Result<> FillBadData::operator()()
 
   int32_t current = 0;
   int32_t most = 0;
-  std::vector<int32_t> featureCount(numfeatures + 1, 0);
-
-  std::optional<std::vector<DataPath>> allChildArrays = GetAllChildDataPaths(m_DataStructure, m_InputValues->cellDataGroupPath, DataObject::Type::DataArray, m_InputValues->ignoredDataArrayPaths);
-  std::vector<DataPath> selectedCellArrays;
-  if(allChildArrays.has_value())
-  {
-    selectedCellArrays = allChildArrays.value();
-  }
-
-#ifdef COMPLEX_ENABLE_MULTICORE
-  std::shared_ptr<tbb::task_group> g(new tbb::task_group);
-  // C++11 RIGHT HERE....
-  int32_t nthreads = static_cast<int32_t>(std::thread::hardware_concurrency()); // Returns ZERO if not defined on this platform
-  int32_t threadCount = 0;
-#endif
+  std::vector<int32_t> n(numfeatures + 1, 0);
 
   while(count != 0)
   {
-    if(m_ShouldCancel)
-    {
-      return {};
-    }
-
     count = 0;
     for(size_t i = 0; i < totalPoints; i++)
     {
@@ -294,8 +282,8 @@ Result<> FillBadData::operator()()
             feature = m_FeatureIds[neighpoint];
             if(feature > 0)
             {
-              featureCount[feature]++;
-              current = featureCount[feature];
+              n[feature]++;
+              current = n[feature];
               if(current > most)
               {
                 most = current;
@@ -337,83 +325,85 @@ Result<> FillBadData::operator()()
             feature = m_FeatureIds[neighpoint];
             if(feature > 0)
             {
-              featureCount[feature] = 0;
+              n[feature] = 0;
             }
           }
         }
       }
     }
 
-    for(const auto& cellArrayPath : selectedCellArrays)
+    std::optional<std::vector<DataPath>> allChildArrays = GetAllChildDataPaths(m_DataStructure, selectedImageGeom.getCellDataPath(), DataObject::Type::DataArray, m_InputValues->ignoredDataArrayPaths);
+    std::vector<DataPath> voxelArrayNames;
+    if(allChildArrays.has_value())
     {
+      voxelArrayNames = allChildArrays.value();
+    }
+
+    for(const auto& cellArrayPath : voxelArrayNames)
+    {
+      if(cellArrayPath == m_InputValues->featureIdsArrayPath)
+      {
+        continue;
+      }
       auto& oldCellArray = m_DataStructure.getDataRefAs<IDataArray>(cellArrayPath);
-      DataType type = oldCellArray.getDataType();
+      const DataType type = oldCellArray.getDataType();
+
+      //      ExecuteDataFunction(FillBadDataFunctor{}, type, featureIds, oldCellArray, neighbors);
 
       switch(type)
       {
       case DataType::boolean: {
-        RUN_TASK(FillBadDataUpdateTuples<bool>(this, m_FeatureIds, dynamic_cast<BoolArray&>(oldCellArray), m_Neighbors));
+        FillBadDataUpdateTuples<bool>(m_FeatureIds, dynamic_cast<BoolArray&>(oldCellArray), m_Neighbors)();
         break;
       }
       case DataType::int8: {
-        RUN_TASK(FillBadDataUpdateTuples<int8>(this, m_FeatureIds, dynamic_cast<Int8Array&>(oldCellArray), m_Neighbors));
+        FillBadDataUpdateTuples<int8>(m_FeatureIds, dynamic_cast<Int8Array&>(oldCellArray), m_Neighbors)();
         break;
       }
       case DataType::int16: {
-        RUN_TASK(FillBadDataUpdateTuples<int16>(this, m_FeatureIds, dynamic_cast<Int16Array&>(oldCellArray), m_Neighbors));
+        FillBadDataUpdateTuples<int16>(m_FeatureIds, dynamic_cast<Int16Array&>(oldCellArray), m_Neighbors)();
         break;
       }
       case DataType::int32: {
-        RUN_TASK(FillBadDataUpdateTuples<int32>(this, m_FeatureIds, dynamic_cast<Int32Array&>(oldCellArray), m_Neighbors));
+        FillBadDataUpdateTuples<int32>(m_FeatureIds, dynamic_cast<Int32Array&>(oldCellArray), m_Neighbors)();
         break;
       }
       case DataType::int64: {
-        RUN_TASK(FillBadDataUpdateTuples<int64>(this, m_FeatureIds, dynamic_cast<Int64Array&>(oldCellArray), m_Neighbors));
+        FillBadDataUpdateTuples<int64>(m_FeatureIds, dynamic_cast<Int64Array&>(oldCellArray), m_Neighbors)();
         break;
       }
       case DataType::uint8: {
-        RUN_TASK(FillBadDataUpdateTuples<uint8>(this, m_FeatureIds, dynamic_cast<UInt8Array&>(oldCellArray), m_Neighbors));
+        FillBadDataUpdateTuples<uint8>(m_FeatureIds, dynamic_cast<UInt8Array&>(oldCellArray), m_Neighbors)();
         break;
       }
       case DataType::uint16: {
-        RUN_TASK(FillBadDataUpdateTuples<uint16>(this, m_FeatureIds, dynamic_cast<UInt16Array&>(oldCellArray), m_Neighbors));
+        FillBadDataUpdateTuples<uint16>(m_FeatureIds, dynamic_cast<UInt16Array&>(oldCellArray), m_Neighbors)();
         break;
       }
       case DataType::uint32: {
-        RUN_TASK(FillBadDataUpdateTuples<uint32>(this, m_FeatureIds, dynamic_cast<UInt32Array&>(oldCellArray), m_Neighbors));
+        FillBadDataUpdateTuples<uint32>(m_FeatureIds, dynamic_cast<UInt32Array&>(oldCellArray), m_Neighbors)();
         break;
       }
       case DataType::uint64: {
-        RUN_TASK(FillBadDataUpdateTuples<uint64>(this, m_FeatureIds, dynamic_cast<UInt64Array&>(oldCellArray), m_Neighbors));
+        FillBadDataUpdateTuples<uint64>(m_FeatureIds, dynamic_cast<UInt64Array&>(oldCellArray), m_Neighbors)();
         break;
       }
       case DataType::float32: {
-        RUN_TASK(FillBadDataUpdateTuples<float32>(this, m_FeatureIds, dynamic_cast<Float32Array&>(oldCellArray), m_Neighbors));
+        FillBadDataUpdateTuples<float32>(m_FeatureIds, dynamic_cast<Float32Array&>(oldCellArray), m_Neighbors)();
         break;
       }
       case DataType::float64: {
-        RUN_TASK(FillBadDataUpdateTuples<float64>(this, m_FeatureIds, dynamic_cast<Float64Array&>(oldCellArray), m_Neighbors));
+        FillBadDataUpdateTuples<float64>(m_FeatureIds, dynamic_cast<Float64Array&>(oldCellArray), m_Neighbors)();
         break;
       }
       default: {
         throw std::runtime_error("Invalid DataType");
       }
       }
-#ifdef COMPLEX_ENABLE_MULTICORE
-      threadCount++;
-      if(threadCount == nthreads)
-      {
-        g->wait();
-        threadCount = 0;
-      }
-#endif
     }
 
-#ifdef COMPLEX_ENABLE_MULTICORE
-    // This will spill over if the number of DataArrays to process does not divide evenly by the number of threads.
-    g->wait();
-#endif
+    // We need to update the FeatureIds array _LAST_ since the above operations depend on that values in that array
+    FillBadDataUpdateTuples<int32>(m_FeatureIds, dynamic_cast<Int32Array&>(m_FeatureIds), m_Neighbors)();
   }
-
   return {};
 }

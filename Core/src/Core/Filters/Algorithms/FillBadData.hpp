@@ -20,7 +20,7 @@ struct CORE_EXPORT FillBadDataInputValues
   DataPath cellPhasesArrayPath;
   std::vector<DataPath> ignoredDataArrayPaths;
   DataPath inputImageGeometry;
-  DataPath cellDataGroupPath;
+  //  DataPath cellDataGroupPath;
 };
 
 /**
