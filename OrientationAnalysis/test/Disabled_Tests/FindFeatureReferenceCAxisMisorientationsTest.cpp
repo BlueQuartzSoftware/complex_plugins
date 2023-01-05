@@ -30,7 +30,7 @@
 
 using namespace complex;
 
-TEST_CASE("OrientationAnalysis::FindFeatureReferenceCAxisMisorientations: Instantiation and Parameter Check",
+TEST_CASE("OrientationAnalysis::FindFeatureReferenceCAxisMisorientations: Valid Execution",
           "[OrientationAnalysis][FindFeatureReferenceCAxisMisorientations][.][UNIMPLEMENTED][!mayfail]")
 {
   // Instantiate the filter, a DataStructure object and an Arguments Object
@@ -55,11 +55,6 @@ TEST_CASE("OrientationAnalysis::FindFeatureReferenceCAxisMisorientations: Instan
   auto executeResult = filter.execute(dataStructure, args);
   REQUIRE(executeResult.result.valid());
 }
-
-// TEST_CASE("OrientationAnalysis::FindFeatureReferenceCAxisMisorientations: Valid filter execution")
-//{
-//
-//}
 
 // TEST_CASE("OrientationAnalysis::FindFeatureReferenceCAxisMisorientations: InValid filter execution")
 //{
