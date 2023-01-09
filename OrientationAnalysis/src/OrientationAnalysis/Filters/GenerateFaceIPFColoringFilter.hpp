@@ -9,7 +9,7 @@ namespace complex
 {
 /**
  * @class GenerateFaceIPFColoringFilter
- * @brief This filter will ....
+ * @brief This filter will generate a pair of colors for each Triangle in a Triangle Geometry based on the inverse pole figure (IPF) color scheme for the present crystal structure.
  */
 class ORIENTATIONANALYSIS_EXPORT GenerateFaceIPFColoringFilter : public IFilter
 {
