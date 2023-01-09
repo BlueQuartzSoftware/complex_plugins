@@ -9,7 +9,8 @@ namespace complex
 {
 /**
  * @class GenerateFaceMisorientationColoringFilter
- * @brief This filter will ....
+ * @brief This filter will generate a 3 component vector for each Triangle in a Triangle Geometry that is the axis-angle of the misorientation associated with the Features that lie on either side of
+ * the Triangle. The axis is normalized, so if the magnitude of the vector is viewed, it will be the misorientation angle in degrees.
  */
 class ORIENTATIONANALYSIS_EXPORT GenerateFaceMisorientationColoringFilter : public IFilter
 {
