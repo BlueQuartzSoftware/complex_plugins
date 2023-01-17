@@ -10,9 +10,9 @@
 #include <filesystem>
 namespace fs = std::filesystem;
 
-#include "complex_plugins/Utilities/SmallIN100Utilities.hpp"
 #include "Core/Core_test_dirs.hpp"
 #include "Core/Filters/ErodeDilateBadDataFilter.hpp"
+#include "complex_plugins/Utilities/SmallIN100Utilities.hpp"
 
 /**
  * @brief Test Setup
