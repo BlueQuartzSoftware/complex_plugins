@@ -8,7 +8,6 @@
 #include "complex/Parameters/DataGroupCreationParameter.hpp"
 #include "complex/Parameters/DataObjectNameParameter.hpp"
 #include "complex/Parameters/EnsembleInfoParameter.hpp"
-#include "complex/Parameters/GeometrySelectionParameter.hpp"
 
 #include "OrientationAnalysis/Filters/Algorithms/CreateEnsembleInfo.hpp"
 

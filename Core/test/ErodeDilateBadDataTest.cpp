@@ -2,19 +2,15 @@
 
 #include "complex/Core/Application.hpp"
 #include "complex/Parameters/BoolParameter.hpp"
-#include "complex/Parameters/GeometrySelectionParameter.hpp"
 #include "complex/Parameters/MultiArraySelectionParameter.hpp"
 #include "complex/Parameters/VectorParameter.hpp"
 #include "complex/UnitTest/UnitTestCommon.hpp"
 #include "complex/Utilities/Parsing/HDF5/H5FileReader.hpp"
-#include "complex/Utilities/Parsing/HDF5/H5FileWriter.hpp"
 
 #include <filesystem>
 namespace fs = std::filesystem;
 
 #include "complex_plugins/Utilities/SmallIN100Utilities.hpp"
-#include "complex_plugins/Utilities/TestUtilities.hpp"
-
 #include "Core/Core_test_dirs.hpp"
 #include "Core/Filters/ErodeDilateBadDataFilter.hpp"
 

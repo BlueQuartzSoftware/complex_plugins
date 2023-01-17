@@ -18,8 +18,6 @@
 namespace fs = std::filesystem;
 
 #include "complex_plugins/Utilities/SmallIN100Utilities.hpp"
-#include "complex_plugins/Utilities/TestUtilities.hpp"
-
 using namespace complex;
 using namespace complex::Constants;
 using namespace complex::UnitTest;

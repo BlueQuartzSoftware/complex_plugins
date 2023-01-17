@@ -24,7 +24,6 @@
 
 #include "complex/Common/Numbers.hpp"
 #include "complex/Parameters/ArrayCreationParameter.hpp"
-#include "complex/Parameters/ArraySelectionParameter.hpp"
 #include "complex/Parameters/ChoicesParameter.hpp"
 #include "complex/UnitTest/UnitTestCommon.hpp"
 

@@ -3,21 +3,16 @@
 #include "complex/Common/StringLiteral.hpp"
 
 #include <filesystem>
-#include <type_traits>
 
 #include <fmt/core.h>
 
 #include <nlohmann/json.hpp>
 
 #include "complex/Common/Any.hpp"
-#include "complex/Common/TypeTraits.hpp"
 
-#include "EbsdLib/Core/EbsdMacros.h"
 #include "EbsdLib/IO/H5EbsdVolumeInfo.h"
 #include "EbsdLib/IO/HKL/CtfFields.h"
-#include "EbsdLib/IO/HKL/H5CtfVolumeReader.h"
 #include "EbsdLib/IO/TSL/AngFields.h"
-#include "EbsdLib/IO/TSL/H5AngVolumeReader.h"
 
 namespace fs = std::filesystem;
 
