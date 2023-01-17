@@ -243,7 +243,6 @@ Result<> ErodeDilateBadData::operator()()
       taskRunner.execute(ErodeDilateBadDataTransferDataImpl(this, totalPoints, m_InputValues->Operation, m_FeatureIds, m_Neighbors, voxelArray));
     }
     taskRunner.wait(); // This will spill over if the number of DataArrays to process does not divide evenly by the number of threads.
-
   }
 
   return {};
