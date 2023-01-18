@@ -9,9 +9,6 @@
 
 #include "EbsdLib/LaueOps/LaueOps.h"
 
-#include <chrono>
-#include <random>
-
 using namespace complex;
 
 // -----------------------------------------------------------------------------
@@ -259,6 +256,8 @@ Result<> AlignSectionsMutualInformation::findShifts(std::vector<int64>& xShifts,
 void AlignSectionsMutualInformation::formFeaturesSections(std::vector<int32>& miFeatureIds, std::vector<int32>& featureCounts)
 {
   const auto& imageGeom = m_DataStructure.getDataRefAs<ImageGeom>(m_InputValues->ImageGeometryPath);
+  const AttributeMatrix* cellData = imageGeom.getCellData();
+  int64 totalPoints = cellData->getNumTuples();
   SizeVec3 udims = imageGeom.getDimensions();
   int64 dims[3] = {
       static_cast<int64>(udims[0]),
@@ -268,14 +267,10 @@ void AlignSectionsMutualInformation::formFeaturesSections(std::vector<int32>& mi
 
   int64 point = 0;
   int64 seed = 0;
+  int64 prevSeed = 0;
   bool noSeeds = false;
   int32 featureCount = 1;
   int64 neighbor = 0;
-
-  std::random_device randomDevice;           // Will be used to obtain a seed for the random number engine
-  std::mt19937_64 generator(randomDevice()); // Standard mersenne_twister_engine seeded with rd()
-  generator.seed(static_cast<std::mt19937_64::result_type>(std::chrono::steady_clock::now().time_since_epoch().count()));
-  std::uniform_real_distribution<> distribution(0, 1);
 
   Float32Array& quats = m_DataStructure.getDataRefAs<Float32Array>(m_InputValues->QuatsArrayPath);
   BoolArray& goodVoxels = m_DataStructure.getDataRefAs<BoolArray>(m_InputValues->GoodVoxelsArrayPath);
@@ -314,38 +309,16 @@ void AlignSectionsMutualInformation::formFeaturesSections(std::vector<int32>& mi
     while(!noSeeds)
     {
       seed = -1;
-      randX = static_cast<int64>(static_cast<float32>(distribution(generator)) * static_cast<float32>(dims[0]));
-      randY = static_cast<int64>(static_cast<float32>(distribution(generator)) * static_cast<float32>(dims[1]));
-      for(int64 j = 0; j < dims[1]; ++j)
+      point = prevSeed;
+      while(point < totalPoints)
       {
-        for(int64 i = 0; i < dims[0]; ++i)
+        if((!m_InputValues->UseGoodVoxels || goodVoxels[point]) && miFeatureIds[point] == 0 && cellPhases[point] > 0)
         {
-          x = randX + i;
-          y = randY + j;
-          z = slice;
-          if(x > dims[0] - 1)
-          {
-            x = x - dims[0];
-          }
-          if(y > dims[1] - 1)
-          {
-            y = y - dims[1];
-          }
-          point = (z * dims[0] * dims[1]) + (y * dims[0]) + x;
-          if((!m_InputValues->UseGoodVoxels || goodVoxels[point]) && miFeatureIds[point] == 0 && cellPhases[point] > 0)
-          {
-            seed = point;
-          }
-          if(seed > -1)
-          {
-            break;
-          }
+          seed = point;
         }
-        if(seed > -1)
-        {
-          break;
-        }
+        ++point;
       }
+      prevSeed = seed;
       if(seed == -1)
       {
         noSeeds = true;
