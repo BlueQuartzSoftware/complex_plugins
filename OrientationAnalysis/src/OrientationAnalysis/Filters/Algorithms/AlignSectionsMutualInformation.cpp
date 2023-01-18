@@ -72,9 +72,7 @@ Result<> AlignSectionsMutualInformation::findShifts(std::vector<int64>& xShifts,
 {
   const auto& imageGeom = m_DataStructure.getDataRefAs<ImageGeom>(m_InputValues->ImageGeometryPath);
   const AttributeMatrix* cellData = imageGeom.getCellData();
-
   int64 totalPoints = cellData->getNumTuples();
-  SizeVec3 udims = imageGeom.getDimensions();
 
   std::ofstream outFile;
   if(m_InputValues->WriteAlignmentShifts)
@@ -82,6 +80,7 @@ Result<> AlignSectionsMutualInformation::findShifts(std::vector<int64>& xShifts,
     outFile.open(m_InputValues->AlignmentShiftFileName);
   }
 
+  SizeVec3 udims = imageGeom.getDimensions();
   int64 dims[3] = {
       static_cast<int64>(udims[0]),
       static_cast<int64>(udims[1]),
@@ -93,9 +92,9 @@ Result<> AlignSectionsMutualInformation::findShifts(std::vector<int64>& xShifts,
 
   float32 disorientation = 0.0f;
   float32 minDisorientation = std::numeric_limits<float32>::max();
-  float32** mutualInfo12 = nullptr;
-  float32* mutualInfo1 = nullptr;
-  float32* mutualInfo2 = nullptr;
+  std::vector<std::vector<float32>> mutualInfo12;
+  std::vector<float32> mutualInfo1;
+  std::vector<float32> mutualInfo2;
   int32 featureCount1 = 0, featureCount2 = 0;
   int64 newXShift = 0;
   int64 newYShift = 0;
@@ -127,20 +126,10 @@ Result<> AlignSectionsMutualInformation::findShifts(std::vector<int64>& xShifts,
     slice = (dims[2] - 1) - iter;
     featureCount1 = featureCounts[slice];
     featureCount2 = featureCounts[slice + 1];
-    mutualInfo12 = new float32*[featureCount1];
-    mutualInfo1 = new float32[featureCount1];
-    mutualInfo2 = new float32[featureCount2];
+    mutualInfo12 = std::vector<std::vector<float32>>(featureCount1, std::vector<float32>(featureCount2, 0.0f));
+    mutualInfo1 = std::vector<float32>(featureCount1, 0.0f);
+    mutualInfo2 = std::vector<float32>(featureCount2, 0.0f);
 
-    for(int32 a = 0; a < featureCount1; a++)
-    {
-      mutualInfo1[a] = 0.0f;
-      mutualInfo12[a] = new float[featureCount2];
-      for(int32 b = 0; b < featureCount2; b++)
-      {
-        mutualInfo12[a][b] = 0.0f;
-        mutualInfo2[b] = 0.0f;
-      }
-    }
     oldXShift = -1;
     oldYShift = -1;
     newXShift = 0;
@@ -256,16 +245,6 @@ Result<> AlignSectionsMutualInformation::findShifts(std::vector<int64>& xShifts,
     {
       outFile << slice << "	" << slice + 1 << "	" << newXShift << "	" << newYShift << "	" << xShifts[iter] << "	" << yShifts[iter] << "\n";
     }
-    delete[] mutualInfo1;
-    delete[] mutualInfo2;
-    for(int32 i = 0; i < featureCount1; i++)
-    {
-      delete mutualInfo12[i];
-    }
-    delete[] mutualInfo12;
-    mutualInfo1 = nullptr;
-    mutualInfo2 = nullptr;
-    mutualInfo12 = nullptr;
   }
 
   if(m_InputValues->WriteAlignmentShifts)
@@ -333,8 +312,8 @@ void AlignSectionsMutualInformation::formFeaturesSections(std::vector<int32>& mi
     while(!noSeeds)
     {
       seed = -1;
-      randX = static_cast<int64>(float32(distribution(generator)) * float32(dims[0]));
-      randY = static_cast<int64>(float32(distribution(generator)) * float32(dims[1]));
+      randX = static_cast<int64>(static_cast<float32>(distribution(generator)) * static_cast<float32>(dims[0]));
+      randY = static_cast<int64>(static_cast<float32>(distribution(generator)) * static_cast<float32>(dims[1]));
       for(int64 j = 0; j < dims[1]; ++j)
       {
         for(int64 i = 0; i < dims[0]; ++i)
