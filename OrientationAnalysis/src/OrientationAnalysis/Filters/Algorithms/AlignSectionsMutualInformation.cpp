@@ -282,6 +282,8 @@ void AlignSectionsMutualInformation::formFeaturesSections(std::vector<int32>& mi
   Int32Array& cellPhases = m_DataStructure.getDataRefAs<Int32Array>(m_InputValues->CellPhasesArrayPath);
   UInt32Array& crystalStructures = m_DataStructure.getDataRefAs<UInt32Array>(m_InputValues->CrystalStructuresArrayPath);
 
+  usize numQuatComps = quats.getNumberOfComponents();
+
   auto orientationOps = LaueOps::GetAllOrientationOps();
 
   float32 w = 0.0f;
@@ -360,7 +362,8 @@ void AlignSectionsMutualInformation::formFeaturesSections(std::vector<int32>& mi
           col = currentpoint % dims[0];
           row = (currentpoint / dims[0]) % dims[1];
 
-          QuatF q1(quats[currentpoint], quats[currentpoint + 1], quats[currentpoint + 2], quats[currentpoint + 3]);
+          auto q1TupleIndex = currentpoint * numQuatComps;
+          QuatF q1(quats[q1TupleIndex], quats[q1TupleIndex + 1], quats[q1TupleIndex + 2], quats[q1TupleIndex + 3]);
           phase1 = crystalStructures[cellPhases[currentpoint]];
           for(int32 i = 0; i < 4; i++)
           {
@@ -386,7 +389,8 @@ void AlignSectionsMutualInformation::formFeaturesSections(std::vector<int32>& mi
             {
               w = std::numeric_limits<float32>::max();
 
-              QuatF q2(quats[neighbor], quats[neighbor + 1], quats[neighbor + 2], quats[neighbor + 3]);
+              auto q2TupleIndex = neighbor * numQuatComps;
+              QuatF q2(quats[q2TupleIndex], quats[q2TupleIndex + 1], quats[q2TupleIndex + 2], quats[q2TupleIndex + 3]);
               phase2 = crystalStructures[cellPhases[neighbor]];
               if(phase1 == phase2)
               {
