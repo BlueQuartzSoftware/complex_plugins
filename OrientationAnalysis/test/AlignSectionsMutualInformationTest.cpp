@@ -1,41 +1,45 @@
 #include <catch2/catch.hpp>
 
-#include "complex/Parameters/ArraySelectionParameter.hpp"
-#include "complex/Parameters/BoolParameter.hpp"
-#include "complex/Parameters/FileSystemPathParameter.hpp"
-#include "complex/Parameters/NumberParameter.hpp"
-#include "complex/UnitTest/UnitTestCommon.hpp"
-
-#include "complex_plugins/Utilities/SmallIN100Utilities.hpp"
-
 #include "OrientationAnalysis/Filters/AlignSectionsMutualInformationFilter.hpp"
 #include "OrientationAnalysis/OrientationAnalysis_test_dirs.hpp"
+
+#include "complex_plugins/Utilities/TestUtilities.hpp"
+
+#include "complex/Parameters/ArraySelectionParameter.hpp"
+#include "complex/Parameters/BoolParameter.hpp"
+#include "complex/Parameters/ChoicesParameter.hpp"
+#include "complex/Parameters/FileSystemPathParameter.hpp"
+#include "complex/Parameters/NumberParameter.hpp"
+#include "complex/Parameters/NumericTypeParameter.hpp"
+#include "complex/UnitTest/UnitTestCommon.hpp"
 
 #include <filesystem>
 namespace fs = std::filesystem;
 
 using namespace complex;
+using namespace complex::Constants;
+using namespace complex::UnitTest;
 
 TEST_CASE("OrientationAnalysis::AlignSectionsMutualInformationFilter: Valid filter execution")
 {
+  // We are just going to generate a big number so that we can use that in the output
+  // file path. This tests the creation of intermediate directories that the filter
+  // would be responsible to create.
+  const uint64_t millisFromEpoch = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
+
   std::shared_ptr<UnitTest::make_shared_enabler> app = std::make_shared<UnitTest::make_shared_enabler>();
   app->loadPlugins(unit_test::k_BuildDir.view(), true);
   auto* filterList = Application::Instance()->getFilterList();
 
+  const DataPath k_ExemplarShiftsPath = k_ExemplarDataContainerPath.createChildPath("Exemplar Shifts");
+
   // Read Exemplar DREAM3D File Filter
-  auto exemplarFilePath = fs::path(fmt::format("{}/6_6_align_sections_mutual_information/6_6_align_sections_mutual_information.dream3d", unit_test::k_TestFilesDir));
-  DataStructure exemplarDataStructure = UnitTest::LoadDataStructure(exemplarFilePath);
+  auto exemplarFilePath = fs::path(fmt::format("{}/6_5_align_sections_mutual_information/6_5_align_sections_mutual_information.dream3d", unit_test::k_TestFilesDir));
+  DataStructure dataStructure = UnitTest::LoadDataStructure(exemplarFilePath);
+  const int32 k_NumSlices = 59;
+  const fs::path computedShiftsFile = (fmt::format("{}/{}/AlignSectionsMutualInformation_1.txt", unit_test::k_BinaryTestOutputDir, millisFromEpoch));
 
-  // Read the Small IN100 Data set
-  auto baseDataFilePath = fs::path(fmt::format("{}/Small_IN100.dream3d", unit_test::k_TestFilesDir));
-  DataStructure dataStructure = UnitTest::LoadDataStructure(baseDataFilePath);
-
-  // MultiThreshold Objects Filter (From ComplexCore Plugin)
-  SmallIn100::ExecuteMultiThresholdObjects(dataStructure, *filterList);
-
-  // Convert Orientation Representation Filter (From OrientationAnalysis Plugin)
-  SmallIn100::ExecuteConvertOrientations(dataStructure, *filterList);
-
+  const std::string k_InputDataContainer("InputDataContainer");
   // Align Sections Mutual Information Filter
   {
     // Instantiate the filter, a DataStructure object and an Arguments Object
@@ -44,8 +48,7 @@ TEST_CASE("OrientationAnalysis::AlignSectionsMutualInformationFilter: Valid filt
 
     // Create valid Parameters for the filter.
     args.insertOrAssign(AlignSectionsMutualInformationFilter::k_WriteAlignmentShifts_Key, std::make_any<bool>(true));
-    args.insertOrAssign(AlignSectionsMutualInformationFilter::k_AlignmentShiftFileName_Key,
-                        std::make_any<FileSystemPathParameter::ValueType>(fs::path(fmt::format("{}/AlignSectionsMutualInformation_1.txt", unit_test::k_BinaryDir))));
+    args.insertOrAssign(AlignSectionsMutualInformationFilter::k_AlignmentShiftFileName_Key, std::make_any<FileSystemPathParameter::ValueType>(computedShiftsFile));
     args.insertOrAssign(AlignSectionsMutualInformationFilter::k_MisorientationTolerance_Key, std::make_any<float32>(5.0f));
     args.insertOrAssign(AlignSectionsMutualInformationFilter::k_UseGoodVoxels_Key, std::make_any<bool>(true));
     args.insertOrAssign(AlignSectionsMutualInformationFilter::k_SelectedImageGeometry_Key, std::make_any<DataPath>(Constants::k_DataContainerPath));
@@ -63,7 +66,89 @@ TEST_CASE("OrientationAnalysis::AlignSectionsMutualInformationFilter: Valid filt
     COMPLEX_RESULT_REQUIRE_VALID(executeResult.result);
   }
 
-  UnitTest::CompareExemplarToGeneratedData(dataStructure, exemplarDataStructure, Constants::k_CellAttributeMatrix, Constants::k_SmallIN100);
+  CompareExemplarToGeneratedData(dataStructure, dataStructure, k_CellAttributeMatrix, k_ExemplarDataContainer);
+
+  // Read Exemplar Shifts File
+  {
+    static constexpr StringLiteral k_InputFileKey = "input_file";
+    static constexpr StringLiteral k_ScalarTypeKey = "scalar_type";
+    static constexpr StringLiteral k_NTuplesKey = "n_tuples";
+    static constexpr StringLiteral k_NCompKey = "n_comp";
+    static constexpr StringLiteral k_NSkipLinesKey = "n_skip_lines";
+    static constexpr StringLiteral k_DelimiterChoiceKey = "delimiter_choice";
+    static constexpr StringLiteral k_DataArrayKey = "output_data_array";
+
+    // Compare the output of the shifts file with the exemplar file
+
+    auto filter = filterList->createFilter(k_ImportTextFilterHandle);
+    REQUIRE(nullptr != filter);
+
+    Arguments args;
+    // read in the exemplar shift data file
+    args.insertOrAssign(k_InputFileKey, std::make_any<FileSystemPathParameter::ValueType>(
+                                            fs::path(fmt::format("{}/6_5_align_sections_mutual_information/6_5_align_sections_mutual_information.txt", unit_test::k_TestFilesDir))));
+    args.insertOrAssign(k_ScalarTypeKey, std::make_any<NumericTypeParameter::ValueType>(complex::NumericType::int32));
+    args.insertOrAssign(k_NTuplesKey, std::make_any<uint64>(k_NumSlices));
+    args.insertOrAssign(k_NCompKey, std::make_any<uint64>(6));
+    args.insertOrAssign(k_NSkipLinesKey, std::make_any<uint64>(0));
+    args.insertOrAssign(k_DelimiterChoiceKey, std::make_any<ChoicesParameter::ValueType>(4));
+    args.insertOrAssign(k_DataArrayKey, std::make_any<DataPath>(k_ExemplarShiftsPath));
+
+    // Preflight the filter and check result
+    auto preflightResult = filter->preflight(dataStructure, args);
+    COMPLEX_RESULT_REQUIRE_VALID(preflightResult.outputActions)
+
+    // Execute the filter and check the result
+    auto executeResult = filter->execute(dataStructure, args);
+    COMPLEX_RESULT_REQUIRE_VALID(executeResult.result)
+  }
+
+  // Read Computed Shifts File
+  {
+    static constexpr StringLiteral k_InputFileKey = "input_file";
+    static constexpr StringLiteral k_ScalarTypeKey = "scalar_type";
+    static constexpr StringLiteral k_NTuplesKey = "n_tuples";
+    static constexpr StringLiteral k_NCompKey = "n_comp";
+    static constexpr StringLiteral k_NSkipLinesKey = "n_skip_lines";
+    static constexpr StringLiteral k_DelimiterChoiceKey = "delimiter_choice";
+    static constexpr StringLiteral k_DataArrayKey = "output_data_array";
+
+    // Compare the output of the shifts file with the exemplar file
+
+    auto filter = filterList->createFilter(k_ImportTextFilterHandle);
+    REQUIRE(nullptr != filter);
+
+    Arguments args;
+    args.insertOrAssign(k_InputFileKey, std::make_any<FileSystemPathParameter::ValueType>(computedShiftsFile));
+    args.insertOrAssign(k_ScalarTypeKey, std::make_any<NumericTypeParameter::ValueType>(complex::NumericType::int32));
+    args.insertOrAssign(k_NTuplesKey, std::make_any<uint64>(k_NumSlices));
+    args.insertOrAssign(k_NCompKey, std::make_any<uint64>(6));
+    args.insertOrAssign(k_NSkipLinesKey, std::make_any<uint64>(0));
+    args.insertOrAssign(k_DelimiterChoiceKey, std::make_any<ChoicesParameter::ValueType>(4));
+    args.insertOrAssign(k_DataArrayKey, std::make_any<DataPath>(k_CalculatedShiftsPath));
+
+    // Preflight the filter and check result
+    auto preflightResult = filter->preflight(dataStructure, args);
+    COMPLEX_RESULT_REQUIRE_VALID(preflightResult.outputActions)
+
+    // Execute the filter and check the result
+    auto executeResult = filter->execute(dataStructure, args);
+    COMPLEX_RESULT_REQUIRE_VALID(executeResult.result)
+
+    const auto& calcShifts = dataStructure.getDataRefAs<Int32Array>(k_CalculatedShiftsPath);
+    const auto& exemplarShifts = dataStructure.getDataRefAs<Int32Array>(k_ExemplarShiftsPath);
+
+    size_t numElements = calcShifts.getSize();
+    for(size_t i = 0; i < numElements; i++)
+    {
+      if(calcShifts[i] != exemplarShifts[i])
+      {
+        REQUIRE(calcShifts[i] == exemplarShifts[i]);
+      }
+    }
+  }
+
+  WriteTestDataStructure(dataStructure, fmt::format("{}/align_sections_mutual_information.dream3d", unit_test::k_BinaryTestOutputDir));
 }
 
 TEST_CASE("OrientationAnalysis::AlignSectionsMutualInformationFilter: InValid filter execution")
