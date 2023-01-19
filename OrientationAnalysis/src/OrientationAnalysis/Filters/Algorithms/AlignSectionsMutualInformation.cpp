@@ -9,6 +9,9 @@
 
 #include "EbsdLib/LaueOps/LaueOps.h"
 
+#include <random>
+#include <vector>
+
 using namespace complex;
 
 // -----------------------------------------------------------------------------
@@ -262,6 +265,18 @@ Result<> AlignSectionsMutualInformation::findShifts(std::vector<int64>& xShifts,
 // -----------------------------------------------------------------------------
 void AlignSectionsMutualInformation::formFeaturesSections(std::vector<int32>& miFeatureIds, std::vector<int32>& featureCounts)
 {
+#if 0
+  using SeedGenerator = std::mt19937_64;
+  using Int64Distribution = std::uniform_int_distribution<int64>;
+  const int64 rangeMin = 0;
+  const int64 rangeMax = totalPoints - 1;
+
+  auto seed = static_cast<SeedGenerator::result_type>(std::chrono::steady_clock::now().time_since_epoch().count());
+  SeedGenerator generator;
+  generator.seed(seed);
+  Int64Distribution distribution = std::uniform_int_distribution<int64>(rangeMin, rangeMax);
+#endif
+
   const auto& imageGeom = m_DataStructure.getDataRefAs<ImageGeom>(m_InputValues->ImageGeometryPath);
   const AttributeMatrix* cellData = imageGeom.getCellData();
   int64 totalPoints = cellData->getNumTuples();
@@ -275,80 +290,114 @@ void AlignSectionsMutualInformation::formFeaturesSections(std::vector<int32>& mi
   int64 point = 0;
   int64 seed = 0;
   int64 prevSeed = 0;
-  bool noSeeds = false;
-  int32 featureCount = 1;
+  bool noseeds = false;
+  int32 featurecount = 1;
   int64 neighbor = 0;
-
-  Float32Array& quats = m_DataStructure.getDataRefAs<Float32Array>(m_InputValues->QuatsArrayPath);
-  BoolArray& goodVoxels = m_DataStructure.getDataRefAs<BoolArray>(m_InputValues->GoodVoxelsArrayPath);
-  Int32Array& cellPhases = m_DataStructure.getDataRefAs<Int32Array>(m_InputValues->CellPhasesArrayPath);
-  UInt32Array& crystalStructures = m_DataStructure.getDataRefAs<UInt32Array>(m_InputValues->CrystalStructuresArrayPath);
-
-  usize numQuatComps = quats.getNumberOfComponents();
 
   auto orientationOps = LaueOps::GetAllOrientationOps();
 
-  float32 w = 0.0f;
-  int64 randX = 0;
-  int64 randY = 0;
+  Float32Array& quats = m_DataStructure.getDataRefAs<Float32Array>(m_InputValues->QuatsArrayPath);
+  BoolArray* goodVoxelsPtr = m_DataStructure.getDataAs<BoolArray>(m_InputValues->GoodVoxelsArrayPath);
+  Int32Array& m_CellPhases = m_DataStructure.getDataRefAs<Int32Array>(m_InputValues->CellPhasesArrayPath);
+  UInt32Array& m_CrystalStructures = m_DataStructure.getDataRefAs<UInt32Array>(m_InputValues->CrystalStructuresArrayPath);
+
+  float w = 0.0f;
+  float n1 = 0.0f;
+  float n2 = 0.0f;
+  float n3 = 0.0f;
+  int64_t randx = 0;
+  int64_t randy = 0;
   bool good = false;
-  int64 x = 0, y = 0, z = 0;
-  int64 col = 0, row = 0;
-  usize size = 0;
-  usize initialVoxelsListSize = 1000;
-  float32 misorientationTolerance = m_InputValues->MisorientationTolerance * Constants::k_PiF / 180.0f;
+  int64_t x = 0, y = 0, z = 0;
+  int64_t col = 0, row = 0;
+  size_t size = 0;
+  size_t initialVoxelsListSize = 1000;
 
-  std::vector<int64> voxelsList(initialVoxelsListSize, -1);
-  int64 neighPoints[4] = {0, 0, 0, 0};
-  neighPoints[0] = -dims[0];
-  neighPoints[1] = -1;
-  neighPoints[2] = 1;
-  neighPoints[3] = dims[0];
+  float misorientationTolerance = m_InputValues->MisorientationTolerance * complex::Constants::k_PiOver180F;
 
-  uint32 phase1 = 0, phase2 = 0;
-  for(int64 slice = 0; slice < dims[2]; slice++)
+  featureCounts.resize(dims[2]);
+
+  std::vector<int64_t> voxelslist(initialVoxelsListSize, -1);
+  int64_t neighpoints[4] = {0, 0, 0, 0};
+  neighpoints[0] = -dims[0];
+  neighpoints[1] = -1;
+  neighpoints[2] = 1;
+  neighpoints[3] = dims[0];
+
+  uint32_t phase1 = 0, phase2 = 0;
+
+  int64_t lastXIndex = 0;
+  int64_t lastYIndex = 0;
+
+  for(int64_t slice = 0; slice < dims[2]; slice++)
   {
     float32 prog = (static_cast<float32>(slice) / dims[2]) * 100;
     std::string ss = fmt::format("Aligning Sections || Identifying Features on Sections || {}% Complete", StringUtilities::number(static_cast<int>(prog)));
     m_MessageHandler(IFilter::Message::Type::Info, ss);
-    featureCount = 1;
-    noSeeds = false;
-    while(!noSeeds)
+
+    featurecount = 1;
+    noseeds = false;
+    while(!noseeds)
     {
       seed = -1;
-      point = prevSeed;
-      while(point < totalPoints)
+      randx = lastXIndex; // static_cast<int64_t>(float(rg.genrand_res53()) * float(dims[0]));
+      randy = lastYIndex; // static_cast<int64_t>(float(rg.genrand_res53()) * float(dims[1]));
+      for(int64_t j = 0; j < dims[1]; ++j)
       {
-        if((!m_InputValues->UseGoodVoxels || goodVoxels[point]) && miFeatureIds[point] == 0 && cellPhases[point] > 0)
+        for(int64_t i = 0; i < dims[0]; ++i)
         {
-          seed = point;
+          x = randx + i;
+          y = randy + j;
+          z = slice;
+          if(x > dims[0] - 1)
+          {
+            x = x - dims[0];
+          }
+          if(y > dims[1] - 1)
+          {
+            y = y - dims[1];
+          }
+          point = (z * dims[0] * dims[1]) + (y * dims[0]) + x;
+
+          if((!m_InputValues->UseGoodVoxels || (goodVoxelsPtr != nullptr && (*goodVoxelsPtr)[point])) && miFeatureIds[point] == 0 && m_CellPhases[point] > 0)
+          {
+            seed = point;
+            lastXIndex = x;
+            lastYIndex = y;
+          }
+          if(seed > -1)
+          {
+            break;
+          }
         }
-        ++point;
+        if(seed > -1)
+        {
+          break;
+        }
       }
-      prevSeed = seed;
       if(seed == -1)
       {
-        noSeeds = true;
+        noseeds = true;
       }
       if(seed >= 0)
       {
         size = 0;
-        miFeatureIds[seed] = featureCount;
-        voxelsList[size] = seed;
+        miFeatureIds[seed] = featurecount;
+        voxelslist[size] = seed;
         size++;
-        for(usize j = 0; j < size; ++j)
+        for(size_t j = 0; j < size; ++j)
         {
-          int64 currentpoint = voxelsList[j];
+          int64_t currentpoint = voxelslist[j];
           col = currentpoint % dims[0];
           row = (currentpoint / dims[0]) % dims[1];
 
-          auto q1TupleIndex = currentpoint * numQuatComps;
+          auto q1TupleIndex = currentpoint * 4;
           QuatF q1(quats[q1TupleIndex], quats[q1TupleIndex + 1], quats[q1TupleIndex + 2], quats[q1TupleIndex + 3]);
-          phase1 = crystalStructures[cellPhases[currentpoint]];
-          for(int32 i = 0; i < 4; i++)
+          phase1 = m_CrystalStructures[m_CellPhases[currentpoint]];
+          for(int32_t i = 0; i < 4; i++)
           {
             good = true;
-            neighbor = currentpoint + neighPoints[i];
+            neighbor = currentpoint + neighpoints[i];
             if((i == 0) && row == 0)
             {
               good = false;
@@ -365,13 +414,13 @@ void AlignSectionsMutualInformation::formFeaturesSections(std::vector<int32>& mi
             {
               good = false;
             }
-            if(good && miFeatureIds[neighbor] <= 0 && cellPhases[neighbor] > 0)
+            if(good && miFeatureIds[neighbor] <= 0 && m_CellPhases[neighbor] > 0)
             {
-              w = std::numeric_limits<float32>::max();
-
-              auto q2TupleIndex = neighbor * numQuatComps;
+              w = std::numeric_limits<float>::max();
+              auto q2TupleIndex = neighbor * 4;
               QuatF q2(quats[q2TupleIndex], quats[q2TupleIndex + 1], quats[q2TupleIndex + 2], quats[q2TupleIndex + 3]);
-              phase2 = crystalStructures[cellPhases[neighbor]];
+              phase2 = m_CrystalStructures[m_CellPhases[neighbor]];
+
               if(phase1 == phase2)
               {
                 OrientationF axisAngle = orientationOps[phase1]->calculateMisorientation(q1, q2);
@@ -379,27 +428,27 @@ void AlignSectionsMutualInformation::formFeaturesSections(std::vector<int32>& mi
               }
               if(w < misorientationTolerance)
               {
-                miFeatureIds[neighbor] = featureCount;
-                voxelsList[size] = neighbor;
+                miFeatureIds[neighbor] = featurecount;
+                voxelslist[size] = neighbor;
                 size++;
-                if(std::vector<int64>::size_type(size) >= voxelsList.size())
+                if(std::vector<int64_t>::size_type(size) >= voxelslist.size())
                 {
-                  size = voxelsList.size();
-                  voxelsList.resize(size + initialVoxelsListSize);
-                  for(std::vector<int64>::size_type v = size; v < voxelsList.size(); ++v)
+                  size = voxelslist.size();
+                  voxelslist.resize(size + initialVoxelsListSize);
+                  for(std::vector<int64_t>::size_type v = size; v < voxelslist.size(); ++v)
                   {
-                    voxelsList[v] = -1;
+                    voxelslist[v] = -1;
                   }
                 }
               }
             }
           }
         }
-        voxelsList.erase(std::remove(voxelsList.begin(), voxelsList.end(), -1), voxelsList.end());
-        featureCount++;
-        voxelsList.assign(initialVoxelsListSize, -1);
+        voxelslist.erase(std::remove(voxelslist.begin(), voxelslist.end(), -1), voxelslist.end());
+        featurecount++;
+        voxelslist.assign(initialVoxelsListSize, -1);
       }
     }
-    featureCounts[slice] = featureCount;
+    featureCounts[slice] = featurecount;
   }
 }
