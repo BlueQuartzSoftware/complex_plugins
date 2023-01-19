@@ -69,7 +69,7 @@ Journal articles on _Mutual Information_ that are useful:
 
 ## Example Pipelines ##
 
-
+AlignSectionsMutualInformation
 
 ## License & Copyright ##
 
