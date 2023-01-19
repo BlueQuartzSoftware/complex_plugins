@@ -10,8 +10,6 @@
 #include "complex/Parameters/NumberParameter.hpp"
 #include "complex/Utilities/AlignSections.hpp"
 
-class LaueOps;
-;
 namespace complex
 {
 
@@ -39,7 +37,7 @@ class ORIENTATIONANALYSIS_EXPORT AlignSectionsMutualInformation : public AlignSe
 public:
   AlignSectionsMutualInformation(DataStructure& dataStructure, const IFilter::MessageHandler& mesgHandler, const std::atomic_bool& shouldCancel,
                                  AlignSectionsMutualInformationInputValues* inputValues);
-  ~AlignSectionsMutualInformation() noexcept;
+  ~AlignSectionsMutualInformation() noexcept override;
 
   AlignSectionsMutualInformation(const AlignSectionsMutualInformation&) = delete;
   AlignSectionsMutualInformation(AlignSectionsMutualInformation&&) noexcept = delete;
@@ -47,8 +45,6 @@ public:
   AlignSectionsMutualInformation& operator=(AlignSectionsMutualInformation&&) noexcept = delete;
 
   Result<> operator()();
-
-  const std::atomic_bool& getCancel();
 
 protected:
   Result<> findShifts(std::vector<int64>& xShifts, std::vector<int64>& yShifts) override;

@@ -3,8 +3,8 @@
 #include "complex/Common/Constants.hpp"
 #include "complex/DataStructure/AttributeMatrix.hpp"
 #include "complex/DataStructure/DataArray.hpp"
-#include "complex/DataStructure/DataGroup.hpp"
 #include "complex/DataStructure/Geometry/ImageGeom.hpp"
+#include "complex/Utilities/FilterUtilities.hpp"
 #include "complex/Utilities/StringUtilities.hpp"
 
 #include "EbsdLib/LaueOps/LaueOps.h"
@@ -24,12 +24,6 @@ AlignSectionsMutualInformation::AlignSectionsMutualInformation(DataStructure& da
 
 // -----------------------------------------------------------------------------
 AlignSectionsMutualInformation::~AlignSectionsMutualInformation() noexcept = default;
-
-// -----------------------------------------------------------------------------
-const std::atomic_bool& AlignSectionsMutualInformation::getCancel()
-{
-  return m_ShouldCancel;
-}
 
 // -----------------------------------------------------------------------------
 Result<> AlignSectionsMutualInformation::operator()()
@@ -74,7 +68,20 @@ Result<> AlignSectionsMutualInformation::findShifts(std::vector<int64>& xShifts,
   std::ofstream outFile;
   if(m_InputValues->WriteAlignmentShifts)
   {
+    // Make sure any directory path is also available as the user may have just typed
+    // in a path without actually creating the full path
+    Result<> createDirectoriesResult = complex::CreateOutputDirectories(m_InputValues->AlignmentShiftFileName.parent_path());
+    if(createDirectoriesResult.invalid())
+    {
+      return createDirectoriesResult;
+    }
+
     outFile.open(m_InputValues->AlignmentShiftFileName);
+    if(!outFile.is_open())
+    {
+      std::string message = fmt::format("Error creating output shifts file with file path {}", m_InputValues->AlignmentShiftFileName.string());
+      return MakeErrorResult(-53701, message);
+    }
   }
 
   SizeVec3 udims = imageGeom.getDimensions();
