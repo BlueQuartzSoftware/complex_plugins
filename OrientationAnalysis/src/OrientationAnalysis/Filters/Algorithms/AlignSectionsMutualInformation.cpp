@@ -97,55 +97,58 @@ Result<> AlignSectionsMutualInformation::findShifts(std::vector<int64>& xShifts,
   std::vector<int32> miFeatureIds(totalPoints, 0);
   std::vector<int32> featureCounts(dims[2], 0);
 
-  float32 disorientation = 0.0f;
-  float32 minDisorientation = std::numeric_limits<float32>::max();
+  //  float32 disorientation = 0.0f;
+  //  float32 minDisorientation = std::numeric_limits<float32>::max();
   std::vector<std::vector<float32>> mutualInfo12;
   std::vector<float32> mutualInfo1;
   std::vector<float32> mutualInfo2;
-  int32 featureCount1 = 0, featureCount2 = 0;
-  int64 newXShift = 0;
-  int64 newYShift = 0;
-  int64 oldXShift = 0;
-  int64 oldYShift = 0;
-  float32 count = 0.0f;
-  int64 slice = 0;
 
-  int32 refGNum = 0, curGNum = 0;
-  int64 refPosition = 0;
-  int64 curPosition = 0;
+  //
+  //  int32 featureCount1 = 0;
+  //  int32 featureCount2 = 0;
+  //  int64 newXShift = 0;
+  //  int64 newYShift = 0;
+  //  int64 oldXShift = 0;
+  //  int64 oldYShift = 0;
+  //  float32 count = 0.0f;
+  //  int64 slice = 0;
+  //
+  //  int32 refGNum = 0;
+  //  int32 curGNum = 0;
+  //  int64 refPosition = 0;
+  //  int64 curPosition = 0;
 
   formFeaturesSections(miFeatureIds, featureCounts);
 
-  std::vector<std::vector<float32>> misorients;
-  misorients.resize(dims[0]);
-  for(int64 a = 0; a < dims[0]; a++)
+  std::vector<std::vector<float32>> misorientations(dims[0]);
+  for(int64 i = 0; i < dims[0]; i++)
   {
-    misorients[a].assign(dims[1], 0.0f);
+    misorientations[i].assign(dims[1], 0.0f);
   }
 
   for(int64 iter = 1; iter < dims[2]; iter++)
   {
     float32 prog = (static_cast<float32>(iter) / dims[2]) * 100;
-    std::string ss = fmt::format("Aligning Sections || Determining Shifts || {}% Complete", StringUtilities::number(static_cast<int>(prog)));
-    m_MessageHandler(IFilter::Message::Type::Info, ss);
+    std::string progressMessage = fmt::format("Aligning Sections || Determining Shifts || {}% Complete", StringUtilities::number(static_cast<int>(prog)));
+    m_MessageHandler(IFilter::Message::Type::Info, progressMessage);
 
-    minDisorientation = std::numeric_limits<float32>::max();
-    slice = (dims[2] - 1) - iter;
-    featureCount1 = featureCounts[slice];
-    featureCount2 = featureCounts[slice + 1];
+    float32 minDisorientation = std::numeric_limits<float32>::max();
+    int64 slice = (dims[2] - 1) - iter;
+    int32 featureCount1 = featureCounts[slice];
+    int32 featureCount2 = featureCounts[slice + 1];
     mutualInfo12 = std::vector<std::vector<float32>>(featureCount1, std::vector<float32>(featureCount2, 0.0f));
     mutualInfo1 = std::vector<float32>(featureCount1, 0.0f);
     mutualInfo2 = std::vector<float32>(featureCount2, 0.0f);
 
-    oldXShift = -1;
-    oldYShift = -1;
-    newXShift = 0;
-    newYShift = 0;
-    for(int64 a = 0; a < dims[0]; a++)
+    int64 oldXShift = -1;
+    int64 oldYShift = -1;
+    int64 newXShift = 0;
+    int64 newYShift = 0;
+    for(int64 i = 0; i < dims[0]; i++)
     {
-      for(int64 b = 0; b < dims[1]; b++)
+      for(int64 j = 0; j < dims[1]; j++)
       {
-        misorients[a][b] = 0;
+        misorientations[i][j] = 0.0F;
       }
     }
     while(newXShift != oldXShift || newYShift != oldYShift)
@@ -156,20 +159,20 @@ Result<> AlignSectionsMutualInformation::findShifts(std::vector<int64>& xShifts,
       {
         for(int32 k = -3; k < 4; k++)
         {
-          disorientation = 0;
-          count = 0;
-          if(misorients[k + oldXShift + dims[0] / 2][j + oldYShift + dims[1] / 2] == 0 && llabs(k + oldXShift) < (dims[0] / 2) && (j + oldYShift) < (dims[1] / 2))
+          float32 disorientation = 0.0F;
+          float32 count = 0.0F;
+          if(misorientations[k + oldXShift + dims[0] / 2][j + oldYShift + dims[1] / 2] == 0 && llabs(k + oldXShift) < (dims[0] / 2) && (j + oldYShift) < (dims[1] / 2))
           {
-            for(int64 l = 0; l < dims[1]; l = l + 4)
+            for(int64 dim1Index = 0; dim1Index < dims[1]; dim1Index = dim1Index + 4)
             {
-              for(int64 n = 0; n < dims[0]; n = n + 4)
+              for(int64 dim0Index = 0; dim0Index < dims[0]; dim0Index = dim0Index + 4)
               {
-                if((l + j + oldYShift) >= 0 && (l + j + oldYShift) < dims[1] && (n + k + oldXShift) >= 0 && (n + k + oldXShift) < dims[0])
+                if((dim1Index + j + oldYShift) >= 0 && (dim1Index + j + oldYShift) < dims[1] && (dim0Index + k + oldXShift) >= 0 && (dim0Index + k + oldXShift) < dims[0])
                 {
-                  refPosition = ((slice + 1) * dims[0] * dims[1]) + (l * dims[0]) + n;
-                  curPosition = (slice * dims[0] * dims[1]) + ((l + j + oldYShift) * dims[0]) + (n + k + oldXShift);
-                  refGNum = miFeatureIds[refPosition];
-                  curGNum = miFeatureIds[curPosition];
+                  int64 refPosition = ((slice + 1) * dims[0] * dims[1]) + (dim1Index * dims[0]) + dim0Index;
+                  int64 curPosition = (slice * dims[0] * dims[1]) + ((dim1Index + j + oldYShift) * dims[0]) + (dim0Index + k + oldXShift);
+                  int32 refGNum = miFeatureIds[refPosition];
+                  int32 curGNum = miFeatureIds[curPosition];
                   if(curGNum >= 0 && refGNum >= 0)
                   {
                     mutualInfo12[curGNum][refGNum]++;
@@ -235,7 +238,7 @@ Result<> AlignSectionsMutualInformation::findShifts(std::vector<int64>& xShifts,
               }
             }
             disorientation = 1.0f / disorientation;
-            misorients[k + oldXShift + dims[0] / 2][j + oldYShift + dims[1] / 2] = disorientation;
+            misorientations[k + oldXShift + dims[0] / 2][j + oldYShift + dims[1] / 2] = disorientation;
             if(disorientation < minDisorientation)
             {
               newXShift = k + oldXShift;
@@ -265,34 +268,14 @@ Result<> AlignSectionsMutualInformation::findShifts(std::vector<int64>& xShifts,
 // -----------------------------------------------------------------------------
 void AlignSectionsMutualInformation::formFeaturesSections(std::vector<int32>& miFeatureIds, std::vector<int32>& featureCounts)
 {
-#if 0
-  using SeedGenerator = std::mt19937_64;
-  using Int64Distribution = std::uniform_int_distribution<int64>;
-  const int64 rangeMin = 0;
-  const int64 rangeMax = totalPoints - 1;
-
-  auto seed = static_cast<SeedGenerator::result_type>(std::chrono::steady_clock::now().time_since_epoch().count());
-  SeedGenerator generator;
-  generator.seed(seed);
-  Int64Distribution distribution = std::uniform_int_distribution<int64>(rangeMin, rangeMax);
-#endif
-
   const auto& imageGeom = m_DataStructure.getDataRefAs<ImageGeom>(m_InputValues->ImageGeometryPath);
-  const AttributeMatrix* cellData = imageGeom.getCellData();
-  int64 totalPoints = cellData->getNumTuples();
+
   SizeVec3 udims = imageGeom.getDimensions();
   int64 dims[3] = {
       static_cast<int64>(udims[0]),
       static_cast<int64>(udims[1]),
       static_cast<int64>(udims[2]),
   };
-
-  int64 point = 0;
-  int64 seed = 0;
-  int64 prevSeed = 0;
-  bool noseeds = false;
-  int32 featurecount = 1;
-  int64 neighbor = 0;
 
   auto orientationOps = LaueOps::GetAllOrientationOps();
 
@@ -301,30 +284,14 @@ void AlignSectionsMutualInformation::formFeaturesSections(std::vector<int32>& mi
   Int32Array& m_CellPhases = m_DataStructure.getDataRefAs<Int32Array>(m_InputValues->CellPhasesArrayPath);
   UInt32Array& m_CrystalStructures = m_DataStructure.getDataRefAs<UInt32Array>(m_InputValues->CrystalStructuresArrayPath);
 
-  float w = 0.0f;
-  float n1 = 0.0f;
-  float n2 = 0.0f;
-  float n3 = 0.0f;
-  int64_t randx = 0;
-  int64_t randy = 0;
-  bool good = false;
-  int64_t x = 0, y = 0, z = 0;
-  int64_t col = 0, row = 0;
-  size_t size = 0;
   size_t initialVoxelsListSize = 1000;
 
   float misorientationTolerance = m_InputValues->MisorientationTolerance * complex::Constants::k_PiOver180F;
 
   featureCounts.resize(dims[2]);
 
-  std::vector<int64_t> voxelslist(initialVoxelsListSize, -1);
-  int64_t neighpoints[4] = {0, 0, 0, 0};
-  neighpoints[0] = -dims[0];
-  neighpoints[1] = -1;
-  neighpoints[2] = 1;
-  neighpoints[3] = dims[0];
-
-  uint32_t phase1 = 0, phase2 = 0;
+  std::vector<int64_t> voxelList(initialVoxelsListSize, -1);
+  int64_t neighborPoints[4] = {-dims[0], -1, 1, dims[0]};
 
   int64_t lastXIndex = 0;
   int64_t lastYIndex = 0;
@@ -335,20 +302,20 @@ void AlignSectionsMutualInformation::formFeaturesSections(std::vector<int32>& mi
     std::string ss = fmt::format("Aligning Sections || Identifying Features on Sections || {}% Complete", StringUtilities::number(static_cast<int>(prog)));
     m_MessageHandler(IFilter::Message::Type::Info, ss);
 
-    featurecount = 1;
-    noseeds = false;
-    while(!noseeds)
+    int32 featureCount = 1;
+    bool noSeeds = false;
+    while(!noSeeds)
     {
-      seed = -1;
-      randx = lastXIndex; // static_cast<int64_t>(float(rg.genrand_res53()) * float(dims[0]));
-      randy = lastYIndex; // static_cast<int64_t>(float(rg.genrand_res53()) * float(dims[1]));
-      for(int64_t j = 0; j < dims[1]; ++j)
+      int64 seed = -1;
+      int64 currentXPoint = lastXIndex;
+      int64 currentYPoint = lastYIndex;
+      for(int64_t yIndex = 0; yIndex < dims[1]; ++yIndex)
       {
-        for(int64_t i = 0; i < dims[0]; ++i)
+        for(int64_t xIndex = 0; xIndex < dims[0]; ++xIndex)
         {
-          x = randx + i;
-          y = randy + j;
-          z = slice;
+          int64 x = currentXPoint + xIndex;
+          int64 y = currentYPoint + yIndex;
+          int64 z = slice;
           if(x > dims[0] - 1)
           {
             x = x - dims[0];
@@ -357,7 +324,7 @@ void AlignSectionsMutualInformation::formFeaturesSections(std::vector<int32>& mi
           {
             y = y - dims[1];
           }
-          point = (z * dims[0] * dims[1]) + (y * dims[0]) + x;
+          int64 point = (z * dims[0] * dims[1]) + (y * dims[0]) + x;
 
           if((!m_InputValues->UseGoodVoxels || (goodVoxelsPtr != nullptr && (*goodVoxelsPtr)[point])) && miFeatureIds[point] == 0 && m_CellPhases[point] > 0)
           {
@@ -377,78 +344,77 @@ void AlignSectionsMutualInformation::formFeaturesSections(std::vector<int32>& mi
       }
       if(seed == -1)
       {
-        noseeds = true;
+        noSeeds = true;
       }
       if(seed >= 0)
       {
-        size = 0;
-        miFeatureIds[seed] = featurecount;
-        voxelslist[size] = seed;
+        usize size = 0;
+        miFeatureIds[seed] = featureCount;
+        voxelList[size] = seed;
         size++;
         for(size_t j = 0; j < size; ++j)
         {
-          int64_t currentpoint = voxelslist[j];
-          col = currentpoint % dims[0];
-          row = (currentpoint / dims[0]) % dims[1];
+          int64_t currentpoint = voxelList[j];
+          int64 col = currentpoint % dims[0];
+          int64 row = (currentpoint / dims[0]) % dims[1];
 
           auto q1TupleIndex = currentpoint * 4;
-          QuatF q1(quats[q1TupleIndex], quats[q1TupleIndex + 1], quats[q1TupleIndex + 2], quats[q1TupleIndex + 3]);
-          phase1 = m_CrystalStructures[m_CellPhases[currentpoint]];
+          QuatF quat1(quats[q1TupleIndex], quats[q1TupleIndex + 1], quats[q1TupleIndex + 2], quats[q1TupleIndex + 3]);
+          uint32_t phase1 = m_CrystalStructures[m_CellPhases[currentpoint]];
           for(int32_t i = 0; i < 4; i++)
           {
-            good = true;
-            neighbor = currentpoint + neighpoints[i];
+            int64 neighbor = currentpoint + neighborPoints[i];
             if((i == 0) && row == 0)
             {
-              good = false;
+              continue;
             }
             if((i == 3) && row == (dims[1] - 1))
             {
-              good = false;
+              continue;
             }
             if((i == 1) && col == 0)
             {
-              good = false;
+              continue;
             }
             if((i == 2) && col == (dims[0] - 1))
             {
-              good = false;
+              continue;
             }
-            if(good && miFeatureIds[neighbor] <= 0 && m_CellPhases[neighbor] > 0)
+            if(miFeatureIds[neighbor] <= 0 && m_CellPhases[neighbor] > 0)
             {
-              w = std::numeric_limits<float>::max();
+              float32 angle = std::numeric_limits<float>::max();
               auto q2TupleIndex = neighbor * 4;
-              QuatF q2(quats[q2TupleIndex], quats[q2TupleIndex + 1], quats[q2TupleIndex + 2], quats[q2TupleIndex + 3]);
-              phase2 = m_CrystalStructures[m_CellPhases[neighbor]];
+              QuatF quat2(quats[q2TupleIndex], quats[q2TupleIndex + 1], quats[q2TupleIndex + 2], quats[q2TupleIndex + 3]);
+              uint32_t phase2 = m_CrystalStructures[m_CellPhases[neighbor]];
 
               if(phase1 == phase2)
               {
-                OrientationF axisAngle = orientationOps[phase1]->calculateMisorientation(q1, q2);
-                w = axisAngle[3];
+                OrientationF axisAngle = orientationOps[phase1]->calculateMisorientation(quat1, quat2);
+                angle = axisAngle[3];
               }
-              if(w < misorientationTolerance)
+              if(angle < misorientationTolerance)
               {
-                miFeatureIds[neighbor] = featurecount;
-                voxelslist[size] = neighbor;
+                miFeatureIds[neighbor] = featureCount;
+                voxelList[size] = neighbor;
                 size++;
-                if(std::vector<int64_t>::size_type(size) >= voxelslist.size())
+                if(std::vector<int64_t>::size_type(size) >= voxelList.size())
                 {
-                  size = voxelslist.size();
-                  voxelslist.resize(size + initialVoxelsListSize);
-                  for(std::vector<int64_t>::size_type v = size; v < voxelslist.size(); ++v)
+                  size = voxelList.size();
+                  voxelList.resize(size + initialVoxelsListSize);
+                  for(std::vector<int64_t>::size_type v = size; v < voxelList.size(); ++v)
                   {
-                    voxelslist[v] = -1;
+                    voxelList[v] = -1;
                   }
                 }
               }
             }
           }
         }
-        voxelslist.erase(std::remove(voxelslist.begin(), voxelslist.end(), -1), voxelslist.end());
-        featurecount++;
-        voxelslist.assign(initialVoxelsListSize, -1);
+        voxelList.erase(std::remove(voxelList.begin(), voxelList.end(), -1), voxelList.end());
+        featureCount++;
+        voxelList.assign(initialVoxelsListSize, -1);
       }
     }
-    featureCounts[slice] = featurecount;
+    featureCounts[slice] = featureCount;
   }
 }
