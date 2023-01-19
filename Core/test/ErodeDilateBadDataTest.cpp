@@ -1,4 +1,5 @@
-#include <catch2/catch.hpp>
+#include "Core/Core_test_dirs.hpp"
+#include "Core/Filters/ErodeDilateBadDataFilter.hpp"
 
 #include "complex/Core/Application.hpp"
 #include "complex/Parameters/BoolParameter.hpp"
@@ -6,13 +7,11 @@
 #include "complex/Parameters/VectorParameter.hpp"
 #include "complex/UnitTest/UnitTestCommon.hpp"
 #include "complex/Utilities/Parsing/HDF5/H5FileReader.hpp"
+#include "complex_plugins/Utilities/SmallIN100Utilities.hpp"
+
+#include <catch2/catch.hpp>
 
 #include <filesystem>
-namespace fs = std::filesystem;
-
-#include "Core/Core_test_dirs.hpp"
-#include "Core/Filters/ErodeDilateBadDataFilter.hpp"
-#include "complex_plugins/Utilities/SmallIN100Utilities.hpp"
 
 /**
  * @brief Test Setup
@@ -26,6 +25,7 @@ namespace fs = std::filesystem;
  * ErodeDilateBadData
  */
 
+namespace fs = std::filesystem;
 using namespace complex;
 using namespace complex::Constants;
 using namespace complex::UnitTest;

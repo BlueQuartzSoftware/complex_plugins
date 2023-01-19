@@ -1,4 +1,5 @@
 #include "FindMisorientationsFilter.hpp"
+#include "OrientationAnalysis/Filters/Algorithms/FindMisorientations.hpp"
 
 #include "complex/DataStructure/DataArray.hpp"
 #include "complex/DataStructure/DataPath.hpp"
@@ -9,8 +10,6 @@
 #include "complex/Parameters/BoolParameter.hpp"
 #include "complex/Parameters/DataObjectNameParameter.hpp"
 #include "complex/Parameters/NeighborListSelectionParameter.hpp"
-
-#include "OrientationAnalysis/Filters/Algorithms/FindMisorientations.hpp"
 
 using namespace complex;
 

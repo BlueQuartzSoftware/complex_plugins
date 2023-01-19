@@ -1,11 +1,11 @@
-#include <catch2/catch.hpp>
+#include "OrientationAnalysis/Filters/ConvertOrientations.hpp"
+#include "OrientationAnalysis/Filters/GenerateFaceMisorientationColoringFilter.hpp"
+#include "OrientationAnalysis/OrientationAnalysis_test_dirs.hpp"
 
 #include "complex/Parameters/ArrayCreationParameter.hpp"
 #include "complex/UnitTest/UnitTestCommon.hpp"
 
-#include "OrientationAnalysis/Filters/ConvertOrientations.hpp"
-#include "OrientationAnalysis/Filters/GenerateFaceMisorientationColoringFilter.hpp"
-#include "OrientationAnalysis/OrientationAnalysis_test_dirs.hpp"
+#include <catch2/catch.hpp>
 
 using namespace complex;
 using namespace complex::UnitTest;

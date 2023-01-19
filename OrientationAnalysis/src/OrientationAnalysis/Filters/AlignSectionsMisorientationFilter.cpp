@@ -1,5 +1,4 @@
 #include "AlignSectionsMisorientationFilter.hpp"
-
 #include "OrientationAnalysis/Filters/Algorithms/AlignSectionsMisorientation.hpp"
 
 #include "complex/DataStructure/DataPath.hpp"
@@ -13,8 +12,8 @@
 #include "complex/Utilities/DataArrayUtilities.hpp"
 
 #include <filesystem>
-namespace fs = std::filesystem;
 
+namespace fs = std::filesystem;
 using namespace complex;
 
 namespace

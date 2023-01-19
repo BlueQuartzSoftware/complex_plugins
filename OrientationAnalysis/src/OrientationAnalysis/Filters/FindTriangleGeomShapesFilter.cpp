@@ -1,4 +1,5 @@
 #include "FindTriangleGeomShapesFilter.hpp"
+#include "OrientationAnalysis/Filters/Algorithms/FindTriangleGeomShapes.hpp"
 
 #include "complex/DataStructure/AttributeMatrix.hpp"
 #include "complex/DataStructure/DataPath.hpp"
@@ -7,8 +8,6 @@
 #include "complex/Parameters/DataGroupSelectionParameter.hpp"
 #include "complex/Parameters/DataObjectNameParameter.hpp"
 #include "complex/Parameters/GeometrySelectionParameter.hpp"
-
-#include "OrientationAnalysis/Filters/Algorithms/FindTriangleGeomShapes.hpp"
 
 using namespace complex;
 

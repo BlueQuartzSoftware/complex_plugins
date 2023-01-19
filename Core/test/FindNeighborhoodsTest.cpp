@@ -1,12 +1,11 @@
-
-#include <catch2/catch.hpp>
+#include "Core/Core_test_dirs.hpp"
+#include "Core/Filters/FindNeighborhoodsFilter.hpp"
 
 #include "complex/Parameters/ArrayCreationParameter.hpp"
 #include "complex/Parameters/NumberParameter.hpp"
 #include "complex/UnitTest/UnitTestCommon.hpp"
 
-#include "Core/Core_test_dirs.hpp"
-#include "Core/Filters/FindNeighborhoodsFilter.hpp"
+#include <catch2/catch.hpp>
 
 using namespace complex;
 using namespace complex::Constants;

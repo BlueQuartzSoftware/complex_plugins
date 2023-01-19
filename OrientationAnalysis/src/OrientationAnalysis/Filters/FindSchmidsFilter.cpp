@@ -1,4 +1,5 @@
 #include "FindSchmidsFilter.hpp"
+#include "OrientationAnalysis/Filters/Algorithms/FindSchmids.hpp"
 
 #include "complex/DataStructure/DataArray.hpp"
 #include "complex/DataStructure/DataPath.hpp"
@@ -7,8 +8,6 @@
 #include "complex/Parameters/BoolParameter.hpp"
 #include "complex/Parameters/DataObjectNameParameter.hpp"
 #include "complex/Parameters/VectorParameter.hpp"
-
-#include "OrientationAnalysis/Filters/Algorithms/FindSchmids.hpp"
 
 using namespace complex;
 

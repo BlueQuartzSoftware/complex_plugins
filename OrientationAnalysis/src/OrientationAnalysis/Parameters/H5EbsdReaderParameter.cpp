@@ -1,18 +1,16 @@
 #include "H5EbsdReaderParameter.h"
 
-#include "complex/Common/StringLiteral.hpp"
-
-#include <filesystem>
-
-#include <fmt/core.h>
-
-#include <nlohmann/json.hpp>
-
 #include "complex/Common/Any.hpp"
+#include "complex/Common/StringLiteral.hpp"
 
 #include "EbsdLib/IO/H5EbsdVolumeInfo.h"
 #include "EbsdLib/IO/HKL/CtfFields.h"
 #include "EbsdLib/IO/TSL/AngFields.h"
+
+#include <fmt/core.h>
+#include <nlohmann/json.hpp>
+
+#include <filesystem>
 
 namespace fs = std::filesystem;
 

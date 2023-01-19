@@ -1,4 +1,5 @@
 #include "FindFeatureReferenceMisorientationsFilter.hpp"
+#include "OrientationAnalysis/Filters/Algorithms/FindFeatureReferenceMisorientations.hpp"
 
 #include "complex/DataStructure/AttributeMatrix.hpp"
 #include "complex/DataStructure/DataArray.hpp"
@@ -8,8 +9,6 @@
 #include "complex/Parameters/AttributeMatrixSelectionParameter.hpp"
 #include "complex/Parameters/ChoicesParameter.hpp"
 #include "complex/Parameters/DataObjectNameParameter.hpp"
-
-#include "OrientationAnalysis/Filters/Algorithms/FindFeatureReferenceMisorientations.hpp"
 
 using namespace complex;
 

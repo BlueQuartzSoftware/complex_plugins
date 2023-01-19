@@ -1,5 +1,7 @@
 #include "FindNeighborhoodsFilter.hpp"
 
+#include "Core/Filters/Algorithms/FindNeighborhoods.hpp"
+
 #include "complex/DataStructure/DataPath.hpp"
 #include "complex/Filter/Actions/CreateArrayAction.hpp"
 #include "complex/Filter/Actions/CreateNeighborListAction.hpp"
@@ -7,8 +9,6 @@
 #include "complex/Parameters/ArraySelectionParameter.hpp"
 #include "complex/Parameters/GeometrySelectionParameter.hpp"
 #include "complex/Parameters/NumberParameter.hpp"
-
-#include "Core/Filters/Algorithms/FindNeighborhoods.hpp"
 
 using namespace complex;
 

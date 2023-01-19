@@ -1,4 +1,5 @@
 #include "FindKernelAvgMisorientationsFilter.hpp"
+#include "OrientationAnalysis/Filters/Algorithms/FindKernelAvgMisorientations.hpp"
 
 #include "complex/DataStructure/DataArray.hpp"
 #include "complex/DataStructure/DataPath.hpp"
@@ -7,8 +8,6 @@
 #include "complex/Parameters/DataObjectNameParameter.hpp"
 #include "complex/Parameters/GeometrySelectionParameter.hpp"
 #include "complex/Parameters/VectorParameter.hpp"
-
-#include "OrientationAnalysis/Filters/Algorithms/FindKernelAvgMisorientations.hpp"
 
 using namespace complex;
 
