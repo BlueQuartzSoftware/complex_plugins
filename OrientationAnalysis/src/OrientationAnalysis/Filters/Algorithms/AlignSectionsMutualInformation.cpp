@@ -66,7 +66,7 @@ Result<> AlignSectionsMutualInformation::findShifts(std::vector<int64>& xShifts,
 {
   const auto& imageGeom = m_DataStructure.getDataRefAs<ImageGeom>(m_InputValues->ImageGeometryPath);
   const AttributeMatrix* cellData = imageGeom.getCellData();
-  int64 totalPoints = cellData->getNumTuples();
+  int64 totalPoints = static_cast<int64>(cellData->getNumTuples());
 
   std::ofstream outFile;
   if(m_InputValues->WriteAlignmentShifts)
@@ -97,27 +97,11 @@ Result<> AlignSectionsMutualInformation::findShifts(std::vector<int64>& xShifts,
   std::vector<int32> miFeatureIds(totalPoints, 0);
   std::vector<int32> featureCounts(dims[2], 0);
 
-  //  float32 disorientation = 0.0f;
-  //  float32 minDisorientation = std::numeric_limits<float32>::max();
   std::vector<std::vector<float32>> mutualInfo12;
   std::vector<float32> mutualInfo1;
   std::vector<float32> mutualInfo2;
 
-  //
-  //  int32 featureCount1 = 0;
-  //  int32 featureCount2 = 0;
-  //  int64 newXShift = 0;
-  //  int64 newYShift = 0;
-  //  int64 oldXShift = 0;
-  //  int64 oldYShift = 0;
-  //  float32 count = 0.0f;
-  //  int64 slice = 0;
-  //
-  //  int32 refGNum = 0;
-  //  int32 curGNum = 0;
-  //  int64 refPosition = 0;
-  //  int64 curPosition = 0;
-
+  // Segment each slice
   formFeaturesSections(miFeatureIds, featureCounts);
 
   std::vector<std::vector<float32>> misorientations(dims[0]);
@@ -128,9 +112,7 @@ Result<> AlignSectionsMutualInformation::findShifts(std::vector<int64>& xShifts,
 
   for(int64 iter = 1; iter < dims[2]; iter++)
   {
-    float32 prog = (static_cast<float32>(iter) / dims[2]) * 100;
-    std::string progressMessage = fmt::format("Aligning Sections || Determining Shifts || {}% Complete", StringUtilities::number(static_cast<int>(prog)));
-    m_MessageHandler(IFilter::Message::Type::Info, progressMessage);
+    m_MessageHandler(IFilter::Message::Type::Info, fmt::format("Determining Shifts: Slice {}/{} complete", iter, dims[2]));
 
     float32 minDisorientation = std::numeric_limits<float32>::max();
     int64 slice = (dims[2] - 1) - iter;
@@ -189,52 +171,38 @@ Result<> AlignSectionsMutualInformation::findShifts(std::vector<int64>& xShifts,
                 }
               }
             }
-            float32 ha = 0.0f;
-            float32 hb = 0.0f;
-            float32 hab = 0.0f;
-            for(int32 b = 0; b < featureCount1; b++)
+            for(int32 featureCount1Index = 0; featureCount1Index < featureCount1; featureCount1Index++)
             {
-              mutualInfo1[b] = mutualInfo1[b] / count;
-              if(mutualInfo1[b] != 0)
-              {
-                ha = ha + mutualInfo1[b] * logf(mutualInfo1[b]);
-              }
+              mutualInfo1[featureCount1Index] = mutualInfo1[featureCount1Index] / count;
             }
-            for(int32 c = 0; c < featureCount2; c++)
+            for(int32 featureCount2Index = 0; featureCount2Index < featureCount2; featureCount2Index++)
             {
-              mutualInfo2[c] = mutualInfo2[c] / float32(count);
-              if(mutualInfo2[c] != 0)
-              {
-                hb = hb + mutualInfo2[c] * logf(mutualInfo2[c]);
-              }
+              mutualInfo2[featureCount2Index] = mutualInfo2[featureCount2Index] / float32(count);
             }
-            for(int32 b = 0; b < featureCount1; b++)
+            for(int32 featureCount1Index = 0; featureCount1Index < featureCount1; featureCount1Index++)
             {
-              for(int32 c = 0; c < featureCount2; c++)
+              for(int32 featureCount2Index = 0; featureCount2Index < featureCount2; featureCount2Index++)
               {
-                mutualInfo12[b][c] = mutualInfo12[b][c] / count;
-                if(mutualInfo12[b][c] != 0)
-                {
-                  hab = hab + mutualInfo12[b][c] * logf(mutualInfo12[b][c]);
-                }
+                mutualInfo12[featureCount1Index][featureCount2Index] = mutualInfo12[featureCount1Index][featureCount2Index] / count;
+
                 float32 value = 0.0f;
-                if(mutualInfo1[b] > 0 && mutualInfo2[c] > 0)
+                if(mutualInfo1[featureCount1Index] > 0 && mutualInfo2[featureCount2Index] > 0)
                 {
-                  value = (mutualInfo12[b][c] / (mutualInfo1[b] * mutualInfo2[c]));
+                  value = (mutualInfo12[featureCount1Index][featureCount2Index] / (mutualInfo1[featureCount1Index] * mutualInfo2[featureCount2Index]));
                 }
                 if(value != 0)
                 {
-                  disorientation = disorientation + (mutualInfo12[b][c] * logf(value));
+                  disorientation = disorientation + (mutualInfo12[featureCount1Index][featureCount2Index] * logf(value));
                 }
               }
             }
-            for(int32 b = 0; b < featureCount1; b++)
+            for(int32 featureCount1Index = 0; featureCount1Index < featureCount1; featureCount1Index++)
             {
-              for(int32 c = 0; c < featureCount2; c++)
+              for(int32 featureCount2Index = 0; featureCount2Index < featureCount2; featureCount2Index++)
               {
-                mutualInfo12[b][c] = 0.0f;
-                mutualInfo1[b] = 0.0f;
-                mutualInfo2[c] = 0.0f;
+                mutualInfo12[featureCount1Index][featureCount2Index] = 0.0f;
+                mutualInfo1[featureCount1Index] = 0.0f;
+                mutualInfo2[featureCount2Index] = 0.0f;
               }
             }
             disorientation = 1.0f / disorientation;
@@ -293,55 +261,33 @@ void AlignSectionsMutualInformation::formFeaturesSections(std::vector<int32>& mi
   std::vector<int64_t> voxelList(initialVoxelsListSize, -1);
   int64_t neighborPoints[4] = {-dims[0], -1, 1, dims[0]};
 
-  int64_t lastXIndex = 0;
-  int64_t lastYIndex = 0;
-
   for(int64_t slice = 0; slice < dims[2]; slice++)
   {
-    float32 prog = (static_cast<float32>(slice) / dims[2]) * 100;
-    std::string ss = fmt::format("Aligning Sections || Identifying Features on Sections || {}% Complete", StringUtilities::number(static_cast<int>(prog)));
-    m_MessageHandler(IFilter::Message::Type::Info, ss);
+    m_MessageHandler(IFilter::Message::Type::Info, fmt::format("Identifying Features: Slice {}/{} complete", slice, dims[2]));
+
+    int64 startPoint = slice * dims[0] * dims[1];
+    int64 endPoint = (slice + 1) * dims[0] * dims[1];
+    int64 currentStartPoint = startPoint;
 
     int32 featureCount = 1;
     bool noSeeds = false;
     while(!noSeeds)
     {
       int64 seed = -1;
-      int64 currentXPoint = lastXIndex;
-      int64 currentYPoint = lastYIndex;
-      for(int64_t yIndex = 0; yIndex < dims[1]; ++yIndex)
-      {
-        for(int64_t xIndex = 0; xIndex < dims[0]; ++xIndex)
-        {
-          int64 x = currentXPoint + xIndex;
-          int64 y = currentYPoint + yIndex;
-          int64 z = slice;
-          if(x > dims[0] - 1)
-          {
-            x = x - dims[0];
-          }
-          if(y > dims[1] - 1)
-          {
-            y = y - dims[1];
-          }
-          int64 point = (z * dims[0] * dims[1]) + (y * dims[0]) + x;
 
-          if((!m_InputValues->UseGoodVoxels || (goodVoxelsPtr != nullptr && (*goodVoxelsPtr)[point])) && miFeatureIds[point] == 0 && m_CellPhases[point] > 0)
-          {
-            seed = point;
-            lastXIndex = x;
-            lastYIndex = y;
-          }
-          if(seed > -1)
-          {
-            break;
-          }
+      for(int64 point = currentStartPoint; point < endPoint; point++)
+      {
+        if((!m_InputValues->UseGoodVoxels || (goodVoxelsPtr != nullptr && (*goodVoxelsPtr)[point])) && miFeatureIds[point] == 0 && m_CellPhases[point] > 0)
+        {
+          seed = point;
+          currentStartPoint = point;
         }
         if(seed > -1)
         {
           break;
         }
       }
+
       if(seed == -1)
       {
         noSeeds = true;
@@ -401,9 +347,9 @@ void AlignSectionsMutualInformation::formFeaturesSections(std::vector<int32>& mi
                 {
                   size = voxelList.size();
                   voxelList.resize(size + initialVoxelsListSize);
-                  for(std::vector<int64_t>::size_type v = size; v < voxelList.size(); ++v)
+                  for(auto& voxelValue : voxelList)
                   {
-                    voxelList[v] = -1;
+                    voxelValue = -1;
                   }
                 }
               }
