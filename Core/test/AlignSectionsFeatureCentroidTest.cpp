@@ -5,7 +5,6 @@
 #include "complex/Parameters/ChoicesParameter.hpp"
 #include "complex/Parameters/Dream3dImportParameter.hpp"
 #include "complex/Parameters/FileSystemPathParameter.hpp"
-#include "complex/Parameters/GeometrySelectionParameter.hpp"
 #include "complex/Parameters/NumericTypeParameter.hpp"
 #include "complex/UnitTest/UnitTestCommon.hpp"
 #include "complex/Utilities/Parsing/HDF5/H5FileReader.hpp"
@@ -13,6 +12,7 @@
 
 #include <catch2/catch.hpp>
 
+#include <chrono>
 #include <filesystem>
 
 namespace fs = std::filesystem;
@@ -20,25 +20,13 @@ using namespace complex;
 using namespace complex::Constants;
 using namespace complex::UnitTest;
 
-/**
- * Read H5Ebsd File
- * MultiThreshold Objects
- * Convert Orientation Representation (Euler->Quats)
- * Align Sections Misorientation
- * Identify Sample
- * Align Sections Feature Centroid
- *
- * Read DREAM3D File (read the exemplar 'align_sections_feature_centroid.dream3d' file from
- * [Optional] Write out dream3d file
- *
- *
- * Compare the shifts file 'align_sections_feature_centroid.txt' to what was written
- *
- * Compare all the data arrays from the "Exemplar Data / CellData"
- */
-
-TEST_CASE("Core::AlignSectionsFeatureCentroidFilter: Small IN100 Pipeline", "[Reconstruction][AlignSectionsFeatureCentroidFilter]")
+TEST_CASE("Core::AlignSectionsFeatureCentroidFilter", "[Reconstruction][AlignSectionsFeatureCentroidFilter]")
 {
+  // We are just going to generate a big number so that we can use that in the output
+  // file path. This tests the creation of intermediate directories that the filter
+  // would be responsible to create.
+  const uint64_t millisFromEpoch = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
+
   std::shared_ptr<UnitTest::make_shared_enabler> app = std::make_shared<UnitTest::make_shared_enabler>();
   app->loadPlugins(unit_test::k_BuildDir.view(), true);
   auto* filterList = Application::Instance()->getFilterList();
@@ -46,58 +34,13 @@ TEST_CASE("Core::AlignSectionsFeatureCentroidFilter: Small IN100 Pipeline", "[Re
   const DataPath k_ExemplarShiftsPath = k_ExemplarDataContainerPath.createChildPath("Exemplar Shifts");
 
   // Read Exemplar DREAM3D File Filter
-  auto exemplarFilePath = fs::path(fmt::format("{}/6_6_align_sections_feature_centroid.dream3d", unit_test::k_TestFilesDir));
-  DataStructure exemplarDataStructure = LoadDataStructure(exemplarFilePath);
-
-  // Read the Small IN100 Data set
-  auto baseDataFilePath = fs::path(fmt::format("{}/Small_IN100.dream3d", unit_test::k_TestFilesDir));
-  DataStructure dataStructure = LoadDataStructure(baseDataFilePath);
-
-  // Read Exemplar Shifts File
-  {
-    static constexpr StringLiteral k_InputFileKey = "input_file";
-    static constexpr StringLiteral k_ScalarTypeKey = "scalar_type";
-    static constexpr StringLiteral k_NTuplesKey = "n_tuples";
-    static constexpr StringLiteral k_NCompKey = "n_comp";
-    static constexpr StringLiteral k_NSkipLinesKey = "n_skip_lines";
-    static constexpr StringLiteral k_DelimiterChoiceKey = "delimiter_choice";
-    static constexpr StringLiteral k_DataArrayKey = "output_data_array";
-
-    // Compare the output of the shifts file with the exemplar file
-
-    auto filter = filterList->createFilter(k_ImportTextFilterHandle);
-    REQUIRE(nullptr != filter);
-
-    Arguments args;
-    // read in the exemplar shift data file
-    args.insertOrAssign(k_InputFileKey, std::make_any<FileSystemPathParameter::ValueType>(fs::path(fmt::format("{}/align_sections_feature_centroid.txt", unit_test::k_TestFilesDir))));
-    args.insertOrAssign(k_ScalarTypeKey, std::make_any<NumericTypeParameter::ValueType>(complex::NumericType::int32));
-    args.insertOrAssign(k_NTuplesKey, std::make_any<uint64>(116));
-    args.insertOrAssign(k_NCompKey, std::make_any<uint64>(6));
-    args.insertOrAssign(k_NSkipLinesKey, std::make_any<uint64>(0));
-    args.insertOrAssign(k_DelimiterChoiceKey, std::make_any<ChoicesParameter::ValueType>(4));
-    args.insertOrAssign(k_DataArrayKey, std::make_any<DataPath>(k_ExemplarShiftsPath));
-
-    // Preflight the filter and check result
-    auto preflightResult = filter->preflight(exemplarDataStructure, args);
-    COMPLEX_RESULT_REQUIRE_VALID(preflightResult.outputActions)
-
-    // Execute the filter and check the result
-    auto executeResult = filter->execute(exemplarDataStructure, args);
-    COMPLEX_RESULT_REQUIRE_VALID(executeResult.result)
-  }
-
-  // MultiThreshold Objects Filter (From ComplexCore Plugins)
-  SmallIn100::ExecuteMultiThresholdObjects(dataStructure, *filterList);
-
-  // Convert Orientations Filter (From OrientationAnalysis Plugin)
-  SmallIn100::ExecuteConvertOrientations(dataStructure, *filterList);
-
-  // Align Sections Misorientation Filter (From OrientationAnalysis Plugin)
-  SmallIn100::ExecuteAlignSectionsMisorientation(dataStructure, *filterList, fs::path(fmt::format("{}/AlignSectionsMisorientation_1.txt", unit_test::k_BinaryDir)));
-
-  // Identify Sample Filter
-  SmallIn100::ExecuteIdentifySample(dataStructure, *filterList);
+  auto exemplarFilePath = fs::path(fmt::format("{}/6_6_align_sections_feature_centroids/6_6_align_sections_feature_centroids.dream3d", unit_test::k_TestFilesDir));
+  DataStructure dataStructure = LoadDataStructure(exemplarFilePath);
+  const int32 k_NumSlices = 59;
+  const int32 k_NumColumns = 8;
+  const int32 k_Comma = 0;
+  const int32 k_SkipHeaderLines = 1;
+  const fs::path computedShiftsFile = (fmt::format("{}/{}/AlignSectionsMutualInformation_1.txt", unit_test::k_BinaryTestOutputDir, millisFromEpoch));
 
   // Align Sections Feature Centroid Filter
   {
@@ -116,10 +59,9 @@ TEST_CASE("Core::AlignSectionsFeatureCentroidFilter: Small IN100 Pipeline", "[Re
     Arguments args;
     // Create default Parameters for the filter.
     args.insertOrAssign(k_WriteAlignmentShifts_Key, std::make_any<bool>(true));
-    args.insertOrAssign(k_AlignmentShiftFileName_Key, std::make_any<FileSystemPathParameter::ValueType>(fs::path(fmt::format("{}/AlignSectionsFeatureCentroid_1.txt", unit_test::k_BinaryDir))));
+    args.insertOrAssign(k_AlignmentShiftFileName_Key, std::make_any<FileSystemPathParameter::ValueType>(computedShiftsFile));
     args.insertOrAssign(k_UseReferenceSlice_Key, std::make_any<bool>(true));
     args.insertOrAssign(k_ReferenceSlice_Key, std::make_any<int32>(0));
-
     args.insertOrAssign(k_GoodVoxelsArrayPath_Key, std::make_any<DataPath>(k_MaskArrayPath));
     args.insertOrAssign(k_SelectedImageGeometry_Key, std::make_any<DataPath>(k_DataContainerPath));
     args.insertOrAssign(k_SelectedCellDataGroup_Key, std::make_any<DataPath>(k_CellAttributeMatrix));
@@ -133,7 +75,9 @@ TEST_CASE("Core::AlignSectionsFeatureCentroidFilter: Small IN100 Pipeline", "[Re
     COMPLEX_RESULT_REQUIRE_VALID(executeResult.result)
   }
 
-  // Use the Read Text File Filter to read in the generated Shift File and compare with exemplar
+  CompareExemplarToGeneratedData(dataStructure, dataStructure, k_CellAttributeMatrix, k_ExemplarDataContainer);
+
+  // Read Exemplar Shifts File
   {
     static constexpr StringLiteral k_InputFileKey = "input_file";
     static constexpr StringLiteral k_ScalarTypeKey = "scalar_type";
@@ -149,12 +93,47 @@ TEST_CASE("Core::AlignSectionsFeatureCentroidFilter: Small IN100 Pipeline", "[Re
     REQUIRE(nullptr != filter);
 
     Arguments args;
-    args.insertOrAssign(k_InputFileKey, std::make_any<FileSystemPathParameter::ValueType>(fs::path(fmt::format("{}/AlignSectionsFeatureCentroid_1.txt", unit_test::k_BinaryDir))));
-    args.insertOrAssign(k_ScalarTypeKey, std::make_any<NumericTypeParameter::ValueType>(complex::NumericType::int32));
-    args.insertOrAssign(k_NTuplesKey, std::make_any<uint64>(116));
-    args.insertOrAssign(k_NCompKey, std::make_any<uint64>(6));
-    args.insertOrAssign(k_NSkipLinesKey, std::make_any<uint64>(0));
-    args.insertOrAssign(k_DelimiterChoiceKey, std::make_any<ChoicesParameter::ValueType>(4));
+    // read in the exemplar shift data file
+    args.insertOrAssign(k_InputFileKey, std::make_any<FileSystemPathParameter::ValueType>(
+                                            fs::path(fmt::format("{}/6_6_align_sections_feature_centroids/6_6_align_sections_feature_centroids.txt", unit_test::k_TestFilesDir))));
+    args.insertOrAssign(k_ScalarTypeKey, std::make_any<NumericTypeParameter::ValueType>(complex::NumericType::float32));
+    args.insertOrAssign(k_NTuplesKey, std::make_any<uint64>(k_NumSlices));
+    args.insertOrAssign(k_NCompKey, std::make_any<uint64>(k_NumColumns));
+    args.insertOrAssign(k_NSkipLinesKey, std::make_any<uint64>(k_SkipHeaderLines));
+    args.insertOrAssign(k_DelimiterChoiceKey, std::make_any<ChoicesParameter::ValueType>(k_Comma));
+    args.insertOrAssign(k_DataArrayKey, std::make_any<DataPath>(k_ExemplarShiftsPath));
+
+    // Preflight the filter and check result
+    auto preflightResult = filter->preflight(dataStructure, args);
+    COMPLEX_RESULT_REQUIRE_VALID(preflightResult.outputActions)
+
+    // Execute the filter and check the result
+    auto executeResult = filter->execute(dataStructure, args);
+    COMPLEX_RESULT_REQUIRE_VALID(executeResult.result)
+  }
+
+  // Read Computed Shifts File
+  {
+    static constexpr StringLiteral k_InputFileKey = "input_file";
+    static constexpr StringLiteral k_ScalarTypeKey = "scalar_type";
+    static constexpr StringLiteral k_NTuplesKey = "n_tuples";
+    static constexpr StringLiteral k_NCompKey = "n_comp";
+    static constexpr StringLiteral k_NSkipLinesKey = "n_skip_lines";
+    static constexpr StringLiteral k_DelimiterChoiceKey = "delimiter_choice";
+    static constexpr StringLiteral k_DataArrayKey = "output_data_array";
+
+    // Compare the output of the shifts file with the exemplar file
+
+    auto filter = filterList->createFilter(k_ImportTextFilterHandle);
+    REQUIRE(nullptr != filter);
+
+    Arguments args;
+    args.insertOrAssign(k_InputFileKey, std::make_any<FileSystemPathParameter::ValueType>(computedShiftsFile));
+    args.insertOrAssign(k_ScalarTypeKey, std::make_any<NumericTypeParameter::ValueType>(complex::NumericType::float32));
+    args.insertOrAssign(k_NTuplesKey, std::make_any<uint64>(k_NumSlices));
+    args.insertOrAssign(k_NCompKey, std::make_any<uint64>(k_NumColumns));
+    args.insertOrAssign(k_NSkipLinesKey, std::make_any<uint64>(k_SkipHeaderLines));
+    args.insertOrAssign(k_DelimiterChoiceKey, std::make_any<ChoicesParameter::ValueType>(k_Comma));
     args.insertOrAssign(k_DataArrayKey, std::make_any<DataPath>(k_CalculatedShiftsPath));
 
     // Preflight the filter and check result
@@ -164,21 +143,11 @@ TEST_CASE("Core::AlignSectionsFeatureCentroidFilter: Small IN100 Pipeline", "[Re
     // Execute the filter and check the result
     auto executeResult = filter->execute(dataStructure, args);
     COMPLEX_RESULT_REQUIRE_VALID(executeResult.result)
-
-    const auto& calcShifts = dataStructure.getDataRefAs<Int32Array>(k_CalculatedShiftsPath);
-    const auto& exemplarShifts = exemplarDataStructure.getDataRefAs<Int32Array>(k_ExemplarShiftsPath);
-
-    size_t numElements = calcShifts.getSize();
-    for(size_t i = 0; i < numElements; i++)
-    {
-      if(calcShifts[i] != exemplarShifts[i])
-      {
-        REQUIRE(calcShifts[i] == exemplarShifts[i]);
-      }
-    }
   }
 
-  CompareExemplarToGeneratedData(dataStructure, exemplarDataStructure, Constants::k_CellAttributeMatrix, Constants::k_ExemplarDataContainer);
-
+  // Write out the .dream3d file now
   WriteTestDataStructure(dataStructure, fmt::format("{}/align_sections_feature_centroid.dream3d", unit_test::k_BinaryTestOutputDir));
+
+  // Compare the shift values
+  CompareArrays<float32>(dataStructure, k_CalculatedShiftsPath, k_ExemplarShiftsPath);
 }
