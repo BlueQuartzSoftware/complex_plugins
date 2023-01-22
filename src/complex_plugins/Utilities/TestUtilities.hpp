@@ -2,8 +2,8 @@
 
 #include <catch2/catch.hpp>
 
-#include "complex/Filter/FilterHandle.hpp"
 #include "complex/Common/Uuid.hpp"
+#include "complex/Filter/FilterHandle.hpp"
 #include "complex/UnitTest/UnitTestCommon.hpp"
 
 namespace complex
