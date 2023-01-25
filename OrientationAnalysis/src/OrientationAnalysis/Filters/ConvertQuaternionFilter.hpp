@@ -9,7 +9,7 @@ namespace complex
 {
 /**
  * @class ConvertQuaternionFilter
- * @brief This filter will ....
+ * @brief This filter will covert Quaternions between a 'Scalar-Vector' and 'Vector-Scalar' representation
  */
 class ORIENTATIONANALYSIS_EXPORT ConvertQuaternionFilter : public IFilter
 {

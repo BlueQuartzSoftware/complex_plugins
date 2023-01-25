@@ -20,8 +20,8 @@ jobs:
         os:
           - windows-2019
         toolset:
-          - v141
           - v142
+          - v143
     runs-on: ${{matrix.os}}
     steps:
       - name: Checkout
@@ -56,7 +56,7 @@ jobs:
           -password "${{secrets.GITHUB_TOKEN}}"
       - name: Configure
         run: |
-          cd ${{github.workspace}}/complex && cmake --preset ci  -G "Visual Studio 16 2019" -T ${{matrix.toolset}} -DDREAM3D_DATA_DIR=${{github.workspace}}/DREAM3D_Data -DCOMPLEX_EXTRA_PLUGINS="Core;OrientationAnalysis" -DCOMPLEX_PLUGIN_SEARCH_DIRS=${{github.workspace}} -S ${{github.workspace}}/complex 
+          cd ${{github.workspace}}/complex && cmake --preset ci  -G "Visual Studio 17 2022" -T ${{matrix.toolset}} -DDREAM3D_DATA_DIR=${{github.workspace}}/DREAM3D_Data -DCOMPLEX_EXTRA_PLUGINS="Core;OrientationAnalysis" -DCOMPLEX_PLUGIN_SEARCH_DIRS=${{github.workspace}} -S ${{github.workspace}}/complex 
       - name: Build
         run: |
           cd ${{github.workspace}}/complex && cmake --build --preset ci

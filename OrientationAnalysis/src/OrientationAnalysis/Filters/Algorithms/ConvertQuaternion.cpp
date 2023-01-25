@@ -16,14 +16,8 @@ constexpr ChoicesParameter::ValueType k_ToVectorScalar = 1;
 class ConvertQuaternionImpl
 {
 
-private:
-  const Float32Array* m_Input;
-  Float32Array* m_Output;
-  ChoicesParameter::ValueType m_ConversionType = 0;
-  const std::atomic_bool* m_ShouldCancel;
-
 public:
-  ConvertQuaternionImpl(const Float32Array* inputQuat, Float32Array* outputQuat, ChoicesParameter::ValueType conversionType, const std::atomic_bool* shouldCancel)
+  ConvertQuaternionImpl(const Float32Array& inputQuat, Float32Array& outputQuat, ChoicesParameter::ValueType conversionType, const std::atomic_bool& shouldCancel)
   : m_Input(inputQuat)
   , m_Output(outputQuat)
   , m_ConversionType(conversionType)
@@ -43,7 +37,7 @@ public:
     // <x,y,z> w  ---> w <x,y,z>
     std::array<size_t, 4> mapping = {{1, 2, 3, 0}};
 
-    if(m_ConversionType == ::k_ToVectorScalar)
+    if(m_ConversionType == ::k_ToVectorScalar) // Ensure the Quaternion is the proper order
     {
       // w <x,y,z>  ---> <x,y,z> w
       mapping = {{3, 0, 1, 2}};
@@ -52,19 +46,19 @@ public:
     std::array<float, 4> temp = {0.0f, 0.0f, 0.0f, 0.0f};
     for(size_t i = start; i < end; i++)
     {
-      if(*m_ShouldCancel)
+      if(m_ShouldCancel)
       {
         return;
       }
-      temp[mapping[0]] = (*m_Input)[i * 4];
-      temp[mapping[1]] = (*m_Input)[i * 4 + 1];
-      temp[mapping[2]] = (*m_Input)[i * 4 + 2];
-      temp[mapping[3]] = (*m_Input)[i * 4 + 3];
+      temp[mapping[0]] = m_Input[i * 4];
+      temp[mapping[1]] = m_Input[i * 4 + 1];
+      temp[mapping[2]] = m_Input[i * 4 + 2];
+      temp[mapping[3]] = m_Input[i * 4 + 3];
 
-      (*m_Output)[i * 4] = temp[0];
-      (*m_Output)[i * 4 + 1] = temp[1];
-      (*m_Output)[i * 4 + 2] = temp[2];
-      (*m_Output)[i * 4 + 3] = temp[3];
+      m_Output[i * 4] = temp[0];
+      m_Output[i * 4 + 1] = temp[1];
+      m_Output[i * 4 + 2] = temp[2];
+      m_Output[i * 4 + 3] = temp[3];
     }
   }
 
@@ -72,6 +66,12 @@ public:
   {
     convert(range.min(), range.max());
   }
+
+private:
+  const Float32Array& m_Input;
+  Float32Array& m_Output;
+  ChoicesParameter::ValueType m_ConversionType = 0;
+  const std::atomic_bool& m_ShouldCancel;
 };
 
 } // namespace
@@ -102,7 +102,7 @@ Result<> ConvertQuaternion::operator()()
 
   ParallelDataAlgorithm dataAlg;
   dataAlg.setRange(0, quats.getNumberOfTuples());
-  dataAlg.execute(ConvertQuaternionImpl(&quats, &convertedQuats, m_InputValues->ConversionType, &m_ShouldCancel));
+  dataAlg.execute(ConvertQuaternionImpl(quats, convertedQuats, m_InputValues->ConversionType, m_ShouldCancel));
 
   return {};
 }

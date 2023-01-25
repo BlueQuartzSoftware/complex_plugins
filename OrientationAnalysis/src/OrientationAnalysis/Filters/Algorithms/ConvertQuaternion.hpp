@@ -10,18 +10,6 @@
 #include "complex/Parameters/BoolParameter.hpp"
 #include "complex/Parameters/ChoicesParameter.hpp"
 
-/**
-* This is example code to put in the Execute Method of the filter.
-  ConvertQuaternionInputValues inputValues;
-
-  inputValues.QuaternionDataArrayPath = filterArgs.value<DataPath>(k_QuaternionDataArrayPath_Key);
-  inputValues.OutputDataArrayPath = filterArgs.value<DataPath>(k_OutputDataArrayPath_Key);
-  inputValues.DeleteOriginalData = filterArgs.value<bool>(k_DeleteOriginalData_Key);
-  inputValues.ConversionType = filterArgs.value<ChoicesParameter::ValueType>(k_ConversionType_Key);
-
-  return ConvertQuaternion(dataStructure, messageHandler, shouldCancel, &inputValues)();
-*/
-
 namespace complex
 {
 

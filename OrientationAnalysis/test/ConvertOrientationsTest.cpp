@@ -31,6 +31,8 @@
 
 using namespace complex;
 
+// This section of code exists solely to generate a source code in case another
+// orientation representation is created. Leave this code here.
 void _make_code()
 {
   std::vector<std::string> inRep = {"eu", "om", "qu", "ax", "ro", "ho", "cu", "st"};
@@ -82,7 +84,13 @@ void _make_code()
 
 TEST_CASE("OrientationAnalysis::ConvertOrientations: Invalid preflight", "[OrientationAnalysis][ConvertOrientations]")
 {
+  //------------------------------
+  // This code is commented out because it generates a bunch of code. See the comment
+  // at the top of the _make_code function. This should stay in here in case it is
+  // needed later on. I don't want to rewrite the code.
   //_make_code();
+  //----------------------------
+
   // Instantiate the filter, a DataStructure object and an Arguments Object
   ConvertOrientations filter;
   DataStructure dataStructure;
