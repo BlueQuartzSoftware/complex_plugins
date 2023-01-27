@@ -35,7 +35,10 @@ TEST_CASE("OrientationAnalysis::AlignSectionsMutualInformationFilter: Valid filt
   // Read Exemplar DREAM3D File Filter
   auto exemplarFilePath = fs::path(fmt::format("{}/6_5_align_sections_mutual_information/6_5_align_sections_mutual_information.dream3d", unit_test::k_TestFilesDir));
   DataStructure dataStructure = UnitTest::LoadDataStructure(exemplarFilePath);
-  const int32 k_NumSlices = 59;
+
+  const ImageGeom& imageGeom = dataStructure.getDataRefAs<ImageGeom>(Constants::k_DataContainerPath);
+
+  const int32 k_NumSlices = imageGeom.getNumZCells() - 1;
   const fs::path computedShiftsFile = (fmt::format("{}/{}/AlignSectionsMutualInformation_1.txt", unit_test::k_BinaryTestOutputDir, millisFromEpoch));
 
   const std::string k_InputDataContainer("InputDataContainer");
@@ -64,8 +67,6 @@ TEST_CASE("OrientationAnalysis::AlignSectionsMutualInformationFilter: Valid filt
     auto executeResult = filter.execute(dataStructure, args);
     COMPLEX_RESULT_REQUIRE_VALID(executeResult.result)
   }
-
-  CompareExemplarToGeneratedData(dataStructure, dataStructure, k_CellAttributeMatrix, k_ExemplarDataContainer);
 
   // Read Exemplar Shifts File
   {
@@ -133,21 +134,14 @@ TEST_CASE("OrientationAnalysis::AlignSectionsMutualInformationFilter: Valid filt
     // Execute the filter and check the result
     auto executeResult = filter->execute(dataStructure, args);
     COMPLEX_RESULT_REQUIRE_VALID(executeResult.result)
-
-    const auto& calcShifts = dataStructure.getDataRefAs<Int32Array>(k_CalculatedShiftsPath);
-    const auto& exemplarShifts = dataStructure.getDataRefAs<Int32Array>(k_ExemplarShiftsPath);
-
-    size_t numElements = calcShifts.getSize();
-    for(size_t i = 0; i < numElements; i++)
-    {
-      if(calcShifts[i] != exemplarShifts[i])
-      {
-        REQUIRE(calcShifts[i] == exemplarShifts[i]);
-      }
-    }
   }
 
   WriteTestDataStructure(dataStructure, fmt::format("{}/align_sections_mutual_information.dream3d", unit_test::k_BinaryTestOutputDir));
+
+  CompareExemplarToGeneratedData(dataStructure, dataStructure, k_CellAttributeMatrix, k_ExemplarDataContainer);
+
+  // Compare the shift values
+  CompareArrays<int32>(dataStructure, k_CalculatedShiftsPath, k_ExemplarShiftsPath);
 }
 
 TEST_CASE("OrientationAnalysis::AlignSectionsMutualInformationFilter: InValid filter execution")
