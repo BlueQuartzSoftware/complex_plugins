@@ -7,7 +7,7 @@ IO (Output)
 
 ## Description ##
 
-This **Filter** writes out **Cell** data from an **Image Geometry** to a file format used by the Idaho National Laboratory (INL).  The format is columnar and space delimited, with header lines denoted by the "#" character. The columns are the following:
+This **Filter** writes out **Cell** data from an **Image Geometry** to a file format used by the Idaho National Laboratory (INL).  The format is columnar and space delimited, with header lines denoted by the "" character. The columns are the following:
 
 	- phi1 
 	- Phi 
