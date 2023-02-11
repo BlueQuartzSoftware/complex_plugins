@@ -3,11 +3,13 @@
 #include "ITKImageProcessing/Common/ITKArrayHelper.hpp"
 #include "ITKImageProcessing/Filters/ITKImageReader.hpp"
 
+#include "complex/Core/Application.hpp"
 #include "complex/DataStructure/DataPath.hpp"
 #include "complex/DataStructure/Geometry/ImageGeom.hpp"
 #include "complex/Filter/Actions/CreateArrayAction.hpp"
 #include "complex/Filter/Actions/CreateImageGeometryAction.hpp"
 #include "complex/Parameters/ArrayCreationParameter.hpp"
+#include "complex/Parameters/ChoicesParameter.hpp"
 #include "complex/Parameters/DataGroupCreationParameter.hpp"
 #include "complex/Parameters/DataObjectNameParameter.hpp"
 #include "complex/Parameters/GeneratedFileListParameter.hpp"
@@ -96,8 +98,30 @@ Result<> ReadImageStack(DataStructure& dataStructure, const DataPath& imageGeomP
 }
 } // namespace cxITKImportImageStack
 
+namespace
+{
+
+const Uuid k_CorePluginId = *Uuid::FromString("65a0a3fc-8c93-5405-8ac6-182e7f313a69");
+const Uuid k_RotateSampleRefFrameFilterId = *Uuid::FromString("5efdf395-33fb-4dc0-986e-0dc0ae990f6a");
+const FilterHandle k_RotateSampleRefFrameFilterHandle(k_RotateSampleRefFrameFilterId, k_CorePluginId);
+
+// Make sure we can instantiate the RotateSampleRefFrame Filter
+std::unique_ptr<IFilter> CreateRotateSampleRefFrameFilter()
+{
+  auto* filterList = Application::Instance()->getFilterList();
+  auto filter = filterList->createFilter(k_RotateSampleRefFrameFilterHandle);
+  return filter;
+}
+} // namespace
+
 namespace complex
 {
+
+const ChoicesParameter::Choices k_SliceOperationChoices = {"None", "Flip along X axis", "Flip along Y axis"};
+const ChoicesParameter::ValueType k_NoImageTransform = 0;
+const ChoicesParameter::ValueType k_FlipAlongXAxis = 1;
+const ChoicesParameter::ValueType k_FlipAlongYAxis = 2;
+
 //------------------------------------------------------------------------------
 std::string ITKImportImageStack::name() const
 {
@@ -139,10 +163,12 @@ Parameters ITKImportImageStack::parameters() const
   params.insert(std::make_unique<VectorFloat32Parameter>(k_Origin_Key, "Origin", "The origin of the 3D volume", std::vector<float32>{0.0F, 0.0F, 0.0F}, std::vector<std::string>{"X", "y", "Z"}));
   params.insert(std::make_unique<VectorFloat32Parameter>(k_Spacing_Key, "Spacing", "The spacing of the 3D volume", std::vector<float32>{1.0F, 1.0F, 1.0F}, std::vector<std::string>{"X", "y", "Z"}));
 
+  params.insertLinkableParameter(std::make_unique<ChoicesParameter>(k_ImageTransformChoice_Key, "Optional Slice Operations", "Operation that is performed on each slice", 0, k_SliceOperationChoices));
+
   params.insertSeparator(Parameters::Separator{"Created Data Structure Items"});
   params.insert(std::make_unique<DataGroupCreationParameter>(k_ImageGeometryPath_Key, "Created Image Geometry", "The path to the created Image Geometry", DataPath({"ImageDataContainer"})));
   params.insert(std::make_unique<ArrayCreationParameter>(k_ImageDataArrayPath_Key, "Created Image Data", "The path to the created image data array", DataPath({"ImageDataContainer", "ImageData"})));
-  params.insert(std::make_unique<DataObjectNameParameter>(k_CellDataName_Key, "Cell Data Name", "The name of the create cell attribute matrix", ImageGeom::k_CellDataName));
+  params.insert(std::make_unique<DataObjectNameParameter>(k_CellDataName_Key, "Cell Data Name", "The name of the created cell attribute matrix", ImageGeom::k_CellDataName));
 
   return params;
 }
@@ -163,6 +189,16 @@ IFilter::PreflightResult ITKImportImageStack::preflightImpl(const DataStructure&
   auto imageGeomPath = filterArgs.value<DataPath>(k_ImageGeometryPath_Key);
   auto imageDataPath = filterArgs.value<DataPath>(k_ImageDataArrayPath_Key);
   auto cellDataName = filterArgs.value<DataObjectNameParameter::ValueType>(k_CellDataName_Key);
+  auto imageTransformValue = filterArgs.value<ChoicesParameter::ValueType>(k_ImageTransformChoice_Key);
+
+  if(imageTransformValue != k_NoImageTransform)
+  {
+    const auto rotateSampleRefFrameFilter = CreateRotateSampleRefFrameFilter();
+    if(nullptr == rotateSampleRefFrameFilter)
+    {
+      return MakePreflightErrorResult(-23500, "ITKImageImageStack requires the use of the RotateSampleRefFrame filter to perform any image manipulation.");
+    }
+  }
 
   std::vector<std::string> files = inputFileListInfo.generate();
 
@@ -225,6 +261,7 @@ Result<> ITKImportImageStack::executeImpl(DataStructure& dataStructure, const Ar
   auto spacing = filterArgs.value<VectorFloat32Parameter::ValueType>(k_Spacing_Key);
   auto imageGeomPath = filterArgs.value<DataPath>(k_ImageGeometryPath_Key);
   auto imageDataPath = filterArgs.value<DataPath>(k_ImageDataArrayPath_Key);
+  auto imageTransformValue = filterArgs.value<ChoicesParameter::ValueType>(k_ImageTransformChoice_Key);
 
   std::vector<std::string> files = inputFileListInfo.generate();
 
@@ -241,42 +278,76 @@ Result<> ITKImportImageStack::executeImpl(DataStructure& dataStructure, const Ar
   {
     return MakeErrorResult(-4, fmt::format("Unsupported pixel component: {}", imageIO->GetComponentTypeAsString(component)));
   }
-
+  Result<> readResult;
   switch(*numericType)
   {
   case NumericType::uint8: {
-    return cxITKImportImageStack::ReadImageStack<uint8>(dataStructure, imageGeomPath, imageDataPath, files, messageHandler, shouldCancel);
+    readResult = cxITKImportImageStack::ReadImageStack<uint8>(dataStructure, imageGeomPath, imageDataPath, files, messageHandler, shouldCancel);
+    break;
   }
   case NumericType::int8: {
-    return cxITKImportImageStack::ReadImageStack<int8>(dataStructure, imageGeomPath, imageDataPath, files, messageHandler, shouldCancel);
+    readResult = cxITKImportImageStack::ReadImageStack<int8>(dataStructure, imageGeomPath, imageDataPath, files, messageHandler, shouldCancel);
+    break;
   }
   case NumericType::uint16: {
-    return cxITKImportImageStack::ReadImageStack<uint16>(dataStructure, imageGeomPath, imageDataPath, files, messageHandler, shouldCancel);
+    readResult = cxITKImportImageStack::ReadImageStack<uint16>(dataStructure, imageGeomPath, imageDataPath, files, messageHandler, shouldCancel);
+    break;
   }
   case NumericType::int16: {
-    return cxITKImportImageStack::ReadImageStack<int16>(dataStructure, imageGeomPath, imageDataPath, files, messageHandler, shouldCancel);
+    readResult = cxITKImportImageStack::ReadImageStack<int16>(dataStructure, imageGeomPath, imageDataPath, files, messageHandler, shouldCancel);
+    break;
   }
   case NumericType::uint32: {
-    return cxITKImportImageStack::ReadImageStack<uint32>(dataStructure, imageGeomPath, imageDataPath, files, messageHandler, shouldCancel);
+    readResult = cxITKImportImageStack::ReadImageStack<uint32>(dataStructure, imageGeomPath, imageDataPath, files, messageHandler, shouldCancel);
+    break;
   }
   case NumericType::int32: {
-    return cxITKImportImageStack::ReadImageStack<int32>(dataStructure, imageGeomPath, imageDataPath, files, messageHandler, shouldCancel);
+    readResult = cxITKImportImageStack::ReadImageStack<int32>(dataStructure, imageGeomPath, imageDataPath, files, messageHandler, shouldCancel);
+    break;
   }
   case NumericType::uint64: {
-    return cxITKImportImageStack::ReadImageStack<uint64>(dataStructure, imageGeomPath, imageDataPath, files, messageHandler, shouldCancel);
+    readResult = cxITKImportImageStack::ReadImageStack<uint64>(dataStructure, imageGeomPath, imageDataPath, files, messageHandler, shouldCancel);
+    break;
   }
   case NumericType::int64: {
-    return cxITKImportImageStack::ReadImageStack<int64>(dataStructure, imageGeomPath, imageDataPath, files, messageHandler, shouldCancel);
+    readResult = cxITKImportImageStack::ReadImageStack<int64>(dataStructure, imageGeomPath, imageDataPath, files, messageHandler, shouldCancel);
+    break;
   }
   case NumericType::float32: {
-    return cxITKImportImageStack::ReadImageStack<float32>(dataStructure, imageGeomPath, imageDataPath, files, messageHandler, shouldCancel);
+    readResult = cxITKImportImageStack::ReadImageStack<float32>(dataStructure, imageGeomPath, imageDataPath, files, messageHandler, shouldCancel);
+    break;
   }
   case NumericType::float64: {
-    return cxITKImportImageStack::ReadImageStack<float64>(dataStructure, imageGeomPath, imageDataPath, files, messageHandler, shouldCancel);
+    readResult = cxITKImportImageStack::ReadImageStack<float64>(dataStructure, imageGeomPath, imageDataPath, files, messageHandler, shouldCancel);
+    break;
   }
   default: {
     throw std::runtime_error("Unsupported array type");
   }
+  }
+  if(readResult.invalid())
+  {
+    return readResult;
+  }
+
+  if(imageTransformValue != k_NoImageTransform)
+  {
+    const auto rotateSampleRefFrameFilter = CreateRotateSampleRefFrameFilter();
+
+    // Parameter Keys
+    const StringLiteral k_RotationRepresentation_Key = "rotation_representation";
+    const StringLiteral k_RotationAngle_Key = "rotation_angle";
+    const StringLiteral k_RotationAxis_Key = "rotation_axis";
+    const StringLiteral k_RotationMatrix_Key = "rotation_matrix";
+    const StringLiteral k_SelectedImageGeometry_Key = "selected_image_geometry";
+    const StringLiteral k_SelectedCellArrays_Key = "selected_cell_arrays";
+    const StringLiteral k_CreatedImageGeometry_Key = "created_image_geometry";
+    const StringLiteral k_RotateSliceBySlice_Key = "rotate_slice_by_slice";
+
+    Arguments args;
+    args.insertOrAssign(k_RotationRepresentation_Key, std::make_any<BoolParameter::ValueType>(false));
+    args.insertOrAssign(k_ImageGeom_Key, std::make_any<GeometrySelectionParameter::ValueType>(k_DataContainerPath));
+    args.insertOrAssign(k_GoodVoxels_Key, std::make_any<ArraySelectionParameter::ValueType>(k_MaskArrayPath));
   }
 
   return {};
