@@ -9,10 +9,13 @@
 #include "complex/Filter/Actions/CreateArrayAction.hpp"
 #include "complex/Filter/Actions/CreateImageGeometryAction.hpp"
 #include "complex/Parameters/ArrayCreationParameter.hpp"
+#include "complex/Parameters/ArraySelectionParameter.hpp"
+#include "complex/Parameters/BoolParameter.hpp"
 #include "complex/Parameters/ChoicesParameter.hpp"
 #include "complex/Parameters/DataGroupCreationParameter.hpp"
 #include "complex/Parameters/DataObjectNameParameter.hpp"
 #include "complex/Parameters/GeneratedFileListParameter.hpp"
+#include "complex/Parameters/GeometrySelectionParameter.hpp"
 #include "complex/Parameters/VectorParameter.hpp"
 
 #include <itkImageFileReader.h>
@@ -330,25 +333,24 @@ Result<> ITKImportImageStack::executeImpl(DataStructure& dataStructure, const Ar
     return readResult;
   }
 
-  if(imageTransformValue != k_NoImageTransform)
-  {
-    const auto rotateSampleRefFrameFilter = CreateRotateSampleRefFrameFilter();
-
-    // Parameter Keys
-    const StringLiteral k_RotationRepresentation_Key = "rotation_representation";
-    const StringLiteral k_RotationAngle_Key = "rotation_angle";
-    const StringLiteral k_RotationAxis_Key = "rotation_axis";
-    const StringLiteral k_RotationMatrix_Key = "rotation_matrix";
-    const StringLiteral k_SelectedImageGeometry_Key = "selected_image_geometry";
-    const StringLiteral k_SelectedCellArrays_Key = "selected_cell_arrays";
-    const StringLiteral k_CreatedImageGeometry_Key = "created_image_geometry";
-    const StringLiteral k_RotateSliceBySlice_Key = "rotate_slice_by_slice";
-
-    Arguments args;
-    args.insertOrAssign(k_RotationRepresentation_Key, std::make_any<BoolParameter::ValueType>(false));
-    args.insertOrAssign(k_ImageGeom_Key, std::make_any<GeometrySelectionParameter::ValueType>(k_DataContainerPath));
-    args.insertOrAssign(k_GoodVoxels_Key, std::make_any<ArraySelectionParameter::ValueType>(k_MaskArrayPath));
-  }
+  //  if(imageTransformValue != k_NoImageTransform)
+  //  {
+  //    const auto rotateSampleRefFrameFilter = CreateRotateSampleRefFrameFilter();
+  //
+  //    // Parameter Keys
+  //    constexpr StringLiteral k_RotationRepresentation_Key = "rotation_representation";
+  //    constexpr StringLiteral k_RotationAxisAngle_Key = "rotation_axis";
+  //    constexpr StringLiteral k_RotationMatrix_Key = "rotation_matrix";
+  //    constexpr StringLiteral k_SelectedImageGeometry_Key = "selected_image_geometry";
+  //    constexpr StringLiteral k_CreatedImageGeometry_Key = "created_image_geometry";
+  //    constexpr StringLiteral k_RotateSliceBySlice_Key = "rotate_slice_by_slice";
+  //    constexpr StringLiteral k_RemoveOriginalGeometry_Key = "remove_original_geometry";
+  //
+  //    Arguments args;
+  //    args.insertOrAssign(k_RotationRepresentation_Key, std::make_any<ChoicesParameter::ValueType>(0));
+  //    args.insertOrAssign(k_SelectedImageGeometry_Key, std::make_any<DataPath>(k_OriginalGeomPath));
+  //    args.insertOrAssign(k_RemoveOriginalGeometry_Key, std::make_any<bool>(true)); // We need to keep the geometries around.
+  //  }
 
   return {};
 }
