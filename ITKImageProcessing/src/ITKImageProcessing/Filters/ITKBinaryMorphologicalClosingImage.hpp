@@ -40,13 +40,13 @@ public:
   ITKBinaryMorphologicalClosingImage& operator=(ITKBinaryMorphologicalClosingImage&&) noexcept = delete;
 
   // Parameter Keys
-  static inline constexpr StringLiteral k_SelectedImageGeomPath_Key = "selected_image_geom_path";
-  static inline constexpr StringLiteral k_SelectedImageDataPath_Key = "input_image_data_path";
-  static inline constexpr StringLiteral k_OutputImageDataPath_Key = "output_image_data_path";
-  static inline constexpr StringLiteral k_KernelRadius_Key = "kernel_radius";
-  static inline constexpr StringLiteral k_KernelType_Key = "kernel_type";
-  static inline constexpr StringLiteral k_ForegroundValue_Key = "foreground_value";
-  static inline constexpr StringLiteral k_SafeBorder_Key = "safe_border";
+  static inline constexpr StringLiteral k_SelectedImageGeomPath_Key = "SelectedImageGeomPath";
+  static inline constexpr StringLiteral k_SelectedImageDataPath_Key = "InputImageDataPath";
+  static inline constexpr StringLiteral k_OutputImageDataPath_Key = "OutputImageDataPath";
+  static inline constexpr StringLiteral k_KernelRadius_Key = "KernelRadius";
+  static inline constexpr StringLiteral k_KernelType_Key = "KernelType";
+  static inline constexpr StringLiteral k_ForegroundValue_Key = "ForegroundValue";
+  static inline constexpr StringLiteral k_SafeBorder_Key = "SafeBorder";
 
   /**
    * @brief Returns the name of the filter.
@@ -95,18 +95,18 @@ protected:
    * @brief Takes in a DataStructure and checks that the filter can be run on it with the given arguments.
    * Returns any warnings/errors. Also returns the changes that would be applied to the DataStructure.
    * Some parts of the actions may not be completely filled out if all the required information is not available at preflight time.
-   * @param dataStructure The input DataStructure instance
+   * @param ds The input DataStructure instance
    * @param filterArgs These are the input values for each parameter that is required for the filter
    * @param messageHandler The MessageHandler object
    * @param shouldCancel Boolean that gets set if the filter should stop executing and return
    * @return Returns a Result object with error or warning values if any of those occurred during execution of this function
    */
-  PreflightResult preflightImpl(const DataStructure& dataStructure, const Arguments& filterArgs, const MessageHandler& messageHandler, const std::atomic_bool& shouldCancel) const override;
+  PreflightResult preflightImpl(const DataStructure& ds, const Arguments& filterArgs, const MessageHandler& messageHandler, const std::atomic_bool& shouldCancel) const override;
 
   /**
    * @brief Applies the filter's algorithm to the DataStructure with the given arguments. Returns any warnings/errors.
    * On failure, there is no guarantee that the DataStructure is in a correct state.
-   * @param dataStructure The input DataStructure instance
+   * @param ds The input DataStructure instance
    * @param filterArgs These are the input values for each parameter that is required for the filter
    * @param messageHandler The MessageHandler object
    * @param shouldCancel Boolean that gets set if the filter should stop executing and return
@@ -116,4 +116,4 @@ protected:
 };
 } // namespace complex
 
-COMPLEX_DEF_FILTER_TRAITS(complex, ITKBinaryMorphologicalClosingImage, "abb27e0c-b049-4f60-8355-178d86bb1de4");
+COMPLEX_DEF_FILTER_TRAITS(complex, ITKBinaryMorphologicalClosingImage, "1d8deea7-c6d0-5fa1-95cb-b14f19df97e8");
