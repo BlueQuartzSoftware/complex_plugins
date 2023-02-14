@@ -27,10 +27,52 @@ namespace fs = std::filesystem;
 
 using namespace complex;
 
+namespace RotateSampleRefFrame
+{
+// Parameter Keys
+static inline constexpr complex::StringLiteral k_RotationRepresentation_Key = "rotation_representation";
+static inline constexpr complex::StringLiteral k_RotationAxisAngle_Key = "rotation_axis";
+static inline constexpr complex::StringLiteral k_RotationMatrix_Key = "rotation_matrix";
+static inline constexpr complex::StringLiteral k_SelectedImageGeometry_Key = "selected_image_geometry";
+static inline constexpr complex::StringLiteral k_CreatedImageGeometry_Key = "created_image_geometry";
+static inline constexpr complex::StringLiteral k_RotateSliceBySlice_Key = "rotate_slice_by_slice";
+static inline constexpr complex::StringLiteral k_RemoveOriginalGeometry_Key = "remove_original_geometry";
+
+// static inline constexpr complex::StringLiteral k_RotatedGeometryName = ".RotatedGeometry";
+
+enum class RotationRepresentation : uint64_t
+{
+  AxisAngle = 0,
+  RotationMatrix = 1
+};
+
+} // namespace RotateSampleRefFrame
+
+namespace
+{
+const ChoicesParameter::Choices k_SliceOperationChoices = {"None", "Flip along X axis", "Flip along Y axis"};
+const ChoicesParameter::ValueType k_NoImageTransform = 0;
+const ChoicesParameter::ValueType k_FlipAlongXAxis = 1;
+const ChoicesParameter::ValueType k_FlipAlongYAxis = 2;
+
+const Uuid k_ComplexCorePluginId = *Uuid::FromString("05cc618b-781f-4ac0-b9ac-43f26ce1854f");
+const Uuid k_RotateSampleRefFrameFilterId = *Uuid::FromString("d2451dc1-a5a1-4ac2-a64d-7991669dcffc");
+const FilterHandle k_RotateSampleRefFrameFilterHandle(k_RotateSampleRefFrameFilterId, k_ComplexCorePluginId);
+
+// Make sure we can instantiate the RotateSampleRefFrame Filter
+std::unique_ptr<IFilter> CreateRotateSampleRefFrameFilter()
+{
+  auto* filterList = Application::Instance()->getFilterList();
+  auto filter = filterList->createFilter(k_RotateSampleRefFrameFilterHandle);
+  return filter;
+}
+
+} // namespace
+
 namespace cxITKImportImageStack
 {
 template <class T>
-Result<> ReadImageStack(DataStructure& dataStructure, const DataPath& imageGeomPath, const DataPath& imageDataPath, const std::vector<std::string>& files,
+Result<> ReadImageStack(DataStructure& dataStructure, const DataPath& imageGeomPath, const DataPath& imageDataPath, const std::vector<std::string>& files, ChoicesParameter::ValueType transformType,
                         const IFilter::MessageHandler& messageHandler, const std::atomic_bool& shouldCancel)
 {
   auto& imageGeom = dataStructure.getDataRefAs<ImageGeom>(imageGeomPath);
@@ -53,27 +95,79 @@ Result<> ReadImageStack(DataStructure& dataStructure, const DataPath& imageGeomP
 
     DataStructure importedDataStructure;
 
-    // Create a subfilter to read each image, although for preflight we are going to read the first image in the
-    // list and hope the rest are correct.
-    ITKImageReader imageReader;
-
-    Arguments args;
-    args.insertOrAssign(ITKImageReader::k_ImageGeometryPath_Key, std::make_any<DataPath>(imageGeomPath));
-    args.insertOrAssign(ITKImageReader::k_ImageDataArrayPath_Key, std::make_any<DataPath>(imageDataPath));
-    args.insertOrAssign(ITKImageReader::k_FileName_Key, std::make_any<fs::path>(filePath));
-
-    auto executeResult = imageReader.execute(importedDataStructure, args);
-    if(executeResult.result.invalid())
     {
-      return executeResult.result;
-    }
+      // Create a sub-filter to read each image, although for preflight we are going to read the first image in the
+      // list and hope the rest are correct.
+      ITKImageReader imageReader;
 
+      Arguments args;
+      args.insertOrAssign(ITKImageReader::k_ImageGeometryPath_Key, std::make_any<DataPath>(imageGeomPath));
+      args.insertOrAssign(ITKImageReader::k_ImageDataArrayPath_Key, std::make_any<DataPath>(imageDataPath));
+      args.insertOrAssign(ITKImageReader::k_FileName_Key, std::make_any<fs::path>(filePath));
+
+      auto executeResult = imageReader.execute(importedDataStructure, args);
+      if(executeResult.result.invalid())
+      {
+        return executeResult.result;
+      }
+    }
     // Check the ImageGeometry of the imported Image matches the destination
     const auto& importedImageGeom = importedDataStructure.getDataRefAs<ImageGeom>(imageGeomPath);
     SizeVec3 importedDims = importedImageGeom.getDimensions();
     if(dims[0] != importedDims[0] || dims[1] != importedDims[1])
     {
       return MakeErrorResult(-64510, fmt::format("Slice {} image dimensions are different than the first slice.\n  First Slice Dims are:  {} x {}\n  Current Slice Dims are:{} x {}\n"));
+    }
+
+    if(transformType != k_NoImageTransform)
+    {
+      auto filter = CreateRotateSampleRefFrameFilter();
+      if(nullptr == filter)
+      {
+        return {MakeErrorResult(-50010, fmt::format("Error creating RotateSampleRefFrame filter"))};
+      }
+
+      std::array<float, 3> sampleTransAxis = {0.0F, 0.0F, 0.0F};
+      if(transformType == k_FlipAlongYAxis)
+      {
+        sampleTransAxis = {0.0F, 1.0F, 0.0F};
+      }
+      else if(transformType == k_FlipAlongXAxis)
+      {
+        sampleTransAxis = {1.0F, 0.0F, 0.0F};
+      }
+      else
+      {
+        return {MakeErrorResult(-50011, fmt::format("Image Transformation Operation value should be '0' or '1'."))};
+      }
+      Arguments args;
+
+      args.insertOrAssign(RotateSampleRefFrame::k_SelectedImageGeometry_Key, std::make_any<DataPath>(imageGeomPath));
+      args.insertOrAssign(RotateSampleRefFrame::k_RemoveOriginalGeometry_Key, std::make_any<bool>(true));
+
+      args.insertOrAssign(RotateSampleRefFrame::k_RotationRepresentation_Key, std::make_any<ChoicesParameter::ValueType>(to_underlying(RotateSampleRefFrame::RotationRepresentation::AxisAngle)));
+      args.insertOrAssign(RotateSampleRefFrame::k_RotationAxisAngle_Key, std::make_any<VectorFloat32Parameter::ValueType>({sampleTransAxis[0], sampleTransAxis[1], sampleTransAxis[2], 180.0F}));
+      args.insertOrAssign(RotateSampleRefFrame::k_RotateSliceBySlice_Key, std::make_any<bool>(true));
+
+      // Preflight the filter and check result
+      messageHandler(complex::IFilter::Message{IFilter::Message::Type::Info, fmt::format("Preflighting {}...", filter->humanName())});
+      complex::IFilter::PreflightResult preflightResult = filter->preflight(importedDataStructure, args);
+      if(preflightResult.outputActions.invalid())
+      {
+        for(const auto& error : preflightResult.outputActions.errors())
+        {
+          std::cout << error.code << ": " << error.message << std::endl;
+        }
+        return {MakeErrorResult(-50012, fmt::format("Error preflighting {}", filter->humanName()))};
+      }
+
+      // Execute the filter and check the result
+      messageHandler(complex::IFilter::Message{IFilter::Message::Type::Info, fmt::format("Executing {}", filter->humanName())});
+      auto executeResult = filter->execute(importedDataStructure, args, nullptr, messageHandler, shouldCancel);
+      if(executeResult.result.invalid())
+      {
+        return {{nonstd::make_unexpected(executeResult.result.errors())}};
+      }
     }
 
     // Compute the Tuple Index we are at:
@@ -101,29 +195,8 @@ Result<> ReadImageStack(DataStructure& dataStructure, const DataPath& imageGeomP
 }
 } // namespace cxITKImportImageStack
 
-namespace
-{
-
-const Uuid k_CorePluginId = *Uuid::FromString("65a0a3fc-8c93-5405-8ac6-182e7f313a69");
-const Uuid k_RotateSampleRefFrameFilterId = *Uuid::FromString("5efdf395-33fb-4dc0-986e-0dc0ae990f6a");
-const FilterHandle k_RotateSampleRefFrameFilterHandle(k_RotateSampleRefFrameFilterId, k_CorePluginId);
-
-// Make sure we can instantiate the RotateSampleRefFrame Filter
-std::unique_ptr<IFilter> CreateRotateSampleRefFrameFilter()
-{
-  auto* filterList = Application::Instance()->getFilterList();
-  auto filter = filterList->createFilter(k_RotateSampleRefFrameFilterHandle);
-  return filter;
-}
-} // namespace
-
 namespace complex
 {
-
-const ChoicesParameter::Choices k_SliceOperationChoices = {"None", "Flip along X axis", "Flip along Y axis"};
-const ChoicesParameter::ValueType k_NoImageTransform = 0;
-const ChoicesParameter::ValueType k_FlipAlongXAxis = 1;
-const ChoicesParameter::ValueType k_FlipAlongYAxis = 2;
 
 //------------------------------------------------------------------------------
 std::string ITKImportImageStack::name() const
@@ -285,43 +358,43 @@ Result<> ITKImportImageStack::executeImpl(DataStructure& dataStructure, const Ar
   switch(*numericType)
   {
   case NumericType::uint8: {
-    readResult = cxITKImportImageStack::ReadImageStack<uint8>(dataStructure, imageGeomPath, imageDataPath, files, messageHandler, shouldCancel);
+    readResult = cxITKImportImageStack::ReadImageStack<uint8>(dataStructure, imageGeomPath, imageDataPath, files, imageTransformValue, messageHandler, shouldCancel);
     break;
   }
   case NumericType::int8: {
-    readResult = cxITKImportImageStack::ReadImageStack<int8>(dataStructure, imageGeomPath, imageDataPath, files, messageHandler, shouldCancel);
+    readResult = cxITKImportImageStack::ReadImageStack<int8>(dataStructure, imageGeomPath, imageDataPath, files, imageTransformValue, messageHandler, shouldCancel);
     break;
   }
   case NumericType::uint16: {
-    readResult = cxITKImportImageStack::ReadImageStack<uint16>(dataStructure, imageGeomPath, imageDataPath, files, messageHandler, shouldCancel);
+    readResult = cxITKImportImageStack::ReadImageStack<uint16>(dataStructure, imageGeomPath, imageDataPath, files, imageTransformValue, messageHandler, shouldCancel);
     break;
   }
   case NumericType::int16: {
-    readResult = cxITKImportImageStack::ReadImageStack<int16>(dataStructure, imageGeomPath, imageDataPath, files, messageHandler, shouldCancel);
+    readResult = cxITKImportImageStack::ReadImageStack<int16>(dataStructure, imageGeomPath, imageDataPath, files, imageTransformValue, messageHandler, shouldCancel);
     break;
   }
   case NumericType::uint32: {
-    readResult = cxITKImportImageStack::ReadImageStack<uint32>(dataStructure, imageGeomPath, imageDataPath, files, messageHandler, shouldCancel);
+    readResult = cxITKImportImageStack::ReadImageStack<uint32>(dataStructure, imageGeomPath, imageDataPath, files, imageTransformValue, messageHandler, shouldCancel);
     break;
   }
   case NumericType::int32: {
-    readResult = cxITKImportImageStack::ReadImageStack<int32>(dataStructure, imageGeomPath, imageDataPath, files, messageHandler, shouldCancel);
+    readResult = cxITKImportImageStack::ReadImageStack<int32>(dataStructure, imageGeomPath, imageDataPath, files, imageTransformValue, messageHandler, shouldCancel);
     break;
   }
   case NumericType::uint64: {
-    readResult = cxITKImportImageStack::ReadImageStack<uint64>(dataStructure, imageGeomPath, imageDataPath, files, messageHandler, shouldCancel);
+    readResult = cxITKImportImageStack::ReadImageStack<uint64>(dataStructure, imageGeomPath, imageDataPath, files, imageTransformValue, messageHandler, shouldCancel);
     break;
   }
   case NumericType::int64: {
-    readResult = cxITKImportImageStack::ReadImageStack<int64>(dataStructure, imageGeomPath, imageDataPath, files, messageHandler, shouldCancel);
+    readResult = cxITKImportImageStack::ReadImageStack<int64>(dataStructure, imageGeomPath, imageDataPath, files, imageTransformValue, messageHandler, shouldCancel);
     break;
   }
   case NumericType::float32: {
-    readResult = cxITKImportImageStack::ReadImageStack<float32>(dataStructure, imageGeomPath, imageDataPath, files, messageHandler, shouldCancel);
+    readResult = cxITKImportImageStack::ReadImageStack<float32>(dataStructure, imageGeomPath, imageDataPath, files, imageTransformValue, messageHandler, shouldCancel);
     break;
   }
   case NumericType::float64: {
-    readResult = cxITKImportImageStack::ReadImageStack<float64>(dataStructure, imageGeomPath, imageDataPath, files, messageHandler, shouldCancel);
+    readResult = cxITKImportImageStack::ReadImageStack<float64>(dataStructure, imageGeomPath, imageDataPath, files, imageTransformValue, messageHandler, shouldCancel);
     break;
   }
   default: {
