@@ -77,8 +77,9 @@ Parameters ITKBinaryMorphologicalClosingImage::parameters() const
 {
   Parameters params;
   params.insertSeparator(Parameters::Separator{"Filter Parameters"});
-  params.insert(std::make_unique<VectorParameter<uint32>>(k_KernelRadius_Key, "KernelRadius", "Kernel size to use.", std::vector<uint32>{1,1,1}, std::vector<std::string>{"x","y","z"}));
-  params.insert(std::make_unique<ChoicesParameter>(k_KernelType_Key, "KernelType", "Kernel type to use.", static_cast<uint64>(itk::simple::sitkBall), ChoicesParameter::Choices{"Annulus", "Ball", "Box", "Cross"}));
+  params.insert(std::make_unique<VectorParameter<uint32>>(k_KernelRadius_Key, "KernelRadius", "Kernel size to use.", std::vector<uint32>{1, 1, 1}, std::vector<std::string>{"x", "y", "z"}));
+  params.insert(std::make_unique<ChoicesParameter>(k_KernelType_Key, "KernelType", "Kernel type to use.", static_cast<uint64>(itk::simple::sitkBall),
+                                                   ChoicesParameter::Choices{"Annulus", "Ball", "Box", "Cross"}));
   params.insert(std::make_unique<Float64Parameter>(k_ForegroundValue_Key, "ForegroundValue", "Set/Get the foreground value used to identify the objects in the input and output images.", 1.0));
   params.insert(std::make_unique<BoolParameter>(k_SafeBorder_Key, "SafeBorder", "A safe border is added to input image to avoid borders effects and remove it once the closing is done", true));
 
