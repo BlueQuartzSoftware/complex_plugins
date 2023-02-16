@@ -97,7 +97,7 @@ IFilter::PreflightResult RemoveFlaggedFeaturesFilter::preflightImpl(const DataSt
   }
 
   DataPath cellFeatureAttributeMatrixPath = pFlaggedFeaturesArrayPathValue.getParent();
-  const AttributeMatrix* cellFeatureAM = dataStructure.getDataAs<AttributeMatrix>(cellFeatureAttributeMatrixPath);
+  const auto* cellFeatureAM = dataStructure.getDataAs<AttributeMatrix>(cellFeatureAttributeMatrixPath);
   if(cellFeatureAM == nullptr)
   {
     return {nonstd::make_unexpected(std::vector<Error>{

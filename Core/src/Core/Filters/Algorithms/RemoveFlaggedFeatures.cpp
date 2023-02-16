@@ -29,19 +29,19 @@ const std::atomic_bool& RemoveFlaggedFeatures::getCancel()
 // -----------------------------------------------------------------------------
 Result<> RemoveFlaggedFeatures::operator()()
 {
-  std::vector<bool> activeObjects = remove_flaggedfeatures();
+  std::vector<bool> activeObjects = remove_flagged_features();
   if(activeObjects.empty())
   {
-    return MakeErrorResult(-45430, "All Features were flagged and would all be removed.  The filter has quit.");
+    return MakeErrorResult(-45430, "All Features were flagged and would all be removed. The filter has quit.");
   }
 
   if(m_InputValues->FillRemovedFeatures)
   {
-    assign_badpoints();
+    assign_bad_points();
   }
 
-  Int32Array& featureIds = m_DataStructure.getDataRefAs<Int32Array>(m_InputValues->FeatureIdsArrayPath);
-  BoolArray& flaggedFeatures = m_DataStructure.getDataRefAs<BoolArray>(m_InputValues->FlaggedFeaturesArrayPath);
+  auto& featureIds = m_DataStructure.getDataRefAs<Int32Array>(m_InputValues->FeatureIdsArrayPath);
+  auto& flaggedFeatures = m_DataStructure.getDataRefAs<BoolArray>(m_InputValues->FlaggedFeaturesArrayPath);
   DataPath featureGroupPath = m_InputValues->FlaggedFeaturesArrayPath.getParent();
   RemoveInactiveObjects(m_DataStructure, featureGroupPath, activeObjects, featureIds, flaggedFeatures.getNumberOfTuples());
 
@@ -49,139 +49,88 @@ Result<> RemoveFlaggedFeatures::operator()()
 }
 
 // -----------------------------------------------------------------------------
-void RemoveFlaggedFeatures::assign_badpoints()
+void RemoveFlaggedFeatures::assign_bad_points()
 {
-  Int32Array& featureIds = m_DataStructure.getDataRefAs<Int32Array>(m_InputValues->FeatureIdsArrayPath);
-  BoolArray& flaggedFeatures = m_DataStructure.getDataRefAs<BoolArray>(m_InputValues->FlaggedFeaturesArrayPath);
+  auto& featureIds = m_DataStructure.getDataRefAs<Int32Array>(m_InputValues->FeatureIdsArrayPath);
+  auto& flaggedFeatures = m_DataStructure.getDataRefAs<BoolArray>(m_InputValues->FlaggedFeaturesArrayPath);
   auto* imageGeom = m_DataStructure.getDataAs<ImageGeom>(m_InputValues->ImageGeometryPath);
 
   size_t totalPoints = featureIds.getNumberOfTuples();
-  SizeVec3 udims = imageGeom->getDimensions();
+  SizeVec3 uDims = imageGeom->getDimensions();
 
   int64_t dims[3] = {
-      static_cast<int64_t>(udims[0]),
-      static_cast<int64_t>(udims[1]),
-      static_cast<int64_t>(udims[2]),
+      static_cast<int64_t>(uDims[0]),
+      static_cast<int64_t>(uDims[1]),
+      static_cast<int64_t>(uDims[2]),
   };
 
   DataStructure internalDataStruct;
   Int32Array* neighbors = Int32Array::CreateWithStore<DataStore<int32>>(internalDataStruct, std::string("_INTERNAL_USE_ONLY_Neighbors"), featureIds.getTupleShape(), featureIds.getComponentShape());
   neighbors->fill(-1);
 
-  int32_t good = 1;
-  int32_t current = 0;
-  int32_t most = 0;
+  int64_t neighpoints[6] = {(-dims[0] * dims[1]), (-dims[0]), -1, 1, dims[0],(dims[0] * dims[1])};
   int64_t neighpoint = 0;
 
-  int64_t neighpoints[6];
-  neighpoints[0] = -dims[0] * dims[1];
-  neighpoints[1] = -dims[0];
-  neighpoints[2] = -1;
-  neighpoints[3] = 1;
-  neighpoints[4] = dims[0];
-  neighpoints[5] = dims[0] * dims[1];
-
-  size_t counter = 1;
-  int64_t count = 0;
-  int64_t kstride = 0, jstride = 0;
+  size_t shouldLoop = false;
+  int64_t kStride = 0, jStride = 0;
   int32_t featurename, feature;
   int32_t neighbor;
-  std::vector<int32_t> n(flaggedFeatures.getNumberOfTuples(), 0);
-  while(counter != 0)
+  do
   {
-    counter = 0;
+    shouldLoop = false;
     for(int64_t k = 0; k < dims[2]; k++)
     {
-      kstride = dims[0] * dims[1] * k;
+      kStride = dims[0] * dims[1] * k;
       for(int64_t j = 0; j < dims[1]; j++)
       {
-        jstride = dims[0] * j;
+        jStride = dims[0] * j;
         for(int64_t i = 0; i < dims[0]; i++)
         {
-          count = kstride + jstride + i;
+          int64_t count = kStride + jStride + i;
           featurename = featureIds[count];
           if(featurename < 0)
           {
-            counter++;
-            current = 0;
-            most = 0;
-            for(int32_t l = 0; l < 6; l++)
+            shouldLoop = true;
+            int32_t current = 0;
+            int32_t most = 0;
+            std::vector<int32_t> n(flaggedFeatures.getNumberOfTuples(), 0);
+            for(int8 l = 0; l < 6; l++)
             {
-              good = 1;
-              neighpoint = count + neighpoints[l];
-              if(l == 0 && k == 0)
-              {
-                good = 0;
-              }
               if(l == 5 && k == (dims[2] - 1))
               {
-                good = 0;
+                continue;
               }
               if(l == 1 && j == 0)
               {
-                good = 0;
+                continue;
               }
               if(l == 4 && j == (dims[1] - 1))
               {
-                good = 0;
+                continue;
               }
               if(l == 2 && i == 0)
               {
-                good = 0;
+                continue;
               }
               if(l == 3 && i == (dims[0] - 1))
               {
-                good = 0;
+                continue;
               }
-              if(good == 1)
-              {
-                feature = featureIds[neighpoint];
-                if(feature >= 0)
-                {
-                  n[feature]++;
-                  current = n[feature];
-                  if(current > most)
-                  {
-                    most = current;
-                    (*neighbors)[count] = neighpoint;
-                  }
-                }
-              }
-            }
-            for(int32_t l = 0; l < 6; l++)
-            {
-              good = 1;
-              neighpoint = count + neighpoints[l];
               if(l == 0 && k == 0)
               {
-                good = 0;
+                continue;
               }
-              if(l == 5 && k == (dims[2] - 1))
+
+              neighpoint = count + neighpoints[l];
+              feature = featureIds[neighpoint];
+              if(feature >= 0)
               {
-                good = 0;
-              }
-              if(l == 1 && j == 0)
-              {
-                good = 0;
-              }
-              if(l == 4 && j == (dims[1] - 1))
-              {
-                good = 0;
-              }
-              if(l == 2 && i == 0)
-              {
-                good = 0;
-              }
-              if(l == 3 && i == (dims[0] - 1))
-              {
-                good = 0;
-              }
-              if(good == 1)
-              {
-                feature = featureIds[neighpoint];
-                if(feature >= 0)
+                n[feature]++;
+                current = n[feature];
+                if(current > most)
                 {
-                  n[feature] = 0;
+                  most = current;
+                  (*neighbors)[count] = neighpoint;
                 }
               }
             }
@@ -199,30 +148,26 @@ void RemoveFlaggedFeatures::assign_badpoints()
       {
         if(featurename < 0 && featureIds[neighbor] >= 0)
         {
-          for(const auto voxelArray : voxelArrays)
+          for(const auto& voxelArray : voxelArrays)
           {
             voxelArray->copyTuple(neighbor, j);
           }
         }
       }
     }
-  }
+  } while(shouldLoop);
 }
 
 // -----------------------------------------------------------------------------
-std::vector<bool> RemoveFlaggedFeatures::remove_flaggedfeatures()
+std::vector<bool> RemoveFlaggedFeatures::remove_flagged_features()
 {
-  Int32Array& featureIds = m_DataStructure.getDataRefAs<Int32Array>(m_InputValues->FeatureIdsArrayPath);
-  BoolArray& flaggedFeatures = m_DataStructure.getDataRefAs<BoolArray>(m_InputValues->FlaggedFeaturesArrayPath);
-
-  size_t totalPoints = featureIds.getNumberOfTuples();
+  auto& featureIds = m_DataStructure.getDataRefAs<Int32Array>(m_InputValues->FeatureIdsArrayPath);
+  auto& flaggedFeatures = m_DataStructure.getDataRefAs<BoolArray>(m_InputValues->FlaggedFeaturesArrayPath);
 
   bool good = false;
-  int32_t gnum;
-
+  size_t totalPoints = featureIds.getNumberOfTuples();
   size_t totalFeatures = flaggedFeatures.getNumberOfTuples();
   std::vector<bool> activeObjects(totalFeatures, true);
-
   for(size_t i = 1; i < totalFeatures; i++)
   {
     if(!flaggedFeatures[i])
@@ -240,17 +185,18 @@ std::vector<bool> RemoveFlaggedFeatures::remove_flaggedfeatures()
   }
   for(size_t i = 0; i < totalPoints; i++)
   {
-    gnum = featureIds[i];
-    if(!activeObjects[gnum])
+    if(activeObjects[featureIds[i]])
     {
-      if(!m_InputValues->FillRemovedFeatures)
-      {
-        featureIds[i] = 0;
-      }
-      else
-      {
-        featureIds[i] = -1;
-      }
+      continue;
+    }
+
+    if(!m_InputValues->FillRemovedFeatures)
+    {
+      featureIds[i] = 0;
+    }
+    else
+    {
+      featureIds[i] = -1;
     }
   }
   return activeObjects;
