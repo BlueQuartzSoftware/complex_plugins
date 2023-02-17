@@ -17,6 +17,7 @@
 #include "complex/Parameters/GeneratedFileListParameter.hpp"
 #include "complex/Parameters/GeometrySelectionParameter.hpp"
 #include "complex/Parameters/VectorParameter.hpp"
+#include "complex/Utilities/FilterUtilities.hpp"
 
 #include <itkImageFileReader.h>
 #include <itkImageIOBase.h>
@@ -403,30 +404,7 @@ Result<> ITKImportImageStack::executeImpl(DataStructure& dataStructure, const Ar
     throw std::runtime_error("Unsupported array type");
   }
   }
-  if(readResult.invalid())
-  {
-    return readResult;
-  }
 
-  //  if(imageTransformValue != k_NoImageTransform)
-  //  {
-  //    const auto rotateSampleRefFrameFilter = CreateRotateSampleRefFrameFilter();
-  //
-  //    // Parameter Keys
-  //    constexpr StringLiteral k_RotationRepresentation_Key = "rotation_representation";
-  //    constexpr StringLiteral k_RotationAxisAngle_Key = "rotation_axis";
-  //    constexpr StringLiteral k_RotationMatrix_Key = "rotation_matrix";
-  //    constexpr StringLiteral k_SelectedImageGeometry_Key = "selected_image_geometry";
-  //    constexpr StringLiteral k_CreatedImageGeometry_Key = "created_image_geometry";
-  //    constexpr StringLiteral k_RotateSliceBySlice_Key = "rotate_slice_by_slice";
-  //    constexpr StringLiteral k_RemoveOriginalGeometry_Key = "remove_original_geometry";
-  //
-  //    Arguments args;
-  //    args.insertOrAssign(k_RotationRepresentation_Key, std::make_any<ChoicesParameter::ValueType>(0));
-  //    args.insertOrAssign(k_SelectedImageGeometry_Key, std::make_any<DataPath>(k_OriginalGeomPath));
-  //    args.insertOrAssign(k_RemoveOriginalGeometry_Key, std::make_any<bool>(true)); // We need to keep the geometries around.
-  //  }
-
-  return {};
+  return readResult;
 }
 } // namespace complex
