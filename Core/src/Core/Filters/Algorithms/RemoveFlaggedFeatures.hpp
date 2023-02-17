@@ -40,10 +40,6 @@ public:
 
   const std::atomic_bool& getCancel();
 
-protected:
-  void assign_bad_points();
-  std::vector<bool> remove_flagged_features();
-
 private:
   DataStructure& m_DataStructure;
   const RemoveFlaggedFeaturesInputValues* m_InputValues = nullptr;
