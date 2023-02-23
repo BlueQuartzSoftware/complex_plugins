@@ -35,6 +35,7 @@ set(FilterList
   CreateEnsembleInfoFilter
   EBSDSegmentFeaturesFilter
   EbsdToH5EbsdFilter
+  EnsembleInfoReaderFilter
   ExportGBCDGMTFileFilter
   ExportGBCDTriangleDataFilter
   FindAvgOrientationsFilter
@@ -67,8 +68,6 @@ set(STUB_FILTERS
   CreateLambertSphere
   EMsoftSO3Sampler
 
-  # EbsdToH5Ebsd # MISSING 1 or more Parameter Implementations
-  EnsembleInfoReader
   FindAvgCAxes
   FindBoundaryStrengths
   FindCAxisLocations
@@ -164,6 +163,7 @@ set(filter_algorithms
   CreateEnsembleInfo
   EBSDSegmentFeatures
   EbsdToH5Ebsd
+  EnsembleInfoReader
   ExportGBCDGMTFile
   ExportGBCDTriangleData
   FindAvgOrientations
@@ -214,6 +214,7 @@ source_group(TREE "${${PLUGIN_NAME}_SOURCE_DIR}/src/${PLUGIN_NAME}/Math" PREFIX 
 
 
 set(PLUGIN_EXTRA_SOURCES
+"${${PLUGIN_NAME}_SOURCE_DIR}/src/${PLUGIN_NAME}/utilities/inicpp.h"
 "${${PLUGIN_NAME}_SOURCE_DIR}/src/${PLUGIN_NAME}/utilities/PhaseType.hpp"
 "${${PLUGIN_NAME}_SOURCE_DIR}/src/${PLUGIN_NAME}/utilities/PhaseType.cpp"
 )
