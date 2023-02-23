@@ -6,7 +6,7 @@
 # ------------------------------------------------------------------------------
 # Define the list of unit test source files
 set(${PLUGIN_NAME}UnitTest_SRCS
-  RemoveFlaggedFeaturesTest.cpp
+  FindNeighborhoodsTest.cpp
 )
 
 create_complex_plugin_unit_test(PLUGIN_NAME ${PLUGIN_NAME}
