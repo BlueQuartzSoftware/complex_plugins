@@ -9,10 +9,14 @@ set(${PLUGIN_NAME}UnitTest_SRCS
   AlignSectionsMisorientationTest.cpp
   AlignSectionsMutualInformationTest.cpp
   BadDataNeighborOrientationCheckTest.cpp
+  ConvertQuaternionTest.cpp
   ConvertOrientationsTest.cpp
   CreateEnsembleInfoTest.cpp
   EBSDSegmentFeaturesFilterTest.cpp
   EbsdToH5EbsdTest.cpp
+  EnsembleInfoReaderTest.cpp
+  ExportGBCDGMTFileTest.cpp
+  ExportGBCDTriangleDataTest.cpp
   FindAvgOrientationsTest.cpp
   FindFeatureReferenceMisorientationsTest.cpp
   FindGBCDTest.cpp
@@ -22,49 +26,38 @@ set(${PLUGIN_NAME}UnitTest_SRCS
   FindShapesFilterTest.cpp
   FindTriangleGeomShapesTest.cpp
   GenerateFaceIPFColoringTest.cpp
+  GenerateFaceMisorientationColoringTest.cpp
   GenerateFZQuaternionsTest.cpp
+  GenerateGBCDPoleFigureTest.cpp
   GenerateIPFColorsTest.cpp
+  GenerateQuaternionConjugateTest.cpp
   MergeTwinsTest.cpp
   NeighborOrientationCorrelationTest.cpp
   ReadAngDataTest.cpp
   ReadCtfDataTest.cpp
   ReadH5EbsdTest.cpp
   RotateEulerRefFrameTest.cpp
-  GenerateFaceMisorientationColoringTest.cpp
-  GenerateGBCDPoleFigureTest.cpp
-  ExportGBCDGMTFileTest.cpp
-  ExportGBCDTriangleDataTest.cpp
-  ConvertQuaternionTest.cpp
-  GenerateQuaternionConjugateTest.cpp
   RodriguesConvertorTest.cpp
 )
 set(DISABLED_TESTS
 
   # ConvertHexGridToSquareGridTest.cpp    # MISSING 1 or more Parameter Implementations
-  ConvertQuaternionTest.cpp
 
-  # CreateEnsembleInfoTest.cpp    # MISSING 1 or more Parameter Implementations
   CreateLambertSphereTest.cpp
   EMsoftSO3SamplerTest.cpp
 
-  # EbsdToH5EbsdTest.cpp    # MISSING 1 or more Parameter Implementations
-  EnsembleInfoReaderTest.cpp
   FindAvgCAxesTest.cpp
   FindBoundaryStrengthsTest.cpp
   FindCAxisLocationsTest.cpp
   FindDistsToCharactGBsTest.cpp
   FindFeatureNeighborCAxisMisalignmentsTest.cpp
   FindFeatureReferenceCAxisMisorientationsTest.cpp
-  FindGBCDTest.cpp
   FindGBCDMetricBasedTest.cpp
   FindGBPDMetricBasedTest.cpp
   FindSlipTransmissionMetricsTest.cpp
   FindTwinBoundariesTest.cpp
   FindTwinBoundarySchmidFactorsTest.cpp
-  GenerateFaceIPFColoringTest.cpp
-  GenerateFaceMisorientationColoringTest.cpp
   GenerateOrientationMatrixTransposeTest.cpp
-  GenerateQuaternionConjugateTest.cpp
   INLWriterTest.cpp
 
   # ImportEbsdMontageTest.cpp    # MISSING 1 or more Parameter Implementations
@@ -73,7 +66,6 @@ set(DISABLED_TESTS
   # OrientationUtilityTest.cpp    # MISSING 1 or more Parameter Implementations
 
   ReplaceElementAttributesWithNeighborValuesTest.cpp
-  RodriguesConvertorTest.cpp
   Stereographic3DTest.cpp
   WritePoleFigureTest.cpp
   WriteStatsGenOdfAngleFileTest.cpp
