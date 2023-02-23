@@ -79,8 +79,6 @@ None
 
 ## Example Pipelines 
 
-+ MassifPipeline
-
 ## License & Copyright 
 
 Please see the description file distributed with this **Plugin**
