@@ -212,6 +212,15 @@ source_group(TREE "${${PLUGIN_NAME}_SOURCE_DIR}/src/${PLUGIN_NAME}/Math" PREFIX 
                     "${${PLUGIN_NAME}_SOURCE_DIR}/src/${PLUGIN_NAME}/Math/Matrix3X1.hpp"
              )
 
+
+set(PLUGIN_EXTRA_SOURCES
+"${${PLUGIN_NAME}_SOURCE_DIR}/src/${PLUGIN_NAME}/utilities/PhaseType.hpp"
+"${${PLUGIN_NAME}_SOURCE_DIR}/src/${PLUGIN_NAME}/utilities/PhaseType.cpp"
+)
+target_sources(${PLUGIN_NAME} PRIVATE ${PLUGIN_EXTRA_SOURCES})
+source_group(TREE "${${PLUGIN_NAME}_SOURCE_DIR}/src/${PLUGIN_NAME}/utilities" PREFIX ${PLUGIN_NAME} FILES ${PLUGIN_EXTRA_SOURCES})
+
+
 # ------------------------------------------------------------------------------
 # If there are additional libraries that this plugin needs to link against you
 # can use the target_link_libraries() cmake call
