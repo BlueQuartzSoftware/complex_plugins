@@ -248,11 +248,11 @@ add_subdirectory(${${PLUGIN_NAME}_SOURCE_DIR}/test)
 # -----------------------------------------------------------------------
 if(EXISTS "${${PLUGIN_NAME}_SOURCE_DIR}/pipelines")
   set(PIPELINE_DEST_DIR "${CMAKE_LIBRARY_OUTPUT_DIRECTORY}/${CMAKE_CFG_INTDIR}/pipelines/${PLUGIN_NAME}")
-  add_custom_target(${PLUGIN_NAME}PipelineFolderCopy ALL
+  add_custom_target(${PLUGIN_NAME}_Pipeline_Folder_Copy ALL
     COMMAND ${CMAKE_COMMAND} -E copy_directory "${${PLUGIN_NAME}_SOURCE_DIR}/pipelines"
     ${PIPELINE_DEST_DIR}
     COMMENT "Copying Pipeline Folder into Binary Directory")
-  set_target_properties(${PLUGIN_NAME}PipelineFolderCopy PROPERTIES FOLDER ZZ_COPY_FILES)
+  set_target_properties(${PLUGIN_NAME}_Pipeline_Folder_Copy PROPERTIES FOLDER ZZ_COPY_FILES)
 
   set(INSTALL_DESTINATION "pipelines/${PLUGIN_NAME}")
   install(DIRECTORY
@@ -262,26 +262,27 @@ if(EXISTS "${${PLUGIN_NAME}_SOURCE_DIR}/pipelines")
   )
 endif()
 
-install(FILES
-  "${${PLUGIN_NAME}_SOURCE_DIR}/data/Ensemble.ini"
-  "${DREAM3D_DATA_DIR}/TestFiles/ASCII_Data/EulerAngles.csv"
-  "${DREAM3D_DATA_DIR}/TestFiles/ASCII_Data/Phases.csv"
-  DESTINATION "Data/ASCII_Data"
-  COMPONENT Applications
-)
 
-set(DATA_DEST_DIR "${CMAKE_LIBRARY_OUTPUT_DIRECTORY}/${CMAKE_CFG_INTDIR}/Data")
-add_custom_target(Copy_ASCII_Data ALL
-	COMMAND ${CMAKE_COMMAND} -E copy_directory ${DREAM3D_DATA_DIR}/TestFiles/ASCII_Data ${DATA_DEST_DIR}/ASCII_Data
-	COMMENT "Copying Copy_ASCII_Data into Binary Directory"
-	)
-set_target_properties(Copy_ASCII_Data PROPERTIES FOLDER ZZ_COPY_FILES)
+if(EXISTS "${${PLUGIN_NAME}_SOURCE_DIR}/data")
+ 
+  set(DATA_DEST_DIR "${CMAKE_LIBRARY_OUTPUT_DIRECTORY}/${CMAKE_CFG_INTDIR}/data/${PLUGIN_NAME}")
 
-add_custom_target(Copy_Ensemble_Info_File ALL
-	COMMAND ${CMAKE_COMMAND} -E copy "${${PLUGIN_NAME}_SOURCE_DIR}/data/Ensemble.ini" ${DATA_DEST_DIR}/ASCII_Data/Ensemble.ini
-	COMMENT "Copying Copy_Ensemble_Info_File into Binary Directory"
-	)
-set_target_properties(Copy_Ensemble_Info_File PROPERTIES FOLDER ZZ_COPY_FILES)
+  message(STATUS "DATA_DEST_DIR: ${DATA_DEST_DIR}")
+  message(STATUS "${PLUGIN_NAME}_SOURCE_DIR/data: ${${PLUGIN_NAME}_SOURCE_DIR}/data")
+
+  add_custom_target(${PLUGIN_NAME}_Data_Folder_Copy ALL
+    COMMAND ${CMAKE_COMMAND} -E copy_directory "${${PLUGIN_NAME}_SOURCE_DIR}/data"
+    ${DATA_DEST_DIR}
+    COMMENT "Copying ${PLUGIN_NAME} Data Folder into Binary Directory")
+  set_target_properties(${PLUGIN_NAME}_Data_Folder_Copy PROPERTIES FOLDER ZZ_COPY_FILES)
+
+  set(INSTALL_DESTINATION "data/${PLUGIN_NAME}")
+  install(DIRECTORY
+    "${${PLUGIN_NAME}_SOURCE_DIR}/data/"
+    DESTINATION "${INSTALL_DESTINATION}"
+    COMPONENT Applications
+  )
+endif()
 
 # -----------------------------------------------------------------------
 # Ensure the DREAM3D_Data files are decompressed
