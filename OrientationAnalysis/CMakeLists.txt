@@ -120,7 +120,7 @@ set(Parameter_List
 )
 
 foreach(source ${Parameter_List})
-  target_sources(${PLUGIN_NAME} PRIVATE
+  target_sources(complex PRIVATE
     ${${PLUGIN_NAME}_SOURCE_DIR}/src/${PLUGIN_NAME}/Parameters/${source}.h
     ${${PLUGIN_NAME}_SOURCE_DIR}/src/${PLUGIN_NAME}/Parameters/${source}.cpp)
 
@@ -128,6 +128,12 @@ foreach(source ${Parameter_List})
     FILES ${${PLUGIN_NAME}_SOURCE_DIR}/src/${PLUGIN_NAME}/Parameters/${source}.h
     ${${PLUGIN_NAME}_SOURCE_DIR}/src/${PLUGIN_NAME}/Parameters/${source}.cpp)
 endforeach()
+
+target_link_libraries(complex PUBLIC EbsdLib::EbsdLib)
+target_include_directories(${PLUGIN_NAME}
+  PUBLIC
+    "${EbsdLib_INCLUDE_DIRS}"
+)
 
 # ------------------------------------------------------------------------------
 # Include filters that need to be compiled but not available to the general user

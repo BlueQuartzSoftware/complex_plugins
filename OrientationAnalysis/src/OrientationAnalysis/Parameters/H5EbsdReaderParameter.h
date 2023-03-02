@@ -1,6 +1,6 @@
 #pragma once
 
-#include "OrientationAnalysis/OrientationAnalysis_export.hpp"
+#include "complex/complex_export.hpp"
 
 #include "complex/Filter/ParameterTraits.hpp"
 #include "complex/Filter/ValueParameter.hpp"
@@ -12,7 +12,7 @@
 
 namespace complex
 {
-class ORIENTATIONANALYSIS_EXPORT H5EbsdReaderParameter : public ValueParameter
+class COMPLEX_EXPORT H5EbsdReaderParameter : public ValueParameter
 {
 
 public:
