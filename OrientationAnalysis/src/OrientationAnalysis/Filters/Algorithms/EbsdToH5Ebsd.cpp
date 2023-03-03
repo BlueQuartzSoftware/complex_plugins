@@ -15,8 +15,6 @@
 #include "H5Support/H5ScopedSentinel.h"
 #include "H5Support/H5Utilities.h"
 
-#include <sstream>
-
 using namespace complex;
 
 // -----------------------------------------------------------------------------

@@ -9,6 +9,7 @@
 #include "complex/Parameters/NumberParameter.hpp"
 
 #include <filesystem>
+#include <sstream>
 
 namespace fs = std::filesystem;
 
